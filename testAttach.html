@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+	<!-- Meta -->
+	<title>To Build a Better Ballot</title>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+	<meta charset="utf-8">
+	<link rel="icon" type="image/png" href="favicon.png">
+
+	<!-- Schema.org markup for Google+ -->
+	<meta itemprop="name" content="To Build a Better Ballot">
+	<meta itemprop="description" content="an interactive guide to alternative voting systems">
+	<meta itemprop="image" content="http://ncase.me/ballot/social/thumbnail.png">
+
+	<!-- Twitter Card data -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:site" content="@ncasenmare">
+	<meta name="twitter:title" content="To Build a Better Ballot">
+	<meta name="twitter:description" content="an interactive guide to alternative voting systems">
+	<meta name="twitter:creator" content="@ncasenmare">
+	<meta name="twitter:image" content="http://ncase.me/ballot/social/thumbnail.png">
+
+	<!-- Open Graph data -->
+	<meta property="og:title" content="To Build a Better Ballot">
+	<meta property="og:type" content="website">
+	<meta property="og:url" content="http://ncase.me/ballot/">
+	<meta property="og:image" content="http://ncase.me/ballot/social/thumbnail.png">
+	<meta property="og:description" content="an interactive guide to alternative voting systems">
+
+	<meta charset="utf-8">
+
+	<base href="../" />
+	<link rel="stylesheet" type="text/css" href="play/css/model.css">
+	<link rel="stylesheet" type="text/css" href="play/css/ballot.css">
+	<link rel="stylesheet" type="text/css" href="play/css/election.css">
+	<link rel="stylesheet" type="text/css" href="play/css/ballotInSandbox.css">
+	<link rel="stylesheet" type="text/css" href="play/css/sandbox.css">
+
+	<style>
+		body {
+			margin: 0;
+			font-family: Helvetica, Arial, sans-serif;
+			font-size: 22px;
+			color: #333;
+			font-weight: 300;
+			line-height: 1.5em;
+		}
+
+		b,
+		strong {
+			font-weight: bold;
+		}
+
+		a {
+			color: hsl(240, 80%, 70%);
+		}
+
+		a:hover {
+			color: hsl(240, 80%, 80%);
+		}
+
+		.contain-model {
+			border: none;
+			display: block;
+			margin: 20px auto;
+			text-align: center;
+		}
+
+		#content {
+			background: #ddd;
+			overflow: hidden;
+		}
+
+		#content #words {
+			width: 600px;
+			margin: 30px auto;
+			text-align: justify;
+		}
+	</style>
+
+	<script src="play/js/minpubsub.js"></script>
+	<script src="play/js/hsluv-0.0.3.min.js"></script>
+	<script src="play/js/pako.min.js"></script>
+
+	<script src="play/js/helpers.js"></script>
+	<script src="play/js/Loader.js"></script>
+	<script src="play/js/Mouse.js"></script>
+	<script src="play/js/Draggable.js"></script>
+
+	<script src="play/js/gpu.js-develop/bin/gpu-core.js"></script>
+	<script src="play/js/gpu.js-develop/bin/gpu.js"></script>
+	<script src="play/js/FastYee.js"></script>
+
+	<script src="play/js/Model.js"></script>
+	<script src="play/js/Yee.js"></script>
+	<script src="play/js/Candidate.js"></script>
+	<script src="play/js/Color.js"></script>
+	<script src="play/js/Voters.js"></script>
+	<script src="play/js/Election.js"></script>
+	<script src="play/js/Buttons.js"></script>
+	<script src="play/js/Ballot.js"></script>
+	<script src="rbvote/rbvote.js"></script>
+	<script src="play/tsp/salesman.js"></script>
+	<script src="play/js/seedrandom.min.js"></script>
+
+	<script src="play/js/main_sandbox.js"></script>
+	<script src="play/js/Presets.js"></script>
+
+</head>
+
+<body>
+	<div class="contain-model">
+		<div id="sandbox" class="div-sandbox div-election div-ballot-in-sandbox div-model" scrolling="no">
+		</div>
+		<script>
+			sandbox({quick:"sandbox"})
+			// the old grandfathered way
+		</script>
+	</div>
+	<div>
+		<script id="itsAPreset">
+			sandbox({idScript:"itsAPreset",presetName:"sandbox"})
+			// the new way
+		</script>
+	</div>
+	<div>
+		<script id="itsAPreset">
+			sandbox({idScript:"itsAPreset"})
+			// default
+		</script>
+	</div>
+	<div>
+		<script id="quickest">
+			sandbox({idScript:"quickest",url:"http://127.0.0.1:8000/sandbox/?v=2.5&m=H4sIAAAAAAAAA41Ty27CMBD8lz374HdizhXH_gBwiGiokNJEDYkqFcG3d8aBhApVKsbs7MO7411zFi2rzSZZFdNObazRqtAEPihTWiATjDJFBApRmaR3OyWGZ0zQCpu6k5XYF1HiZaWVBFkdquZUK4kItOpp4UgBj1ZPC54SHqT--4uYhBhwUf_YpIs7Dv0IPobM5bqVq94K-BK5GRUz2m6nH37krVvX1TD29frYDHV_N-ctwvwW979mDQqb0dZf-6ql5udemKUtJi4QjTAeEtcOECl30IIxjBZ0DQTyWwg3-fxkDJOIkxFpHEQ5aSkfcJytnD7Hqq_BZeiPVfve1KTsTA50NidxbopfyDpkP8vStzuwd-DuwE_gAhOoSP2NSg5sItOnPGWDmTvlUdaTEUfiOYhci4p9VJB54wh8vpIPnLW6Ldpj5uwLNj2f4sMrf2mJGmlBCagprx0RinJEgfOyBC6nCrdnuwwoLAMKrFONQ05QPs42pMUT9QNmmY4R0c6Ir2J_7PcNKUXeSdrqI88ism_d4UBHsfx1WEsuP5a3SEChAwAA"})
+			// the added way
+		</script>
+	<div>
+	<div id="parent">
+		<script>
+            ui = {presetName:"sandbox"}
+            sandbox(ui)
+			var pa = document.getElementById("parent")
+			pa.appendChild(ui.dom.container)
+			// a convoluted way
+		</script>
+	<div>
+	
+</body>
+
+</html>

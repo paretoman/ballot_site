@@ -1,0 +1,52 @@
+.div-sandbox #reset, .div-sandbox #save{
+    background: #fff;
+    color: #888;
+    border: 1px solid #888;
+}
+.div-sandbox #reset:hover, .div-sandbox #save:hover{
+	margin-top:0px;
+	background: #fff;
+	color: #bbb;
+	border-color: #bbb;
+	border-bottom-color: #888;
+}
+.div-sandbox #reset:active, .div-sandbox #save:active{
+	margin-top:0px;
+	background: #fff;
+	border-bottom-color: #888;
+}
+
+.div-sandbox #description_container{
+	clear: both;
+	overflow: hidden;
+	height: 120px;
+    margin-bottom: 15px;
+    width:100%;
+}
+.div-sandbox textarea, .div-sandbox input{
+	display: block;
+    border: 1px solid #bbb;
+    resize: none;
+    font-family: Arial, sans-serif;
+}
+.div-sandbox #description_container textarea{
+    height: 97px;
+    padding: 10px;
+    font-size: 16px;
+    width: 100%;
+    margin: 0 0 0 -10px;
+}
+.div-sandbox div#double_description_container {
+    margin: 0 12px;
+}
+
+
+.div-sandbox #savelink{
+	position: absolute;
+    top: 471px;
+    left: 240px;
+    width: 543px;
+    height: 15px;
+    padding: 8px;
+    font-size: 12px;
+}

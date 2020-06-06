@@ -1,0 +1,33 @@
+Classes
+
+voter classes by functionality
+VoterSet
+    has functions to get sets of ballots, positions, etc
+	very simple
+	in future, will be used by a district
+    in future, could replace model.voters
+VoterCrowd
+	allows the mouse to move a group of voters
+	generates the group positions
+	should be renamed to voterGroup
+    a voterCrowd will update the x,y positions of it's voters when it moves.
+VoterPerson
+	super simple
+	ballot, x, y
+VoterModel
+    holds all the Type information
+	castBallotType
+	drawMeType
+	drawMapType
+InitVoterModel
+    sets some voterModel parameters to share between functions (as if all were part of one class)
+DrawBallot
+	the sidebar ballot
+DrawTally
+    sidebar tally
+DrawMap
+	the background map
+DrawMe
+	the mini ballot visualization
+CastBallot
+	strategies

@@ -1,0 +1,62 @@
+change district
+array to
+district attribute
+of voterPeople[i]
+
+check
+].district[
+.district[
+
+change to
+.voterPeople[i].district
+
+result.history
+
+districtIndexOfVoter
+
+[^l]\.district[^sI]
+
+model.indexOfSortedVoterInDistrict
+
+districtIndexOfVoter
+
+model.voters[^A-Za-z0-9]
+
+[^\.]voters[^A-Za-z0-9]
+
+[^\.A-Za-z0-9_]voters[^A-Za-z0-9]
+all good to goodno other uses of the word voters
+
+voters has to have a dot
+[^l]\.voters[^A-Za-z0-9]
+
+no self or model voters
+[^lf]\.voters[^A-Za-z0-9]
+
+just district.voters
+all t.voters are district.voters
+all l.voters are model.voters
+all f.voters are self.voters
+
+remaining:
+[^tlf]\.voters[^A-Za-z0-9]
+
+]voters is about district.voters
+
+[^\]lft]\.voters[^A-Za-z0-9]
+
+g.voters are all config
+u.voters are all menu
+
+so I can replace
+self.voters
+model.voters
+with
+self.voterGroups
+model.voterGroups
+
+
+[^lftgu\]]\.voters
+shows nothing
+
+there was no use of voterGroup before now.

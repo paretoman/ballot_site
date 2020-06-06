@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" type="text/css" href="play/css/model.css">
+    <link rel="stylesheet" type="text/css" href="play/css/ballot.css">
+    <link rel="stylesheet" type="text/css" href="play/css/election.css">
+    <link rel="stylesheet" type="text/css" href="play/css/sandbox.css">
+    <link rel="stylesheet" type="text/css" href="play/css/ballotInSandbox.css">
+    <script src="play/js/helpers.js"></script>
+    <script src="play/js/minpubsub.js"></script>
+	<script src="play/js/hsluv-0.0.3.min.js"></script>
+	<script src="play/js/pako.min.js"></script>
+    <script src="play/js/Loader.js"></script>
+    <script src="play/js/Mouse.js"></script>
+    <script src="play/js/Draggable.js"></script>
+
+    <script src="play/js/gpu.js-develop/bin/gpu-core.js"></script>
+    <script src="play/js/gpu.js-develop/bin/gpu.js"></script>
+    <script src="play/js/FastYee.js"></script>
+
+    <script src="play/js/Model.js"></script>
+    <script src="play/js/Yee.js"></script>
+    <script src="play/js/Candidate.js"></script>
+	<script src="play/js/Color.js"></script>
+    <script src="play/js/Voters.js"></script>
+    <script src="play/js/Election.js"></script>
+    <script src="play/js/Buttons.js"></script>
+    <script src="play/js/Ballot.js"></script>
+    <script src="rbvote/rbvote.js"></script>
+	<script src="play/tsp/salesman.js"></script>
+    <script src="play/js/seedrandom.min.js"></script>
+
+    <script src="play/js/main_ballot.js"></script>
+    <script src="play/js/main_sandbox.js"></script>
+    <script src="play/js/Presets.js"></script>
+</head>
+
+<body>
+    <div id="content">
+
+		<div class="sim-ballot">
+			<div class="sim-container">
+				<h2 class="ballot_title" style="margin-bottom: 0.15em;">Strong Strategic Voter</h2>
+				<p class="ballot_caption">Almost like strategic approval.</p>
+
+
+				<!-- <div id="ballot12" class="div-election div-ballot div-model" scrolling="no">
+				</div>
+				<script>
+					main_ballot({quick:"ballot12"})
+                </script> -->
+                
+				<script id="ballotSingle">
+					sandbox({idScript:"ballotSingle", overwriteConfig:{sandboxsave:false},url:"http://127.0.0.1:8000/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VRy2rEMAz8F599sGRJTvIVPfRmctjCHhYCLWV7WEr_vZKmhUIJgeg9npE-SyvbnMMqydjrJCX3xD2m8HTfa6FoobFUWpaIe9laLZJ_LRvVYt7R6r_Pe8dpZTmtrKcVavkcBaMIOTkQCBEYkcIYWp0AiVt_rrtZs8iO40mm7GGGAQwLIs0BNiQHogWRo7DvoSVRipUAqQOpA6kDqTvS9GWi0TAKvA6pVNlLEnDRIyEv5Ar_Og44eziSc_IXUqBUBs4CirJmUhuuRDCgp6CnPxfECRVCdSQ_xboUQq3BQKRh6wYU05QQ5AwQBgaGVQ8wGJgdnEgvl-N4vT8_3q5lK0_Hx_vluN0f5esbxsITL48CAAA"})
+				</script>
+			</div>
+		</div>
+</body>
+
+</html>

@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" type="text/css" href="play/css/model.css">
+    <link rel="stylesheet" type="text/css" href="play/css/ballot.css">
+    <link rel="stylesheet" type="text/css" href="play/css/election.css">
+    <link rel="stylesheet" type="text/css" href="play/css/sandbox.css">
+    <link rel="stylesheet" type="text/css" href="play/css/ballotInSandbox.css">
+    <script src="play/js/helpers.js"></script>
+    <script src="play/js/minpubsub.js"></script>
+	<script src="play/js/hsluv-0.0.3.min.js"></script>
+	<script src="play/js/pako.min.js"></script>
+    <script src="play/js/Loader.js"></script>
+    <script src="play/js/Mouse.js"></script>
+    <script src="play/js/Draggable.js"></script>
+
+    <script src="play/js/gpu.js-develop/bin/gpu-core.js"></script>
+    <script src="play/js/gpu.js-develop/bin/gpu.js"></script>
+    <script src="play/js/FastYee.js"></script>
+
+    <script src="play/js/Model.js"></script>
+    <script src="play/js/Yee.js"></script>
+    <script src="play/js/Candidate.js"></script>
+	<script src="play/js/Color.js"></script>
+    <script src="play/js/Voters.js"></script>
+    <script src="play/js/Election.js"></script>
+    <script src="play/js/Buttons.js"></script>
+    <script src="play/js/Ballot.js"></script>
+    <script src="rbvote/rbvote.js"></script>
+	<script src="play/tsp/salesman.js"></script>
+    <script src="play/js/seedrandom.min.js"></script>
+
+    <script src="play/js/main_ballot.js"></script>
+    <script src="play/js/main_sandbox.js"></script>
+    <script src="play/js/Presets.js"></script>
+</head>
+
+<body>
+    <div id="content">
+        <div class="sim-intro">
+                <div class="sim-container">
+                <div id="model1" class="div-model">
+                </div>
+                <script src="play/js/model1.js">
+                </script>
+            </div>
+        </div>
+        <div class="sim-intro">
+                <div class="sim-container">
+                <div id="model2" class="div-model">
+                </div>
+                <script src="play/js/model2.js">
+                </script>
+            </div>
+        </div>
+        <div class="sim-intro">
+                <div class="sim-container">
+                <div id="model3" class="div-model">
+                </div>
+                <script src="play/js/model3.js">
+                </script>
+            </div>
+        </div>
+        <div class="sim-test">
+            <div class="sim-container">
+                <p class="caption-test">
+                    a guesstimated model of the 2016 US election?...<br>
+                    <span style="font-weight:100; font-size:0.85em">
+                        how Clinton <img src="play/img/square.png"> wins IRV,
+                        Trump <img src="play/img/hexagon.png"> wins Score,
+                        and Johnson <img src="play/img/triangle.png"> wins Borda??
+                    </span>
+                </p>
+                <div id="election5" class="div-election div-ballot-in-sandbox div-model" scrolling="no">
+                </div>
+                <script>
+                    sandbox({quick:"election5"})
+                </script>
+            </div>
+        </div>
+        <div class="sim-test">
+            <div class="sim-container">
+                <p class="caption-test">
+                    Chicken Star<br>
+                </p>
+                <div id="election13" class="div-election div-ballot-in-sandbox div-model" scrolling="no">
+                </div>
+                <script>
+                    sandbox({quick:"election13"})
+                </script>
+            </div>
+        </div>
+        <div class="sim-ballot">
+            <div class="sim-container">
+                <h2 class="ballot_title" style="margin-bottom: 0.15em;">Star Strong</h2>
+                <p class="ballot_caption">Keeps a space for the best.</p>
+                <div id="ballot9" class="div-election div-ballot div-model" scrolling="no">
+                </div>
+                <script>
+                    main_ballot({quick:"ballot9"})
+                </script>
+            </div>
+        </div>
+        <div class="sim-ballot">
+                <div class="sim-container">
+                <div id="ballot4" class="div-ballot div-model" scrolling="no">
+                </div>
+                <script>
+                    main_ballot({quick:"ballot4"})
+                </script>
+            </div>
+        </div>
+        <div class="sim-test">
+                <div class="sim-container">
+                <div id="election1" class="div-election div-ballot-in-sandbox div-model" scrolling="no">
+                </div>
+                <script>
+                    sandbox({quick:"election1"})
+                </script>
+            </div>
+        </div>
+    </div>
+    <div id="sandbox-section">
+        <div class="sim-sandbox">
+                <div class="sim-container">
+                <div id="sandbox_original" class="div-sandbox div-election div-ballot-in-sandbox div-model" scrolling="no">
+                </div>
+                <script>
+                    sandbox({quick:"sandbox_original"})
+                </script>
+            </div>
+        </div>
+    </div>
+    <div id="sandbox-section">
+        <div class="sim-sandbox">
+                <div class="sim-container">
+                <div id="sandbox" class="div-sandbox div-election div-ballot-in-sandbox div-model" scrolling="no">
+                </div>
+                <script>
+                    sandbox({quick:"sandbox"})
+                </script>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

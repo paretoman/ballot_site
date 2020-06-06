@@ -1,0 +1,113 @@
+/* @font-face {
+	font-family: 'Oswald';
+	src: 
+        url('css/fonts/Oswald/Oswald-VariableFont_wght.ttf');
+        url('css/fonts/Oswald/static/Oswald-Bold.ttf'); 
+} */
+
+body {
+    background-color: #f8f9fa;
+    font-size: 16px;
+    color: #343a40;
+    font-family: 'Oswald', sans-serif;
+}
+
+#header-nav {
+    background-color: #7dd3e0d2;
+    border-radius: 0;
+    border: 0;
+}
+#logo-img{
+    background: url("../img/win the cycle 2.png") no-repeat;
+    width: 150px;
+    height: 150px;
+    /* width: 600px;
+    height: 600px;
+    zoom: .25; */
+    background-size: cover;
+    border: 3px solid white;
+    box-shadow: 1px 1px 1px black;
+    /* scale: .25; */
+    margin: 10px 15px 10px 0;
+}
+
+#plus-img{
+    width: 30px;
+    height: 30px;
+    /* background-size: cover; */
+    /* size: cover; */
+}
+.navbar-brand {
+    padding-top: 25px;
+}
+
+.navbar-brand h1,span {
+    font-family: 'Oswald', sans-serif;
+    color: #343a40ca;
+    font-size: 1.5em;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 1px #343a40ca;
+    margin-top: 0;
+    margin-bottom: 0;
+    line-height: .75;
+  }
+  .navbar-brand span {
+    font-size: 1.0em;
+  }
+
+@supports (-webkit-text-stroke: 1px black) {
+    h1,span {
+      -webkit-text-stroke: .4px black;
+      -webkit-text-fill-color: white;
+    }
+  }
+
+  
+.navbar-brand a:hover, .navbar-brand a:focus {
+    text-decoration: none;
+  }
+  .navbar-brand p { /* Kosher cert */
+    color: #000;
+    text-transform: uppercase;
+    font-size: .7em;
+    margin-top: 15px;
+  }
+  .navbar-brand p span { /* Star-K */
+    vertical-align: middle;
+  }
+  
+#nav-list {
+    margin-top: 10px;
+  }
+  #nav-list a {
+    color: #951C49;
+    text-align: center;
+  }
+  #nav-list a:hover {
+    background: #E7E7E7;
+  }
+  #nav-list a span {
+    font-size: 1.8em;
+  }
+  
+  #phone {
+    margin-top: 5px;
+  }
+  #phone a { /* Phone number */
+    text-align: right;
+    padding-bottom: 0;
+  }
+  #phone div { /* We Deliver */
+    color: #557c3e;
+    text-align: right;
+    padding-right: 15px;
+  }
+  
+  .navbar-header button.navbar-toggle, .navbar-header .icon-bar {
+    border: 1px solid #61122f;
+  }
+  .navbar-header button.navbar-toggle {
+    clear: both;
+    margin-top: -30px;
+  }

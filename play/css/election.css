@@ -1,0 +1,290 @@
+/************
+
+Election/Sandbox design:
+- buttons to the left
+- caption to the right
+
+************/
+
+.div-election{
+    background-color: #f9feff;
+    border: 1px solid #ccc;
+	padding: 10px;
+    /* margin: -10px; */
+}
+
+.div-election #left, 
+.div-election #center, 
+.div-election #right{
+	/* float:left; */
+    /* min-height: 320px; */
+    text-align: left;
+    margin: 10px 10px 5px 10px;
+    display:inline-block;
+    vertical-align: top;
+}
+.div-election #left{
+	max-width:220px;
+}
+.div-election #center{
+    text-align: center;
+    width:304px;
+}
+
+.div-election #right{
+    min-width: 220px;
+}
+
+/* Extra Small Devices, Phones */ 
+@media (max-width : 540px) {
+	.div-election{
+		text-align:center;
+		display:block;
+	}
+	
+	.div-election #left,
+	.div-election #right,
+	.div-election #center{
+		display:inline-block;
+		float:none;
+		margin-left: 0px;
+		padding-left: 0px;
+		margin-right: 0px;
+		padding-right: 0px;
+        text-align: left;
+    }
+	.div-election #center{
+		text-align: center;
+	}
+}
+
+.div-election #caption{
+	text-align: left;
+    line-height: 1.0em;
+    font-size: 23px;
+    max-width: 220px;
+    padding: 5px;
+    background-color: white;
+    border: 2px solid #ccc;
+    width: 220px;
+}
+.div-election #caption .small{
+	font-size: 15px;
+	line-height: 1.0em;
+}
+
+.div-election .buttonshape img{
+	height: 1em;
+	position: relative;
+	top:0px;
+}
+
+
+.div-election #right img{
+	height: 1em;
+	position: relative;
+	top:2px;
+}
+
+.div-election .button-group{
+	overflow: hidden;
+    margin-bottom: 0px;
+}
+.div-election .button-group-label{
+	font-weight: bold;
+    font-size: 15px;
+    margin-bottom: 2px;
+    line-height: 1.1em;
+}
+.div-election .button{
+	float: left;
+	cursor: pointer;
+    background: #bbb;
+    color: #555;
+	height: 20px;
+	line-height: 20px;
+    font-size: 20px;
+    font-weight: 300;
+    text-align: center;
+    margin-bottom: 3px;
+    padding: 1px 0;
+    
+    overflow:hidden;
+    
+    position: relative;
+    top:0;
+
+	-webkit-transition: all 0.1s;
+    -moz-transition: all 0.1s;
+    -o-transition: all 0.1s;
+    transition: all 0.1s;
+}
+.div-election .button:hover{
+	background: #ccc;
+}
+.div-election .button:active{
+	background: #ccc;
+}
+.div-election .button[on=yes]{
+	background: #333;
+	color: #fff;
+}
+.div-election .button[on=yes]:hover{
+	background: #555;
+}
+.button[on=yes]:active{
+	background: #111;
+}
+
+.div-election ::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 7px;
+}
+.div-election ::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, .5);
+  box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+  -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+}
+
+.div-election #ohno{
+	font-size: 2em;
+	position: relative;
+	top:10px;
+}
+
+.div-election input[type=range]{
+    border: 0px solid white; 
+	display:inline;
+	/* transform: rotate(270deg); */
+}
+
+.div-election #containsliders{
+	line-height: 0px;
+	font-size: 0px;
+}
+
+
+.div-election input[type="range"] { 
+    margin: 0px;
+    -webkit-appearance: none;
+    position: relative;
+    overflow: hidden;
+    height: 20px;
+    width: 218px;
+    cursor: pointer;
+	border-radius: 0; /* iOS */
+	
+}
+
+#savelink{
+    margin: 5px 0px 0px 0px;
+    width:100%;
+}
+
+.tinyURL{
+    margin: 10px 9px 0 0;
+    font-size: .5em;
+    vertical-align: middle;
+    color: #0645AD
+}
+
+.tinyURL img {
+    height: .7em;
+}
+
+
+
+/* Beginning of Slider Stuff  - note that the height is changed later in sandbox.css */
+
+.div-election ::-webkit-slider-runnable-track {
+    background: #ccc;
+}
+
+/*
+ * 1. Set to 0 height and width, and remove border for a slider without a thumb
+ */
+ .div-election ::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px; /* 1 */
+    height: 20px; /* 1 */
+    background: #fff;
+    box-shadow: -100vw 0 0 100vw #001;
+    border: 2px solid #555; /* 1 */
+}
+
+.div-election ::-moz-range-track {
+    height: 20px;
+    background: #ccc;
+}
+
+.div-election ::-moz-range-thumb {
+    background: #fff;
+    height: 20px;
+    width: 20px;
+    border: 3px solid #555;
+    border-radius: 0 !important;
+    box-shadow: -100vw 0 0 100vw #001;
+    box-sizing: border-box;
+}
+
+.div-election ::-ms-fill-lower { 
+    background: #001;
+}
+
+.div-election ::-ms-thumb { 
+    background: #fff;
+    border: 2px solid #555;
+    height: 20px;
+    width: 20px;
+    box-sizing: border-box;
+}
+
+.div-election ::-ms-ticks-after { 
+    display: none; 
+}
+
+.div-election ::-ms-ticks-before { 
+    display: none; 
+}
+
+.div-election ::-ms-track { 
+    background: #ccc;
+    color: transparent;
+    height: 20px;
+    border: none;
+}
+
+.div-election ::-ms-tooltip { 
+    display: none;
+}
+
+/* end of slider stuff */
+
+.round {
+    border: 3px solid transparent;
+}
+.round:hover {
+    background: #eee;
+    border: 3px solid #aaa;
+
+}
+
+.pair {
+    border: 1px solid transparent;
+
+}
+.pair:hover {
+    background: #ddd;
+    border: 1px solid #aaa;
+
+}
+
+svg {
+    width: 1em;
+    height: 1em;
+}
+
+.displayNoneClass {
+    display:none !important;
+}

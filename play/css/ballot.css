@@ -1,0 +1,207 @@
+/*********************
+BALLOT DESIGN
+**********************/
+.div-ballot {
+    background-color: #f9feff;
+	padding: 10px;
+    /* margin: -10px; */
+	text-align:center;
+}
+.div-election .div-ballot {
+	
+    margin: 0px -10px;
+    padding: 0px;
+}
+
+.div-ballot #ballot{
+
+	width: 375px;
+	height: 250px;
+	margin: 0px;
+	margin-left: 20px;
+
+	overflow: hidden;
+	float:left;
+
+	background: #F0EAD6;
+	color: #302707;
+
+	background-size: 100% 100%;
+	border: 2px solid #ccc;
+
+	position: relative;
+	
+
+}
+.div-ballot #ballot .ballot_sprite{
+	position: absolute;
+	background-size: 100% auto;
+}
+
+.div-ballot .button-group{
+	margin-left: 0px;
+	text-align: left;
+	float:left;
+	clear:both;
+}
+
+.div-ballot #reset {
+	margin-top: 10px;
+	top: 270px;
+	left: 275px
+}
+
+.div-ballot .model {
+	height:260px;
+}
+
+.div-ballot > div{
+	vertical-align: top;
+}
+.div-ballot #b-left {
+	display:inline-block;
+	float:none;
+	width:254px;
+	text-align: center;	
+	margin: 10px;
+}
+.div-ballot #b-right {
+	margin: 10px;
+	margin-left: -10px;
+	display:inline-block;
+}
+
+.div-ballot #caption {
+	text-align: center;
+}
+.div-ballot #caption > div > div{
+	text-align: left;
+}
+
+.div-ballot #caption{
+	margin-top: 0px;
+	float:left;
+	clear: both;
+	text-align: left;
+    line-height: 1.0em;
+    font-size: 23px;
+}
+
+.div-ballot #caption img{
+    height: 1em;
+	top:2px;
+	position: relative;
+}
+.div-ballot #caption .small{
+	font-size: 15px;
+	line-height: 1.0em;
+}
+
+.div-ballot #paper {
+	text-align: center;
+}
+.div-ballot #paper div{
+	display: inline-block;
+	vertical-align:top;
+	text-align: left;
+}
+.div-ballot #paper table{
+	border-collapse: collapse;
+}
+.div-ballot #paper table.main{
+	padding: 2px;
+	background-color: #fff;
+	width: 160px;
+	
+}
+.div-ballot #paper table.main2{
+	background-color: #fff;
+	/* min-width: 220px; */
+	width: 160px;
+}
+.div-ballot #paper table.num{
+    border: 2px solid #ccc;
+}
+/* .div-ballot #paper table{
+	min-width: unset;
+	width: unset
+} */
+.div-ballot #paper td{
+	padding-top: 0px;
+}
+.div-ballot #paper td td{
+	padding: 2px;
+}
+.div-ballot #paper td.nameLabel{
+    vertical-align: middle;
+	font-size: 1.4em;
+	white-space: nowrap;
+}
+.div-ballot #paper td.nameLabel svg{
+    vertical-align: middle;
+}
+.div-ballot #paper td.nameLabel span.nameLabelName{
+	vertical-align: middle;
+	font-weight: bold;
+	font-size: .8em;
+}
+
+.div-ballot #paper td.tallyText{
+	font-size: 1.11em;
+	padding: 2px;
+}
+.div-ballot #paper td.tallyText span.small{
+	font-size: .9em;
+}
+.div-ballot #paper td.num{
+	width: 1em;
+	height: 1em;
+	text-align: center;
+}
+.div-ballot #paper th.main{
+	padding: 5px;
+	background-color: #ccc;
+}
+.div-ballot #paper td.main{
+	padding: 5px;
+}
+.div-ballot #paper table.main,
+.div-ballot #paper table.main2{
+	margin-left: 10px;
+	margin-right: 10px;
+	margin-bottom: 10px;
+}
+
+.div-ballot #paper table.main2 th{
+	padding: 5px;
+	background-color: #F0EAD6;
+	color: #302702;
+}
+.div-ballot #paper table.main2 td{
+	padding: 5px;
+}
+
+.div-ballot #paper table.main th span.small,
+.div-ballot #paper table.main2 th span.small{
+	font-size: .8em;
+	line-height: .8em;
+	font-weight: normal;
+}
+.div-sandbox .div-ballot {
+	/* transform: scale(.5); */
+	font-size: 65%;
+	line-height: 1.0em;
+}
+
+
+/* Extra Small Devices, Phones */ 
+@media (max-width : 650px) {
+	.div-ballot #b-right{
+		margin-left: 10px;
+	}
+
+	.div-ballot #ballot{
+		margin-left: 0px;
+	}
+}
+

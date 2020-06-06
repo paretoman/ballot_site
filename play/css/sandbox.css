@@ -1,0 +1,78 @@
+.div-sandbox #reset, .div-sandbox  #save{
+    background: #fff;
+    color: #888;
+    border: 1px solid #888;
+}
+.div-sandbox #reset:hover, .div-sandbox #save:hover{
+	margin-top:0px;
+	background: #fff;
+	color: #bbb;
+	border-color: #bbb;
+	border-bottom-color: #888;
+}
+.div-sandbox #reset:active, .div-sandbox #save:active{
+	margin-top:0px;
+	background: #fff;
+	border-bottom-color: #888;
+}
+
+.div-sandbox #description_container{
+	clear: both;
+	overflow: hidden;
+    height: 120px;
+    margin: 10px 0px;
+    width:100%;
+}
+.div-sandbox textarea, .div-sandbox input{
+    border: 1px solid #bbb;
+    resize: none;
+    font-family: Arial, sans-serif;
+}
+.div-sandbox #description_container textarea{
+    height: 97px;
+    padding: 10px;
+    font-size: 16px;
+    width: 100%;
+    margin: 0 0 0 -10px;
+}
+.div-sandbox div#double_description_container {
+    margin: 0px 20px;
+}
+.div-sandbox div.topMenuSpacer {
+    height: 0.5em;
+}
+
+.div-sandbox #savelink{
+    margin-top: 10px;
+    position: relative;
+    top: -3px;
+    width: 100%;
+    height: 19px;
+    padding: 0px;
+    font-size: 12px;
+}
+
+
+
+
+
+/* Slider stuff - This modifies values in election.css */
+.div-sandbox input[type="range"] {
+    height: 8px;
+}
+.div-sandbox ::-webkit-slider-thumb {
+    height: 8px; /* 1 */
+}
+.div-sandbox ::-moz-range-track {
+    height: 8px;
+}
+.div-sandbox ::-moz-range-thumb {
+    height: 8px;
+}
+.div-sandbox ::-ms-thumb { 
+    height: 8px;
+}
+.div-sandbox ::-ms-track { 
+    height: 8px;
+}
+/* end of slider stuff */
