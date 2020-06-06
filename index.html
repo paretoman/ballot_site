@@ -4,72 +4,76 @@
 <head>
 
 	<!-- Meta -->
-    <title> To Build a Better... "Build a Better Ballot" </title>
-
+    <title>Smart Voting Simulator</title>
+    
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-<meta content="utf-8" http-equiv="encoding">
-<meta charset="utf-8">
-<link rel="icon" type="image/png" href="favicon.png">
-
+    <meta content="utf-8" http-equiv="encoding">
+    <meta charset="utf-8">
+    <link rel="icon" type="image/png" href="favicon.png">
+    
 	<meta name="viewport" content="width=device-width, initial-scale=1, min-width=380">
-
+    
     <!-- Schema.org markup for Google+ -->
-<meta itemprop="name" content="To Build a Better Ballot">
-<meta itemprop="description" content="an interactive ..guide to alternative voting methods">
-<meta itemprop="image" content="http://ncase.me/ballot/social/thumbnail.png">
+    <meta itemprop="name" content="Smart Voting Simulator">
+    <meta itemprop="description" content="An Explorable Guide to Group Decision Making">
+    <meta itemprop="image" content="http://ncase.me/ballot/social/thumbnail.png">
 
-<!-- Twitter Card data -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@ncasenmare">
-<meta name="twitter:title" content="To Build a Better Ballot">
-<meta name="twitter:description" content="an interactive ..guide to alternative voting methods">
-<meta name="twitter:creator" content="@ncasenmare">
-<meta name="twitter:image" content="http://ncase.me/ballot/social/thumbnail.png">
+    <!-- Twitter Card data -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@ncasenmare">
+    <meta name="twitter:title" content="Smart Voting Simulator">
+    <meta name="twitter:description" content="An Explorable Guide to Group Decision Making">
+    <meta name="twitter:creator" content="@ncasenmare">
+    <meta name="twitter:image" content="http://ncase.me/ballot/social/thumbnail.png">
 
-<!-- Open Graph data -->
-<meta property="og:title" content="To Build a Better Ballot">
-<meta property="og:type" content="website">
-<meta property="og:url" content="http://ncase.me/ballot/">
-<meta property="og:image" content="http://ncase.me/ballot/social/thumbnail.png">
-<meta property="og:description" content="an interactive ..guide to alternative voting methods">
-
+    <!-- Open Graph data -->
+    <meta property="og:title" content="Smart Voting Simulator">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://ncase.me/ballot/">
+    <meta property="og:image" content="http://ncase.me/ballot/social/thumbnail.png">
+    <meta property="og:description" content="An Explorable Guide to Group Decision Making">
+    
     <base target="_blank">
     
+    
     <link rel="stylesheet" type="text/css" href="css/index.css">
+    
     <link rel="stylesheet" type="text/css" href="play/css/model.css">
-<link rel="stylesheet" type="text/css" href="play/css/ballot.css">
-<link rel="stylesheet" type="text/css" href="play/css/election.css">
-<link rel="stylesheet" type="text/css" href="play/css/sandbox.css">
-<link rel="stylesheet" type="text/css" href="play/css/ballotInSandbox.css">
+    <link rel="stylesheet" type="text/css" href="play/css/ballot.css">
+    <link rel="stylesheet" type="text/css" href="play/css/election.css">
+    <link rel="stylesheet" type="text/css" href="play/css/sandbox.css">
+    <link rel="stylesheet" type="text/css" href="play/css/ballotInSandbox.css">
 
+    
     <script src="js/viewport-min-width.js"></script>
+    
     <script src="play/js/helpers.js"></script>
-<script src="play/js/minpubsub.js"></script>
-<script src="play/js/hsluv-0.0.3.min.js"></script>
-<script src="play/js/pako.min.js"></script>
-<script src="play/js/Loader.js"></script>
-<script src="play/js/Mouse.js"></script>
-<script src="play/js/Draggable.js"></script>
+    <script src="play/js/minpubsub.js"></script>
+    <script src="play/js/hsluv-0.0.3.min.js"></script>
+    <script src="play/js/pako.min.js"></script>
+    <script src="play/js/Loader.js"></script>
+    <script src="play/js/Mouse.js"></script>
+    <script src="play/js/Draggable.js"></script>
 
-<script src="play/js/gpu.js-develop/bin/gpu-core.js"></script>
-<script src="play/js/gpu.js-develop/bin/gpu.js"></script>
-<script src="play/js/FastYee.js"></script>
+    <script src="play/js/gpu.js-develop/bin/gpu-core.js"></script>
+    <script src="play/js/gpu.js-develop/bin/gpu.js"></script>
+    <script src="play/js/FastYee.js"></script>
 
-<script src="play/js/Model.js"></script>
-<script src="play/js/Yee.js"></script>
-<script src="play/js/Candidate.js"></script>
-<script src="play/js/Color.js"></script>
-<script src="play/js/Voters.js"></script>
-<script src="play/js/Election.js"></script>
-<script src="play/js/Buttons.js"></script>
-<script src="play/js/Ballot.js"></script>
-<script src="rbvote/rbvote.js"></script>
-<script src="play/tsp/salesman.js"></script>
-<script src="play/js/seedrandom.min.js"></script>
+    <script src="play/js/Model.js"></script>
+    <script src="play/js/Yee.js"></script>
+    <script src="play/js/Candidate.js"></script>
+    <script src="play/js/Color.js"></script>
+    <script src="play/js/Voters.js"></script>
+    <script src="play/js/Election.js"></script>
+    <script src="play/js/Buttons.js"></script>
+    <script src="play/js/Ballot.js"></script>
+    <script src="rbvote/rbvote.js"></script>
+    <script src="play/tsp/salesman.js"></script>
+    <script src="play/js/seedrandom.min.js"></script>
 
-<script src="play/js/main_ballot.js"></script>
-<script src="play/js/main_sandbox.js"></script>
-<script src="play/js/Presets.js"></script>
+    <script src="play/js/main_ballot.js"></script>
+    <script src="play/js/main_sandbox.js"></script>
+    <script src="play/js/Presets.js"></script>
 
 </head>
 
@@ -285,26 +289,27 @@ SPLASH!
 		<p>Putting it all together, here's a sandbox for you to try out all the different systems and to make your own scenarios:</p>
 	</div>
 	
-	<div id="sandbox-section">
-    <div class="sim-sandbox">
-        <div class="sim-container">
-            <h1 class="caption-test" style="margin: 30px 0 15px 0;">SANDBOX MODE! <a href="sandbox">(link to <em>just</em> this)</a></h1>
-            <div id="sandbox" class="div-sandbox div-election div-ballot-in-sandbox div-model" scrolling="no">
+	
+        <div id="sandbox-section">
+            <div class="sim-sandbox">
+                <div class="sim-container">
+                    <h1 class="caption-test" style="margin: 30px 0 15px 0;">SANDBOX MODE! <a href="sandbox">(link to <em>just</em> this)</a></h1>
+                    <div id="sandbox" class="div-sandbox div-election div-ballot-in-sandbox div-model" scrolling="no">
+                    </div>
+                    <script>
+                        sandbox({quick:"sandbox"})
+                    </script>
+                </div>
             </div>
-            <script>
-                sandbox({quick:"sandbox"})
-            </script>
+            <div class="words">
+                <p>
+                    <b>From Nicky Case:</b> One hope for Sandbox Mode is that readers can debate with me and each other
+                    <em>using</em> this tool! Not just telling me I'm wrong, but
+                    <em>showing</em> me I'm wrong.  Granted, this tool is very limited – it doesn't handle strategic voting
+                    or imperfect information – but I think it's a start, and may help improve our Democratic Discourse&trade;
+                </p>
+            </div>
         </div>
-    </div>
-    <div class="words">
-        <p>
-            <b>From Nicky Case:</b> One hope for Sandbox Mode is that readers can debate with me and each other
-            <em>using</em> this tool! Not just telling me I'm wrong, but
-            <em>showing</em> me I'm wrong.  Granted, this tool is very limited – it doesn't handle strategic voting
-            or imperfect information – but I think it's a start, and may help improve our Democratic Discourse&trade;
-        </p>
-    </div>
-</div>
 </div>
 
 </body>

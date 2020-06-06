@@ -4,81 +4,82 @@
 <head>
 
 	<!-- Meta -->
-	<title>To Build an Even Better Ballot?</title>
-	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-	<meta content="utf-8" http-equiv="encoding">
-	<meta charset="utf-8">
+    <title>To Build an Even Better Ballot?</title>
+    
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <meta charset="utf-8">
+    <link rel="icon" type="image/png" href="favicon.png">
+    
 	<meta name="viewport" content="width=device-width, initial-scale=1, min-width=380">
-	<link rel="icon" type="image/png" href="favicon.png">
+    
+    <!-- Schema.org markup for Google+ -->
+    <meta itemprop="name" content="To Build an Even Better Ballot?">
+    <meta itemprop="description" content="an addendum to @ncasenmare's interactive guide to alternative voting methods">
+    <meta itemprop="image" content="http://ncase.me/ballot/social/thumbnail.png">
 
-	<!-- Schema.org markup for Google+ -->
-	<meta itemprop="name" content="To Build an Even Better Ballot">
-	<meta itemprop="description" content="an addendum to ncase's interactive guide to alternative voting methods">
-	<meta itemprop="image" content="http://ncase.me/ballot/social/thumbnail.png">
+    <!-- Twitter Card data -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@bettercount_us">
+    <meta name="twitter:title" content="To Build an Even Better Ballot?">
+    <meta name="twitter:description" content="an addendum to @ncasenmare's interactive guide to alternative voting methods">
+    <meta name="twitter:creator" content="@bettercount_us">
+    <meta name="twitter:image" content="http://ncase.me/ballot/social/thumbnail.png">
 
-	<!-- Twitter Card data -->
-	<meta name="twitter:card" content="summary_large_image">
-	<meta name="twitter:site" content="@bettercount_us">
-	<meta name="twitter:title" content="To Build an Even Better Ballot">
-	<meta name="twitter:description" content="an addendum to @ncasenmare's interactive guide to alternative voting methods">
-	<meta name="twitter:creator" content="@bettercount_us">
-	<meta name="twitter:image" content="http://ncase.me/ballot/social/thumbnail.png">
+    <!-- Open Graph data -->
+    <meta property="og:title" content="To Build an Even Better Ballot?">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://ncase.me/ballot/">
+    <meta property="og:image" content="http://ncase.me/ballot/social/thumbnail.png">
+    <meta property="og:description" content="an addendum to @ncasenmare's interactive guide to alternative voting methods">
+    
+    <base target="_blank">
+    
+    
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    
+    <link rel="stylesheet" type="text/css" href="play/css/model.css">
+    <link rel="stylesheet" type="text/css" href="play/css/ballot.css">
+    <link rel="stylesheet" type="text/css" href="play/css/election.css">
+    <link rel="stylesheet" type="text/css" href="play/css/sandbox.css">
+    <link rel="stylesheet" type="text/css" href="play/css/ballotInSandbox.css">
 
-	<!-- Open Graph data -->
-	<meta property="og:title" content="To Build an Even Better Ballot">
-	<meta property="og:type" content="website">
-	<meta property="og:url" content="http://ncase.me/ballot/">
-	<meta property="og:image" content="http://ncase.me/ballot/social/thumbnail.png">
-	<meta property="og:description" content="an addendum to ncase's interactive guide to alternative voting methods">
+    
+    <script src="js/viewport-min-width.js"></script>
+    
+    <script src="play/js/helpers.js"></script>
+    <script src="play/js/minpubsub.js"></script>
+    <script src="play/js/hsluv-0.0.3.min.js"></script>
+    <script src="play/js/pako.min.js"></script>
+    <script src="play/js/Loader.js"></script>
+    <script src="play/js/Mouse.js"></script>
+    <script src="play/js/Draggable.js"></script>
 
-	<base target="_blank">
+    <script src="play/js/gpu.js-develop/bin/gpu-core.js"></script>
+    <script src="play/js/gpu.js-develop/bin/gpu.js"></script>
+    <script src="play/js/FastYee.js"></script>
 
+    <script src="play/js/Model.js"></script>
+    <script src="play/js/Yee.js"></script>
+    <script src="play/js/Candidate.js"></script>
+    <script src="play/js/Color.js"></script>
+    <script src="play/js/Voters.js"></script>
+    <script src="play/js/Election.js"></script>
+    <script src="play/js/Buttons.js"></script>
+    <script src="play/js/Ballot.js"></script>
+    <script src="rbvote/rbvote.js"></script>
+    <script src="play/tsp/salesman.js"></script>
+    <script src="play/js/seedrandom.min.js"></script>
 
-	<!-- Styles -->
-	<link rel="stylesheet" type="text/css" href="css/index.css">
-	<link rel="stylesheet" type="text/css" href="play/css/model.css">
-	<link rel="stylesheet" type="text/css" href="play/css/ballot.css">
-	<link rel="stylesheet" type="text/css" href="play/css/election.css">
-	<link rel="stylesheet" type="text/css" href="play/css/sandbox.css">
-	<link rel="stylesheet" type="text/css" href="play/css/ballotInSandbox.css">
-
-	<!-- Scripts -->
-
-	<script src="js\viewport-min-width.js"></script>
-	<script src="play/js/minpubsub.js"></script>
-	<script src="play/js/hsluv-0.0.3.min.js"></script>
-	<script src="play/js/pako.min.js"></script>
-
-	<script src="play/js/helpers.js"></script>
-	<script src="play/js/Loader.js"></script>
-	<script src="play/js/Mouse.js"></script>
-	<script src="play/js/Draggable.js"></script>
-
-	<script src="play/js/gpu.js-develop/bin/gpu-core.js"></script>
-	<script src="play/js/gpu.js-develop/bin/gpu.js"></script>
-	<script src="play/js/FastYee.js"></script>
-
-	<script src="play/js/Model.js"></script>
-	<script src="play/js/Yee.js"></script>
-	<script src="play/js/Candidate.js"></script>
-	<script src="play/js/Color.js"></script>
-	<script src="play/js/Voters.js"></script>
-	<script src="play/js/Election.js"></script>
-	<script src="play/js/Buttons.js"></script>
-	<script src="play/js/Ballot.js"></script>
-	<script src="rbvote/rbvote.js"></script>
-	<script src="play/tsp/salesman.js"></script>
-	<script src="play/js/seedrandom.min.js"></script>
-
-	<script src="play/js/main_ballot.js"></script>
-	<script src="play/js/main_sandbox.js"></script>
-	<script src="play/js/Presets.js"></script>
+    <script src="play/js/main_ballot.js"></script>
+    <script src="play/js/main_sandbox.js"></script>
+    <script src="play/js/Presets.js"></script>
 
 </head>
 
 <body>
 
-	<!-- - - - - - - - -
+    <!-- - - - - - - - -
 
 SPLASH!
 
@@ -508,6 +509,7 @@ SANDBOX
 
 - - - - - - - - - -->
 
+		
 		<div id="sandbox-section">
 			<div class="sim-sandbox">
 				<div class="sim-container">
