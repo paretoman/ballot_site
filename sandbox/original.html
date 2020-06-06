@@ -13,7 +13,7 @@
     <!-- Schema.org markup for Google+ -->
     <meta itemprop="name" content="To Build a Better Ballot">
     <meta itemprop="description" content="an interactive guide to alternative voting methods">
-    <meta itemprop="image" content="http://ncase.me/ballot/social/thumbnail.png">
+    <meta itemprop="image" content="http://ncase.me/ballot/social/original-thumbnail.png">
 
     <!-- Twitter Card data -->
     <meta name="twitter:card" content="summary_large_image">
@@ -21,13 +21,13 @@
     <meta name="twitter:title" content="To Build a Better Ballot">
     <meta name="twitter:description" content="an interactive guide to alternative voting methods">
     <meta name="twitter:creator" content="@ncasenmare">
-    <meta name="twitter:image" content="http://ncase.me/ballot/social/thumbnail.png">
+    <meta name="twitter:image" content="http://ncase.me/ballot/social/original-thumbnail.png">
 
     <!-- Open Graph data -->
     <meta property="og:title" content="To Build a Better Ballot">
     <meta property="og:type" content="website">
     <meta property="og:url" content="http://ncase.me/ballot/">
-    <meta property="og:image" content="http://ncase.me/ballot/social/thumbnail.png">
+    <meta property="og:image" content="http://ncase.me/ballot/social/original-thumbnail.png">
     <meta property="og:description" content="an interactive guide to alternative voting methods">
     
 	<base href="../" />
@@ -37,6 +37,35 @@
 	<link rel="stylesheet" type="text/css" href="play/css/election_original.css">
 	<link rel="stylesheet" type="text/css" href="play/css/sandbox_original.css">
 	<link rel="stylesheet" type="text/css" href="play/css/ballotInSandbox.css">
+	
+    <script src="play/js/helpers.js"></script>
+    <script src="play/js/minpubsub.js"></script>
+    <script src="play/js/hsluv-0.0.3.min.js"></script>
+    <script src="play/js/pako.min.js"></script>
+    <script src="play/js/Loader.js"></script>
+    <script src="play/js/Mouse.js"></script>
+    <script src="play/js/Draggable.js"></script>
+
+    <script src="play/js/gpu.js-develop/bin/gpu-core.js"></script>
+    <script src="play/js/gpu.js-develop/bin/gpu.js"></script>
+    <script src="play/js/FastYee.js"></script>
+
+    <script src="play/js/Model.js"></script>
+    <script src="play/js/Yee.js"></script>
+    <script src="play/js/Candidate.js"></script>
+    <script src="play/js/Color.js"></script>
+    <script src="play/js/Voters.js"></script>
+    <script src="play/js/Election.js"></script>
+    <script src="play/js/Buttons.js"></script>
+    <script src="play/js/Ballot.js"></script>
+    <script src="rbvote/rbvote.js"></script>
+    <script src="play/tsp/salesman.js"></script>
+    <script src="play/js/seedrandom.min.js"></script>
+
+    <script src="play/js/main_ballot_original.js"></script>
+    <script src="play/js/main_sandbox_original.js"></script>
+    <script src="play/js/Presets.js"></script>
+
 	<style>
 		body{
 			margin: 0;
@@ -68,34 +97,6 @@
 		}
 		</style>
 
-	
-    <script src="play/js/helpers.js"></script>
-    <script src="play/js/minpubsub.js"></script>
-    <script src="play/js/hsluv-0.0.3.min.js"></script>
-    <script src="play/js/pako.min.js"></script>
-    <script src="play/js/Loader.js"></script>
-    <script src="play/js/Mouse.js"></script>
-    <script src="play/js/Draggable.js"></script>
-
-    <script src="play/js/gpu.js-develop/bin/gpu-core.js"></script>
-    <script src="play/js/gpu.js-develop/bin/gpu.js"></script>
-    <script src="play/js/FastYee.js"></script>
-
-    <script src="play/js/Model.js"></script>
-    <script src="play/js/Yee.js"></script>
-    <script src="play/js/Candidate.js"></script>
-    <script src="play/js/Color.js"></script>
-    <script src="play/js/Voters.js"></script>
-    <script src="play/js/Election.js"></script>
-    <script src="play/js/Buttons.js"></script>
-    <script src="play/js/Ballot.js"></script>
-    <script src="rbvote/rbvote.js"></script>
-    <script src="play/tsp/salesman.js"></script>
-    <script src="play/js/seedrandom.min.js"></script>
-
-    <script src="play/js/main_ballot.js"></script>
-    <script src="play/js/main_sandbox_original.js"></script>
-    <script src="play/js/Presets.js"></script>
 </head>
 <body style="text-align: center">
 	

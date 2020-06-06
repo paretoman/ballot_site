@@ -53,7 +53,7 @@ function ButtonGroup(config){
 			var conf = self.buttonConfigs[i];
 			var button = new Button(conf, self.onToggle);
 			self.buttonsByName[conf.name] = button
-			button.dom.style.width = config.width+"px"; // whatever
+			button.dom.style.width = config.width +"px"; // whatever
 			if (conf.width) button.dom.style.width = conf.width+"px"; // whatever
 			self.buttons.push(button);
 			self.dom.appendChild(button.dom);

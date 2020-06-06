@@ -99,8 +99,9 @@ Election/Sandbox design:
 .div-election .button{
 	float: left;
 	cursor: pointer;
-    background: #bbb;
-    color: #555;
+    background: #fff;
+    border: 1px solid #888;
+    color: #777;
 	height: 20px;
 	line-height: 20px;
     font-size: 20px;
@@ -120,10 +121,12 @@ Election/Sandbox design:
     transition: all 0.1s;
 }
 .div-election .button:hover{
-	background: #ccc;
+	background: #ddd;
+	border-color: #999;
 }
 .div-election .button:active{
-	background: #ccc;
+	background: #333;
+	border-color: #000;
 }
 .div-election .button[on=yes]{
 	background: #333;
@@ -154,7 +157,7 @@ Election/Sandbox design:
 }
 
 .div-election input[type=range]{
-    border: 0px solid white; 
+    border: 1px solid #ccc; 
 	display:inline;
 	/* transform: rotate(270deg); */
 }
@@ -198,7 +201,7 @@ Election/Sandbox design:
 /* Beginning of Slider Stuff  - note that the height is changed later in sandbox.css */
 
 .div-election ::-webkit-slider-runnable-track {
-    background: #ccc;
+    background: #fff;
 }
 
 /*
@@ -215,7 +218,7 @@ Election/Sandbox design:
 
 .div-election ::-moz-range-track {
     height: 20px;
-    background: #ccc;
+    background: #fff;
 }
 
 .div-election ::-moz-range-thumb {
@@ -249,7 +252,7 @@ Election/Sandbox design:
 }
 
 .div-election ::-ms-track { 
-    background: #ccc;
+    background: #fff;
     color: transparent;
     height: 20px;
     border: none;

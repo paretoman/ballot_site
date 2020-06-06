@@ -3,15 +3,16 @@
 
 <head>
 
-	<!-- Meta -->
-	<title>To Build a Better Ballot</title>
-
 	
+	<!-- Meta -->
+    <title>To Build a Better Ballot</title>
+    
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
     <meta charset="utf-8">
     <link rel="icon" type="image/png" href="favicon.png">
-	
+    
+	<meta name="viewport" content="width=device-width, initial-scale=1, min-width=380">
     
     <!-- Schema.org markup for Google+ -->
     <meta itemprop="name" content="To Build a Better Ballot">
@@ -33,14 +34,47 @@
     <meta property="og:image" content="http://ncase.me/ballot/social/thumbnail.png">
     <meta property="og:description" content="an interactive guide to alternative voting systems">
     
-	<base href="../" />
-	
-	
+    <base target="_blank">
+    
+    
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    
     <link rel="stylesheet" type="text/css" href="play/css/model.css">
     <link rel="stylesheet" type="text/css" href="play/css/ballot.css">
     <link rel="stylesheet" type="text/css" href="play/css/election.css">
     <link rel="stylesheet" type="text/css" href="play/css/sandbox.css">
     <link rel="stylesheet" type="text/css" href="play/css/ballotInSandbox.css">
+
+    
+    <script src="js/viewport-min-width.js"></script>
+    
+    <script src="play/js/helpers.js"></script>
+    <script src="play/js/minpubsub.js"></script>
+    <script src="play/js/hsluv-0.0.3.min.js"></script>
+    <script src="play/js/pako.min.js"></script>
+    <script src="play/js/Loader.js"></script>
+    <script src="play/js/Mouse.js"></script>
+    <script src="play/js/Draggable.js"></script>
+
+    <script src="play/js/gpu.js-develop/bin/gpu-core.js"></script>
+    <script src="play/js/gpu.js-develop/bin/gpu.js"></script>
+    <script src="play/js/FastYee.js"></script>
+
+    <script src="play/js/Model.js"></script>
+    <script src="play/js/Yee.js"></script>
+    <script src="play/js/Candidate.js"></script>
+    <script src="play/js/Color.js"></script>
+    <script src="play/js/Voters.js"></script>
+    <script src="play/js/Election.js"></script>
+    <script src="play/js/Buttons.js"></script>
+    <script src="play/js/Ballot.js"></script>
+    <script src="rbvote/rbvote.js"></script>
+    <script src="play/tsp/salesman.js"></script>
+    <script src="play/js/seedrandom.min.js"></script>
+
+    <script src="play/js/main_ballot.js"></script>
+    <script src="play/js/main_sandbox.js"></script>
+    <script src="play/js/Presets.js"></script>
 
 	<style>
 		body {
@@ -83,35 +117,6 @@
 			text-align: justify;
 		}
 	</style>
-
-	
-    <script src="play/js/helpers.js"></script>
-    <script src="play/js/minpubsub.js"></script>
-    <script src="play/js/hsluv-0.0.3.min.js"></script>
-    <script src="play/js/pako.min.js"></script>
-    <script src="play/js/Loader.js"></script>
-    <script src="play/js/Mouse.js"></script>
-    <script src="play/js/Draggable.js"></script>
-
-    <script src="play/js/gpu.js-develop/bin/gpu-core.js"></script>
-    <script src="play/js/gpu.js-develop/bin/gpu.js"></script>
-    <script src="play/js/FastYee.js"></script>
-
-    <script src="play/js/Model.js"></script>
-    <script src="play/js/Yee.js"></script>
-    <script src="play/js/Candidate.js"></script>
-    <script src="play/js/Color.js"></script>
-    <script src="play/js/Voters.js"></script>
-    <script src="play/js/Election.js"></script>
-    <script src="play/js/Buttons.js"></script>
-    <script src="play/js/Ballot.js"></script>
-    <script src="rbvote/rbvote.js"></script>
-    <script src="play/tsp/salesman.js"></script>
-    <script src="play/js/seedrandom.min.js"></script>
-
-    <script src="play/js/main_ballot.js"></script>
-    <script src="play/js/main_sandbox.js"></script>
-    <script src="play/js/Presets.js"></script>
 
 </head>
 

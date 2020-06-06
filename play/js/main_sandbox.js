@@ -1467,6 +1467,12 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
     }
 
+    ///////////////////
+    // Button Widths //
+    ///////////////////
+    let bw = (x) => (220 - 4*(x-1)) / x - 2
+
+
     //////////////////////////////////
     // BUTTONS - WHAT VOTING SYSTEM //
     //////////////////////////////////
@@ -1559,7 +1565,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         };
         self.choose = new ButtonGroup({
             label: "what voting system?",
-            width: 108,
+            width: bw(2),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -1671,7 +1677,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         };
         self.choose = new ButtonGroup({
             label: "which RB voting system?",
-            width: 108,
+            width: bw(2),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -1729,7 +1735,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Arena Dimensions:",
-            width: 70.66,
+            width: bw(3),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -1787,7 +1793,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Number of Districts:",
-            width: 18.4,
+            width: bw(10),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -1838,7 +1844,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "How many Seats:",
-            width: 18.4,
+            width: bw(10),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -2068,7 +2074,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "how many groups of voters?",
-            width: 33.33,
+            width: bw(6),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -2267,7 +2273,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         };
         self.choose = new ButtonGroup({
             label: "how many candidates?",
-            width: 52,
+            width: bw(4),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -2362,7 +2368,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Customize Candidates' Names?",
-            width: 70.66,
+            width: bw(3),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -2424,7 +2430,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         };
         self.choose = new ButtonGroup({
             label: "what's voters' strategy?",
-            width: 40.8,
+            width: bw(5),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -2493,7 +2499,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "",
-            width: 40.8,
+            width: bw(5),
             data: self.list,
             onChoose: self.onChoose,
             isCheckbox: true
@@ -2557,7 +2563,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "what's voters' 2nd strategy?",
-            width: 40.8,
+            width: bw(5),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -2621,7 +2627,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             }
             self.choose = new ButtonGroup({
                 label: "Primaries?",
-                width: 70.66,
+                width: bw(3),
                 data: self.list,
                 onChoose: self.onChoose
             });
@@ -2661,7 +2667,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "AutoPoll to find new frontrunner:",
-            width: 70.66,
+            width: bw(3),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -2729,7 +2735,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "who are the frontrunners?",
-            width: 40.8,
+            width: bw(5),
             makeData: self.makelist,
             onChoose: self.onChoose,
             isCheckbox: true
@@ -2764,7 +2770,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         };
         self.choose = new ButtonGroup({
             label: "Poll to find new frontrunner:",
-            width: 52,
+            width: bw(4),
             data: self.list,
             onChoose: self.onChoose,
             justButton: true
@@ -2786,13 +2792,14 @@ function menu(ui,model,config,initialConfig, cConfig) {
                     margin:4
                 })
             }
+            var calcWidth = 6 * bw(10) + 5 * 4
             a.push({
                 name:"Voter Center",
                 realname:"all voters",
                 keyyee:"mean",
                 kindayee:"center",
-                width: 146, 
-                margin:220-146
+                width: calcWidth, 
+                margin:220-calcWidth,
             })
             for (var i=0; i < model.candidates.length; i++) {
                 var c = model.candidates[i]
@@ -2857,7 +2864,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "which object for yee map?",
-            width: 20.88,
+            width: bw(9),
             makeData: self.makelist,
             onChoose: self.onChoose,
         });
@@ -2923,7 +2930,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "filter yee map?",
-            width: 20.88,
+            width: bw(9),
             makeData: self.makelist,
             onChoose: self.onChoose,
             isCheckboxBool: true
@@ -2944,7 +2951,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             }
             self.choose = new ButtonGroup({
                 label: "which menu options are displayed?",
-                width: 18.4,
+                width: bw(10),
                 data: self.list,
                 onChoose: self.onChoose,
                 isCheckbox: true
@@ -3147,7 +3154,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         };
         self.choose = new ButtonGroup({
             label: "pick a preset:",
-            width: 40.8,
+            width: bw(5),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -3189,7 +3196,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "size of pixels in yee diagram:",
-            width: 40.8,
+            width: bw(5),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -3226,7 +3233,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "method of computing yee diagram:",
-            width: 40.8,
+            width: bw(5),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -3271,7 +3278,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Method of Choosing Colors:",
-            width: 220,
+            width: bw(1),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -3314,7 +3321,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Color Space:",
-            width: 220,
+            width: bw(1),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -3361,7 +3368,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Voter Spread:",
-            width: 40.8,
+            width: bw(5),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -3428,7 +3435,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Arena size:",
-            width: 40.8,
+            width: bw(5),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -3464,7 +3471,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Median or Mean:",
-            width: 70.66,
+            width: bw(3),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -3550,7 +3557,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Theme:",
-            width: 70.66,
+            width: bw(3),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -3589,7 +3596,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Utility Shape:",
-            width: 70.66,
+            width: bw(3),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -3651,7 +3658,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Voters as Candidates:",
-            width: 70.66,
+            width: bw(3),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -3688,7 +3695,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Show Ballot Visuals:",
-            width: 70.66,
+            width: bw(3),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -3725,7 +3732,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Only Visualize Single Voters:",
-            width: 70.66,
+            width: bw(3),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -3756,7 +3763,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         // no select because we don't want to save with the config menu open
         self.choose = new ButtonGroup({
             label: "",
-            width: 70.66,
+            width: bw(3),
             data: self.list,
             onChoose: self.onChoose,
             isCheckbox: true
@@ -3788,7 +3795,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         // no select because it's either hidden or off
         self.choose = new ButtonGroup({
             label: "Disable Config Button !no",
-            width: 220,
+            width: bw(1),
             data: self.list,
             onChoose: self.onChoose,
             isCheckbox: true
@@ -3856,7 +3863,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Menu Version:",
-            width: 70.66,
+            width: bw(3),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -3906,7 +3913,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Options:", // Level of Expertise
-            width: 52,
+            width: bw(4),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -3951,7 +3958,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Steps:", // Sub Menu
-            width: 52,
+            width: bw(4),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -3985,7 +3992,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Enable filtering of menu items?:", // Sub Menu
-            width: 108,
+            width: bw(2),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -4034,7 +4041,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Draw Win Map (Yee's Diagram)?", // Sub Menu
-            width: 108,
+            width: bw(2),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -4076,7 +4083,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Beat Map", // Sub Menu
-            width: 52,
+            width: bw(4),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -4118,7 +4125,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Ballot conceptualization:", // Sub Menu
-            width: 52,
+            width: bw(4),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -4163,7 +4170,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Power Chart:", // Sub Menu
-            width: 52,
+            width: bw(4),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -4207,7 +4214,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Written Results:", // Sub Menu
-            width: 52,
+            width: bw(4),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -4244,7 +4251,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Show Last Transfer for Transferable Methods?", // Sub Menu
-            width: 52,
+            width: bw(4),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -4283,7 +4290,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Voter Icons:", // Sub Menu
-            width: 52,
+            width: bw(4),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -4335,7 +4342,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Candidate Icons:", // Sub Menu
-            width: 52,
+            width: bw(4),
             data: self.list,
             onChoose: self.onChoose,
             isCheckbox: true
@@ -4451,7 +4458,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Show Pairwise Minimaps?", // Sub Menu
-            width: 52,
+            width: bw(4),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -4492,7 +4499,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Text Ballot Input?",
-            width: 52,
+            width: bw(4),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -4536,7 +4543,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         };
         self.choose = new ButtonGroup({
             label: "",
-            width: 52,
+            width: bw(4),
             data: self.list,
             onChoose: self.onChoose,
             justButton: true
@@ -4589,7 +4596,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Candidate behavior over time:",
-            width: 52,
+            width: bw(4),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -4631,7 +4638,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Switch UI",
-            width: 52,
+            width: bw(4),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -4664,7 +4671,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Show Toolbar?", // Sub Menu
-            width: 52,
+            width: bw(4),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -4708,7 +4715,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Boundaries for Ranked Viz", // Sub Menu
-            width: 108,
+            width: bw(2),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -4735,7 +4742,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Show Description?", // Sub Menu
-            width: 52,
+            width: bw(4),
             data: self.list,
             onChoose: self.onChoose
         });
