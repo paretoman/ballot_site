@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    
+	<!-- Meta -->
+    <title>Modify the Simulator</title>
+    
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <meta charset="utf-8">
+    <link rel="icon" type="image/png" href="favicon.png">
+    
+	<meta name="viewport" content="width=device-width, initial-scale=1, min-width=380">
+    
+    <!-- Schema.org markup for Google+ -->
+    <meta itemprop="name" content="Modify the Simulator">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://ncase.me/ballot/social/thumbnail.png">
+
+    <!-- Twitter Card data -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="">
+    <meta name="twitter:title" content="Modify the Simulator">
+    <meta name="twitter:description" content="">
+    <meta name="twitter:creator" content="">
+    <meta name="twitter:image" content="http://ncase.me/ballot/social/thumbnail.png">
+
+    <!-- Open Graph data -->
+    <meta property="og:title" content="Modify the Simulator">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://ncase.me/ballot/">
+    <meta property="og:image" content="http://ncase.me/ballot/social/thumbnail.png">
+    <meta property="og:description" content="">
+    
+    <base target="_blank">
+    
+    
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    
+    <link rel="stylesheet" type="text/css" href="play/css/model.css">
+    <link rel="stylesheet" type="text/css" href="play/css/ballot.css">
+    <link rel="stylesheet" type="text/css" href="play/css/election.css">
+    <link rel="stylesheet" type="text/css" href="play/css/sandbox.css">
+    <link rel="stylesheet" type="text/css" href="play/css/ballotInSandbox.css">
+
+    
+    <script src="js/viewport-min-width.js"></script>
+    
+    <script src="play/js/helpers.js"></script>
+    <script src="play/js/minpubsub.js"></script>
+    <script src="play/js/hsluv-0.0.3.min.js"></script>
+    <script src="play/js/pako.min.js"></script>
+    <script src="play/js/Loader.js"></script>
+    <script src="play/js/Mouse.js"></script>
+    <script src="play/js/Draggable.js"></script>
+
+    <script src="play/js/gpu.js-develop/bin/gpu-core.js"></script>
+    <script src="play/js/gpu.js-develop/bin/gpu.js"></script>
+    <script src="play/js/FastYee.js"></script>
+
+    <script src="play/js/Model.js"></script>
+    <script src="play/js/Yee.js"></script>
+    <script src="play/js/Candidate.js"></script>
+    <script src="play/js/Color.js"></script>
+    <script src="play/js/Voters.js"></script>
+    <script src="play/js/Election.js"></script>
+    <script src="play/js/Buttons.js"></script>
+    <script src="play/js/Ballot.js"></script>
+    <script src="rbvote/rbvote.js"></script>
+    <script src="play/tsp/salesman.js"></script>
+    <script src="play/js/seedrandom.min.js"></script>
+
+    <script src="play/js/main_ballot.js"></script>
+    <script src="play/js/main_sandbox.js"></script>
+    <script src="play/js/Presets.js"></script>
+
+</head>
+
+<body>
+
+    <div class="banner">
+        <h1>Modify the Simulator</h1>
+        <p></p><p>By Paretoman and Contributors </p><p>Based off Work by Nicky Case</p><p>May 2020</p>
+    </div>
+    
+
+    <div id="content">
+        <div class="words">
+            <p>These are the build instructions. That means, if you want to run the site locally on your computer, you have to follow these instructions.</p>
+
+<p>Why? Because I’m using a build tool, Jekyll. The reason I’m using Jekyll is I want to modularize my html, and jekyll seems to be popular and minimal, and github does it.</p>
+
+<p>Here are instructions for building this site on your local machine.</p>
+
+<ol>
+  <li>
+    <p>Install Ruby. You might want to follow <a href="https://jekyllrb.com/docs/installation/windows/">these instructions from jekyll​</a>.</p>
+  </li>
+  <li>
+    <p>Do these to install jekyll and bundler and to start a server for the code.</p>
+  </li>
+</ol>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gem install jekyll bundler
+gem install jekyll -v 3.8.7
+bundle exec jekyll serve
+</code></pre></div></div>
+
+<p>Other tips for Developing the site:</p>
+
+<ul>
+  <li>
+    <p>I edit markdown with <a href="http://www.texts.io/">Texts</a>.</p>
+  </li>
+  <li>
+    <p>Here’s a good <a href="https://learn.cloudcannon.com/">tutorial</a> for jekyll from CloudCannon.</p>
+  </li>
+</ul>
+
+        </div>
+    </div>
+
+</body>
+
+</html>

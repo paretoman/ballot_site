@@ -1,6 +1,8 @@
-![](http://i.imgur.com/8ZzgDiV.png)
+![](http://paretoman.github.io/ballot/social/thumbnail.png)
 
-**TO BUILD A BETTER BALLOT**     
-an interactive guide to alternative voting systems
+**Smart Voting Simulator**     
+An Explorable Guide to Group Decision Making
 
-**[play/read it here](http://ncase.me/ballot)**
+**[play/read it here](http://paretoman.github.io/ballot)**
+
+[modify it here](http://paretoman.github.io/ballot/modify)

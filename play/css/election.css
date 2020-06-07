@@ -101,11 +101,11 @@ Election/Sandbox design:
 	cursor: pointer;
     background: #fff;
     border: 1px solid #888;
-    color: #777;
+    color: #888;
 	height: 20px;
 	line-height: 20px;
-    font-size: 20px;
-    font-weight: 300;
+    font-size: 15px;
+    font-weight: bold;
     text-align: center;
     margin-bottom: 3px;
     padding: 1px 0;
@@ -129,11 +129,11 @@ Election/Sandbox design:
 	border-color: #000;
 }
 .div-election .button[on=yes]{
-	background: #333;
-	color: #fff;
+	background: #ccc;
+    color: #000;
 }
 .div-election .button[on=yes]:hover{
-	background: #555;
+	background: #ddd;
 }
 .button[on=yes]:active{
 	background: #111;
