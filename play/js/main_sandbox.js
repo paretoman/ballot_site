@@ -200,6 +200,13 @@ function Attach(ui) {
             }
         
         }
+        if (ui.link) {
+            var regExp = /\(([^)]+)\)/;
+            var matches = regExp.exec(ui.link);
+            //matches[1] contains the value between the parentheses
+            ui.url = matches[1]
+            // https://stackoverflow.com/a/17779833
+        }
         ui.url = ui.url || window.location.href
 
     }

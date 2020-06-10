@@ -15,6 +15,7 @@ var e = [
         ["testPreset","testPreset.html"],
         ["test (Layout)","test.html"],
         ["testBallot","testBallot.html"],
+        ["testEmbedLink","testLink.html"],
         ["try","try.html"],
         ["play/examples/election1","play/examples/election1.html"],
         ["play/examples/ballot1","play/examples/ballot1.html"],
@@ -113,5 +114,5 @@ for (var [d,a] of e) {
 c +=  + "</ul></p>"
 
 
-document.querySelector("body").innerHTML = c
+document.querySelector("body").innerHTML += c
 console.log("done")

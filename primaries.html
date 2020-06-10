@@ -4,7 +4,26 @@
 <head>
 
     
-	<!-- Meta -->
+    <!-- Meta -->
+    
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Primaries | Smart Voting Simulator</title>
+<meta name="generator" content="Jekyll v3.8.7" />
+<meta property="og:title" content="Primaries" />
+<meta name="author" content="Paretoman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="An Interactive Guide to Voting" />
+<meta property="og:description" content="An Interactive Guide to Voting" />
+<link rel="canonical" href="http://localhost:4000/ballot/primaries.html" />
+<meta property="og:url" content="http://localhost:4000/ballot/primaries.html" />
+<meta property="og:site_name" content="Smart Voting Simulator" />
+<script type="application/ld+json">
+{"headline":"Primaries","@type":"WebPage","url":"http://localhost:4000/ballot/primaries.html","author":{"@type":"Person","name":"Paretoman"},"description":"An Interactive Guide to Voting","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<!-- <link rel="stylesheet" href="/ballot/assets/css/style.css"> --><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/ballot/feed.xml" title="Smart Voting Simulator" />
     <title>Primaries</title>
     
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
@@ -21,10 +40,10 @@
 
     <!-- Twitter Card data -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="">
+    
     <meta name="twitter:title" content="Primaries">
     <meta name="twitter:description" content="An Interactive Guide to Voting">
-    <meta name="twitter:creator" content="">
+    
     <meta name="twitter:image" content="http://ncase.me/ballot/social/thumbnail.png">
 
     <!-- Open Graph data -->
@@ -33,11 +52,13 @@
     <meta property="og:url" content="http://ncase.me/ballot/">
     <meta property="og:image" content="http://ncase.me/ballot/social/thumbnail.png">
     <meta property="og:description" content="An Interactive Guide to Voting">
-    
-    <base target="_blank">
+
+    <base href="/ballot/">
+    <!-- <base target="_blank"> -->
     
     
     <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" type="text/css" href="css/some-minima.css">
     
     <link rel="stylesheet" type="text/css" href="play/css/model.css">
     <link rel="stylesheet" type="text/css" href="play/css/ballot.css">
@@ -47,6 +68,7 @@
 
     
     <script src="js/viewport-min-width.js"></script>
+	<!-- <script src="../dev/js/gpu.js/gpu-browser.js"></script> -->
     
     <script src="play/js/helpers.js"></script>
     <script src="play/js/minpubsub.js"></script>
@@ -78,17 +100,85 @@
 
 </head>
 
-<body>
+<body><header class="site-header">
 
-    <div class="banner">
-        <h1>Primaries</h1>
-        <p>An Interactive Guide to Voting</p><p>By Paretoman and Contributors </p><p>Based off Work by Nicky Case</p><p>May 2020</p>
-    </div>
-    
+  <div class="wrapper"><a class="site-title" rel="author" href="/ballot/">Smart Voting Simulator</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
 
-    <div id="content">
-        <div class="words">
-            <h1 id="we-dont-need-primaries">We Don’t Need Primaries</h1>
+        <div class="trigger">
+          
+            
+            <a class="page-link" href=".">Home</a>
+            
+          
+            
+            <a class="page-link" href="original.html">Original</a>
+            
+          
+            
+            <a class="page-link" href="primaries.html">Primaries</a>
+            
+          
+            
+            <a class="page-link" href="approval_superman.html">Approval Voting</a>
+            
+          
+            
+            <a class="page-link" href="newer.html">An Even Better Ballot</a>
+            
+          
+            
+            <a class="page-link" href="log.html">Condorcet Methods</a>
+            
+          
+            
+            <a class="page-link" href="quotaApproval.html">Quota Methods</a>
+            
+          
+            
+            <a class="page-link" href="bees.html">Bees</a>
+            
+          
+            
+            <a class="page-link" href="testRuns.html">Test Runs</a>
+            
+          
+            
+            <a class="page-link" href="blog.html">Blog</a>
+            
+          
+            
+            <a class="page-link" href="sandbox/">Sandbox</a>
+            
+          
+          <!--<a class="page-link" href="/ballot/approval_superman.html">Approval Voting</a><a class="page-link" href="/ballot/bees.html">Bees</a><a class="page-link" href="/ballot/blog.html">Blog</a><a class="page-link" href="/ballot/sandbox/embedbox.html">Embed Box for Smart Voting Simulator</a><a class="page-link" href="/ballot/dev/md%20conversion/index-Texts-problem.html">Home</a><a class="page-link" href="/ballot/dev/md%20conversion/index-no-p.html">Home</a><a class="page-link" href="/ballot/dev/md%20conversion/index-old.html">Home</a><a class="page-link" href="/ballot/sandbox/">Sandbox</a><a class="page-link" href="/ballot/">Home</a><a class="page-link" href="/ballot/log.html">Condorcet Methods</a><a class="page-link" href="/ballot/modify.html">Modify the Simulator</a><a class="page-link" href="/ballot/newer.html">An Even Better Ballot</a><a class="page-link" href="/ballot/oncemore.html">Draft for An Even Better Ballot</a><a class="page-link" href="/ballot/original.html">Original</a><a class="page-link" href="/ballot/sandbox/original.html">Sandbox for To Build a Better Ballot</a><a class="page-link" href="/ballot/primaries.html">Primaries</a><a class="page-link" href="/ballot/quotaApproval.html">Quota Methods</a><a class="page-link" href="/ballot/testAttach.html">Test Attach</a><a class="page-link" href="/ballot/testBallot.html">Test Ballot</a><a class="page-link" href="/ballot/testPreset.html">Test Preset</a><a class="page-link" href="/ballot/testRuns.html">Test Runs</a><a class="page-link" href="/ballot/testSwitcher.html">Test Switcher</a><a class="page-link" href="/ballot/try.html">To Build a Better Ballot - QAPR</a>-->
+        </div>
+      </nav></div>
+</header>
+
+	
+	
+	
+
+	<div class="banner">
+		<h1>Primaries</h1>
+		<p>An Interactive Guide to Voting</p><p>
+		
+			by Paretoman, May 2018
+		
+	</p>
+		<p>Based off Work by Nicky Case</p></div>
+<div id="content">
+
+    <div class="words">
+        <h1 id="we-dont-need-primaries">We Don’t Need Primaries</h1>
 
 <p>I’m going to talk about what we’re trying to achieve when we vote.  And I’d like to talk about how using primaries and choosing only one candidate on our ballots will only achieve accurate representation in the best case scenario. In many cases, a lot of votes are wasted, and a lot of voters receive no consideration.</p>
 
@@ -129,6 +219,20 @@
 <p>A referendum is actually pretty simple; you just say yes or no. Really the hard part of the referendum is to decide what the wording is going to be for the question.  The wording is not up to you; that’s up to the group that puts the initiative together or the legislators that wrote the referendum.  That hard part is where the work happens; it’s where consideration of what the voters want happens.</p>
 
 <p>&lt;yes, no, referendum&gt; <a href="https://paretoman.github.io/ballot/sandbox/?v=2.5&amp;m=H4sIAAAAAAAAA3VRy04DMQz8lSrnHOJHnE0_AnHggnZ7KFIPSCuKoBwqBN-O46FwqKpIGcdjTybOZyppO8-1Zaq8yzOrZdJpt8uJBkHKfu7jLGlbctLYa-zmFZyvltc2Z0q-Ws5MN5l-kyH3SA4UFZJb1khzuCAYIzgjWCMDuBFSR7-WHXpk2fU8yRSyzMExZFiRdBlxgAw3nCacejRICTs0RkNBCJREADAkrjQTygwE1KT_9WtIjYAuAV8CGe0j0OjSfzm1sKoNHwNz2iNZMbLqeul7SY-H92V52dwdN0tKnobRKij6_VNMruLJtaFkilsrnmwFgMEZ5m8YnFX8jhszSBgcGYbeCgC9jQOe9ut6PD2cXw_u8379eNuvz6dz-voBzxfmQJcCAAA">link</a> <a href="https://paretoman.github.io/ballot/sandbox/?v=2.5&amp;m=H4sIAAAAAAAAA3VRy2oDMQz8leCzD9bD8m4-ovTQS9jdQwo5FJamtMkhlObbK2v6OIRgsB4jjUfyZyppO021Zaq85InVMumwLDlRB0iGTMY9lrQtOWncNW7zCs43x2ubIyXfHEeGu8h4FyHXSG4oKiS3rJHmUEEQRlBGkEaGFhdC6tafZTdjgOx8nmRCxIExaFijkZ1G3BiSDdGAaIwGKSGH-mrAJGASgYEgcaaJUGYAwCbjX792qnBixO7wr-Nkk3RHo0v_6RQzasPHQJyOkaxYWXW-dJ3T7vAxz6-bh-NmTsnTEFoxcv35U2yuYuTaUDLEqxUjW4GhIDfs38BiFb_jwgwUBkWGpbcCg97GYZ7363o8PV3eDq7zcT2_79eX0yV9fQNrFEaklwIAAA">simpler</a></p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Referendum</h2>
+        <p class="ballot_caption">Yes or No</p>
+        
+        
+        <script id="yesno_sim">
+            sandbox({idScript:"yesno_sim",link:"[link](https://paretoman.github.io/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VRy04DMQz8lSrnHOJHnE0_AnHggnZ7KFIPSCuKoBwqBN-O46FwqKpIGcdjTybOZyppO8-1Zaq8yzOrZdJpt8uJBkHKfu7jLGlbctLYa-zmFZyvltc2Z0q-Ws5MN5l-kyH3SA4UFZJb1khzuCAYIzgjWCMDuBFSR7-WHXpk2fU8yRSyzMExZFiRdBlxgAw3nCacejRICTs0RkNBCJREADAkrjQTygwE1KT_9WtIjYAuAV8CGe0j0OjSfzm1sKoNHwNz2iNZMbLqeul7SY-H92V52dwdN0tKnobRKij6_VNMruLJtaFkilsrnmwFgMEZ5m8YnFX8jhszSBgcGYbeCgC9jQOe9ut6PD2cXw_u8379eNuvz6dz-voBzxfmQJcCAAA)"})
+        </script>
+        
+    </div>
+
+</div>
 
 <p>For an election, the hard part happens in the primary.  In the general election there’s two choices (at least in the United States, where I’m from, there’s two choices). There’s not a lot to think about. Each party has put up their nominee, and you pick the one closest to you. The hard part happens in the primary.  That’s where you have many more competitors. There are two primaries going on at the same time, and in each one there is the same decision process, where the party wants to put up a candidate that can beat the other party. </p>
 
@@ -278,9 +382,93 @@
 
 <p>Let’s talk a little bit about the variations on the primary.  In the US, these variations serve to amplify the wins that a candidate gets in a state.  One party uses a winner-take-all primary, which puts people into districts and only counts the votes for the candidate with the highest number of votes of a district.  This highest number is called a plurality of votes as opposed to a majority of votes (more than 50%).  The other party uses a method that dumps any votes for a candidate that got less than 15%, then rounds votes to the nearest quota, which is just a number that makes it easy to assign delegates.  Then if none of the candidates gets a majority of the rounded totals, the party requires a majority of delegate votes to decide the nominee. Both parties make different states vote at different times so one state may vote based on the results from another state’s vote.  All these variations amplify the wins.  Vote splitting, itself, amplifies the wins.</p>
 
-        </div>
     </div>
+    
+        <div id="sandbox-section">
+            <div class="sim-sandbox">
+                <div class="sim-container">
+                    <h1 class="caption-test" style="margin: 30px 0 15px 0;">SANDBOX MODE! <a href="sandbox">(link to <em>just</em> this)</a></h1>
+		                
+		<div id="sandbox" class="div-sandbox div-election div-ballot-in-sandbox div-model" scrolling="no">
+		</div>
+		<script>
+			sandbox({quick:"sandbox"})
+		</script>
+                </div>
+            </div>
+            <div class="words">
+                
+			<p>
+				<b>From Nicky Case:</b> One hope for Sandbox Mode is that readers can debate with me and each other
+				<em>using</em> this tool! Not just telling me I'm wrong, but
+				<em>showing</em> me I'm wrong.  Granted, this tool is very limited – it doesn't handle strategic voting
+				or imperfect information – but I think it's a start, and may help improve our Democratic Discourse&trade;
+			</p>
+			<p>
+				<b> From Paretoman: </b>if you'd like your own models included here, 
+				save it, copy the saved link, and tweet it with the <a href="https://twitter.com/hashtag/smartvotesim">hashtag #smartvotesim.</a>
+			</p>
+            </div>
+        </div>
 
+</div><footer class="site-footer h-card">
+  <data class="u-url" href="/ballot/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/ballot/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/ballot/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+        <ul class="contact-list">
+          <li class="p-name">Paretoman</li>
+          <li><a class="u-email" href="mailto:smartvotingsimulator1@gmail.com">smartvotingsimulator1@gmail.com</a></li>
+        </ul>
+        <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/Paretoman" title="Paretoman"><svg class="svg-icon grey"><use xlink:href="/ballot/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/Paretoman1" title="Paretoman1"><svg class="svg-icon grey"><use xlink:href="/ballot/assets/minima-social-icons.svg#twitter"></use></svg></a></li><li><a rel="me" href="https://www.youtube.com/channel/UCrwpT8YjxePjH0RxSCwbTlQ" title="Paretoman"><svg class="svg-icon grey"><use xlink:href="/ballot/assets/minima-social-icons.svg#youtube"></use></svg></a></li></ul>
+</div>
+      </div>
+      <div class="footer-col">
+        <p>A simulator for voting methods - so you can understand how voting methods work for making group decisions. The best voting methods are responsive to all parts of the group and can even work when voters use strategies.</p>
+      </div>
+    </div>
+            
+            <div style="text-align:center; color:#fff; background-color: #222;margin-bottom:0px;">
+				Share this:
+				<ul class="share-buttons">
+                    <li class="reddit">
+                        <a href="http://www.reddit.com/submit?url=http://localhost:4000/ballot/primaries.html&title=Primaries" target="_blank">
+                            <img height="32" width="32" alt="Post on Reddit" src="/ballot/social/reddit.png">
+                        </a>
+                    </li>
+                    <li class="hn">
+                        <a href="http://news.ycombinator.com/submitlink?u=http://localhost:4000/ballot/primaries.html&t=Primaries" target="_blank">
+                            <img height="32" width="32" alt="Share on Hacker News" src="/ballot/social/ycombinator.png">
+                        </a>
+                    </li>
+                    <li class="twitter">
+                        <a href="https://twitter.com/intent/tweet?via=paretoman1&url=http://localhost:4000/ballot/primaries.html&text=Primaries" target="_blank">
+                            <img alt="Tweet" src="/ballot/social/Twitter.png">
+                        </a>
+                    </li>
+                    <li class="email">
+                        <a href="mailto:?subject=Primaries&body=Primaries:http://localhost:4000/ballot/primaries.html" target="_blank" title="Send email">
+                            <img alt="Send email" src="/ballot/social/Email.png">
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=http://localhost:4000/ballot/primaries.html&t=Primaries" title="Share on Facebook" target="_blank">
+                            <img alt="Share on Facebook" src="/ballot/social/Facebook.png">
+                        </a>
+                    </li>
+				</ul>
+			</div></div>
+
+</footer>
 </body>
 
 </html>

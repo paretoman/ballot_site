@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.7">Jekyll</generator><link href="http://localhost:4000/ballot/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/ballot/" rel="alternate" type="text/html" /><updated>2020-06-09T23:31:10-04:00</updated><id>http://localhost:4000/ballot/feed.xml</id><title type="html">Smart Voting Simulator</title><subtitle>A simulator for voting methods - so you can understand how voting methods work for making group decisions. The best voting methods are responsive to all parts of the group and can even work when voters use strategies.</subtitle><author><name>Paretoman</name><email>smartvotingsimulator1@gmail.com</email></author><entry><title type="html">Added Jekyll</title><link href="http://localhost:4000/ballot/2020/06/07/added-jekyll.html" rel="alternate" type="text/html" title="Added Jekyll" /><published>2020-06-07T00:00:00-04:00</published><updated>2020-06-07T00:00:00-04:00</updated><id>http://localhost:4000/ballot/2020/06/07/added-jekyll</id><content type="html" xml:base="http://localhost:4000/ballot/2020/06/07/added-jekyll.html">&lt;p&gt;&lt;a href=&quot;https://jekyllrb.com/&quot;&gt;Jekyll&lt;/a&gt; is now helping to organize this site. Check the &lt;a href=&quot;https://jekyllrb.com/docs/&quot;&gt;docs&lt;/a&gt;. Here’s &lt;a href=&quot;https://jekyllrb.com/docs/installation/windows/&quot;&gt;install&lt;/a&gt; instructions for windows.&lt;/p&gt;
+
+&lt;p&gt;Jekyll even worked inside folders like /sandbox/&lt;/p&gt;
+
+&lt;p&gt;To add a new page, just create a new markdown file and jekyll converts the markdown to html and puts it where you have  in your layout.  This doesn’t require any kind of configuration.  It’s simple.&lt;/p&gt;
+
+&lt;p&gt;Okay, now comes the hard part… how do I actually get special divs like word divs and sim divs without showing them in markdown? Includes, I guess.&lt;/p&gt;
+
+&lt;p&gt;Jekyll is good because it basically adds subroutines and variables to html and it translates markdown into html.&lt;/p&gt;
+
+&lt;p&gt;You probably could find another tool other than jekyll that uses the liquid syntax. &lt;/p&gt;
+
+&lt;p&gt;Now I need to know Ruby. I guess the only reason I need a Gemfile is to make sure I have the correct version of jekyll and the jekyll github plugin so that my local server will exactly show what github shows.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Links&lt;/em&gt;
+&lt;a href=&quot;https://jekyllrb.com/docs/github-pages/&quot;&gt;github pages on jekyll’s website&lt;/a&gt;.  The jekyll documentation is very good.&lt;/p&gt;
+
+&lt;p&gt; &lt;/p&gt;</content><author><name>Paretoman</name><email>smartvotingsimulator1@gmail.com</email></author><summary type="html">Jekyll is now helping to organize this site. Check the docs. Here’s install instructions for windows.</summary></entry></feed>
