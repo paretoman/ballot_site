@@ -359,6 +359,7 @@ function bindModel(ui,model,config) {
             // load expanded config into the model
             // configure writes to model and reads from config.  Sanity rule: configure does not read from model.
         _objF(ui.menu,"configure")
+        ui.strategyOrganizer.configure()
         // CONFIGURE DEFAULTS (model)
         model.border = config.arena_border
         model.HACK_BIG_RANGE = true;
@@ -380,6 +381,8 @@ function bindModel(ui,model,config) {
         ui.menu.theme.init_sandbox();
         // UPDATE
         ui.menu_update()
+        ui.showHideSystems()
+        ui.strategyOrganizer.showOnlyStrategyForTypeOfSystem()
         
     };
 
@@ -408,10 +411,10 @@ function bindModel(ui,model,config) {
         if (config.oneVoter) {
             if (model.voterGroups[0].voterGroupType == "SingleVoter") {
                 var text = ""
-                if (doOldBallot) ballot.update(model.voterGroups[0].voterPeople[0].ballot);
+                if (doOldBallot) ballot.update(model.voterGroups[0].voterPeople[0].stages[model.stage].ballot);
                 if (doOldBallot) text += "<br />"
                 text += '<div class="div-ballot">'
-                // text += model.voterGroups[0].voterModel.toTextV(model.voterGroups[0].voterPeople[0].ballot);
+                // text += model.voterGroups[0].voterModel.toTextV(model.voterGroups[0].voterPeople[0].stages[model.stage].ballot);
                 text += model.voterGroups[0].voterModel.toTextV(model.voterGroups[0].voterPeople[0]);
                 text += '</div>'
                 if (0) {
@@ -421,13 +424,23 @@ function bindModel(ui,model,config) {
                 if (doOldBallot) {
                     _removeClass(model.caption,"displayNoneClass")
                     model.caption.innerHTML = text
+                    var target = model.caption
                 } else {
                     model.caption.innerHTML = ""
                     _addClass(model.caption,"displayNoneClass")
                     // model.caption.style.display = "none"
                     divBallot.innerHTML = text
+                    var target = divBallot
+                }
+                if (model.tallyEventsToAssign) {
+                    for (let e of model.tallyEventsToAssign) {
+                        target.querySelector("#" + e.eventID).addEventListener("mouseover", e.f)
+                        target.querySelector("#" + e.eventID).addEventListener("mouseleave", ()=>model.draw())
+                    }
+                    model.tallyEventsToAssign = undefined
                 }
             }
+            
         }
     };
 
@@ -525,7 +538,7 @@ function Config(ui, config, initialConfig) {
         beatMap: "auto",
         kindayee: "newcan",
         ballotConcept: "auto",
-        powerChart: "auto",
+        roundChart: "auto",
         sidebarOn: "on",
         lastTransfer: "off",
         voterIcons: "circle",
@@ -536,6 +549,20 @@ function Config(ui, config, initialConfig) {
         behavior: "stand",
         showToolbar: "on",
         rankedVizBoundary: "atWinner",
+        doElectabilityPolls: true,
+        partyRule: "crowd",
+        doFilterSystems: false,
+        filterSystems: [],
+        doFilterStrategy: true,
+        includeSystems: ["choice","pair","score","multi","dev"],
+        showPowerChart: true,
+        putMenuAbove: false,
+        scoreFirstStrategy: "zero strategy. judge on an absolute scale.",
+        choiceFirstStrategy: "zero strategy. judge on an absolute scale.",
+        pairFirstStrategy: "zero strategy. judge on an absolute scale.",
+        scoreSecondStrategy: "zero strategy. judge on an absolute scale.",
+        choiceSecondStrategy: "zero strategy. judge on an absolute scale.",
+        pairSecondStrategy: "zero strategy. judge on an absolute scale.",
     }
     // HOWTO: add to the end here (or anywhere inside)
 
@@ -754,36 +781,46 @@ function Config(ui, config, initialConfig) {
         // add in features that were not included with the old version
         if (config.configversion == 2.4) { 
                 
-            // There is a problem in going from an old featureset to a new one.
-            // The new features are not included in the set.
-            // So we add an opton to choose whether to filter features.
-            // By default the filter is on.
-            // The default in the sandbox preset is off.
-            // In this way, it is easy to switch the filter off and update the features.
-            // The filter switch is inside the config menu.
 
-            // if this is a save from before version 2.5
-            // then the featurelist is on and it didn't include the menu items that are hidden in menuVersion 1
-            // so, allow the user to remove the filter
+            
+            // ctrl-reset solves this problem
 
-            // so, if the featurelist is set then we want to turn on the filter
-            // if the featurelist is not set, then we don't do the filter
+            // // There is a problem in going from an old featureset to a new one.
+            // // The new features are not included in the set.
+            // // So we add an opton to choose whether to filter features.
+            // // By default the filter is on.
+            // // The default in the sandbox preset is off.
+            // // In this way, it is easy to switch the filter off and update the features.
+            // // The filter switch is inside the config menu.
+
+            // // if this is a save from before version 2.5
+            // // then the featurelist is on and it didn't include the menu items that are hidden in menuVersion 1
+            // // so, allow the user to remove the filter
+
+            // // so, if the featurelist is set then we want to turn on the filter
+            // // if the featurelist is not set, then we don't do the filter
+            // if ( config.featurelist == undefined) {
+            //     config.doFeatureFilter = false
+            // } else {
+            //     modifyConfigFeaturelist(config,true, ["doFeatureFilter"]) 
+            // }
+
+            // // Hmm. on the one hand, I want to load an example where I have purposely set the filter
+            // // and that example is indistinguishable from an example where I want to see the new features
+            // // because I can't tell the difference (in the old version) between manual and automatic hiding
+            // // So maybe I should have an upgrade button, to allow the user to decide what to do.
+            // // or maybe the user could manually change the 2.4 to 2.5 in the URL.
+            // // 2.4 would not have the upgrade button
+            // // 2.5 
+            // // Oh
+            // // The difference between the locked down version and the updating version is the "config" menu
+            // // So I put the "Disable filters" button in the config menu,
+            
             if ( config.featurelist == undefined) {
                 config.doFeatureFilter = false
-            } else {
-                modifyConfigFeaturelist(config,true, ["doFeatureFilter"]) 
-            }
+            } 
 
-            // Hmm. on the one hand, I want to load an example where I have purposely set the filter
-            // and that example is indistinguishable from an example where I want to see the new features
-            // because I can't tell the difference (in the old version) between manual and automatic hiding
-            // So maybe I should have an upgrade button, to allow the user to decide what to do.
-            // or maybe the user could manually change the 2.4 to 2.5 in the URL.
-            // 2.4 would not have the upgrade button
-            // 2.5 
-            // Oh
-            // The difference between the locked down version and the updating version is the "config" menu
-            // So I put the "Disable filters" button in the config menu,
+
 
             // one more thing
             // switch the name for this setting:
@@ -814,6 +851,50 @@ function Config(ui, config, initialConfig) {
                 config.behavior = "bounce"
             }
 
+
+            // strategies section //
+
+            // translate old strategies
+            var tr = ui.strategyOrganizer.translate
+            var sys = config.system
+            var s1 = config.firstStrategy
+            var s2 = config.secondStrategy
+            if (s1 !== undefined) {
+                config.firstStrategy = tr(s1,sys)
+            }
+            if (s2 !== undefined) {
+                config.secondStrategy = tr(s2,sys)
+            }
+            
+            if (config.scoreFirstStrategy == undefined) {
+                config.scoreFirstStrategy = config.firstStrategy
+            }
+
+            if (config.choiceFirstStrategy == undefined) {
+                config.choiceFirstStrategy = config.firstStrategy
+            }
+
+            if (config.pairFirstStrategy == undefined) {
+                config.pairFirstStrategy = config.firstStrategy
+            }
+
+            if (config.scoreSecondStrategy == undefined) {
+                config.scoreSecondStrategy = config.secondStrategy
+            }
+
+            if (config.choiceSecondStrategy == undefined) {
+                config.choiceSecondStrategy = config.secondStrategy
+            }
+
+            if (config.pairSecondStrategy == undefined) {
+                config.pairSecondStrategy = config.secondStrategy
+            }
+
+            config.secondStrategies = []  // no longer using this
+
+            // end strategies section //
+
+
             // there's no incompatibility problems yet, so no need to increment
             // code below this if {} statement are still needed in future versions
         }
@@ -822,20 +903,11 @@ function Config(ui, config, initialConfig) {
 
 
         // VOTER DEFAULTS
-        // we want individual strategies to be loaded in, if they are there
-        // if we have a blank slate, then we want to fill in with the variable "secondStrategy"
-        if (config.secondStrategy && config.secondStrategies === undefined) {
-            config.secondStrategies = []
-            for (var i = 0; i < ui.maxVoters; i++) {
-                config.secondStrategies[i] = config.secondStrategy
-            }	
-        }
-        config.secondStrategies = config.secondStrategies || []
+        // we want individual percent strategies to be loaded in, if they are there
         config.percentSecondStrategy = config.percentSecondStrategy || []
         config.voter_group_count = config.voter_group_count || []
         config.voter_group_spread = config.voter_group_spread || []
         for (var i = 0; i < ui.maxVoters; i++) {
-            config.secondStrategies[i] = config.secondStrategies[i] || "zero strategy. judge on an absolute scale."
             if(config.percentSecondStrategy[i] == undefined) config.percentSecondStrategy[i] = 0
             config.voter_group_count[i] = config.voter_group_count[i] || 50
             config.voter_group_spread[i] = config.voter_group_spread[i] || 190
@@ -1000,7 +1072,7 @@ function Cypher(ui) {
         57:"beatMap",
         58:"kindayee",
         59:"ballotConcept",
-        60:"powerChart",
+        60:"roundChart",
         61:"sidebarOn",
         62:"lastTransfer",
         63:"voterIcons",
@@ -1013,6 +1085,20 @@ function Cypher(ui) {
         70:"behavior",
         71:"showToolbar",
         72:"rankedVizBoundary",
+        73:"doElectabilityPolls",
+        74:"partyRule",
+        75:"doFilterSystems",
+        76:"filterSystems",
+        77:"doFilterStrategy",
+        78:"includeSystems",
+        79:"showPowerChart",
+        80:"putMenuAbove",
+        81:"scoreFirstStrategy",
+        82:"choiceFirstStrategy",
+        83:"pairFirstStrategy",
+        84:"scoreSecondStrategy",
+        85:"choiceSecondStrategy",
+        86:"pairSecondStrategy",
     } 
     // HOWTO
     // add more on to the end ONLY
@@ -1391,14 +1477,6 @@ function menu(ui,model,config,initialConfig, cConfig) {
             ui.menu.group_spread.choose.sliders[i].setAttribute("style",style)
         }
         
-
-        // todo: move to config for menu item
-        var multiWinnerSystem = ( config.system == "QuotaApproval"  || config.system == "QuotaScore" || config.system == "RRV" ||  config.system == "RAV" ||  config.system == "STV" || config.system == "QuotaMinimax")
-        if (multiWinnerSystem) {
-            ui.menu.seats.choose.dom.hidden = false
-        } else {
-            ui.menu.seats.choose.dom.hidden = true
-        }
     }
 
     
@@ -1517,7 +1595,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             {name:"STV", value:"STV", ballotType:"Ranked", election:Election.stv, margin:4},
             {name:"QuotaMinimax", value:"QuotaMinimax", realname:"Using a quota with Minimax Condorcet voting to make proportional representation.",ballotType:"Ranked", election:Election.quotaMinimax}
         ];
-        self.codebook = [
+        self.systemsCodebook = [
             {
                 field: "system",
                 decode: {
@@ -1544,6 +1622,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
                 }
             }
         ]
+        self.codebook = self.systemsCodebook
         self.listByName = function() {
             var votingSystem = self.list.filter(function(system){
                 return(system.value==config.system);
@@ -1569,6 +1648,8 @@ function menu(ui,model,config,initialConfig, cConfig) {
             model.dm.redistrict()
             model.update();
             ui.menu_update()
+            ui.strategyOrganizer.configure()
+            ui.strategyOrganizer.showOnlyStrategyForTypeOfSystem()
         };
         self.choose = new ButtonGroup({
             label: "what voting system?",
@@ -1580,7 +1661,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             
             showMenuItemsIf("divRBVote", config.system === "RBVote")
             showMenuItemsIf("divLastTransfer", config.system === "IRV" || config.system === "STV")
-            
+            showMenuItemsIf("divDoElectabilityPolls", config.system == "+Primary")
             
             model.system = config.system;
 
@@ -1609,7 +1690,9 @@ function menu(ui,model,config,initialConfig, cConfig) {
             for (var voter of model.voterGroups) {
                 voter.typeVoterModel = model.ballotType // needs init
             }
-            model.pollResults = undefined
+            for (let district of model.district) {
+                district.pollResults = undefined
+            }
 
             
             if (model.ballotType == "Ranked") {
@@ -1691,7 +1774,9 @@ function menu(ui,model,config,initialConfig, cConfig) {
         self.configure= function() {
             model.rbsystem = config.rbsystem
             model.rbelection = self.listByName().rbelection
-            model.pollResults = undefined
+            for (let district of model.district) {
+                district.pollResults = undefined
+            }
         }
         self.select = function() {
             self.choose.highlight("value", config.rbsystem)
@@ -1833,6 +1918,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
                 7:7,
                 8:8,
                 9:9,
+                10:10,
             }
         } ]
         self.onChoose = function(data){
@@ -1970,7 +2056,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             // CONFIGURE
             self.configure()
             //_objF(ui.menu,"configure")  // TODO: do I need this?
-            ui.menu.firstStrategy.configure()
+            ui.strategyOrganizer.configure()
             ui.menu.secondStrategy.configure()
             ui.menu.spread_factor_voters.configure()
             // INIT
@@ -2103,7 +2189,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             config.voterPositions = null
             // CONFIGURE
             ui.menu.nVoterGroups.configure() // same settings in this other button
-            ui.menu.firstStrategy.configure()
+            ui.strategyOrganizer.configure()
             ui.menu.secondStrategy.configure()
             ui.menu.spread_factor_voters.configure()
             // INIT
@@ -2416,40 +2502,212 @@ function menu(ui,model,config,initialConfig, cConfig) {
 
     
 
-    ui.menu.firstStrategy = new function() { // strategy 1 AKA unstrategic voters' strategy
+    ui.strategyOrganizer = new function() { // an organizer for each strategy type's menu items
         var self = this
-        self.list = [
-            {name:"O", value:"zero strategy. judge on an absolute scale.", realname:"zero strategy. judge on an absolute scale.", margin:4},
-            {name:"N", value:"normalize", realname:"normalize", margin:4},
-            {name:"F", value:"normalize frontrunners only", realname:"normalize frontrunners only", margin:4},
-            {name:"F+", value:"best frontrunner", realname:"best frontrunner", margin:4},
-            {name:"F-", value:"not the worst frontrunner", realname:"not the worst frontrunner"}
-        ];
-        // self.codebook was done below in ui.menu.secondStrategy
+            
+        var choiceType = "choice"
+        var scoreType = "score"
+        var pairType = "pair"
+        self.types = [choiceType,pairType,scoreType]
+        self.stratBySys = {
+            "FPTP": choiceType,
+            "+Primary": choiceType,
+            "Top Two": choiceType,
+            "RBVote": pairType,
+            "IRV": choiceType, 
+            "Borda": pairType,
+            "Minimax": pairType,
+            "Schulze": pairType,
+            "RankedPair": pairType,
+            "Condorcet": pairType,
+            "Approval": scoreType,
+            "Score": scoreType,
+            "STAR": scoreType,
+            "3-2-1": scoreType,
+            "RRV": scoreType, 
+            "RAV": scoreType,
+            "STV": choiceType,
+            "QuotaApproval": scoreType,
+            "QuotaMinimax": pairType,
+            "QuotaScore": scoreType,
+        }
+        self.menuNameFirst = {
+            "choice":"choiceFirstStrategy",
+            "pair":"pairFirstStrategy",
+            "score":"scoreFirstStrategy",
+        }
+        self.menuNameSecond = {
+            "choice":"choiceSecondStrategy",
+            "pair":"pairSecondStrategy",
+            "score":"scoreSecondStrategy",
+        }
+        self.decodeList = {
+            0:"zero strategy. judge on an absolute scale.",
+            1:"normalize",
+            2:"normalize frontrunners only",
+            3:"best frontrunner",
+            4:"not the worst frontrunner",
+        }
+        self.translate = function(strat,sys) {
+            // type	    O	N	F	F+	F-
+            // score	O	N	F	F+	F-
+            // choice	O	O	F	F	F
+            // pair	    O	O	O	O	O
+            var zero = "zero strategy. judge on an absolute scale."
+            var theType = self.stratBySys[sys]
+            if (theType == "choice") {
+                var not_f = [zero,"normalize"]
+                if (not_f.includes(strat)) {
+                    return zero
+                } else {
+                    return "normalize frontrunners only"
+                }
+            } else if (theType == "pair") {
+                return zero
+            } else if (theType == "score") {
+                return strat
+            } else {
+                return strat
+            }
+        }
         self.onChoose = function(data){
-            // LOAD INPUT
-            config.firstStrategy = data.value;
             // CONFIGURE
             self.configure()
             // UPDATE
             model.update();
             ui.menu_update()
         };
+        self.configure = function() {
+            // take on the strategy of the relevant system type
+            var theType = self.stratBySys[model.system]
+            var theConfigFirst = self.menuNameFirst[theType]
+            config.firstStrategy = config[theConfigFirst]
+            var theConfigSecond = self.menuNameSecond[theType]
+            config.secondStrategy = config[theConfigSecond]
+
+            _showOrHideMenuForStrategy(config)
+            model.firstStrategy = config.firstStrategy
+            model.secondStrategy = config.secondStrategy
+        }
+
+        self.showOnlyStrategyForTypeOfSystem = function() {
+
+            var theType = self.stratBySys[model.system]
+            var menuNameFirst = self.menuNameFirst
+            var menuNameSecond = self.menuNameSecond
+    
+            var types = self.types
+    
+            // show only the one that applies
+            for (var t of types) {
+                m = menuNameFirst[t]
+                if (t == theType) {
+                    ui.menu[m].choose.dom.hidden = false
+                } else {   
+                    ui.menu[m].choose.dom.hidden = true
+                }
+                m = menuNameSecond[t]
+                if (t == theType) {
+                    ui.menu[m].choose.dom.hidden = false
+                } else {   
+                    ui.menu[m].choose.dom.hidden = true
+                }
+            }
+    
+            // hide features if they are filtered out
+            _hideFeatures()
+        }
+    }
+    
+    ui.menu.scoreFirstStrategy = new function() { // just filling in firstStrategy with a limited set
+        var self = this
+        self.list = [
+            {name:"J", value:"zero strategy. judge on an absolute scale.", realname:"Judge: Every voter judges the candidates on the same absolute scale of distance.", margin:4},
+            {name:"N", value:"normalize", realname:"Normalize all: Highest score for closest, lowest for farthest.  Somewhere in the middle for everyone else.", margin:4},
+            {name:"F", value:"normalize frontrunners only", realname:"Frontrunners: Normalize only for the set of frontrunners.  Highest score for all better.  Lowest score for all worse.", margin:4},
+            {name:"F+", value:"best frontrunner", realname:"Best frontrunner: Highest score for best frontrunner and all better.  Lowest score for all others.", margin:4},
+            {name:"F-", value:"not the worst frontrunner", realname:"Not the worst frontrunner: Lowest score for worst frontrunner and all worse.  Highest score for all others."}
+        ];
+        self.codebook = [
+            {
+                decode: ui.strategyOrganizer.decodeList,
+                field: "scoreFirstStrategy"
+            },
+        ]        
+        self.onChoose = function(data){
+            config.scoreFirstStrategy = data.value;
+            ui.strategyOrganizer.onChoose()
+        };
         self.choose = new ButtonGroup({
-            label: "what's voters' strategy?",
+            label: "strategy for score-type voter:",
             width: bw(5),
             data: self.list,
             onChoose: self.onChoose
         });
         self.configure = function() {
-            _showOrHideMenuForStrategy(config)
-            model.firstStrategy = config.firstStrategy
-            for (var i=0; i<model.voterGroups.length; i++) {
-                model.voterGroups[i].firstStrategy = config.firstStrategy
-            }
+            return
         }
         self.select = function() {
-            self.choose.highlight("value", config.firstStrategy);
+            self.choose.highlight("value", config.scoreFirstStrategy);
+        }
+    }
+
+    ui.menu.choiceFirstStrategy = new function() { // just filling in firstStrategy with a limited set
+        var self = this
+        self.list = [
+            {name:"H", value:"zero strategy. judge on an absolute scale.", realname:"Honesty", margin:4},
+            {name:"F", value:"normalize frontrunners only", realname:"Pick the Best Frontrunner", margin:4},
+        ];
+        self.codebook = [
+            {
+                decode: ui.strategyOrganizer.decodeList,
+                field: "choiceFirstStrategy"
+            },
+        ]
+        self.onChoose = function(data){
+            config.choiceFirstStrategy = data.value;
+            ui.strategyOrganizer.onChoose()
+        };
+        self.choose = new ButtonGroup({
+            label: "strategy for choice-type voter:",
+            width: bw(5),
+            data: self.list,
+            onChoose: self.onChoose
+        });
+        self.configure = function() {
+            return
+        }
+        self.select = function() {
+            self.choose.highlight("value", config.choiceFirstStrategy);
+        }
+    }
+
+    ui.menu.pairFirstStrategy = new function() { // just filling in firstStrategy with a limited set
+        var self = this
+        self.list = [
+            {name:"H", value:"zero strategy. judge on an absolute scale.", realname:"Honesty", margin:4},
+        ];
+        self.codebook = [
+            {
+                decode: ui.strategyOrganizer.decodeList,
+                field: "pairFirstStrategy"
+            },
+        ]
+        self.onChoose = function(data){
+            config.pairFirstStrategy = data.value;
+            ui.strategyOrganizer.onChoose()
+        };
+        self.choose = new ButtonGroup({
+            label: "strategy for pair-type voter:",
+            width: bw(5),
+            data: self.list,
+            onChoose: self.onChoose
+        });
+        self.configure = function() {
+            return
+        }
+        self.select = function() {
+            self.choose.highlight("value", config.pairFirstStrategy);
         }
     }
 
@@ -2457,14 +2715,14 @@ function menu(ui,model,config,initialConfig, cConfig) {
         var not_f = ["zero strategy. judge on an absolute scale.","normalize"]
         var turnOffFrontrunnerControls =  not_f.includes(config.firstStrategy)
         if (config.doTwoStrategies) {
-            for(var i=0;i<config.secondStrategies.length;i++){
-                if (! not_f.includes(config.secondStrategies[i])){
-                    turnOffFrontrunnerControls = false
-                }
+            if (! not_f.includes(config.secondStrategy) ) {
+                turnOffFrontrunnerControls = false
             }
         }
-        showMenuItemsIf("divPoll", ! turnOffFrontrunnerControls)
-        showMenuItemsIf("divManualPoll", ! config.autoPoll == "Auto")
+        var onFront = ! turnOffFrontrunnerControls
+        showMenuItemsIf("divPoll", onFront)
+        var doManual = config.autoPoll == "Manual"
+        showMenuItemsIf("divManualPoll", doManual)
     }
 
     ui.menu.doTwoStrategies = new function() { // Is there a 2nd strategy?
@@ -2472,13 +2730,27 @@ function menu(ui,model,config,initialConfig, cConfig) {
         self.list = [
             {realname: "opton for 2nd strategy", name:"2", value:"2"}
         ];
-        self.codebook = [ {
-            field: "doTwoStrategies",
-            decode: {
-                0:false,
-                1:true,
-            }
-        } ]
+        self.codebook = [
+            {
+                decode: ui.strategyOrganizer.decodeList,
+                field: "secondStrategies" // old. not used anymore, but kept
+            },
+            {
+                decode: ui.strategyOrganizer.decodeList,
+                field: "secondStrategy"
+            },
+            {
+                decode: ui.strategyOrganizer.decodeList,
+                field: "firstStrategy"
+            },
+            {
+                field: "doTwoStrategies",
+                decode: {
+                    0:false,
+                    1:true,
+                },
+            },
+        ]
         self.onChoose = function(data){
             // LOAD INPUT
             config.doTwoStrategies = data.isOn
@@ -2513,67 +2785,85 @@ function menu(ui,model,config,initialConfig, cConfig) {
         });			
     }
 
-    ui.menu.secondStrategy = new function() { // strategy 2 AKA strategic voters' strategy
+    ui.menu.scoreSecondStrategy = new function() { // just filling in secondStrategy with a limited set
         var self = this
-        self.list = [
-            {name:"O", value:"zero strategy. judge on an absolute scale.", realname:"zero strategy. judge on an absolute scale.", margin:4},
-            {name:"N", value:"normalize", realname:"normalize", margin:4},
-            {name:"F", value:"normalize frontrunners only", realname:"normalize frontrunners only", margin:4},
-            {name:"F+", value:"best frontrunner", realname:"best frontrunner", margin:4},
-            {name:"F-", value:"not the worst frontrunner", realname:"not the worst frontrunner"}
-        ];
-        var decodeList = {
-            0:"zero strategy. judge on an absolute scale.",
-            1:"normalize",
-            2:"normalize frontrunners only",
-            3:"best frontrunner",
-            4:"not the worst frontrunner",
-        }
+        self.list = ui.menu.scoreFirstStrategy.list
         self.codebook = [
             {
-                decode: decodeList,
-                field: "secondStrategies"
+                decode: ui.strategyOrganizer.decodeList,
+                field: "scoreSecondStrategy"
             },
-            {
-                decode: decodeList,
-                field: "secondStrategy"
-            },
-            {
-                decode: decodeList,
-                field: "firstStrategy"
-            }
         ]
         self.onChoose = function(data){
-            // LOAD INPUT
-            config.secondStrategy = data.value
-            for (var i = 0; i < ui.maxVoters; i++) {
-                config.secondStrategies[i] = data.value
-            }
-            // CONFIGURE
-            self.configure()
-            // UPDATE
-            model.update();
-            ui.menu_update()
+            config.scoreSecondStrategy = data.value;
+            ui.strategyOrganizer.onChoose()
         };
-        self.configure = function() {
-            _showOrHideMenuForStrategy(config)
-            model.secondStrategy = config.secondStrategy
-            for (var i=0; i<model.voterGroups.length; i++) {
-                model.voterGroups[i].secondStrategy = config.secondStrategies[i]
-            }
-        }
-        self.select = function() {
-            self.choose.highlight("value", config.value);
-            // if (config.secondStrategies[0] != "starnormfrontrunners") { // kind of a hack for now, but I don't really want another button
-            // 	self.choose.highlight("realname", config.secondStrategies[0]);
-            // }
-        }
         self.choose = new ButtonGroup({
-            label: "what's voters' 2nd strategy?",
+            label: "2nd strategy for score-type voter:",
             width: bw(5),
             data: self.list,
             onChoose: self.onChoose
         });
+        self.configure = function() {
+            return
+        }
+        self.select = function() {
+            self.choose.highlight("value", config.scoreSecondStrategy);
+        }
+    }
+
+    ui.menu.choiceSecondStrategy = new function() { // just filling in secondStrategy with a limited set
+        var self = this
+        self.list = ui.menu.choiceFirstStrategy.list
+        self.codebook = [
+            {
+                decode: ui.strategyOrganizer.decodeList,
+                field: "choiceSecondStrategy"
+            },
+        ]
+        self.onChoose = function(data){
+            config.choiceSecondStrategy = data.value;
+            ui.strategyOrganizer.onChoose()
+        };
+        self.choose = new ButtonGroup({
+            label: "2nd strategy for choice-type voter:",
+            width: bw(5),
+            data: self.list,
+            onChoose: self.onChoose
+        });
+        self.configure = function() {
+            return
+        }
+        self.select = function() {
+            self.choose.highlight("value", config.choiceSecondStrategy);
+        }
+    }
+
+    ui.menu.pairSecondStrategy = new function() { // just filling in secondStrategy with a limited set
+        var self = this
+        self.list = ui.menu.pairFirstStrategy.list
+        self.codebook = [
+            {
+                decode: ui.strategyOrganizer.decodeList,
+                field: "pairSecondStrategy"
+            },
+        ]
+        self.onChoose = function(data){
+            config.pairSecondStrategy = data.value;
+            ui.strategyOrganizer.onChoose()
+        };
+        self.choose = new ButtonGroup({
+            label: "2nd strategy for pair-type voter:",
+            width: bw(5),
+            data: self.list,
+            onChoose: self.onChoose
+        });
+        self.configure = function() {
+            return
+        }
+        self.select = function() {
+            self.choose.highlight("value", config.pairSecondStrategy);
+        }
     }
 
     ui.menu.percentSecondStrategy = new function() {  // group count
@@ -3013,7 +3303,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
                     42: "yeeon",
                     43: "beatMap",
                     44: "ballotConcept",
-                    45: "powerChart",
+                    45: "roundChart",
                     46: "sidebarOn",
                     47: "lastTransfer",
                     48: "voterIcons",
@@ -3026,6 +3316,20 @@ function menu(ui,model,config,initialConfig, cConfig) {
                     55: "showToolbar",
                     56: "rankedVizBoundary",
                     57: "showDescription",
+                    58: "doElectabilityPolls",
+                    59: "partyRule",
+                    60: "doFilterSystems",
+                    61: "filterSystems",
+                    62: "doFilterStrategy",
+                    63: "includeSystems",
+                    64: "showPowerChart",
+                    65: "putMenuAbove",
+                    66: "scoreFirstStrategy",
+                    67: "choiceFirstStrategy",
+                    68: "pairFirstStrategy",
+                    69: "scoreSecondStrategy",
+                    70: "choiceSecondStrategy",
+                    71: "pairSecondStrategy",
                 },
             }
         ]
@@ -3046,21 +3350,59 @@ function menu(ui,model,config,initialConfig, cConfig) {
     }
 
     function _hideOrShowFeatures() {
+        
+        var noneShow = _showFeatures()
+        _hideFeatures()
+
+        // special config for "seats"
+        var notMultiWinnerSystem = ! ( config.system == "QuotaApproval"  || config.system == "QuotaScore" || config.system == "RRV" ||  config.system == "RAV" ||  config.system == "STV" || config.system == "QuotaMinimax")
+        if (notMultiWinnerSystem) {
+            ui.menu.seats.choose.dom.hidden = true
+        }
+
+        if (noneShow) {
+            ui.dom.left.id = "noClass"
+            ui.dom.left.style.display = "none"
+        } else {
+            ui.dom.left.id = "left"
+            if (config.putMenuAbove) {
+                ui.dom.left.style.display = "block"
+            } else {
+                ui.dom.left.style.display = "inline-block"
+            }
+        }
+        return
+    }
+
+    function _showFeatures() {
         var noneShow = true
         for (i in ui.menu) {
-            if(!config.doFeatureFilter || config.featurelist.includes(i)) {
+            // go through all the menu items
+            // if the feature is listed or the feature filter is off, show the feature
+            // or if the Override is on
+            // and , show the feature
+            if(model.devOverrideShowAllFeatures || !config.doFeatureFilter || config.featurelist.includes(i)) {
                 ui.menu[i].choose.dom.hidden = false
                 noneShow = false
+            }
+        }
+        return noneShow
+    }
+
+    function _hideFeatures() {
+        for (i in ui.menu) {
+            // go through all the menu items
+            // if the feature is listed or the feature filter is off, show the feature
+            // or if the Override is on
+            // and , show the feature
+            if(model.devOverrideShowAllFeatures || !config.doFeatureFilter || config.featurelist.includes(i)) {
+                continue
             } else {
                 ui.menu[i].choose.dom.hidden = true
             }
         }
-        if (noneShow) {
-            ui.dom.left.id = "noClass"
-        } else {
-            ui.dom.left.id = "left"
-        }
     }
+
 
     ui.menu.presetconfig = new function() { // pick a preset
         var self = this
@@ -3118,6 +3460,13 @@ function menu(ui,model,config,initialConfig, cConfig) {
                         voterPositions: [[81,92]],
                         candidatePositions: [[41,50],[153,95],[216,216]],
                         firstStrategy: "zero strategy. judge on an absolute scale.",
+                        scoreFirstStrategy: "zero strategy. judge on an absolute scale.",
+                        choiceFirstStrategy: "zero strategy. judge on an absolute scale.",
+                        pairFirstStrategy: "zero strategy. judge on an absolute scale.",
+                        secondStrategy: "zero strategy. judge on an absolute scale.",
+                        scoreSecondStrategy: "zero strategy. judge on an absolute scale.",
+                        choiceSecondStrategy: "zero strategy. judge on an absolute scale.",
+                        pairSecondStrategy: "zero strategy. judge on an absolute scale.",
                         preFrontrunnerIds: ["square","triangle"],
                         showChoiceOfStrategy: false,
                         showChoiceOfFrontrunners: false,
@@ -3133,6 +3482,13 @@ function menu(ui,model,config,initialConfig, cConfig) {
                         voterPositions: ballotconfig.voterPositions,
                         candidatePositions: ballotconfig.candidatePositions,
                         firstStrategy: ballotconfig.firstStrategy,
+                        scoreFirstStrategy: ballotconfig.scoreFirstStrategy,
+                        choiceFirstStrategy: ballotconfig.choiceFirstStrategy,
+                        pairFirstStrategy: ballotconfig.pairFirstStrategy,
+                        secondStrategy: ballotconfig.secondStrategy,
+                        scoreSecondStrategy: ballotconfig.scoreSecondStrategy,
+                        choiceSecondStrategy: ballotconfig.choiceSecondStrategy,
+                        pairSecondStrategy: ballotconfig.pairSecondStrategy,
                         preFrontrunnerIds: ballotconfig.preFrontrunnerIds,
                         // these are not based on the ballot config
                         oneVoter: true,
@@ -3140,7 +3496,12 @@ function menu(ui,model,config,initialConfig, cConfig) {
                     })
                     config.featurelist = []
                     if (ballotconfig.showChoiceOfFrontrunners) {config.featurelist.push("frontrunners")}
-                    if (ballotconfig.showChoiceOfStrategy) {config.featurelist.push("firstStrategy")}
+                    if (ballotconfig.showChoiceOfStrategy) {config.featurelist.push("scoreFirstStrategy")}
+                    if (ballotconfig.showChoiceOfStrategy) {config.featurelist.push("choiceFirstStrategy")}
+                    if (ballotconfig.showChoiceOfStrategy) {config.featurelist.push("pairFirstStrategy")}
+                    if (ballotconfig.showChoiceOfStrategy) {config.featurelist.push("scoreSecondStrategy")}
+                    if (ballotconfig.showChoiceOfStrategy) {config.featurelist.push("choiceSecondStrategy")}
+                    if (ballotconfig.showChoiceOfStrategy) {config.featurelist.push("pairSecondStrategy")}
                 }
                 // CONFIGURE MAIN
                 cConfig.cleanConfig(config)
@@ -3648,9 +4009,9 @@ function menu(ui,model,config,initialConfig, cConfig) {
             if ( model.doTextBallots) return // text ballots are not relevant here
             // virtually press some buttons
             // pretend we did onChoose and select for the following options to make things run more smoothly
-            config.powerChart = "off"
-            ui.menu.powerChart.configure()
-            ui.menu.powerChart.select()
+            config.roundChart = "off"
+            ui.menu.roundChart.configure()
+            ui.menu.roundChart.select()
             config.sidebarOn = "off"
             ui.menu.sidebarOn.configure()
             ui.menu.sidebarOn.select()
@@ -4142,7 +4503,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
     }
 
 
-    ui.menu.powerChart = new function () {
+    ui.menu.roundChart = new function () {
         var self = this
         self.list = [
             {name:"auto",value:"auto",margin:4},
@@ -4150,7 +4511,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             {name:"off",value:"off"},
         ]
         self.codebook = [ {
-            field: "powerChart",
+            field: "roundChart",
             decode: {
                 0:"off",
                 1:"on",
@@ -4159,16 +4520,16 @@ function menu(ui,model,config,initialConfig, cConfig) {
         } ]
         self.onChoose = function(data){
             // LOAD
-            config.powerChart = data.value
+            config.roundChart = data.value
             // CONFIGURE
             self.configure()
             // INIT
-            if (config.sidebarOn == "auto") {
+            if (config.sidebarOn == "on") {
                 model.update()
             }
         };
         self.configure = function() {
-            model.powerChart = config.powerChart
+            model.roundChart = config.roundChart
             if (model.checkGotoTarena()) { // TODO: make a visualization for more than 1 district
                 model.tarena.canvas.hidden = false
             } else {
@@ -4182,7 +4543,44 @@ function menu(ui,model,config,initialConfig, cConfig) {
             onChoose: self.onChoose
         });
         self.select = function() {
-            self.choose.highlight("value", config.powerChart);
+            self.choose.highlight("value", config.roundChart);
+        }
+    }
+
+    ui.menu.showPowerChart = new function () {
+        var self = this
+        self.list = [
+            {name:"yes",value:true,margin:4},
+            {name:"no",value:false},
+        ]
+        self.codebook = [ {
+            field: "showPowerChart",
+            decode: {
+                0:false,
+                1:true,
+            }
+        } ]
+        self.onChoose = function(data){
+            // LOAD
+            config.showPowerChart = data.value
+            // CONFIGURE
+            self.configure()
+            // INIT
+            if (config.sidebarOn = "on") {
+                model.update()
+            }
+        };
+        self.configure = function() {
+            model.showPowerChart = config.showPowerChart
+        }
+        self.choose = new ButtonGroup({
+            label: "Show Power Chart:", // Sub Menu
+            width: bw(4),
+            data: self.list,
+            onChoose: self.onChoose
+        });
+        self.select = function() {
+            self.choose.highlight("value", config.showPowerChart);
         }
     }
 
@@ -4214,9 +4612,11 @@ function menu(ui,model,config,initialConfig, cConfig) {
         self.configure = function() {
             model.optionsForElection.sidebar = (config.sidebarOn == "on")
             if (config.sidebarOn == "on") {
+                ui.dom.right.id = "right"
                 model.caption.hidden = false
             } else {
                 model.caption.hidden = true
+                ui.dom.right.id = "noClass"
             }
         }
         self.choose = new ButtonGroup({
@@ -4254,7 +4654,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             model.update() // must re-run election
         };
         self.configure = function() {
-            model.opt.IRV100 = (config.lastTransfer == "on")
+            model.opt.irv100 = (config.lastTransfer == "on")
         }
         self.choose = new ButtonGroup({
             label: "Show Last Transfer for Transferable Methods?", // Sub Menu
@@ -4763,8 +5163,384 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
     }
 
+    ui.menu.doElectabilityPolls = new function () {
+        // where to put the boundary for a candidate's region
+        var self = this
+        self.list = [
+            {name:"Yes",value:true,margin:4},
+            {name:"No",value:false}
+        ]
+        self.codebook = [ {
+            field: "doElectabilityPolls",
+            decode: {
+                0:false,
+                1:true,
+            }
+        } ]
+        self.onChoose = function(data){
+            // LOAD
+            config.doElectabilityPolls = data.value
+            // CONFIGURE
+            self.configure()
+            // INIT AND UPDATE
+            model.update()
+        };
+        self.configure = function() {
+            model.doElectabilityPolls = config.doElectabilityPolls
+        }
+        self.choose = new ButtonGroup({
+            label: "Do electability Polls?", // Sub Menu
+            width: bw(4),
+            data: self.list,
+            onChoose: self.onChoose
+        });
+        self.select = function() {
+            self.choose.highlight("value", config.doElectabilityPolls);
+        }
+    }
+
+    ui.menu.partyRule = new function () {
+        // where to put the boundary for a candidate's region
+        var self = this
+        self.list = [
+            {name:"crowd",value:"crowd",margin:4},
+            {name:"left-right",value:"leftright",margin:0},
+        ]
+        self.codebook = [ {
+            field: "partyRule",
+            decode: {
+                0:"crowd",
+                1:"leftright",
+            }
+        } ]
+        self.onChoose = function(data){
+            // LOAD
+            config.partyRule = data.value
+            // CONFIGURE
+            self.configure()
+            // INIT AND UPDATE
+            model.dm.redistrict()
+            model.update()
+        };
+        self.configure = function() {
+            model.partyRule = config.partyRule
+        }
+        self.choose = new ButtonGroup({
+            label: "How do we register parties?", // Sub Menu
+            width: bw(2),
+            data: self.list,
+            onChoose: self.onChoose
+        });
+        self.select = function() {
+            self.choose.highlight("value", config.partyRule);
+        }
+    }
+
+    ui.menu.doFilterSystems = new function () {
+        // where to put the boundary for a candidate's region
+        var self = this
+        self.list = [
+            {name:"Yes",value:true,margin:4},
+            {name:"No",value:false}
+        ]
+        self.codebook = [ {
+            field: "doFilterSystems",
+            decode: {
+                0:false,
+                1:true,
+            }
+        } ]
+        self.onChoose = function(data){
+            // LOAD
+            config.doFilterSystems = data.value
+            // CONFIGURE
+            self.configure()
+            ui.showHideSystems()
+        };
+        self.configure = function() {
+            return
+        }
+        self.choose = new ButtonGroup({
+            label: "Filter Voting Systems?", // Sub Menu
+            width: bw(4),
+            data: self.list,
+            onChoose: self.onChoose
+        });
+        self.select = function() {
+            self.choose.highlight("value", config.doFilterSystems);
+        }
+    }
+    
+    ui.menu.filterSystems = new function() { 	
+        var self = this
+        self.list = ui.menu.systems.list
+        for (var entry of self.list) entry.margin = 2
+
+        self.codebook = ui.menu.systems.systemsCodebook
+        self.onChoose = function(data){
+            // LOAD CONFIG //
+            modifyConfigFilterSystems(config,data.isOn, [data.value])
+            // CONFIGURE
+            self.configure()
+            ui.showHideSystems()
+        };
+        self.configure = function() {
+            return
+        }
+        self.select = function() {
+            self.choose.highlight("value", config.filterSystems);
+        }
+        self.choose = new ButtonGroup({
+            label: "Systems to Keep:",
+            width: bw(2),
+            data: self.list,
+            onChoose: self.onChoose,
+            isCheckbox: true
+        });
+    }
+
+    ui.showHideSystems = function() {
+
+        // categories for systems
+        
+        includeIf = {
+            choice: [
+                "FPTP",
+                "+Primary",
+                "Top Two",
+                "IRV",
+                "STV",
+            ],
+            pair: [
+                "Minimax",
+                "Schulze",
+                "RankedPair",
+                "Condorcet",
+                "STAR",
+                "3-2-1",
+                "RBVote",
+                "QuotaMinimax",
+            ],
+            score: [
+                "Approval",
+                "Score",
+                "Borda",
+                "STAR",
+                "3-2-1",
+                "RRV",
+                "RAV",
+                "QuotaApproval",
+                "QuotaScore",
+            ]
+        }
+        includeOnlyIf = {
+            multi: [
+                "RRV",
+                "RAV",
+                "STV",
+                "QuotaApproval",
+                "QuotaMinimax",
+                "QuotaScore",
+            ],
+            dev: [
+                "QuotaApproval",
+                "QuotaMinimax",
+                "QuotaScore",
+            ]
+        }
+
+        // just for reference
+        all = [
+            "FPTP",
+            "+Primary",
+            "Top Two",
+            "RBVote",
+            "IRV",
+            "Borda",
+            "Minimax",
+            "Schulze",
+            "RankedPair",
+            "Condorcet",
+            "STAR",
+            "3-2-1",
+            "Approval",
+            "Score",
+            "STAR",
+            "3-2-1",
+            "RRV",
+            "RAV",
+            "STV",
+            "QuotaApproval",
+            "QuotaMinimax",
+            "QuotaScore",
+        ]
+        
+        // helper
+        var getDom = x => ui.menu.systems.choose.buttonDOMByValue[x]
+
+        // default: hide all
+        for (var entry of ui.menu.filterSystems.list) {
+            var dom = getDom(entry.value)
+            dom.hidden = true
+        }
+
+        // show if
+        for (let catName in includeIf) {
+            // is the button selected?
+            if (config.includeSystems.includes(catName)) {
+                // show all systems in category
+                let systems = includeIf[catName]
+                for(let sys of systems) {
+                    let dom = getDom(sys)
+                    dom.hidden = false
+                }
+            }
+        }
+
+        // show only if
+        for (let catName in includeOnlyIf) {
+            // is the button NOT selecte?
+            if (! config.includeSystems.includes(catName)) {
+                // hide all systems in category
+                let systems = includeOnlyIf[catName]
+                for(let sys of systems) {
+                    let dom = getDom(sys)
+                    dom.hidden = true
+                }
+            }
+        }
+
+        // PART 2
+
+        // hide individual systems
+        for (var entry of ui.menu.filterSystems.list) {
+            var dom = getDom(entry.value)
+            var show = !config.doFilterSystems || config.filterSystems.includes(entry.value)
+            if( show) {
+                continue
+            } else {
+                dom.hidden = true
+            }
+        }
+
+
+    }
+
+    ui.menu.doFilterStrategy = new function () {
+        // where to put the boundary for a candidate's region
+        var self = this
+        self.list = [
+            {name:"Yes",value:true,margin:4},
+            {name:"No",value:false}
+        ]
+        self.codebook = [ {
+            field: "doFilterStrategy",
+            decode: {
+                0:false,
+                1:true,
+            }
+        } ]
+        self.onChoose = function(data){
+            // LOAD
+            config.doFilterStrategy = data.value
+            // CONFIGURE
+            self.configure()
+            // ui.showHideStrategy()
+        };
+        self.configure = function() {
+            return
+        }
+        self.choose = new ButtonGroup({
+            label: "Filter Voting Strategies by System?", // Sub Menu
+            width: bw(4),
+            data: self.list,
+            onChoose: self.onChoose
+        });
+        self.select = function() {
+            self.choose.highlight("value", config.doFilterStrategy);
+        }
+    }
+    
+
+    
+    ui.menu.includeSystems = new function () {
+        var self = this
+        self.list = [
+            {name:'<span style="font-size: 80%;">choice</span>',value:"choice",realname:"choice",margin:4},
+            {name:"pair",value:"pair",margin:4},
+            {name:"score",value:"score",margin:4},
+            {name:"multi",value:"multi",margin:4},
+            {name:"dev",value:"dev"}
+        ]
+        self.codebook = [ {
+            field: "includeSystems",
+            decode: {
+                0:"choice",
+                1:"pair",
+                2:"score",
+                3:"multi",
+                4:"dev",
+            }
+        } ]
+        self.onChoose = function(data){
+            // LOAD CONFIG //
+            config.includeSystems = modifyArrayAsSet(config.includeSystems,data.isOn, [data.value])
+            // CONFIGURE
+            self.configure()
+            ui.showHideSystems()
+        };
+        self.configure = function() {
+            return
+        }
+        self.choose = new ButtonGroup({
+            label: "Voting systems by type:", // Sub Menu
+            width: bw(5),
+            data: self.list,
+            onChoose: self.onChoose,
+            isCheckbox: true
+        });
+        self.select = function() {
+            self.choose.highlight("value", config.includeSystems);
+        }
+    }
+
+    ui.menu.putMenuAbove = new function () {
+        // where to put the boundary for a candidate's region
+        var self = this
+        self.list = [
+            {name:"Yes",value:true,margin:4},
+            {name:"No",value:false}
+        ]
+        self.codebook = [ {
+            field: "putMenuAbove",
+            decode: {
+                0:false,
+                1:true,
+            }
+        } ]
+        self.onChoose = function(data){
+            // LOAD
+            config.putMenuAbove = data.value
+            // CONFIGURE
+            self.configure()
+        };
+        self.configure = function() {
+            _hideOrShowFeatures()
+        }
+        self.choose = new ButtonGroup({
+            label: "Put menu above arena?", // Sub Menu
+            width: bw(4),
+            data: self.list,
+            onChoose: self.onChoose
+        });
+        self.select = function() {
+            self.choose.highlight("value", config.putMenuAbove);
+        }
+    }
+
+    
     // helper
-    showMenuItemsIf = function(name,condition) {
+    function showMenuItemsIf(name,condition) {
         if (condition) {
             ui.m1.menuNameDivs[name][0].hidden = false
             ui.m2.menuNameDivs[name][0].hidden = false
@@ -4819,10 +5595,10 @@ function createMenu(ui) {
             "gearicon",
         ]],
         [ "gearList", [
+            "menuVersion",
             "doFeatureFilter",
             "gearconfig", // start of hidden list
             "presetconfig",
-            "menuVersion",
             "computeMethod",
             "colorChooser",
             "colorSpace",
@@ -4831,6 +5607,7 @@ function createMenu(ui) {
             "median_mean",
             "utility_shape",
             "votersAsCandidates",
+            "partyRule",
             "ballotVis",
             "visSingleBallotsOnly",
             "rankedVizBoundary",
@@ -4847,8 +5624,13 @@ function createMenu(ui) {
             "showDescription",
             "switcher",
             "gearoff",
+            "doFilterSystems",
+            "filterSystems" ,
+            "doFilterStrategy",
+            "putMenuAbove",
         ]],
         [ "main", [
+            "includeSystems",
             "systems", // start of normal list
             [ "divRBVote", [
                 "rbSystems",
@@ -4868,10 +5650,17 @@ function createMenu(ui) {
             ["divCustomNames", [
                 "namelist",
             ]],
-            "firstStrategy",
+            ["divDoElectabilityPolls", [
+                "doElectabilityPolls",
+            ]],
+            "choiceFirstStrategy",
+            "pairFirstStrategy",
+            "scoreFirstStrategy",
             "doTwoStrategies",
             [ "divSecondStrategy", [
-                "secondStrategy",
+                "choiceSecondStrategy",
+                "pairSecondStrategy",
+                "scoreSecondStrategy",
                 "percentSecondStrategy",
             ]],
             // "primaries", // not doing this one, comment out
@@ -4892,7 +5681,8 @@ function createMenu(ui) {
             ]],
             "beatMap",
             "ballotConcept",
-            "powerChart",
+            "roundChart",
+            "showPowerChart",
             "behavior",
             "doTextBallots",
             ["divDoTextBallots", [
@@ -4935,6 +5725,7 @@ function createMenu(ui) {
                     "median_mean",
                     "utility_shape",
                     "votersAsCandidates",
+                    "partyRule",
                 ]],
             ]],
             ["style", [
@@ -4948,7 +5739,6 @@ function createMenu(ui) {
                     "voterIcons",
                 ]],
                 ["advanced", [
-                    "showToolbar",
                     "colorChooser",
                     "colorSpace",
                     "behavior",
@@ -4956,15 +5746,23 @@ function createMenu(ui) {
             ]],
             ["vote", [
                 ["normal", [
+                    "includeSystems",
                     "systems",
                     [ "divRBVote", [
                         "rbSystems",
                     ]],
                     "seats",
-                    "firstStrategy",
+                    ["divDoElectabilityPolls", [
+                        "doElectabilityPolls",
+                    ]],
+                    "choiceFirstStrategy",
+                    "pairFirstStrategy",
+                    "scoreFirstStrategy",
                     "doTwoStrategies",
                     [ "divSecondStrategy", [
-                        "secondStrategy",
+                        "choiceSecondStrategy",
+                        "pairSecondStrategy",
+                        "scoreSecondStrategy",
                         "percentSecondStrategy",
                     ]],
                     [ "divPoll", [
@@ -5005,7 +5803,8 @@ function createMenu(ui) {
                     ]],
                 ]],
                 ["advanced", [
-                    "powerChart",
+                    "roundChart",
+                    "showPowerChart",
                     "sidebarOn",
                     "ballotVis",
                     "visSingleBallotsOnly",
@@ -5019,8 +5818,13 @@ function createMenu(ui) {
                     "menuVersion",
                     "doFeatureFilter",
                     "showDescription",
+                    "showToolbar",
                     "gearconfig", 
                     "presetconfig",
+                    "doFilterSystems",
+                    "filterSystems" ,
+                    "doFilterStrategy",
+                    "putMenuAbove",
                 ]],
             ]],
             ["dev", [
@@ -5136,9 +5940,8 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
         resetDOM.onclick = function(event){
             // special keypress to get menu back
             if (event.ctrlKey) {
-                config.doFeatureFilter = false
+                model.devOverrideShowAllFeatures = ! model.devOverrideShowAllFeatures
                 ui.menu.doFeatureFilter.configure()
-                ui.menu.doFeatureFilter.select()
                 return
             }
             // LOAD INITIAL CONFIG
@@ -5409,6 +6212,34 @@ function modifyConfigFeaturelist(config, condition, xlist) {
         }
     }
     config.featurelist = Array.from(featureset)
+}    
+
+function modifyConfigFilterSystems(config, condition, xlist) {
+    // e.g. var xlist = ["FPTP","IRV"]
+    var filterSet = new Set(config.filterSystems)
+    for (var i in xlist){
+        var xi = xlist[i]
+        if (condition) {
+            filterSet.add(xi)
+        } else {
+            filterSet.delete(xi)
+        }
+    }
+    config.filterSystems = Array.from(filterSet)
+}    
+
+function modifyArrayAsSet(a, condition, xlist) {
+    // e.g. var xlist = ["FPTP","IRV"]
+    var s = new Set(a)
+    for (var i in xlist){
+        var xi = xlist[i]
+        if (condition) {
+            s.add(xi)
+        } else {
+            s.delete(xi)
+        }
+    }
+    return Array.from(s)
 }    
 
 function _simpleMakeEncode(decode) {

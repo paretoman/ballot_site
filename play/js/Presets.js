@@ -93,6 +93,8 @@ function _lookupPreset(ui) {
 			yeeon: false,
 			rankedVizBoundary: "atMidpoint",
 			stepMenu: "vote",
+			doFilterStrategy: true,
+			includeSystems: ["choice","pair","score"],
 			// configversion: 2.5, // should stay at latest version
 		}
 	} else if (ui.presetName == "sandbox_original") {
@@ -242,26 +244,13 @@ function _lookupPreset(ui) {
 			voterPositions: [
 				[150, 150]
 			],
-			secondStrategies: ["normalize"],
+			secondStrategy: "normalize",
 			firstStrategy: "zero strategy. judge on an absolute scale."
 
 		}
 	} else if (ui.presetName == "election8") {
 		uiType = "election"
 		config = {
-
-			/*
-			features:3,
-			system: "Score",
-
-			candidates: 3,
-			candidatePositions: [[100,150],[150,150+100],[300-100,150]],
-	
-			voters: 2,
-			voterPositions: [[100,150],[300-100,150]],
-			secondStrategies: ["normalize","zero strategy. judge on an absolute scale."],
-			preFrontrunnerIds: ["square","hexagon"]
-			*/
 
 			candidatePositions: [
 				[100, 150],
@@ -275,7 +264,6 @@ function _lookupPreset(ui) {
 			system: "Score",
 			candidates: 2,
 			voters: 2,
-			secondStrategies: ["normalize", "normalize", "zero strategy. judge on an absolute scale."],
 			preFrontrunnerIds: ["square", "hexagon"],
 			featurelist: ["percentSecondStrategy"],
 			sandboxsave: false,
@@ -284,6 +272,7 @@ function _lookupPreset(ui) {
 			percentSecondStrategy: ["70", "49", 0],
 			snowman: false,
 			firstStrategy: "zero strategy. judge on an absolute scale.",
+			secondStrategy: "normalize",
 			keyyee: "off",
 			features: undefined,
 			doPercentFirst: undefined,
@@ -305,7 +294,7 @@ function _lookupPreset(ui) {
 				[200, 160],
 				[100, 160]
 			],
-			secondStrategies: ["normalize", "normalize"],
+			secondStrategy: "normalize",
 			percentSecondStrategy: [50, 50],
 			doFullStrategyConfig: true
 
@@ -346,7 +335,7 @@ function _lookupPreset(ui) {
 			system: "Approval",
 			candidates: 3,
 			voters: 3,
-			secondStrategies: ["best frontrunner", "best frontrunner", "best frontrunner"],
+			secondStrategy: "best frontrunner",
 			percentSecondStrategy: [18, 22, 92],
 			preFrontrunnerIds: ["square", "triangle", "hexagon"],
 			featurelist: ["percentSecondStrategy"],
@@ -398,7 +387,7 @@ function _lookupPreset(ui) {
 			system: "Approval",
 			candidates: 3,
 			voters: 3,
-			secondStrategies: ["best frontrunner", "best frontrunner", "best frontrunner"],
+			secondStrategy: "best frontrunner",
 			percentSecondStrategy: [18, 22, 92],
 			preFrontrunnerIds: ["square", "triangle", "hexagon"],
 			featurelist: ["percentSecondStrategy", "systems"],
@@ -447,8 +436,6 @@ function _lookupPreset(ui) {
 			system: "IRV",
 			candidates: 3,
 			voters: 1,
-			secondStrategies: ["zero strategy. judge on an absolute scale.", "normalize frontrunners only", "normalize frontrunners only"],
-			percentSecondStrategy: ["100", 100, 100],
 			preFrontrunnerIds: ["square", "triangle", "hexagon"],
 			featurelist: ["systems"],
 			sandboxsave: false,
@@ -496,7 +483,7 @@ function _lookupPreset(ui) {
 			system: "STAR",
 			candidates: 3,
 			voters: 3,
-			secondStrategies: ["best frontrunner", "best frontrunner", "best frontrunner"],
+			secondStrategy: "best frontrunner",
 			percentSecondStrategy: [18, 22, 92],
 			preFrontrunnerIds: ["square", "triangle", "hexagon"],
 			featurelist: ["percentSecondStrategy"],
@@ -546,7 +533,7 @@ function _lookupPreset(ui) {
 			system: "3-2-1",
 			candidates: 3,
 			voters: 3,
-			secondStrategies: ["best frontrunner", "best frontrunner", "best frontrunner"],
+			secondStrategy: "best frontrunner",
 			percentSecondStrategy: [18, 22, 92],
 			preFrontrunnerIds: ["square", "triangle", "hexagon"],
 			featurelist: ["percentSecondStrategy"],
@@ -585,7 +572,7 @@ function _lookupPreset(ui) {
 			sandboxsave: true,
 			hidegearconfig: false,
 			preFrontrunnerIds: ["square"],
-			secondStrategies: ["zero strategy. judge on an absolute scale.", "zero strategy. judge on an absolute scale.", "zero strategy. judge on an absolute scale."],
+			secondStrategy: "zero strategy. judge on an absolute scale.",
 			percentSecondStrategy: [0, 0, 0],
 			snowman: false,
 			firstStrategy: "zero strategy. judge on an absolute scale.",
@@ -665,6 +652,7 @@ function _lookupPreset(ui) {
 			// median_mean: 1,
 			oneVoter: true,
 			featurelist: ["frontrunners"],
+			putMenuAbove: true,
 			// sandboxsave: true,
 			hidegearconfig: true,
 			preFrontrunnerIds: ["triangle", "hexagon"]
@@ -852,6 +840,7 @@ function _lookupPreset(ui) {
 			// median_mean: 1,
 			// oneVoter: false,
 			featurelist: ["frontrunners"],
+			putMenuAbove: true,
 			// sandboxsave: true,
 			hidegearconfig: true,
 			preFrontrunnerIds: ["square", "hexagon"],
@@ -899,7 +888,7 @@ function _lookupPreset(ui) {
 			// x_voters: false,
 			// median_mean: 1,
 			// oneVoter: false,
-			featurelist: ["systems", "voters", "firstStrategy", "autoPoll"],
+			featurelist: ["systems", "voters", "firstStrategy", "autoPoll","frontrunners","poll"],
 			// sandboxsave: true,
 			hidegearconfig: false,
 			preFrontrunnerIds: ["square", "hexagon"],
@@ -1431,13 +1420,13 @@ function _lookupPreset(ui) {
 		}
 
 	} else if (ui.presetName == "ballot4") {
-		uiType = "ballot"
+		uiType = "ballot-election"
 		config = {
 			ballotType: "Score"
 		}
 
 	} else if (ui.presetName == "ballot5") {
-		uiType = "ballot"
+		uiType = "ballot-election"
 		config = {
 			ballotType: "Score",
 			firstStrategy: "normalize"

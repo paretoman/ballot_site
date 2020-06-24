@@ -58,21 +58,21 @@
 
 /* Slider stuff - This modifies values in election.css */
 .div-sandbox input[type="range"] {
-    height: 8px;
+    height: 20px;
 }
 .div-sandbox ::-webkit-slider-thumb {
-    height: 8px; /* 1 */
+    height: 20px; /* 1 */
 }
 .div-sandbox ::-moz-range-track {
-    height: 8px;
+    height: 20px;
 }
 .div-sandbox ::-moz-range-thumb {
-    height: 8px;
+    height: 20px;
 }
 .div-sandbox ::-ms-thumb { 
-    height: 8px;
+    height: 20px;
 }
 .div-sandbox ::-ms-track { 
-    height: 8px;
+    height: 20px;
 }
 /* end of slider stuff */

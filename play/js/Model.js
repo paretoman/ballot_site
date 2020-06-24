@@ -71,7 +71,7 @@ function Model(idModel){
 		ballotType: "Plurality",
 		rbelection: rbvote.calctide,
 		opt: {
-			IRV100: true, // show the final transfer to the winner (to reach 100%)
+			irv100: true, // show the final transfer to the winner (to reach 100%)
 			IRVShowdown: false,  // show a reverse-direction transfer to represent the winner
 			showIRVTransfers: true,  // show lines representing transfers between rounds
 			breakWinTiesMultiSeat: true, // break ties for winning candidates in multi-winner methods
@@ -83,7 +83,7 @@ function Model(idModel){
         keyyee: "newcan",
         kindayee: "newcan",
         ballotConcept: "auto",
-        powerChart: "auto",
+        roundChart: "auto",
 		voterIcons: "circle",
 		candidateIconsSet: ["image","note"],
 		placeHoldDuringElection: false,
@@ -100,6 +100,11 @@ function Model(idModel){
 		pairOrderByCandidate: true,
 		squareFirstChoice: true, 
 		doVoterMapGPU: false,
+		devOverrideShowAllFeatures: false,
+		doElectabilityPolls: true,
+		partyRule: 'crowd',
+		stage: "general",
+		showPowerChart: true,
 	})
 	
 	self.viz = new Viz(self);
@@ -172,7 +177,14 @@ function Model(idModel){
 	}
 	self.onInitModel = function() {} // a hook for a caller
 
-	self.election = function(self,options){};
+	self.election = function(){
+		self.stage = "general"
+		for (let district of self.district) {
+			district.stages = {}
+			district.stages["general"] = {candidates: district.candidates }
+			self.updateDistrictBallots(district)
+		}
+	};
 
 	self.initPlugin = function(){  // TO IMPLEMENT FURTHER IN CALLER
 		self.initMODEL() // replace this with more
@@ -206,18 +218,8 @@ function Model(idModel){
 	self.update = function(){
 
 		
-        if (self.checkRunTextBallots()){ // TODO: make text ballots work for every method, so we don't have to do this step and we can 
-
-			if (self.textBallotInput == "") return // no need to annoy the user
-			// run an election with RBVote
-			if (self.system === "RBVote") {
-				self.result = self.election("",self,self.optionsForElection)
-				self.district[0].result = self.result
-				self.drawSidebar()
-			}
-			// self.onDraw()
-			// self.onUpdate()
-			publish(self.id+"-update");
+        if (self.checkRunTextBallots() && self.textBallotInput !== "" ){ // TODO: make text ballots work for every method, so we don't have to do this step and we can 
+			self.textBallotUpdate()
 			return
 		}
 
@@ -236,18 +238,83 @@ function Model(idModel){
 		if (self.votersAsCandidates) {
 			self.updateVC()
 			self.votersAsCandidates = false
-		}
-
-		
+		}		
 
 		// get the ballots for this election
 		for(var i=0; i<self.voterGroups.length; i++){
 			var voter = self.voterGroups[i];
-			voter.update();
+			voter.updatePeople();
 		}
 		
-		self.viz.calculate()
+		self.viz.calculateBeforeElection()
+
+
+		for(var i=0; i<self.candidates.length; i++){
+			var c = self.candidates[i];
+			c.update(); // doesn't do anything... yet
+		}
+		 
+		// did we manually select the winners? (with ctrl-click)
+		var selected = self.selection()
 		
+		if (selected.winners.length > 0) {
+			self.result = selected
+			if (self.doTop2) self.result.theTop2 = selected
+			self.updateBallots()
+		} else {
+			self.doTheElection()
+		}
+		
+		self.sortVoters()
+		
+		self.viz.calculateAfterElection()
+		 
+		self.draw()
+
+		// Update!
+		self.onUpdate();
+		publish(self.id+"-update");
+
+	};
+
+
+	self.updateFromModel = function() {} // hook
+
+	self.onDraw = function(){}; // TO IMPLEMENT
+	self.draw = function() {
+		
+		if (self.nLoading > 0) return // still loading, will call later and save some computing cycles
+		// The drawing system and the loading assets system are connected here.
+
+		if (self.checkRunTextBallots()) {
+			self.arena.canvas.hidden = true
+			self.drawSidebar() 
+			return
+		} else {
+			self.arena.canvas.hidden = false
+		}
+
+		// three things need to be drawn.  The arenas, the sidebar, and maybe more, like the main_sandbox or the main_ballot or whatever else calls new Model
+		self.drawArenas()
+		self.drawSidebar()
+		self.onDraw()
+	}
+
+	self.textBallotUpdate = function() {
+		// run an election with RBVote
+		if (self.system === "RBVote") {
+			self.result = self.election("",self,self.optionsForElection)
+			self.district[0].result = self.result
+			self.drawSidebar()
+		}
+		// self.onDraw()
+		// self.onUpdate()
+		publish(self.id+"-update");
+		return
+	}
+
+	self.sortVoters = function() {
+
 		if (self.checkGotoTarena()) // find order of voters
 		{
 			var v = self.voterSet.getVoterArray()
@@ -280,11 +347,10 @@ function Model(idModel){
 				}
 			}
 		}
-		for(var i=0; i<self.candidates.length; i++){
-			var c = self.candidates[i];
-			c.update(); // doesn't do anything... yet
-		}
+		
+	}
 
+	self.selection = function() {
 		var selected = {}
 		selected.winners = []
 		selected.colors = []
@@ -302,42 +368,39 @@ function Model(idModel){
 			selected.winner = selected.winners[0]
 			selected.color = "#ccc"
 		}
-		if (selected.winners.length > 0) {
-			self.result = selected
-			if (self.doTop2) self.result.theTop2 = selected
-		} else {
+		return selected
+	}
 
-			// for the moment, this works, but ideally there would be separate components of the STV, RRV etc elections for the powerCharts
-			// we make sure that we generate the data now so we have it later.
-			self.optionsForElection.sidebar = self.optionsForElection.sidebar || self.checkGotoTarena()
+	self.doTheElection = function() {
+		
 
-			if (self.nDistricts > 1) {
-				for (var i = 0; i < self.nDistricts; i++) {
-					if (self.district[i].candidates.length == 0) {
-						self.district[i].result = undefined
-					} else {
-						self.placeHoldDuringElection = self.doPlaceHoldDuringElection
-						self.district[i].result = self.election(self.district[i], self, self.optionsForElection);
-						self.placeHoldDuringElection = false
-					}
-				}
+		// for the moment, this works, but ideally there would be separate components of the STV, RRV etc elections for the roundCharts
+		// we make sure that we generate the data now so we have it later.
+		self.optionsForElection.sidebar = self.optionsForElection.sidebar || self.checkGotoTarena()
 
-				// put all the results together
-				self.result = {
-					winners: [],
-					colors: [],
-					color: [],
-					history: [],
-					eventsToAssign: [],
-					text: ''
-				}
-				if (self.doTop2) self.result.theTop2 = []
-				for (var i = 0; i < self.nDistricts; i++) {
+		if (self.nDistricts > 1) {
+			for (var i = 0; i < self.nDistricts; i++) {
+				self.placeHoldDuringElection = self.doPlaceHoldDuringElection
+				self.district[i].result = self.election(self.district[i], self, self.optionsForElection);
+				self.placeHoldDuringElection = false
+			}
+
+			// put all the results together
+			self.result = {
+				winners: [],
+				colors: [],
+				color: [],
+				history: [],
+				eventsToAssign: [],
+				text: ''
+			}
+			if (self.doTop2) self.result.theTop2 = []
+			for (var i = 0; i < self.nDistricts; i++) {
+				if (self.result) {
 					self.result.text += "<br>"
 					self.result.text += "<br>"
 					self.result.text += "District " + (i+1)
 					self.result.text += "<br>"
-					if (self.district[i].candidates.length == 0) continue
 					self.result.text += self.district[i].result.text
 					self.result.winners = [].concat(self.result.winners , self.district[i].result.winners)
 					self.result.colors = [].concat(self.result.colors , self.district[i].result.colors)
@@ -345,60 +408,32 @@ function Model(idModel){
 					if (self.district[i].result.eventsToAssign) self.result.eventsToAssign = [].concat(self.result.eventsToAssign , self.district[i].result.eventsToAssign)
 					if (self.doTop2) self.result.theTop2 = [].concat(self.result.theTop2 , self.district[i].result.theTop2)
 				}
-				// for now, just give the history for the first district with candidates
-				for (var i = 0; i < self.nDistricts; i++) {
-					if (self.district[i].candidates.length > 0) {
-						self.result.history = self.district[i].result.history
-						break
-					}
-				}
-				
-				// for (var i = 0; i < self.nDistricts; i++) {
-				// 	self.result.history =[].concat(self.result.history , self.district[i].result.history)
-				// 	self.result.history.push =[].concat(self.result.history , self.district[i].result.history)
-				// }
-
-				// TODO: visualize many districts results in tarena
-				
-
-			} else {
-				self.placeHoldDuringElection = self.doPlaceHoldDuringElection
-				self.result = self.election(self.district[0], self,self.optionsForElection);
-				self.placeHoldDuringElection = false
-				self.district[0].result = self.result
 			}
-		}
-		 
-		self.draw()
+			// for now, just give the history for the first district with candidates
+			for (var i = 0; i < self.nDistricts; i++) {
+				if (self.result) {
+					self.result.history = self.district[i].result.history
+					break
+				}
+			}
+			
+			// for (var i = 0; i < self.nDistricts; i++) {
+			// 	self.result.history =[].concat(self.result.history , self.district[i].result.history)
+			// 	self.result.history.push =[].concat(self.result.history , self.district[i].result.history)
+			// }
 
-		// Update!
-		self.onUpdate();
-		publish(self.id+"-update");
+			// TODO: visualize many districts results in tarena
+			
 
-	};
-
-
-	self.updateFromModel = function() {} // hook
-
-	self.onDraw = function(){}; // TO IMPLEMENT
-	self.draw = function() {
-		
-		if (self.nLoading > 0) return // still loading, will call later and save some computing cycles
-		// The drawing system and the loading assets system are connected here.
-
-		if (self.checkRunTextBallots()) {
-			self.arena.canvas.hidden = true
-			self.drawSidebar() 
-			return
 		} else {
-			self.arena.canvas.hidden = false
+			self.placeHoldDuringElection = self.doPlaceHoldDuringElection
+			self.result = self.election(self.district[0], self,self.optionsForElection);
+			self.placeHoldDuringElection = false
+			self.district[0].result = self.result
 		}
 
-		// three things need to be drawn.  The arenas, the sidebar, and maybe more, like the main_sandbox or the main_ballot or whatever else calls new Model
-		self.drawArenas()
-		self.drawSidebar()
-		self.onDraw()
 	}
+
 	self.drawArenas = function() {
 
 		self.arena.clear()
@@ -469,6 +504,7 @@ function Model(idModel){
 					for (var i=0; i < self.result.eventsToAssign.length; i++) {
 						var e = self.result.eventsToAssign[i]
 						self.caption.querySelector("#" + e.eventID).addEventListener("mouseover", e.f)
+						self.caption.querySelector("#" + e.eventID).addEventListener("mouseleave", ()=>self.draw())
 					}
 				}
 			}
@@ -641,7 +677,7 @@ function Model(idModel){
 	self.checkGotoTarena = function() { 
 		// checks to see if we want to add the additional arena for displaying the bar charts that we use for multi-winner systems
 		// right now, we don't have a good visual of these for multiple districts, just one
-		return (self.nDistricts < 2) && (self.system == "QuotaApproval"  || self.system == "QuotaScore" || self.system == "RRV" ||  self.system == "RAV" ||  self.system == "STV") && ! (self.powerChart == "off")
+		return (self.nDistricts < 2) && (self.system == "QuotaApproval"  || self.system == "QuotaScore" || self.system == "RRV" ||  self.system == "RAV" ||  self.system == "STV") && ! (self.roundChart == "off")
 	}
 
 	self.checkDoBeatMap = function() {
@@ -668,7 +704,20 @@ function Model(idModel){
 	self.checkRunTextBallots = function() {
 		return self.system == "RBVote" && self.doTextBallots
 	}
-		
+
+	self.checkRunPoll = function() {
+		var not_f = ["zero strategy. judge on an absolute scale.","normalize"]
+		var skipthis =  true
+		for(var i=0;i<self.voterGroups.length;i++){ // someone is looking at frontrunners, then don't skipthis
+			if (! not_f.includes(self.firstStrategy) && self.voterGroups[0].percentSecondStrategy != 100) skipthis = false
+			if (! not_f.includes(self.secondStrategy) && self.voterGroups[0].percentSecondStrategy != 0) skipthis = false
+		}   //not_f.includes(config.firstStrategy) && not_f.includes(config.secondStrategy)
+		return ! skipthis
+	}
+	
+	self.checkMultiWinner = function() {
+		return (self.system == "QuotaApproval"  || self.system == "QuotaScore" || self.system == "RRV" ||  self.system == "RAV" ||  self.system == "STV" || self.system == "QuotaMinimax") 
+	}
 
 	self.updateVC = function() {
 		
@@ -701,6 +750,13 @@ function Model(idModel){
 		// update the GUI
 		self.onAddCandidate()
 		
+	}
+
+	self.updateDistrictBallots = function(district) {
+		self.voterSet.updateDistrictBallots(district)
+	}
+	self.updateBallots = function() {
+		self.voterSet.updateBallots()
 	}
 };
 
@@ -1086,6 +1142,7 @@ function Arena(arenaName, model) {
 			} else {
 				self.unInit()
 				self.init()
+				model.arena.initARENA()
 			}
 		}
 
@@ -1534,8 +1591,9 @@ function Arena(arenaName, model) {
 				drawExtraTrash()
 				drawVotes()
 				drawVoters2()
+				drawVoterCenter()
 				drawCandidates()
-				drawVoterCenterAndAnotherYeeObject()
+				drawAnotherYeeObject()
 				drawFlashydude()
 				drawWinners()
 			} else {
@@ -1554,7 +1612,8 @@ function Arena(arenaName, model) {
 				drawVotes()
 				drawVoters2()
 				if (!flashyFirst) drawFlashydude()
-				drawVoterCenterAndAnotherYeeObject()
+				drawVoterCenter()
+				drawAnotherYeeObject()
 			}
 			drawModify()
 			setBorderColor()
@@ -1587,7 +1646,8 @@ function Arena(arenaName, model) {
 		// 	drawCandidates()
 		// }
 		// if (self.id == "arena") {
-		// 	drawVoterCenterAndAnotherYeeObject()
+		// 	drawVoterCenter()
+		// 	drawAnotherYeeObject()
 		// }
 		// if (!(flashydude && flashydude.isCandidate && model.dimensions != "2D")) drawFlashydude()
 
@@ -1692,7 +1752,7 @@ function Arena(arenaName, model) {
 				}
 				if (go) { // use transparency to draw candidate
 					temp = ctx.globalAlpha
-					ctx.globalAlpha = .3
+					ctx.globalAlpha = (model.theme == "Letters") ? .8 : .4
 					c.draw(ctx,self);
 					ctx.globalAlpha = temp
 				} else {
@@ -1986,12 +2046,21 @@ function Arena(arenaName, model) {
 			}
 		}
 		
-		function drawVoterCenterAndAnotherYeeObject() {	
+		function drawVoterCenter() {	
 			var oneVoter = (model.voterGroups.length == 1)
 			// var oneVoter = (model.voterGroups.length == 1 && model.voterGroups[0].points.length == 1)
 			var isCenter = (typeof model.voterCenter !== 'undefined')
 			if (isCenter && ! oneVoter) {
 				model.voterCenter.draw(self.ctx)
+			}
+		}
+		
+		function drawAnotherYeeObject() {
+			var oneVoter = (model.voterGroups.length == 1)
+			// var oneVoter = (model.voterGroups.length == 1 && model.voterGroups[0].points.length == 1)
+			var isCenter = (typeof model.voterCenter !== 'undefined')
+
+			if (isCenter && ! oneVoter) {
 				return
 			}
 
@@ -2054,19 +2123,23 @@ function Arena(arenaName, model) {
 			if (!model.dontdrawwinners) {
 				// draw text next to the winners
 
+				// check how many winners there should be
+				let winnersAllowed = 1
+				if (model.checkMultiWinner()) {
+					winnersAllowed = model.seats
+				}
+
 				for (var k = 0; k < model.district.length; k++) {
 					var district = model.district[k]
 					var result = district.result
 					
 					if(result && result.winners) {
-						for(var i=0; i<district.candidates.length; i++){
-							var c = district.candidates[i];
-							if (result.winners.includes(c.id)) {
-								if (result.winners.length > model.seats) {
-									c.drawTie(self.ctx,self)
-								} else {
-									c.drawWin(self.ctx,self)
-								}
+						for (let wid of result.winners) {
+							let c = model.candidatesById[wid]
+							if (result.winners.length > winnersAllowed) {
+								c.drawTie(self.ctx,self)
+							} else {
+								c.drawWin(self.ctx,self)
 							}
 						}
 					}
@@ -2110,7 +2183,18 @@ function DistrictManager(model) {
 			model.district[i] = {
 				voterPeople: [],
 				candidates: [],
-				i: i
+				i: i,
+				parties: [],
+				stages: {},
+			}
+			if (model.partyRule == 'leftright') {
+				var numParties = 2
+			} else {
+				// for now, the number of votergroups is the number of parties
+				var numParties = model.voterGroups.length || 1 // default to 1
+			}
+			for ( var j = 0; j < numParties; j++)  { 
+				model.district[i].parties.push({voterPeople:[],candidates:[]})
 			}
 		}
 
@@ -2168,6 +2252,19 @@ function DistrictManager(model) {
 			}
 		}
 
+		// put voters into parties
+		for (var i = 0; i < voterPeopleSorted.length; i++) {
+			var voterPerson = voterPeopleSorted[i]
+			if (model.partyRule == 'leftright') {
+				var iParty = ( voterPerson.x > model.size * .5 ) ? 1 : 0
+			} else { // 'crowd'
+				var iParty = voterPerson.iGroup
+			}
+			voterPerson.iParty = iParty  // easy, for now
+			var d = voterPerson.iDistrict
+			model.district[d].parties[iParty].voterPeople.push(voterPerson) // fill district.parties[i].voters with references to voters
+		}
+
 		self.redistrictCandidates()
 	}
 
@@ -2191,15 +2288,34 @@ function DistrictManager(model) {
 				break
 			}
 		}
+
+		// put candidate into correct party
+		if (model.partyRule == 'leftright') {
+			c.iParty = ( c.x > model.size * .5 ) ? 1 : 0
+		} else {
+			var min = Infinity
+			for ( var j = 0; j < model.voterGroups.length; j++){
+				var dist2 = distF2(model, model.voterGroups[j], c)
+				if (min > dist2) {
+					min = dist2
+					c.iParty = j
+				}
+			}
+		}
 	}
 	self.districtsListCandidates = function() {
 		// fill district[] with info on candidates.
 		// reset
 		for (var i = 0; i < model.nDistricts; i++) {
-			model.district[i].candidates = []
-			model.district[i].candidatesById = {}
-			model.district[i].preFrontrunnerIds = []
+			var district = model.district[i]
+			district.candidates = []
+			district.candidatesById = {}
+			district.preFrontrunnerIds = []
+			for ( var j = 0; j < district.parties.length; j++)  {
+				district.parties[j].candidates = []
+			}
 		}
+		
 		// assign candidates to districts' lists
 		for(var i=0; i<model.candidates.length; i++){
 			var c = model.candidates[i]
@@ -2213,6 +2329,13 @@ function DistrictManager(model) {
 			var c = model.candidatesById[cid]
 			model.district[c.iDistrict].preFrontrunnerIds.push(cid)
 		}
+
+		// assign candidates to district party candidates
+		for(var i=0; i<model.candidates.length; i++){
+			var c = model.candidates[i]
+			model.district[c.iDistrict].parties[c.iParty].candidates.push(c)
+		}
+
 	}
 
 }

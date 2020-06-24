@@ -6,8 +6,8 @@ function _drawStroked(text, x, y, textsize, ctx, textAlign) {
 	_drawStrokedColor(text, x, y, textsize, 4, 'white', ctx, false,textAlign)
 }
 function _drawStrokedColor(text, x, y, textsize,lw, color, ctx, blend,textAlign) {
-	textAlign = textAlign || "center"
 	ctx.save()
+	ctx.textAlign = textAlign || "center"
 	ctx.font = textsize + "px Sans-serif"
 	ctx.lineWidth = lw;
 	ctx.shadowColor = "rgba(0,0,0,0.3)";
@@ -91,7 +91,7 @@ function _copyAttributes(to,from) {
 function _addAttributes(to,from) {
 	// create copy of 'from'
 	from = from || {}
-	to = to || {} // maybe don't need this line?
+	to = to || {}
 	for (var name in from) {
 		to[name] = from[name];
 	}
@@ -232,4 +232,30 @@ function _removeClass(element,name) {
 }
 function _addClass(element,name) {
 	element.className = element.className + " " + name
+}
+
+function _isEquivalent(a, b) {
+    // Create arrays of property names
+    var aProps = Object.getOwnPropertyNames(a);
+    var bProps = Object.getOwnPropertyNames(b);
+
+    // If number of properties is different,
+    // objects are not equivalent
+    if (aProps.length != bProps.length) {
+        return false;
+    }
+
+    for (var i = 0; i < aProps.length; i++) {
+        var propName = aProps[i];
+
+        // If values of same property are not equal,
+        // objects are not equivalent
+        if (a[propName] !== b[propName]) {
+            return false;
+        }
+    }
+
+    // If we made it this far, objects
+    // are considered equivalent
+    return true;
 }

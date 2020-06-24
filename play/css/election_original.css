@@ -45,6 +45,7 @@ Election/Sandbox design:
 .div-election .button-group{
 	overflow: hidden;
 	margin-bottom: 10px;
+	margin-right: -4px;
 }
 .div-election .button-group-label{
 	font-weight: bold;

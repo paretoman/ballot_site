@@ -32,12 +32,11 @@ function main_ballot(ui){
 			model.candidates.push(new Candidate(model))
 			model.candidates.push(new Candidate(model))
 			// CONFIGURE
-			Object.assign( model.voterGroups[0],    {x: 81, y: 92, typeVoterModel: ballotType,
-				firstStrategy: "zero strategy. judge on an absolute scale."} )
+			Object.assign( model.voterGroups[0],{x: 81, y: 92, typeVoterModel: ballotType} )
 			Object.assign( model.candidates[0],{x: 41, y: 50, icon:"square"} )
 			Object.assign( model.candidates[1],{x:153, y: 95, icon:"triangle"} )
 			Object.assign( model.candidates[2],{x:216, y:216, icon:"hexagon"} )
-			model.voterGroups[0].firstStrategy = "zero strategy. judge on an absolute scale.";
+			model.firstStrategy = "zero strategy. judge on an absolute scale."
 			// INIT
 			model.candidates[0].init()
 			model.candidates[1].init()
@@ -57,7 +56,7 @@ function main_ballot(ui){
 		var ballot = new BallotType(model);
 		basediv.appendChild(ballot.dom);
 		model.onUpdate = function(){
-			ballot.update(model.voterGroups[0].voterPeople[0].ballot);
+			ballot.update(model.voterGroups[0].voterPeople[0].stages[model.stage].ballot);
 		};
 
 		// UPDATE

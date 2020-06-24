@@ -35,7 +35,7 @@ l.onload = function(assets){
     model.update()
   };
   model.onUpdate = function(){
-    var id = model.voterGroups[0].voterPeople[0].ballot.vote;
+    var id = model.voterGroups[0].voterPeople[0].stages[model.stage].ballot.vote;
     var color = model.candidatesById[id].fill;
     var text = "VOTES FOR <b style='color:"+color+"'>"+id.toUpperCase()+"</b>";
     model.caption.innerHTML = text;

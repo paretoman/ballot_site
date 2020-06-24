@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    
+    <!-- Meta -->
+    
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Proportional Methods | Smart Voting Simulator</title>
+<meta name="generator" content="Jekyll v3.8.7" />
+<meta property="og:title" content="Proportional Methods" />
+<meta name="author" content="Paretoman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="An Interactive Guide to Proportional Voting Methods" />
+<meta property="og:description" content="An Interactive Guide to Proportional Voting Methods" />
+<link rel="canonical" href="https://paretoman.github.io/ballot/proportional.html" />
+<meta property="og:url" content="https://paretoman.github.io/ballot/proportional.html" />
+<meta property="og:site_name" content="Smart Voting Simulator" />
+<script type="application/ld+json">
+{"headline":"Proportional Methods","@type":"WebPage","url":"https://paretoman.github.io/ballot/proportional.html","author":{"@type":"Person","name":"Paretoman"},"description":"An Interactive Guide to Proportional Voting Methods","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<!-- <link rel="stylesheet" href="/ballot/assets/css/style.css"> --><link type="application/atom+xml" rel="alternate" href="https://paretoman.github.io/ballot/feed.xml" title="Smart Voting Simulator" />
+    <title>Proportional Methods</title>
+    
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <meta charset="utf-8">
+    <link rel="icon" type="image/png" href="favicon.png">
+    
+	<meta name="viewport" content="width=device-width, initial-scale=1, min-width=380">
+    
+    <!-- Schema.org markup for Google+ -->
+    <meta itemprop="name" content="Proportional Methods">
+    <meta itemprop="description" content="An Interactive Guide to Proportional Voting Methods">
+    <meta itemprop="image" content="http://ncase.me/ballot/social/thumbnail.png">
+
+    <!-- Twitter Card data -->
+    <meta name="twitter:card" content="summary_large_image">
+    
+    <meta name="twitter:title" content="Proportional Methods">
+    <meta name="twitter:description" content="An Interactive Guide to Proportional Voting Methods">
+    
+    <meta name="twitter:image" content="http://ncase.me/ballot/social/thumbnail.png">
+
+    <!-- Open Graph data -->
+    <meta property="og:title" content="Proportional Methods">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://ncase.me/ballot/">
+    <meta property="og:image" content="http://ncase.me/ballot/social/thumbnail.png">
+    <meta property="og:description" content="An Interactive Guide to Proportional Voting Methods">
+
+    <base href="/ballot/">
+    <!-- <base target="_blank"> -->
+    
+    
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" type="text/css" href="css/some-minima.css">
+    
+    <link rel="stylesheet" type="text/css" href="play/css/model.css">
+    <link rel="stylesheet" type="text/css" href="play/css/ballot.css">
+    <link rel="stylesheet" type="text/css" href="play/css/election.css">
+    <link rel="stylesheet" type="text/css" href="play/css/sandbox.css">
+    <link rel="stylesheet" type="text/css" href="play/css/ballotInSandbox.css">
+
+    
+    <script src="js/viewport-min-width.js"></script>
+	<!-- <script src="../dev/js/gpu.js/gpu-browser.js"></script> -->
+    
+    <script src="play/js/helpers.js"></script>
+    <script src="play/js/minpubsub.js"></script>
+    <script src="play/js/hsluv-0.0.3.min.js"></script>
+    <script src="play/js/pako.min.js"></script>
+    <script src="play/js/Loader.js"></script>
+    <script src="play/js/Mouse.js"></script>
+    <script src="play/js/Draggable.js"></script>
+
+    <script src="play/js/gpu.js-develop/bin/gpu-core.js"></script>
+    <script src="play/js/gpu.js-develop/bin/gpu.js"></script>
+    <script src="play/js/FastYee.js"></script>
+
+    <script src="play/js/Model.js"></script>
+    <script src="play/js/Yee.js"></script>
+    <script src="play/js/Candidate.js"></script>
+    <script src="play/js/Color.js"></script>
+    <script src="play/js/Voters.js"></script>
+    <script src="play/js/Election.js"></script>
+    <script src="play/js/Buttons.js"></script>
+    <script src="play/js/Ballot.js"></script>
+    <script src="rbvote/rbvote.js"></script>
+    <script src="play/tsp/salesman.js"></script>
+    <script src="play/js/seedrandom.min.js"></script>
+
+    <script src="play/js/main_ballot.js"></script>
+    <script src="play/js/main_sandbox.js"></script>
+    <script src="play/js/Presets.js"></script>
+
+</head>
+
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/ballot/">Smart Voting Simulator</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          
+            
+            <a class="page-link" href=".">Home</a>
+            
+          
+            
+            <a class="page-link" href="commonground">Common Ground</a>
+            
+          
+            
+            <a class="page-link" href="primaries">Primaries</a>
+            
+          
+            
+            <a class="page-link" href="approval">Approval Voting</a>
+            
+          
+            
+            <a class="page-link" href="original">Original</a>
+            
+          
+            
+            <a class="page-link" href="newer">An Even Better Ballot</a>
+            
+          
+            
+            <a class="page-link" href="irv">Instant Runoff Voting</a>
+            
+          
+            
+            <a class="page-link" href="stv">Single Transferable Vote</a>
+            
+          
+            
+            <a class="page-link" href="proportional">Proportional Representation</a>
+            
+          
+            
+            <a class="page-link" href="condorcet">Condorcet Methods</a>
+            
+          
+            
+            <a class="page-link" href="testRuns">Test Runs</a>
+            
+          
+            
+            <a class="page-link" href="blog">Blog</a>
+            
+          
+            
+            <a class="page-link" href="sandbox/">Sandbox</a>
+            
+          
+          <!--<a class="page-link" href="/ballot/approval.html">Approval Voting</a><a class="page-link" href="/ballot/bees.html">Bees</a><a class="page-link" href="/ballot/blog.html">Blog</a><a class="page-link" href="/ballot/commonground.html">Home</a><a class="page-link" href="/ballot/condorcet.html">Condorcet Methods</a><a class="page-link" href="/ballot/draft-common-ground.html">Home</a><a class="page-link" href="/ballot/sandbox/embedbox.html">Embed Box for Smart Voting Simulator</a><a class="page-link" href="/ballot/sandbox/">Sandbox</a><a class="page-link" href="/ballot/">Home</a><a class="page-link" href="/ballot/irv.html">Instant Runoff Voting</a><a class="page-link" href="/ballot/modify.html">Modify the Simulator</a><a class="page-link" href="/ballot/newer.html">An Even Better Ballot</a><a class="page-link" href="/ballot/oncemore.html">Draft for An Even Better Ballot</a><a class="page-link" href="/ballot/sandbox/original.html">Sandbox for To Build a Better Ballot</a><a class="page-link" href="/ballot/original.html">Original</a><a class="page-link" href="/ballot/primaries.html">Primaries</a><a class="page-link" href="/ballot/proportional.html">Proportional Methods</a><a class="page-link" href="/ballot/quotaApproval.html">Quota Methods</a><a class="page-link" href="/ballot/stv.html">The Single Transferable Vote</a><a class="page-link" href="/ballot/testAttach.html">Test Attach</a><a class="page-link" href="/ballot/testBallot.html">Test Ballot</a><a class="page-link" href="/ballot/testPreset.html">Test Preset</a><a class="page-link" href="/ballot/testRuns.html">Test Runs</a><a class="page-link" href="/ballot/testSwitcher.html">Test Switcher</a><a class="page-link" href="/ballot/try.html">To Build a Better Ballot - QAPR</a>-->
+        </div>
+      </nav></div>
+</header>
+
+	
+	
+	
+
+	<div class="banner">
+		<h1>Proportional Methods</h1>
+		<p>An Interactive Guide to Proportional Voting Methods</p><p>
+		
+			by Paretoman, June 2020
+		
+	</p>
+		<p>Based off Work by Nicky Case</p></div>
+<div id="content">
+
+    <div class="words">
+        <p><strong><em>Draft</em></strong></p>
+
+<hr />
+
+<p><a href="stv">First, read this page on STV to see the motivation for proportional methods</a></p>
+
+<p>Then continue on to read about proportional voting methods other than STV and how they compare.</p>
+
+<p><strong>Quota with Other Ballots</strong></p>
+
+<p>The concept of a quota extends to multiple ballot counting methods:</p>
+
+<ol>
+  <li>Single-Top Ranking Methods: the Single Transferable Vote (STV), also known as multi-winner Ranked Choice Voting RCV</li>
+  <li>Scoring methods (including Approval Voting and STAR voting): Monroe voting</li>
+  <li>Pairwise ballot methods (I’m working on the version of minimax below)</li>
+  <li>Choose only one methods: Single Non-Transferable Vote (SNTV).  An obvious Improvement would be to have a Single Transferable Vote.</li>
+</ol>
+
+<p>The power chart is more useful for scoring methods because the voter can support multiple candidates at the same time.  That means the voter is able to say that their vote counted for a candidate so that candidate owes them some share of representation.  Also, the votes by round has an additional data dimension for the same reason, and it’s hard to visualize, so you need to mouse over the rounds to see how the election was counted.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Score Voting with Quotas</h2>
+        <p class="ballot_caption">Similar results to STV in this three-party example.  Mouse over the rounds to see the progression.</p>
+        
+        
+        <script id="score_quota_sim">
+            sandbox({idScript:"score_quota_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VSu04DMRD8F9dbeN--_AZ0pxSA0kUKQjQIwbez9hAUCUVXjNezOx6P77P1dth3TcpxpJ2lU0otTEh0-90RmysZnXiRwlIrPh6p8ZxOreY5nkGRs8GCOMZs0Hbo1Kwd2jdvjZqvOmqsyCzo9O8rZtxltrsM96XNDHEWlHDABsD5HIAywFZYx0VBaQs1KZ3alNLRAsEmZKRkuMDBQUYS1UAFFe3LKM8MeBEqa1YVPAxpKe1Mf99sDzRAVXFhJiElJ6sG69cMZsG3hdwWepWehS01-3-cxbJliZfCJWxbm45IHRdwROG4gCMKdwCi8AQ31mmOKKIDeHUG3iUQaPhyrGUkIBFwENuChIPEbCLCVAAiTLxpXn-qBDlucpupJa40IDggOCA4IDhsGR0OwDs8P53Pl_fHj9dT_cQPL5e3U_v6AVYwU-E3AwAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Approval Voting with Quotas</h2>
+        <p class="ballot_caption">Pretty much the same as score. Mouse over the rounds.</p>
+        
+        
+        <script id="approval_quota_sim">
+            sandbox({idScript:"approval_quota_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VSsWpDMQz8F88aLMmSnGz9h26PDCl0CySUUiil_fbKuqYEQvBwlk8-n8_-ar3tt02DYh5oY-kUkpMhJLr7W5GxZjI7cZHCkjM-HKjx2h2r2ZIIIx-rYRix22rQtu_URtu3H45Gzar23JZkJHS6G8nMh8zuIcO9tJkhzoISDngAcD47IA3wSMzjPCG1hZqkTi5K6miCYBEykjKcYOAgI4FqooKK9jLKKwMuQqX2qoKHIU2ljel_rHZHA1QVF2YSUjLKeNvo1wxWwbeF3BZ6lV7FKLVxf9zwsjUCL4VLjF0tGiI1XMAQhWnlY4jCDIAoLNAy6zRDFN4BXJ2Od3EE6laONY04JBwOfFcQcBDYG4gwFIAIA28a108VIOdNbiu1wJUmBCcEJwQnBOcoo9MAeIeX4-l0fn_-vLzmJ366XN7OH8dT-_4Fp_UcyToDAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Pairwise Voting with Quotas</h2>
+        <p class="ballot_caption">Under active development. Mouse over the pairs.</p>
+        
+        
+        <script id="pair_quota_sim">
+            sandbox({idScript:"pair_quota_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VSMU4EMQz8S2oXsZ3Y3n0GolttcYirOAEFDULwdpwMi046nbaYOONMxpP9KrWs26ZOHjttLJVcctGERJe_HWljJVGJJyksueJ9p8LjtGs2j-NuZD4amhFbjAYta6XSylp-OAqVPmvLY0l6QqWbL5m4yyx3Ga5TmxniLCjhgBsA97MB0gC3xLzOElJbqEjq5KakjiYINiEjKcMJHRxkxFEFKqhonUZ5ZMCTUBhSKCkMaSptTP_faDcIQFUxMJOQUqeWDa0eGYyCrwu5LvSQHkWbau32umZzpOZ4KQzRlrnZEWnHAB1RdAUgit4BiKI7uJi3dURhFcCz0xCDIQbr07GmEYOEwYEtExwOHGddAApAhI439eOncpBxldtIzTFSQDAwUsBMwExAMCAY8PN0ulzePh4_38_5Ez-cXl_Oz-X7F5mNX244AwAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p><strong>Proportionality</strong></p>
+
+<p>Let’s get back to the idea of proportionality.  You can see that in these proportional methods, a voter group with two times as many voters gets two times as many representatives.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Quotas Give Proportional Results</h2>
+        <p class="ballot_caption">Try all the voting systems.  They each give a 1:2 ratio of voters between the groups.  Also try a larger number of seats.  The large group is 63% of voters, so it's a 4:7 ratio.</p>
+        
+        
+        <script id="proportional_two_to_one_sim">
+            sandbox({idScript:"proportional_two_to_one_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA31Ty24UMRD8F5_74G73w7M3PoBDlIjLaA8LyiHSwq6igEAIvp12V1CQIGgO1e8ulz3fW2-HfddObP1IO3Na6mmpkvRthbqT8EhrdpLKxUYsnIZIEPuqktC0ZFm-sr1ilp22rMFpzWeLxY9Harw2R-7zKjEjjliJ0Q6dmrZD-8lbo2ble5ZnMhI6_fVlZr6a2V7NcK_ZvLgMCtLnsCAMJqwA8GAHJBHWxFzLkphLmJrkwIxKDsygCABzRFGSc0YC5kjAm_C2ahi9GPMSgysxpHrHQB6MRk7aU89_favVUYwNAyrkRdAgJSPP807Ky8rgKlcsXedXfjHlxczlu9Ro1Zqp_yegXqQ1cKE4okIog_KG4xmEMhzPIJQZAEJZIDdrs0Eo7wCuSse1OeR2K-b5cptjhIOBbwUBBoHegMAxABA4wCDW22s3ny9Pp9sPl8f7fJPlvLleHy9fTuff_tuHTw8fT1_Tvb1719ZjDfTPP6VfcWgwOwAMJhhMMJhaJ5sGwFW-P53Pl6e7b9f7_DlA5ccvleXDK8MDAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>This proportionality applies even when there aren’t distinct groups.  In the example below, there is a difference between STV and the other methods.  STV picks a set of candidates that is spaced more widely to cover a larger area of voters.  The other methods tend to pick candidates more toward the center.  This is probably because STV considers the first choices above others, while the other systems consider all the options at the same time.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Differences Between Proportional Methods</h2>
+        <p class="ballot_caption">STV picks a broader set of candidates to match the voters, but other methods pick more broad candidates that more voters would like.</p>
+        
+        
+        <script id="distribution_matching_sim">
+            sandbox({idScript:"distribution_matching_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA31Tu24cMQz8F9UsRIqktNflA1I4NtIsrtjEVxi5-A6GYzgI4m83xXHgAI6DLYYvkcOR9lepZbeuWomt7mllDks9LFWSusxQdRJuYY1Kkrm-EAuHIdKJfVZJ17BkWj6zNWMWJ21ajcMaLxaL7_dUeE7uMc-zxIy495loZVepaNmVJ_ZCxdL3KI9kD6j05ovMeDezvJvhmr15cmnUSV_CgjCYsALAIyglBBHWwBjLEhhDmIpEw4hKNIygCAB9RFESfVoA-kiHN-AteaDVZMxTDM5EA6PWkAejFp3W0PNf3zzqKMaEBhXiIqiRkpHHvoPisiI4yxVD5_7Kr6a8mjF8lWytmj31_wTUc2HtuFCsqBDKoLxhPYNQhvUMQpkBIJR15EZONgjlFcBZ6RDJIbdbMo-XWxwtHAx8Sehg0HG2C6ABIHAHgz7fXrn4cbrfLr-e7g7xJtP5cD7fnR624x__483tzfftMdzLq89lPtaO8-Nv6WccGowKgAYD7AfYD83NhgFwlV-24_F0f_XzfIif49N2--1wXX4_A3lVJanEAwAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p><strong>Semi-Proportional Multi-Winner Methods</strong></p>
+
+<p>There are more methods that only provide proportionality to distinct groups, and don’t provide the kind of distribution matching that STV does to cover an area of voters with evenly-spaced candidates.  They are mechanically-different.  They apply a method of counting votes that is used for apportionment.  Apportionment means you have separate groups like different states, and you want to find out how many representatives to give to each state.  Two examples are given below: reweighted range voting and reweighted approval voting.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Differences Between Proportional Methods</h2>
+        <p class="ballot_caption">STV picks a broader set of candidates to match the voters, but other methods pick more broad candidates that more voters would like.</p>
+        
+        
+        <script id="semi_proportional_sim">
+            sandbox({idScript:"semi_proportional_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA31Ty25TQQz9l1l7Mfb4MTe7fgCLPtRNlEVAXVQKJKoKAiH4djw-RUWCokj3-DX28ZnJ99bbbr_XTmz9QHvmtNTTUiXp2wp1J-GR1uwklYuNWDgNkSD2VSWhacmyfGV7xSxP2rIGpzVfLBY_HKjxmhw5z6vEjDhiJUbbdWradu0na6Nm5XuWZzISOv31y8x8M7O9meFevXlxGRSkL2FBGEySRAF4sAOSCGtijmVJzCFMTbJhRiUbZlAEgD6iKMk-IwF9JOBNeFsdGL0Y8xKDKzGkzo6BPBiN7LRPPf_1W0cdxZgwoEJeBA1SMvLcd1JeVgZXuWLo2l_51ZRXM4fvpVqr1pr6fwLqRVoDF4oVFUIZlDesZxDKsJ5BKDMAhLJAbtY2BqG8A7gqHdfmkNutmOfLbY4WDga-FQQYBM4GBI4BgMABBrHeXrv-fH4-3n44Pz3kmyzn6nJ5On85nn777x4_PX48fk339u4-vzc39b26b-vhBnrNP69hxaHH7ACwmWAzwWZqbTkNgGt9fzydzs933y4P-UcBrR-_AMatsZLPAwAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p><strong>Party Proportional Methods</strong></p>
+
+<p>Additionally, there are ways to have proportionality by using a party system, but that is a mechanically-different method that I haven’t added to the simulator yet, so we’ll discuss it on another page to come in the near future.</p>
+
+<p><strong>Future Work</strong></p>
+
+<p>I still need to work out what the strategies would be for voters and candidates.  So far, in the above examples, I’ve been using the honest strategy for ranking and the normalization strategy for scoring.</p>
+
+    </div>
+    
+        <div id="sandbox-section">
+            <div class="sim-sandbox">
+                <div class="sim-container">
+                    <h1 class="caption-test" style="margin: 30px 0 15px 0;">SANDBOX MODE! <a href="sandbox">(link to <em>just</em> this)</a></h1>
+		                
+		<div id="sandbox" class="div-sandbox div-election div-ballot-in-sandbox div-model" scrolling="no">
+		</div>
+		<script>
+			sandbox({quick:"sandbox"})
+		</script>
+                </div>
+            </div>
+            <div class="words">
+                
+			<p>
+				<b>From Nicky Case:</b> One hope for Sandbox Mode is that readers can debate with me and each other
+				<em>using</em> this tool! Not just telling me I'm wrong, but
+				<em>showing</em> me I'm wrong.  Granted, this tool is very limited – it doesn't handle strategic voting
+				or imperfect information – but I think it's a start, and may help improve our Democratic Discourse&trade;
+			</p>
+			<p>
+				<b> From Paretoman: </b>if you'd like your own models included here, 
+				save it, copy the saved link, and tweet it with the <a href="https://twitter.com/hashtag/smartvotesim">hashtag #smartvotesim.</a>
+			</p>
+            </div>
+        </div>
+
+</div><footer class="site-footer h-card">
+  <data class="u-url" href="/ballot/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/ballot/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/ballot/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+        <ul class="contact-list">
+          <li class="p-name">Paretoman</li>
+          <li><a class="u-email" href="mailto:smartvotingsimulator1@gmail.com">smartvotingsimulator1@gmail.com</a></li>
+        </ul>
+        <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/Paretoman" title="Paretoman"><svg class="svg-icon grey"><use xlink:href="/ballot/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/Paretoman1" title="Paretoman1"><svg class="svg-icon grey"><use xlink:href="/ballot/assets/minima-social-icons.svg#twitter"></use></svg></a></li><li><a rel="me" href="https://www.youtube.com/channel/UCrwpT8YjxePjH0RxSCwbTlQ" title="Paretoman"><svg class="svg-icon grey"><use xlink:href="/ballot/assets/minima-social-icons.svg#youtube"></use></svg></a></li></ul>
+</div>
+      </div>
+      <div class="footer-col">
+        <p>A simulator for voting methods - so you can understand how voting methods work for making group decisions. The best voting methods are responsive to all parts of the group and can even work when voters use strategies.</p>
+      </div>
+    </div>
+            
+            <div style="text-align:center; color:#fff; background-color: #222;margin-bottom:0px;">
+				Share this:
+				<ul class="share-buttons">
+                    <li class="reddit">
+                        <a href="http://www.reddit.com/submit?url=https://paretoman.github.io/ballot/proportional.html&title=Proportional%20Methods" target="_blank">
+                            <img height="32" width="32" alt="Post on Reddit" src="/ballot/social/reddit.png">
+                        </a>
+                    </li>
+                    <li class="hn">
+                        <a href="http://news.ycombinator.com/submitlink?u=https://paretoman.github.io/ballot/proportional.html&t=Proportional%20Methods" target="_blank">
+                            <img height="32" width="32" alt="Share on Hacker News" src="/ballot/social/ycombinator.png">
+                        </a>
+                    </li>
+                    <li class="twitter">
+                        <a href="https://twitter.com/intent/tweet?via=paretoman1&url=https://paretoman.github.io/ballot/proportional.html&text=Proportional%20Methods" target="_blank">
+                            <img alt="Tweet" src="/ballot/social/Twitter.png">
+                        </a>
+                    </li>
+                    <li class="email">
+                        <a href="mailto:?subject=Proportional%20Methods&body=Proportional%20Methods:https://paretoman.github.io/ballot/proportional.html" target="_blank" title="Send email">
+                            <img alt="Send email" src="/ballot/social/Email.png">
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://paretoman.github.io/ballot/proportional.html&t=Proportional%20Methods" title="Share on Facebook" target="_blank">
+                            <img alt="Share on Facebook" src="/ballot/social/Facebook.png">
+                        </a>
+                    </li>
+				</ul>
+			</div></div>
+
+</footer>
+</body>
+
+</html>

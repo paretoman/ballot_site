@@ -16,8 +16,7 @@ function Viz(model) {
 	self.yee = yee
 	self.beatMap = beatMap
 
-
-	self.calculate = function() {
+	self.calculateBeforeElection = function() {
 		
 		// calculate yee if its turned on and we haven't already calculated it ( we aren't dragging the yee object)
 		 if (model.yeeon) {
@@ -32,6 +31,10 @@ function Viz(model) {
 				 yee.calculateYee()
 			 }
 		 }
+
+	}
+
+	self.calculateAfterElection = function() {
 
 		if (model.checkDoBeatMap()) {
 			beatMap.calculateBeatMap()
@@ -373,9 +376,15 @@ function Yee(model) {
 					model.voterGroups[j].y = voterso[j].y + changecenter.y
 				}
 			}
+			if (model.yeeobject.isVoter) {
+				model.dm.redistrict()
+			}
+			if (model.yeeobject.isCandidate) {
+				model.dm.redistrictCandidates()
+			}
 			
 			for(var j=0; j<model.voterGroups.length; j++){
-				model.voterGroups[j].update();
+				model.voterGroups[j].updatePeople();
 			}
 			if (model.nDistricts > 1) {
 
@@ -385,8 +394,8 @@ function Yee(model) {
 					colors: []
 				}
 				for (var k = 0; k < model.nDistricts; k++) {
-					if (model.district[k].candidates.length > 0) {
-						result_k = model.election( model.district[k], model, model.optionsForElection );
+					result_k = model.election( model.district[k], model, model.optionsForElection );
+					if (result) {
 						result.colors = [].concat(result.colors , result_k.colors)
 					}
 
@@ -431,7 +440,7 @@ function Yee(model) {
 				model.dm.redistrict()
 				model.yeeobject = undefined
 				for(var voterGroup of model.voterGroups){
-					voterGroup.update()
+					voterGroup.updatePeople()
 				}
 			
 			} else {
@@ -858,7 +867,7 @@ VoterMapGPU = function(model) {
 
 		if (model.ballotType == "Plurality" || model.system == "IRV" || model.system == "STV") return
 		if (model.voterSet.totalVoters == 0) return
-		if (model.voterSet.allVoters[0].ballot == undefined) return
+		if (model.voterSet.allVoters[0].stages[model.stage].ballot == undefined) return
 
 		// need some calculations
 		for(var voterGroup of model.voterGroups) {

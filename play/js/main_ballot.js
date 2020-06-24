@@ -170,8 +170,8 @@ function createDOMB(ui,model) {
 			ui.dom.right.appendChild(ui.dom.caption)
 		}
 	} else {
-		ui.dom.ballot = new ui.BallotType(model);
-		ui.dom.right.appendChild(ui.dom.ballot.dom)
+		ui.dom.paperBallot = new ui.BallotType(model);
+		ui.dom.right.appendChild(ui.dom.paperBallot.dom)
 	}
 
 
@@ -203,7 +203,6 @@ function bindBallotMenu(ui,model,config) {
 	var onChooseVoterStrategyOn = function(data){
 		config.firstStrategy = data.realname;
 		model.firstStrategy = config.firstStrategy
-		model.voterGroups[0].firstStrategy = config.firstStrategy;
 		model.update();
 
 	};
@@ -345,7 +344,6 @@ function bindBallotModel(ui,model,config) {
 		Object.assign( model.candidates[1],{x:153, y: 95, icon:"triangle"} )
 		Object.assign( model.candidates[2],{x:216, y:216, icon:"hexagon"} )
 		Object.assign( model.voterGroups[0],    {x: 81, y: 92, typeVoterModel: model.ballotType,
-			firstStrategy: config.firstStrategy,
 			preFrontrunnerIds: config.preFrontrunnerIds} )
 		model.preFrontrunnerIds = config.preFrontrunnerIds;
 		model.firstStrategy = config.firstStrategy
@@ -366,7 +364,7 @@ function bindBallotModel(ui,model,config) {
 
 	model.onInitModel = function() {
 		
-		if(ui.showChoiceOfStrategy) {
+		if(ui.showChoiceOfStrategy || ui.showChoiceOfFrontrunners) {
 			ui.menu.frun.chooseFrun.init()
 			ui.selectMENU()
 		}
@@ -376,11 +374,11 @@ function bindBallotModel(ui,model,config) {
 		
 		
 		if (model.voterGroups.length == 0) return
-		var ballot = model.voterGroups[0].voterPeople[0].ballot // just pick the first ballot to show
+		var ballot = model.voterGroups[0].voterPeople[0].stages[model.stage].ballot // just pick the first ballot to show
 		if (model.newWay) {
 			// onDraw
 		} else {
-			ui.dom.ballot.update(ballot);
+			ui.dom.paperBallot.update(ballot);
 		}
 
 	})
@@ -403,7 +401,7 @@ function bindBallotModel(ui,model,config) {
 		if (model.voterGroups.length == 0) return
 		if (model.voterGroups[0].voterGroupType == "GaussianVoters") return
 		if (model.newWay) {
-			var text = model.voterGroups[0].voterModel.toTextH(model.voterGroups[0].voterPeople[0].ballot);
+			var text = model.voterGroups[0].voterModel.toTextH(model.voterGroups[0].voterPeople[0].stages[model.stage].ballot);
 			if ( ready ) {
 
 				// 2 : replace the Placeholder

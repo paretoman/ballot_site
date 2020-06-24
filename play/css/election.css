@@ -7,7 +7,7 @@ Election/Sandbox design:
 ************/
 
 .div-election{
-    background-color: #f9feff;
+    background-color: #ffffffd4;
     border: 1px solid #ccc;
 	padding: 10px;
     /* margin: -10px; */
@@ -89,6 +89,7 @@ Election/Sandbox design:
 .div-election .button-group{
 	overflow: hidden;
     margin-bottom: 0px;
+    margin-right: -4px;
 }
 .div-election .button-group-label{
 	font-weight: bold;
@@ -120,6 +121,12 @@ Election/Sandbox design:
     -o-transition: all 0.1s;
     transition: all 0.1s;
 }
+
+.div-election .button svg{
+    font-size: 20px;
+}
+
+
 .div-election .button:hover{
 	background: #ddd;
 	border-color: #999;
@@ -290,4 +297,14 @@ svg {
 
 .displayNoneClass {
     display:none !important;
+}
+
+.strategyTable {
+    background-color: #222;
+}
+.strategyTable th {
+    text-align: center;
+}
+.strategyTable td {
+    text-align: right;
 }

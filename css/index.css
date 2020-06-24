@@ -124,17 +124,22 @@ li{
 }
 #content .ballot_title{
 	text-align: left;
-	font-size: 1.75em;
+	max-width: 540px;
+	font-size: 1.35em;
 	margin-bottom: 0.4em;
 	position: relative;
 	left:0px;
+	padding: 0px 20px;
+	padding-top: 20px;
 }
 #content p.ballot_caption{
 	margin-top: 0;
     font-size: 0.8em;
-    text-align: center;
-    width: 260px;
+    text-align: left;
+	max-width: 540px;
     line-height: 1.2em;
+	padding: 0px 20px;
+	padding-bottom: 20px;
 }
 #content p.caption-test{
 	font-weight: bold;
@@ -150,10 +155,10 @@ li{
 	padding: 0px 20px;
 }
 .sim-ballot{
-	margin: 35px auto 50px auto;
+	margin: 35px -20px 50px -20px;
 }
 .sim-test{
-	margin: 50px auto 40px auto;
+	margin: 50px -20px 40px -20px;
 }
 .contain-model{
 	position: relative;
@@ -356,3 +361,71 @@ ul.share-buttons .sr-only {
 	text-decoration:line-through;
 }
 /* end */
+
+/* card stuff  */
+
+/** CONTENT **/
+#content div.card {
+	display: inline-block;
+	vertical-align: top;
+}
+
+#content div.card > a > div{
+
+	display: inline-block;
+    overflow: hidden;
+	width: 290px;
+	margin-bottom:20px;
+	/*float: left;*/
+
+	-webkit-transition: opacity 0.2s ease-in-out;
+	-moz-transition: opacity 0.2s ease-in-out;
+	-ms-transition: opacity 0.2s ease-in-out;
+	transition: opacity 0.2s ease-in-out;
+
+}
+#content div.card > a:first-child > div{
+	margin-top:20px;
+}
+#content div.card > a{
+	text-decoration: none;
+	display: inline-block;
+}
+#content div.card > a:hover > div{
+	opacity: 0.5;
+}
+#content div.card > a > div > img{
+	width: 288px;
+	border: 1px solid #eee;
+	margin-bottom: 5px; 
+}
+#content div.card > a > div > div{
+
+	color:#000;
+	font-size: 18px;
+	line-height: 21px;
+	text-align: left;
+
+	width:100%;
+
+}
+
+#content div.card > a > div > div > span{
+	color:#aaa;
+}
+
+
+/* end card stuff */
+
+#content img.picture {
+	display: inline-block;
+	width: 290px;
+	height: unset;
+	vertical-align: top;
+}
+#content img.picture100 {
+	display: inline-block;
+	width: 100%;
+	height: unset;
+	vertical-align: top;
+}

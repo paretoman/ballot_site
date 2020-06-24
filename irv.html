@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    
+    <!-- Meta -->
+    
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Instant Runoff Voting | Smart Voting Simulator</title>
+<meta name="generator" content="Jekyll v3.8.7" />
+<meta property="og:title" content="Instant Runoff Voting" />
+<meta name="author" content="Paretoman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="An Interactive Guide to IRV (the Single-Winner kind of Ranked Choice Voting RCV)" />
+<meta property="og:description" content="An Interactive Guide to IRV (the Single-Winner kind of Ranked Choice Voting RCV)" />
+<link rel="canonical" href="https://paretoman.github.io/ballot/irv.html" />
+<meta property="og:url" content="https://paretoman.github.io/ballot/irv.html" />
+<meta property="og:site_name" content="Smart Voting Simulator" />
+<script type="application/ld+json">
+{"headline":"Instant Runoff Voting","@type":"WebPage","url":"https://paretoman.github.io/ballot/irv.html","author":{"@type":"Person","name":"Paretoman"},"description":"An Interactive Guide to IRV (the Single-Winner kind of Ranked Choice Voting RCV)","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<!-- <link rel="stylesheet" href="/ballot/assets/css/style.css"> --><link type="application/atom+xml" rel="alternate" href="https://paretoman.github.io/ballot/feed.xml" title="Smart Voting Simulator" />
+    <title>Instant Runoff Voting</title>
+    
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <meta charset="utf-8">
+    <link rel="icon" type="image/png" href="favicon.png">
+    
+	<meta name="viewport" content="width=device-width, initial-scale=1, min-width=380">
+    
+    <!-- Schema.org markup for Google+ -->
+    <meta itemprop="name" content="Instant Runoff Voting">
+    <meta itemprop="description" content="An Interactive Guide to IRV (the Single-Winner kind of Ranked Choice Voting RCV)">
+    <meta itemprop="image" content="http://ncase.me/ballot/social/thumbnail.png">
+
+    <!-- Twitter Card data -->
+    <meta name="twitter:card" content="summary_large_image">
+    
+    <meta name="twitter:title" content="Instant Runoff Voting">
+    <meta name="twitter:description" content="An Interactive Guide to IRV (the Single-Winner kind of Ranked Choice Voting RCV)">
+    
+    <meta name="twitter:image" content="http://ncase.me/ballot/social/thumbnail.png">
+
+    <!-- Open Graph data -->
+    <meta property="og:title" content="Instant Runoff Voting">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://ncase.me/ballot/">
+    <meta property="og:image" content="http://ncase.me/ballot/social/thumbnail.png">
+    <meta property="og:description" content="An Interactive Guide to IRV (the Single-Winner kind of Ranked Choice Voting RCV)">
+
+    <base href="/ballot/">
+    <!-- <base target="_blank"> -->
+    
+    
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" type="text/css" href="css/some-minima.css">
+    
+    <link rel="stylesheet" type="text/css" href="play/css/model.css">
+    <link rel="stylesheet" type="text/css" href="play/css/ballot.css">
+    <link rel="stylesheet" type="text/css" href="play/css/election.css">
+    <link rel="stylesheet" type="text/css" href="play/css/sandbox.css">
+    <link rel="stylesheet" type="text/css" href="play/css/ballotInSandbox.css">
+
+    
+    <script src="js/viewport-min-width.js"></script>
+	<!-- <script src="../dev/js/gpu.js/gpu-browser.js"></script> -->
+    
+    <script src="play/js/helpers.js"></script>
+    <script src="play/js/minpubsub.js"></script>
+    <script src="play/js/hsluv-0.0.3.min.js"></script>
+    <script src="play/js/pako.min.js"></script>
+    <script src="play/js/Loader.js"></script>
+    <script src="play/js/Mouse.js"></script>
+    <script src="play/js/Draggable.js"></script>
+
+    <script src="play/js/gpu.js-develop/bin/gpu-core.js"></script>
+    <script src="play/js/gpu.js-develop/bin/gpu.js"></script>
+    <script src="play/js/FastYee.js"></script>
+
+    <script src="play/js/Model.js"></script>
+    <script src="play/js/Yee.js"></script>
+    <script src="play/js/Candidate.js"></script>
+    <script src="play/js/Color.js"></script>
+    <script src="play/js/Voters.js"></script>
+    <script src="play/js/Election.js"></script>
+    <script src="play/js/Buttons.js"></script>
+    <script src="play/js/Ballot.js"></script>
+    <script src="rbvote/rbvote.js"></script>
+    <script src="play/tsp/salesman.js"></script>
+    <script src="play/js/seedrandom.min.js"></script>
+
+    <script src="play/js/main_ballot.js"></script>
+    <script src="play/js/main_sandbox.js"></script>
+    <script src="play/js/Presets.js"></script>
+
+</head>
+
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/ballot/">Smart Voting Simulator</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          
+            
+            <a class="page-link" href=".">Home</a>
+            
+          
+            
+            <a class="page-link" href="commonground">Common Ground</a>
+            
+          
+            
+            <a class="page-link" href="primaries">Primaries</a>
+            
+          
+            
+            <a class="page-link" href="approval">Approval Voting</a>
+            
+          
+            
+            <a class="page-link" href="original">Original</a>
+            
+          
+            
+            <a class="page-link" href="newer">An Even Better Ballot</a>
+            
+          
+            
+            <a class="page-link" href="irv">Instant Runoff Voting</a>
+            
+          
+            
+            <a class="page-link" href="stv">Single Transferable Vote</a>
+            
+          
+            
+            <a class="page-link" href="proportional">Proportional Representation</a>
+            
+          
+            
+            <a class="page-link" href="condorcet">Condorcet Methods</a>
+            
+          
+            
+            <a class="page-link" href="testRuns">Test Runs</a>
+            
+          
+            
+            <a class="page-link" href="blog">Blog</a>
+            
+          
+            
+            <a class="page-link" href="sandbox/">Sandbox</a>
+            
+          
+          <!--<a class="page-link" href="/ballot/approval.html">Approval Voting</a><a class="page-link" href="/ballot/bees.html">Bees</a><a class="page-link" href="/ballot/blog.html">Blog</a><a class="page-link" href="/ballot/commonground.html">Home</a><a class="page-link" href="/ballot/condorcet.html">Condorcet Methods</a><a class="page-link" href="/ballot/draft-common-ground.html">Home</a><a class="page-link" href="/ballot/sandbox/embedbox.html">Embed Box for Smart Voting Simulator</a><a class="page-link" href="/ballot/sandbox/">Sandbox</a><a class="page-link" href="/ballot/">Home</a><a class="page-link" href="/ballot/irv.html">Instant Runoff Voting</a><a class="page-link" href="/ballot/modify.html">Modify the Simulator</a><a class="page-link" href="/ballot/newer.html">An Even Better Ballot</a><a class="page-link" href="/ballot/oncemore.html">Draft for An Even Better Ballot</a><a class="page-link" href="/ballot/sandbox/original.html">Sandbox for To Build a Better Ballot</a><a class="page-link" href="/ballot/original.html">Original</a><a class="page-link" href="/ballot/primaries.html">Primaries</a><a class="page-link" href="/ballot/proportional.html">Proportional Methods</a><a class="page-link" href="/ballot/quotaApproval.html">Quota Methods</a><a class="page-link" href="/ballot/stv.html">The Single Transferable Vote</a><a class="page-link" href="/ballot/testAttach.html">Test Attach</a><a class="page-link" href="/ballot/testBallot.html">Test Ballot</a><a class="page-link" href="/ballot/testPreset.html">Test Preset</a><a class="page-link" href="/ballot/testRuns.html">Test Runs</a><a class="page-link" href="/ballot/testSwitcher.html">Test Switcher</a><a class="page-link" href="/ballot/try.html">To Build a Better Ballot - QAPR</a>-->
+        </div>
+      </nav></div>
+</header>
+
+	
+	
+	
+
+	<div class="banner">
+		<h1>Instant Runoff Voting</h1>
+		<p>An Interactive Guide to IRV (the Single-Winner kind of Ranked Choice Voting RCV)</p><p>
+		
+			by Paretoman, June 2020
+		
+	</p>
+		<p>Based off Work by Nicky Case</p></div>
+<div id="content">
+
+    <div class="words">
+        
+<p>I’d like to describe an ideal of cooperative politics and how it is better achieved with <strong>instant runoff voting (the single-winner form of Ranked Choice Voting)</strong>, where (in most situations)</p>
+
+<ul>
+  <li>candidates that are on the same side can support each other, and</li>
+  <li>voters can vote for their favorite candidate.</li>
+</ul>
+
+<p>This is in contrast to what we have now with <strong>single choice voting</strong>, where</p>
+
+<ul>
+  <li>candidates are forced into opposition with each other just by the way we vote and end up using terms like spoiler to intimidate each other, and</li>
+  <li>voters face a dilemma when they have to decide whether to betray their fellow supporters and support a candidate who is more viable but not their favorite.</li>
+</ul>
+
+<h2 id="spirit-of-cooperation">Spirit of Cooperation</h2>
+
+<p>In an ideal world, like-minded people would gather together to work as a group to accomplish goals that are larger than themselves.  The higher the goal, the bigger and broader the group needs to be.</p>
+
+<p>We can get closer to this ideal if we use Ranked Choice Voting because this voting method allows candidates to ally and work together as a team.  This happened in an actual election for mayor in 2018 where two candidates came together to support each other against a third.  The campaign not only got the strength of both candidates, but because the ballots were Ranked Choice ballots, it got the strength of all their combined voters.  This happens in any system which avoids vote-splitting.  In ranked-choice voting, in approval voting, in STAR voting, in score voting, and in pairwise ranked condorcet voting, there is a spirit of cooperation.  Candidates see each other as assets to help reach out to new voters rather than liabilities that take their voters away.</p>
+
+<p>So.. what is Ranked Choice Voting and how does it work?</p>
+
+<!--comment: "It would be good to have a turnout switch. Then the presence of a candidate near you could increase your chance of turnout."-->
+
+<!--This is as opposed to digs at each other.-->
+
+<!--**need to explain how RCV works, and what the diagram means**-->
+
+<h2 id="introducing-rcv">Introducing RCV</h2>
+
+<p>Ranked choice voting asks voters to rank the candidates in order from best to worst.  Here’s an example ballot where you can just write a number next to each candidate:</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Ranked Choice Voting Ballot</h2>
+        <p class="ballot_caption">Your vote counts for your top choice.  It's like a stack of cards.  The top card is who you like best.  Under that is your second choice, and so on.</p>
+        
+        
+        <script id="irv_ballot_sim">
+            sandbox({idScript:"irv_ballot_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VRu2oEMQz8lUO1C0uW7PV-RIqQJuxucSFb5bgLJE0IybdH1nAQOA4XY73GM_I3ZZqXZeqJtW9p4Z6vN89JqduWiEdLl6TTiArNOZHSrIks7tXrkm6O9zav5HRzvDLdrfS7Fc7xHA89IxSEEMQKgCR2TezgAth1sj9XHHoUJYd4YUROIw6gEY1BsRiQimRDNCHqMVByCOWxEjAVMJUCgKDiTAsnRmNFCXwFVjlWpYNu9OiwN-yqXC9OuJRx0ZjT_5QKp9rwLZCoPZKGhZkz0u9Kz_vHup4PD5fDSuRpyDXINRg3A8C4gdWwPoPxmgEcnRW_ULG-amFpiK2gqFBUsfoGRQ0LaxIUrQCwsJfj6XT5fPp631314_H8tr_Szx9OauPpqAIAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>During counting, your vote counts for your top candidate.  One-by-one, the candidate with the least number of votes is eliminated and taken out of the running.  Still, your vote counts for your top candidate of those remaining.  The process of elimination can continue until there’s only one candidate left, or until the winner is decided: that means someone has gotten more than 50% of the votes. Once that happens, nobody else can beat them.</p>
+
+<p>This is pretty similar to what we do now, eliminating candidates in the run up to the election. Except now that voters put all the information on their ballot, the process of elimination is transparent.</p>
+
+<p>Here’s a sketch that shows everyone connected to their first pick. Colored flow lines show some voters moving to their next choice after their top pick is eliminated.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Election with Instant Runoff Voting</h2>
+        <p class="ballot_caption">Your vote counted for <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span>, your favorite, in the first round.  Not enough people chose <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> as their favorite, so <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> was eliminated.  Your vote counted for <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> over <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> in the final round, so you didn't spoil the election for <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> by voting for <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span>.</p>
+        
+        
+        <script id="irv_second_counts_sim">
+            sandbox({idScript:"irv_second_counts_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VRu04EMQz8l9Qu4md29zMQ3WqLQ3fVnYCCBiH-HcdTHOKEUkycscdj56v1tu37ErTKQTtHJ5Y-bx7E63Ic1HhmcAixRTKLkvJ817Z1atY2o-Z1j8wUejiZO5LJVtT_nuSW5B7ei1n_ZbhXQ57eZigIYYkNAFMcgLTA6ZSznSakNlOTXvYldSRBAJARQ4pXgUBGBqIF0VoF2ssoz6VwEQpDquChpKm0MzESAxT0FKNyLcvucsZYwbzK_aq16Eqwqrff0hbVzgY-CFYNAzsW57DpGNhh02HTHYCBfYDD2hwDRwdwZQaGDawtvHxqGglIBBzEWjDgYKB2CEAB-LmX0-329vH8-X5pW3s6vV4v5_b9A5Xa76erAgAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p><strong>Instant Runoff Voting (IRV)</strong> is the formal name for this counting procedure.  It refers to Ranked Choice Voting when there is only one candidate being elected.</p>
+
+<p><strong>The Single Transferable Vote (STV)</strong> is the formal name for a similar procedure with an extra step.  It refers to Ranked Choice Voting when there’s more than one winner.  You could call it multi-winner RCV.  The “Single” in the name comes from the fact that your vote counts for a single candidate, your top choice.  The “Transferable” part refers to when if, in an elimination round, your top choice gets eliminated, then your vote transfers to your new top choice for the next round of counting.  There is much more to say about the procedure of STV, but that will be all we mention it on this page.</p>
+
+<p>Around the world, IRV has been called by various names: the Alternative Vote (UK referendum 2011) and preferential voting (Canada 2015).  STV is also known as the Hare-Clark system in Australia.  IRV and STV are used nationally in Ireland, Australia, and India, and for cities and states in the US.</p>
+
+<!--Tie this voter choice thing into the intro to RCV-->
+
+<h2 id="less-strategy-more-honesty">Less Strategy, More Honesty</h2>
+
+<p>By being able to express more on a Ranked Choice ballot, voters no longer face a common dilemma.  The dilemma happens when you have to decide, “Am I going to vote for my favorite?” or “Am I going to show support where it would count in determining the winner of the election?” Honestly, the voter would like to support their favorite candidate and send a message of strength with all the other supporters that “this candidate represents us the best and deserves recognition”.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">RCV: Less Spoiler Dilemma</h2>
+        <p class="ballot_caption">Same example as above. You don't have to vote strategically to support <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span>.  You can support <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> over <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> and <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> over <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span>. There is no benefit to switching from O=zero strategy to F=frontrunner strategy.</p>
+        
+        
+        <script id="irv_not_wasted_sim">
+            sandbox({idScript:"irv_not_wasted_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VRO05EMQy8S2oX8Td57xiI7mmLRWzFCihoEOLuOJ5iESuUYuKMPR47X623_Thm0CYnOjg6sfR18yDe5ulEjVcGhxBbJDOVlNe7tr1Ts7YbNa97ZKbQ3cnckUy2ov73JDeTu3svZvuX4V4NeXmbKxbE8MQGgCsOQHrgtMrZTxNSnKlJL_-SQpIgAMiIIcWrQCAjA9FEtFWB9nLKaytchMKQKngoaSodTIzEAAU9xaxc27KbnDF2sK5yu2ptuhKs6u23tEW1s4EfglXDwI7NOWw6BnbYdNh0B2BgH-CwNsfA0QFcmYFhA2sLL5-aRgISAQexFQw4GKgdAlAAfu7pfL2-fTx-vl_a3h7Ory-X5_b9A5Rvw6asAgAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>This dilemma is familiar to anyone who has voted in a single-choice voting eleciton.  (More formally, this kind of choose-only-one voting is called plurality or First Past the Post, FPTP).</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">The Single-Choice Dilemma</h2>
+        <p class="ballot_caption">Do I waste my vote on my favorite <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> or do I support the more viable <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span>?  Change from O=zero strategy, to F=frontrunner strategy to get a better result.</p>
+        
+        
+        <script id="wasted_vote_sim">
+            sandbox({idScript:"wasted_vote_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VRMWoEMQz8i2sVlmTJ3n1FinTLFhe4IrCQEC7FEfL3yJrijhyHwWN7pNFI_im1rNs2nBbZaWOvxFLnyZx4GftOhWcEuxA3D2YoKc93LWul0nK33D0ihR5WxPZgohTV_yu4EdzDezLLU4ZrFuTpbcy74A5PDFMMV-yA8MAtMOppQIgzFQmheJQQkgABQEYaQiwTBDLScRu4LZmgNZ3ynAonoTCkCh5KGkobEyPQQUFP0SvntNpNrjFmMI9yO2pOOgNa5rd76eZZrnX8EKw2NGyYnMGmoWGDTYNNMwAatg4OYzM07BXAGelo1jE2t_SpYcQh4XDgS0KHg47cLgAF4OfeTsfxcXm9fp7LWl6O76_T8X65lt8_CondrK8CAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<h2 id="electability-polling">Electability Polling</h2>
+
+<p>Still, there will be tough situations where if there are a large number of candidates that are all doing well, then it may be up to the voter to vote strategically and vote for a more electable candidate.  The voter should rely on head-to-head polling information to see who would win the final round.  This is the same kind of problem that is faced in the primaries.  The nice part is that this is handled in a single stage of voting. There are other ways to handle this electability problem.  Some voting systems can even handle it without voters having to rely on polls and you can read about that on the page about <a href="http://./commonground.html">finding common ground</a>.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">A Tough Situation Solved by Strategy</h2>
+        <p class="ballot_caption">Strategic voting can help turn a tough situation into a successful election when there are useful head-to-head polls.</p>
+        
+        
+        <script id="tough_sim">
+            sandbox({idScript:"tough_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VRu04EMQz8l9Qp4lce-xmIbrXFIa7iBBQ0CPHv2B5tASeUYsY7zmTs_SqtbPu-ZiVeR93Jxsmm1TWCLP805DhqoegllUrCUUvZWi1aNq3Fknfv4Hp3vHe44o_V9ve4Nl27-57K-lehlg9SZJpRM2pkIgUgFXWAZyCPSjMTk5tTLdyyYjdiBwbAhhUtbiMOsOGBaqJaeUFaJqXYCqUgcBIBIJC40041T7R2iHAUTEu-MXFR0zIInYRPIrHnIJo39bet9oytA_8HQRXjGvZmCGkIaQhpGNcMgHFtQJv5kmHc3gCUnR2771hatxwjRuiw6EjQV8JAgoG7gwECwJqeLrfb28fj5_u1bOXh8vpyfS7fP9OVrU2sAgAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>This is an improvement over single-choice voting.  The polls are much more useful since rankings are given and any pair of candidates can be compared head-to-head, so voters are able to strategize better.  Attempting the same strategy with FPTP can turn a small lead in the polls to a big lead at the ballot box.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">FPTP: Tough to Strategize</h2>
+        <p class="ballot_caption"><span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> loses even though he's in the middle because he never got good poll numbers in FPTP polls.</p>
+        
+        
+        <script id="fptp_bad_polls_sim">
+            sandbox({idScript:"fptp_bad_polls_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VRMWoEMQz8i2sXlmTJ631FinTLFhdIEVhICJfiCPl7JA1bXI5g8Eg78mik_S6trNs2l0o897qRjjNatM4RwfRPQ_a9Fopa6lJJOHIpa6ul5615m1dwfTheO5zxZrX9Pc4tzj18T2b-y1DLhhSelsgZOTwRTBFckQHcA3VH7xfg4lQLt8zYhdiBAZDhjhKXEQfI8EC2IJv5QFo6pdgKJSFQEgHAkLjSRjVPlBpIKAqmJd-YONlTMgI6Az4DiT1H0PNlv5ftlrb7wP-B0Y5xFXtTmFSYVJhUjKsKwLg6wC3ZSTGuNQBlpWH3hqWZ5hgxgkHC4MBmwoCDgbeDAQLAml4ux_F-fb59vJa1PB1fn5fj7XorP7_wC763rwIAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>It is very important that head-to-head polling is reported, since the information is available in a ranked poll, and without it, the polls are not that much better than FPTP polls.</p>
+
+<p>Only one faces the final round.</p>
+
+<h2 id="sper">Sp***er</h2>
+
+<p>The worst part of single-choice voting is the term spoiler.  It sounds bad. and there’s a reason it sounds bad, because that’s how people intend to use it.  The hope is that the accuser will get the spoiler’s votes by intimidating their voters.  This insult would no longer work in a Ranked Choice election.  It would only be accurate when the spoiler is getting more first-choice votes than the accuser.  And then it would not be effective because voters behind that large a candidate would not be intimidated.</p>
+
+<p>For new candidates who don’t have many supporters yet, the barrier to entry would be lowered.  Hopefully, this would create competitive pressure to bring out the best candidates.</p>
+
+<p>(The technical definition of a spoiler is a candidate with a small enough level of support that they cannot win themselves, but that can change who wins merely by being in the election.  You would think that the only way to change who wins is to be the winner, and that can be true for some really great voting systems. For instant runoff voting, it’s true if the candidate is small enough to be called a spoiler. )</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Accusation of Spoiler</h2>
+        <p class="ballot_caption"><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> accuses <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> of spoiling the election, hoping he’ll get C’s supporters</p>
+        
+        
+        <script id="standard_spoiler_sim">
+            sandbox({idScript:"standard_spoiler_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VRu2oEMQz8F9curKfX-xUp0i1bXOCKwEJCuBRHyL9H1uQg5DgWPJJHGo-0X6WVddvGUonHXjda5Ddi8soy9r0WmiWkwQjPXMraatE8LU-PCq53X9T2YIKu7f8X3BLc3X0y4yFDLR-k6WmmjBSWCJ4IpsgBYYE0MJ6TgNCmWjh04pJDhwMYABlWlFg2MGS4I1uQjWyQlkZpLoWSEBgSAQ9DEkobVUKhg4KeYFTKZWnKzYBuAd8CmSuegWaf_pVUT8Pa8WNgUTGoYWEGe4ZBDfYMg5oBMKh1cFiXYVBvAMpKx5COdbnlCBJGHBIOBz4SOhx09HYGCAALejkdx9vl-fp-Lmt5Oj4_Tsfr5Vq-fwAajgagnwIAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">No More Accusations</h2>
+        <p class="ballot_caption"><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> is okay with <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> running because C’s supporters will support <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> against <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span>.</p>
+        
+        
+        <script id="no_spoilers_sim">
+            sandbox({idScript:"no_spoilers_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VRu04EMQz8l9Qp4meS_QxEt9riEFdxAgoahPh3HM-dhDihFGPvOJMZ71dpZdv3OSrxPOpOQ64Vk1eWeRy10BohDUZ49VK2VouWTWuxrD0muN6dmO3BBF3b3xPcCO7uezLzX4ZaPkjL01g9o4cnUgBckQPCA4VVivckIMSpFm7pn0OIAxgAGVaMWF5gyHBHN9DNvCAtndLaCiUhMCQCHoYklHaqhEEHBT1BVsptacqtgm4F3wpZO16F5j39LamehrXjz8CiIqhhYwZ7hqAGe4agZgAEtQ4O6zIE9QagnHSEdKzLLSNIGHFIOBz4TOhw0HG3M0AAWNDT6XJ5-3j8fD-XrTycXl_Oz-X7B2gMzvadAgAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>Resistance to spoilers cannot be overstated. If you decide to become engaged in your community and run for office, the other candidates can’t call you a spoiler any more.  They might even see you as an ally who can help bring in supporters. Running for office is a great avenue for people to become involved in politics, and it would be nice if they are welcomed.</p>
+
+<h2 id="afterward">Afterward</h2>
+
+<p>In summary we have illustrated the problem that the fundamental way in which we cast our votes pits every candidate against each other.  We can address the problem by allowing voters to support more than one choice.  That means candidates can join each other as teams and work together on campaigns, at least until they become large enough to become each others’ best competition.  We also showed that voters are able to support candidates that they feel best represent themselves, and even in more complex situations where they need to strategize, voters will be able to rely on more informative head-to-head polls.</p>
+
+<p><!--Footnote: This is a Sankey diagram, which can be used to report poll results.  It doesn't report all the results because it doesn't show a head-to-head chart.  It only explains how the tallying was done and how the winner was chosen.--></p>
+
+<!--I could also mention 1D orderings of candidates and the traveling salesman problem...-->
+
+    </div>
+    
+        <div id="sandbox-section">
+            <div class="sim-sandbox">
+                <div class="sim-container">
+                    <h1 class="caption-test" style="margin: 30px 0 15px 0;">SANDBOX MODE! <a href="sandbox">(link to <em>just</em> this)</a></h1>
+		                
+		<div id="sandbox" class="div-sandbox div-election div-ballot-in-sandbox div-model" scrolling="no">
+		</div>
+		<script>
+			sandbox({quick:"sandbox"})
+		</script>
+                </div>
+            </div>
+            <div class="words">
+                
+			<p>
+				<b>From Nicky Case:</b> One hope for Sandbox Mode is that readers can debate with me and each other
+				<em>using</em> this tool! Not just telling me I'm wrong, but
+				<em>showing</em> me I'm wrong.  Granted, this tool is very limited – it doesn't handle strategic voting
+				or imperfect information – but I think it's a start, and may help improve our Democratic Discourse&trade;
+			</p>
+			<p>
+				<b> From Paretoman: </b>if you'd like your own models included here, 
+				save it, copy the saved link, and tweet it with the <a href="https://twitter.com/hashtag/smartvotesim">hashtag #smartvotesim.</a>
+			</p>
+            </div>
+        </div>
+
+</div><footer class="site-footer h-card">
+  <data class="u-url" href="/ballot/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/ballot/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/ballot/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+        <ul class="contact-list">
+          <li class="p-name">Paretoman</li>
+          <li><a class="u-email" href="mailto:smartvotingsimulator1@gmail.com">smartvotingsimulator1@gmail.com</a></li>
+        </ul>
+        <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/Paretoman" title="Paretoman"><svg class="svg-icon grey"><use xlink:href="/ballot/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/Paretoman1" title="Paretoman1"><svg class="svg-icon grey"><use xlink:href="/ballot/assets/minima-social-icons.svg#twitter"></use></svg></a></li><li><a rel="me" href="https://www.youtube.com/channel/UCrwpT8YjxePjH0RxSCwbTlQ" title="Paretoman"><svg class="svg-icon grey"><use xlink:href="/ballot/assets/minima-social-icons.svg#youtube"></use></svg></a></li></ul>
+</div>
+      </div>
+      <div class="footer-col">
+        <p>A simulator for voting methods - so you can understand how voting methods work for making group decisions. The best voting methods are responsive to all parts of the group and can even work when voters use strategies.</p>
+      </div>
+    </div>
+            
+            <div style="text-align:center; color:#fff; background-color: #222;margin-bottom:0px;">
+				Share this:
+				<ul class="share-buttons">
+                    <li class="reddit">
+                        <a href="http://www.reddit.com/submit?url=https://paretoman.github.io/ballot/irv.html&title=Instant%20Runoff%20Voting" target="_blank">
+                            <img height="32" width="32" alt="Post on Reddit" src="/ballot/social/reddit.png">
+                        </a>
+                    </li>
+                    <li class="hn">
+                        <a href="http://news.ycombinator.com/submitlink?u=https://paretoman.github.io/ballot/irv.html&t=Instant%20Runoff%20Voting" target="_blank">
+                            <img height="32" width="32" alt="Share on Hacker News" src="/ballot/social/ycombinator.png">
+                        </a>
+                    </li>
+                    <li class="twitter">
+                        <a href="https://twitter.com/intent/tweet?via=paretoman1&url=https://paretoman.github.io/ballot/irv.html&text=Instant%20Runoff%20Voting" target="_blank">
+                            <img alt="Tweet" src="/ballot/social/Twitter.png">
+                        </a>
+                    </li>
+                    <li class="email">
+                        <a href="mailto:?subject=Instant%20Runoff%20Voting&body=Instant%20Runoff%20Voting:https://paretoman.github.io/ballot/irv.html" target="_blank" title="Send email">
+                            <img alt="Send email" src="/ballot/social/Email.png">
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://paretoman.github.io/ballot/irv.html&t=Instant%20Runoff%20Voting" title="Share on Facebook" target="_blank">
+                            <img alt="Share on Facebook" src="/ballot/social/Facebook.png">
+                        </a>
+                    </li>
+				</ul>
+			</div></div>
+
+</footer>
+</body>
+
+</html>

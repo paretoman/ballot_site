@@ -33,6 +33,8 @@ function ButtonGroup(config){
 	self.dom = document.createElement("div");
 	self.dom.setAttribute("class", "button-group");
 
+	self.buttonDOMByValue = []
+
 	self.init = function() {
 
 		if (self.doMakeData) self.buttonConfigs = self.makeData();
@@ -57,6 +59,7 @@ function ButtonGroup(config){
 			if (conf.width) button.dom.style.width = conf.width+"px"; // whatever
 			self.buttons.push(button);
 			self.dom.appendChild(button.dom);
+			self.buttonDOMByValue[conf.value] = button.dom
 		}
 	
 		// And then select the one that says "selected"! Fake a click.
@@ -167,7 +170,12 @@ function Button(buttonConfig, onChoose){
 	self.name = buttonConfig.name
 	self.dom = document.createElement("div");
 	self.dom.setAttribute("class", "button");
-	self.dom.style.marginRight = buttonConfig.margin+"px";
+
+	// overwrite margins.  The old way was not working.
+	var fixMargin = buttonConfig.margin
+	fixMargin = fixMargin || 0
+	fixMargin = Math.max(fixMargin,4)
+	self.dom.style.marginRight = fixMargin+"px";
 
 	// Click!
 	self.draw = function() {

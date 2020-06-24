@@ -9,6 +9,7 @@ model.preFrontrunnerIds = []
 model.initDOM()
 // INIT
 model.initPlugin()
+model.voterSet.init()
 model.dm.redistrict()
 // UPDATE
 model.update()

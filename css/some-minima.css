@@ -2,7 +2,7 @@
 /* from minima style */
 
 /** Set `margin-bottom` to maintain vertical rhythm */
-h1, h2, h3, h4, h5, h6, p, blockquote, pre, ul, ol, dl, figure, .highlight { margin-bottom: 15px; }
+.words > h1, .words > h2, .words > h3, .words > h4, .words > h5, .words > h6, .words > p, .words > blockquote, .words > pre, .words > ul, .words > ol, .words > dl, .words > figure, .words > .highlight { margin-bottom: 15px; }
 
 hr { margin-top: 30px; margin-bottom: 30px; }
 
@@ -22,7 +22,7 @@ li > ul, li > ol { margin-bottom: 0; }
 /** Links */
 a { color: #2a7ae2; text-decoration: none; }
 a:visited { color: #1756a9; }
-a:hover { color: #111111; text-decoration: underline; }
+a:hover { text-decoration: underline; }
 .social-media-list a:hover, .pagination a:hover { text-decoration: none; }
 .social-media-list a:hover .username, .pagination a:hover .username { text-decoration: underline; }
 
@@ -56,12 +56,17 @@ a:hover { color: #111111; text-decoration: underline; }
 
 
 /** Tables */
-.words > table { margin-bottom: 30px; width: 100%; text-align: left; color: #3f3f3f; border-collapse: collapse; border: 1px solid #e8e8e8; }
+.words > table { margin-bottom: 30px; width: 100%; text-align: left; color: #3f3f3f; border-collapse: collapse; 
+  text-align: center;
+  /* border: 1px solid #e8e8e8;  */
+}
 .words > table tr:nth-child(even) { background-color: #f7f7f7; }
-.words > table th, table td { padding: 10px 15px; }
+.words > table th, .words > table td { padding: 10px 15px; }
 .words > table th { background-color: #f0f0f0; border: 1px solid #e0e0e0; }
 .words > table td { border: 1px solid #e8e8e8; }
-@media screen and (max-width: 800px) { .words > table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; -ms-overflow-style: -ms-autohiding-scrollbar; } }
+/* @media screen and (max-width: 800px) {  */
+  .words > table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; -ms-overflow-style: -ms-autohiding-scrollbar; } 
+/* } */
 
 
 /** Site header */

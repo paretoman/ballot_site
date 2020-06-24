@@ -10,10 +10,13 @@ var Election = {};
 
 Election.score = function(district, model, options){
 
-	if ("Auto" == model.autoPoll) polltext = doPollAndUpdateBallots(district,model,options,"score")
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"score")
+	let cans = district.stages[model.stage].candidates
 
 	// Tally the approvals & get winner!
-	var tally = _tally(district,model, function(tally, ballot){
+	var ballots = model.voterSet.getBallotsDistrict(district)
+	var tally = _tallyBC(ballots,cans, function(tally, ballot){
 		for(var candidate in ballot){
 			tally[candidate] += ballot[candidate];
 		}
@@ -34,8 +37,8 @@ Election.score = function(district, model, options){
 		text += "<span class='small'>";
 		if ("Auto" == model.autoPoll) text += polltext;
 		text += "<b>score as % of max possible: </b><br>";
-		for(var i=0; i<district.candidates.length; i++){
-			var c = district.candidates[i].id;
+		for(var i=0; i<cans.length; i++){
+			var c = cans[i].id;
 			text += model.icon(c)+"'s score: "+_percentFormat(district, tally[c] / maxscore)+"<br>";
 		}
 		if(!winner | winners.length>=2){
@@ -61,13 +64,15 @@ Election.score = function(district, model, options){
 
 Election.star = function(district, model, options){
 
-	if ("Auto" == model.autoPoll) polltext = doPollAndUpdateBallots(district,model,options,"score")
-
-
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"score")	
+	let cans = district.stages[model.stage].candidates
+	
 	var maxscore = 5
 
 	// Tally the approvals & get winner!
-	var tally = _tally(district,model, function(tally, ballot){
+	var ballots = model.voterSet.getBallotsDistrict(district)
+	var tally = _tallyBC(ballots,cans, function(tally, ballot){
 		for(var candidate in ballot){
 			tally[candidate] += ballot[candidate];
 		}
@@ -79,7 +84,6 @@ Election.star = function(district, model, options){
 	}
 	frontrunners.sort(function(a,b){return tally[b]-tally[a]})
 
-	var ballots = model.voterSet.getBallotsDistrict(district)
 	var aWins = 0;
 	var bWins = 0;
 	for(var k=0; k<ballots.length; k++){
@@ -120,8 +124,8 @@ Election.star = function(district, model, options){
 		text += "<span class='small'>";
 		if ("Auto" == model.autoPoll) text += polltext;
 		text += "<b>pairwise winner of two highest average scores wins</b><br>";
-		for(var i=0; i<district.candidates.length; i++){
-			var c = district.candidates[i].id;
+		for(var i=0; i<cans.length; i++){
+			var c = cans[i].id;
 			text += model.icon(c)+":"+_percentFormat(district, tally[c] / maxscore)+"<br>";
 		}
 		if (frontrunners.length >= 2) {
@@ -142,10 +146,12 @@ Election.star = function(district, model, options){
 
 Election.three21 = function(district, model, options){
 
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"score")	
+	let cans = district.stages[model.stage].candidates	
+	
 	var ballots = model.voterSet.getBallotsDistrict(district)
 
-	if ("Auto" == model.autoPoll) polltext = doPollAndUpdateBallots(district,model,options,"score")
-	
 	// Tally the approvals & get winner!
 	var tallies = _tallies(district, model, 3);
 
@@ -159,7 +165,6 @@ Election.three21 = function(district, model, options){
 	var finalists = semifinalists.slice(0,3);
 	finalists.sort(function(a,b){return tallies[0][a]-tallies[0][b]})
 
-	var ballots = model.voterSet.getBallotsDistrict(district)
 	var aWins = 0;
 	var bWins = 0;
 	for(var k=0; k<ballots.length; k++){
@@ -227,10 +232,13 @@ Election.three21 = function(district, model, options){
 
 Election.approval = function(district, model, options){
 
-	if ("Auto" == model.autoPoll) polltext = doPollAndUpdateBallots(district,model,options,"approval")
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"approval")	
+	let cans = district.stages[model.stage].candidates
 
 	// Tally the approvals & get winner!
-	var tally = _tally(district,model, function(tally, ballot){
+	var ballots = model.voterSet.getBallotsDistrict(district)
+	var tally = _tallyBC(ballots,cans, function(tally, ballot){
 		var approved = ballot.approved;
 		for(var i=0; i<approved.length; i++) tally[approved[i]]++;
 	});
@@ -254,8 +262,8 @@ Election.approval = function(district, model, options){
 	text += "<span class='small'>";
 	if ("Auto" == model.autoPoll) text += polltext;
 	text += "<b>most approvals wins (%)</b><br>";
-	for(var i=0; i<district.candidates.length; i++){
-		var c = district.candidates[i].id;
+	for(var i=0; i<cans.length; i++){
+		var c = cans[i].id;
 		text += model.icon(c)+" got "+_percentFormat(district, tally[c])+"<br>";
 	}
 	if(!winner | winners.length>=2){
@@ -276,6 +284,10 @@ Election.approval = function(district, model, options){
 
 Election.condorcet = function(district, model, options){
 
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"nopoll")	
+	let cans = district.stages[model.stage].candidates
+
 	var text = "";
 	text += "<span class='small'>";
 	text += "<b>who wins each one-on-one?</b><br>";
@@ -283,18 +295,27 @@ Election.condorcet = function(district, model, options){
 	var ballots = model.voterSet.getBallotsDistrict(district)
 
 	// Create the WIN tally
-	var tally = {};
-	for(var candidateID in model.candidatesById) tally[candidateID] = 0;
-
+	var tallyWins = {}
+	var tallyWinsOrTies = {}
+	var tallyLosses = {}
 	var beatsMe = {}
-	for(var candidateID in model.candidatesById) beatsMe[candidateID] = []
+	var beatsOrTiesMe = {}
+	for(var candidateID in model.candidatesById) {
+		tallyWins[candidateID] = 0
+		tallyWinsOrTies[candidateID] = 0
+		tallyLosses[candidateID] = 0
+		beatsMe[candidateID] = []
+		beatsOrTiesMe[candidateID] = []
+	}		
 
+	// make a list of mouseover events
+	let eventsToAssign = []
 
 	// For each combination... who's the better ranking?
-	for(var i=0; i<district.candidates.length-1; i++){
-		var a = district.candidates[i];
-		for(var j=i+1; j<district.candidates.length; j++){
-			var b = district.candidates[j];
+	for(var i=0; i<cans.length-1; i++){
+		var a = cans[i];
+		for(var j=i+1; j<cans.length; j++){
+			var b = cans[j];
 
 			// Actually figure out who won.
 			var aWins = 0;
@@ -311,9 +332,22 @@ Election.condorcet = function(district, model, options){
 			// WINNER?
 			var winner = (aWins>bWins) ? a : b;
 			var loser = (aWins<=bWins) ? a : b;
-			if (aWins != bWins) {
-				tally[winner.id]++;
+			var tie = aWins==bWins
+
+			let eventID = 'pair_' + winner.id + '_' + loser.id + '_' + _rand5()
+			let e = {
+				eventID: eventID,
+				f: pairDraw(model,district,winner.id,loser.id,tie)
+			}
+			eventsToAssign.push(e)
+
+			text += '<div id="' + eventID + '">'
+			if ( ! tie ) {
+				tallyWins[winner.id]++;
+				tallyWinsOrTies[winner.id]++;
+				tallyLosses[loser.id]++;
 				beatsMe[loser.id].push(winner.id)
+				beatsOrTiesMe[loser.id].push(winner.id)
 				// Text.
 				var by,to;
 				if(winner==a){
@@ -323,31 +357,48 @@ Election.condorcet = function(district, model, options){
 					by = bWins;
 					to = aWins;
 				}
-				text += model.icon(a.id)+" vs "+model.icon(b.id)+": "+model.icon(winner.id)+" wins, "+_percentFormat(district, by)+" to "+_percentFormat(district, to)+"<br>";
+				text += model.icon(winner.id) + " beats " + model.icon(loser.id) + ", "+_percentFormat(district, by)+" to "+_percentFormat(district, to)+"<br>";
+				// text += model.icon(a.id)+" vs "+model.icon(b.id)+": "+model.icon(winner.id)+" wins, "+_percentFormat(district, by)+" to "+_percentFormat(district, to)+"<br>";
 			} else { //tie
-				beatsMe[a.id].push(b.id)
-				beatsMe[b.id].push(a.id)
-				tally[a.id]++;
-				tally[b.id]++;
-				text += model.icon(a.id)+" vs "+model.icon(b.id)+": "+"TIE"+"<br>";
+				tallyWinsOrTies[a.id]++;
+				tallyWinsOrTies[b.id]++;
+				beatsOrTiesMe[a.id].push(b.id)
+				beatsOrTiesMe[b.id].push(a.id)
+				text += " TIE between " + model.icon(a.id)+" "+model.icon(b.id) + "<br>";
+				// text += model.icon(a.id)+" vs "+model.icon(b.id)+": "+"TIE"+"<br>";
 			}
+			text += '</div>'
+
+
 		}
 	}
 
-	// Was there one who won all????
+	// Was there one who won all?
 	var topWinners = [];
-	
-	for(var id in tally){
-		if(tally[id]==district.candidates.length-1){
+	for(var id in tallyWins){
+		if(tallyWins[id]==cans.length-1){
 			topWinners.push(id);
 		}
 	}
 
-	if (topWinners.length != 1) {
+	// was there one who lost none?
+	if (topWinners.length === 0) {
+		for(var id in tallyLosses){
+			if(tallyLosses[id]==0){
+				topWinners.push(id);
+			}
+		}
+	}
+
+	// if there are multiple, then they tied each other
+	
+	// if there are none, then there's a cycle
+	// find the Schwartz set = nobody beats the set
+	if (topWinners.length == 0) {
 		// ties
 
 		// sort list
-		var idSorted = Object.keys(tally).sort(function(x,y) {return -tally[x]+tally[y]}) // reverse?
+		var idSorted = Object.keys(tallyWins).sort(function(x,y) {return -tallyWins[x]+tallyWins[y]}) // reverse?
 		var indexOfId = {}
 		for (var i = 0; i < idSorted.length; i++) indexOfId[idSorted[i]] = i
 		var divider = 1
@@ -358,15 +409,12 @@ Election.condorcet = function(district, model, options){
 			}
 		}
 		topWinners = idSorted.slice(0,divider)
+		var usedSchwartz = true
 	}
-	// probably it would be better to find the smith set but this is okay for now
-	// topWinners = _countWinner(tally);
-	
-	
 
 	var result = _result(topWinners,model)
     var color = result.color
-	if (model.doTop2) var theTop2 = _sortTally(tally).slice(0,2)
+	if (model.doTop2) var theTop2 = _sortTally(tallyWins).slice(0,2)
 	if (model.doTop2) result.theTop2 = theTop2
 	if (!options.sidebar) return result
 	
@@ -374,15 +422,19 @@ Election.condorcet = function(district, model, options){
 	// Winner... or NOT!!!!
 	text += "<br>";
 	if (topWinners.length == 1) {
-		text += model.icon(topWinner)+" beats all other candidates in one-on-one races.<br>";
+		if (usedSchwartz) {
+			text += model.icon(topWinner)+" beats or ties all other candidates in one-on-one races.<br>";
+		} else {
+			text += model.icon(topWinner)+" beats all other candidates in one-on-one races.<br>";
+		}
 		text += "</span>";
 		text += "<br>";
 		text += "<b style='color:"+color+"'>"+model.nameUpper(topWinner)+"</b> WINS";
 		// text = "<b style='color:"+color+"'>"+model.nameUpper(topWinner)+"</b> WINS <br> <br>" + text;
 	}else if (topWinners.length >= 2) {
-		for(var i=0; i<district.candidates.length; i++){
-			var c = district.candidates[i].id;
-			text += model.icon(c)+" got "+tally[c]+" wins<br>";
+		for(var i=0; i<cans.length; i++){
+			var c = cans[i].id;
+			text += model.icon(c)+" got "+tallyWins[c]+" wins<br>";
 		}
 		text += _tietext(model,topWinners);
 		// text = "<b>TIE</b> <br> <br>" + text;
@@ -397,12 +449,17 @@ Election.condorcet = function(district, model, options){
 	// what's the loop?
 
 	result.text = text;
+	result.eventsToAssign = eventsToAssign
 
 	return result;
 };
 
 // PairElimination
 Election.schulze = function(district, model, options){ // Pairs of candidates are sorted by their win margin.  Then we eliminate the weakest wins until there is a Condorcet winner.  A condorcet winner has 0 losses.
+
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"nopoll")	
+	let cans = district.stages[model.stage].candidates
 
 	var reverseExplanation = true
 
@@ -424,10 +481,10 @@ Election.schulze = function(district, model, options){ // Pairs of candidates ar
 
 	// For each combination... who's the better ranking?
 	pairs = []
-	for(var i=0; i<district.candidates.length-1; i++){
-		var a = district.candidates[i];
-		for(var j=i+1; j<district.candidates.length; j++){
-			var b = district.candidates[j];
+	for(var i=0; i<cans.length-1; i++){
+		var a = cans[i];
+		for(var j=i+1; j<cans.length; j++){
+			var b = cans[j];
 
 			// Actually figure out who won.
 			var aWins = 0;
@@ -473,7 +530,7 @@ Election.schulze = function(district, model, options){ // Pairs of candidates ar
 	var topWinners = [];
 	
 	for(var id in tally){
-		if(tally[id]==district.candidates.length-1){
+		if(tally[id]==cans.length-1){
 			topWinners.push(id);
 		}
 	}
@@ -488,9 +545,9 @@ Election.schulze = function(district, model, options){ // Pairs of candidates ar
 
 		// switch to indexing the candidates by numbers instead of names
 		var lossesI=[]
-		for (var j = 0; j < district.candidates.length; j++) {
-			//lossesI[j] = losses[district.candidates[j]]
-			lossesI.push(losses[district.candidates[j].id])
+		for (var j = 0; j < cans.length; j++) {
+			//lossesI[j] = losses[cans[j]]
+			lossesI.push(losses[cans[j].id])
 		}
 
 		// find the Schwartz set
@@ -498,8 +555,8 @@ Election.schulze = function(district, model, options){ // Pairs of candidates ar
 
 		// find the lowest loss candidates and add them to the schwarz set
 
-		max3 = district.candidates.length
-		for(var j = 0; j < district.candidates.length; j++){ // see who wins 
+		max3 = cans.length
+		for(var j = 0; j < cans.length; j++){ // see who wins 
 			if(lossesI[j]<max3){
 				max3 = lossesI[j]
 				schwartz = []
@@ -517,7 +574,7 @@ Election.schulze = function(district, model, options){ // Pairs of candidates ar
 				j = -1 // restart loop
 			}
 		}
-		schwartzFirst =  (Array.from(schwartz)).map(x => district.candidates[x].id)
+		schwartzFirst =  (Array.from(schwartz)).map(x => cans[x].id)
 		
 
 
@@ -527,7 +584,7 @@ Election.schulze = function(district, model, options){ // Pairs of candidates ar
 			
 
 			if (! pairs[i].tie) {
-				losses[district.candidates[pairs[i].loseI].id] -- // eliminate loss
+				losses[cans[pairs[i].loseI].id] -- // eliminate loss
 				lossesI[pairs[i].loseI] -- // eliminate loss
 			}
 			if (i > 0 && pairs[i].margin == pairs[i-1].margin) { // check if there is a tie for weakest win
@@ -540,8 +597,8 @@ Election.schulze = function(district, model, options){ // Pairs of candidates ar
 
 			// find the lowest loss candidates and add them to the schwarz set
 
-			max3 = district.candidates.length
-			for(var j = 0; j < district.candidates.length; j++){ // see who wins 
+			max3 = cans.length
+			for(var j = 0; j < cans.length; j++){ // see who wins 
 				if(lossesI[j]<max3){
 					max3 = lossesI[j]
 					schwartz = []
@@ -561,12 +618,12 @@ Election.schulze = function(district, model, options){ // Pairs of candidates ar
 			}
 			
 			// store schwartz set to display later
-			pairs[i].schwartz = (Array.from(schwartz)).map(x => district.candidates[x].id)
+			pairs[i].schwartz = (Array.from(schwartz)).map(x => cans[x].id)
 
 			// count losses
 
 			var schwartzlosses = []
-			for(var j = 0; j < district.candidates.length; j++){ 
+			for(var j = 0; j < cans.length; j++){ 
 				schwartzlosses[j] = 0
 			} 
 		
@@ -587,7 +644,7 @@ Election.schulze = function(district, model, options){ // Pairs of candidates ar
 			for(var j in schwartz){ // see who wins 
 				var guy = schwartz[j]
 				if(lossesI[guy]==0){
-					tieBreakerWinners.push(district.candidates[guy].id);
+					tieBreakerWinners.push(cans[guy].id);
 				}
 			}
 			if (tieBreakerWinners.length > 0) break; // stop if someone won
@@ -621,8 +678,8 @@ Election.schulze = function(district, model, options){ // Pairs of candidates ar
 	// add text
 	for (var i in pairs) {
 		if (reverseExplanation) i = pairs.length - i - 1
-		var a = district.candidates[pairs[i].winI]
-		var b = district.candidates[pairs[i].loseI]
+		var a = cans[pairs[i].winI]
+		var b = cans[pairs[i].loseI]
 		
 		if (i >= strongestElimination) {
 			var begintext = "<del>"
@@ -641,14 +698,14 @@ Election.schulze = function(district, model, options){ // Pairs of candidates ar
 						schwartztext = schwartztext + model.icon(j)	
 					}
 				}
-				var extraspace = district.candidates.length - pairs[i].schwartz.length
+				var extraspace = cans.length - pairs[i].schwartz.length
 				var spaces = Math.round(extraspace * 3.4 + 0)
 				for (var j = 0; j < spaces; j++) {
 					schwartztext = schwartztext + "&nbsp;"
 				}
 				schwartztext += "&larr;"
 			} else {
-				var spacelength = Math.round(district.candidates.length * 3.4 + 4)
+				var spacelength = Math.round(cans.length * 3.4 + 4)
 				for (var j = 0; j < spacelength; j++) {
 					schwartztext = schwartztext + "&nbsp;"
 				}
@@ -675,7 +732,7 @@ Election.schulze = function(district, model, options){ // Pairs of candidates ar
 
 	// sort losses
 	var sortedlosses = []
-	for(var i = 0; i < district.candidates.length; i++) sortedlosses.push({name:district.candidates[i].id,losses:losses[district.candidates[i].id]})
+	for(var i = 0; i < cans.length; i++) sortedlosses.push({name:cans[i].id,losses:losses[cans[i].id]})
 	sortedlosses.sort(function(a,b) {return a.losses - b.losses})
 
 	text += "<br>";
@@ -713,8 +770,80 @@ Election.schulze = function(district, model, options){ // Pairs of candidates ar
 	return result;
 };
 
+
+function pairDraw(model,district,winid,loseid,tie,weightcopy,pastwinnerscopy) { // a function is returned, so that i has a new scope
+	return function() {
+		// we have a backup in the "general" stage
+		// so we can edit the ballots directly
+
+		// model.stage = "pair"
+		// model.voterSet.copyDistrictBallotsToStage(district,"pair")
+		// // I could also copy candidates over, but I don't need to.
+
+		model.voterSet.copyDistrictBallotsToStage(district,"backup")
+
+		// leave only the pair in the ballot
+		for (let voterPerson of district.voterPeople) {
+			voterPerson.stages[model.stage].ballot.rank = voterPerson.stages[model.stage].ballot.rank.filter(cid => [winid,loseid].includes(cid))
+		}
+
+		if (weightcopy) { // we should really use a proper data structure like .round (similar to .stage)
+			var backupWC = []
+			for(var j=0; j<district.voterPeople.length; j++){
+				var v = district.voterPeople[j]
+				backupWC[j] = model.voterGroups[v.iGroup].voterPeople[v.iPoint].weight
+				let wini = model.candidatesById[winid].i
+				let losei = model.candidatesById[loseid].i
+				model.voterGroups[v.iGroup].voterPeople[v.iPoint].weight = weightcopy[j][wini][losei]
+			}
+		}
+
+
+		model.dontdrawwinners = true
+
+		// draw - the main action
+		model.drawArenas()
+
+		
+		// restore backups
+		model.dontdrawwinners = false
+		
+		if (weightcopy) {
+			for(var j=0; j<district.voterPeople.length; j++){
+				var v = district.voterPeople[j]
+				model.voterGroups[v.iGroup].voterPeople[v.iPoint].weight = backupWC[j]
+			}
+		}
+
+		// model.stage = "general"
+		model.voterSet.loadDistrictBallotsFromStage(district,"backup")
+
+		// also draw past winners
+		
+		if (weightcopy) {
+			for (var i = 0; i < pastwinnerscopy.length; i++) {
+				var p = pastwinnerscopy[i]
+				model.candidatesById[p].draw(model.arena.ctx,model.arena)
+				model.candidatesById[p].drawText("WON",model.arena.ctx,model.arena)
+			}
+		}
+		// draw this pair's better half
+		if (! tie) {
+			model.candidatesById[winid].drawText("Better",model.arena.ctx,model.arena) 
+		} else {
+			model.candidatesById[winid].drawText("Tie",model.arena.ctx,model.arena) 
+			model.candidatesById[loseid].drawText("Tie",model.arena.ctx,model.arena) 
+		}
+	}
+}
+
 // PairElimination
 Election.minimax = function(district, model, options){ // Pairs of candidates are sorted by their win margin.  Then we eliminate the weakest wins until there is a Condorcet winner.  A condorcet winner has 0 losses.
+
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"nopoll")	
+	let cans = district.stages[model.stage].candidates
+	var ballots = model.voterSet.getBallotsDistrict(district)
 
 	var reverseExplanation = true
 
@@ -726,23 +855,22 @@ Election.minimax = function(district, model, options){ // Pairs of candidates ar
 		text += "<b>who had the strongest wins, one-on-one?</b><br>";
 	}
 
-	var ballots = model.voterSet.getBallotsDistrict(district)
 
 	// Create the WIN tally
 	var tally = {};
 	var losses = {};
-	for(var i=0; i<district.candidates.length; i++){ 
-		cID = district.candidates[i].id
+	for(var i=0; i<cans.length; i++){ 
+		cID = cans[i].id
 		tally[cID] = 0
 		losses[cID] = 0
 	}
 
 	// For each combination... who's the better ranking?
 	pairs = []
-	for(var i=0; i<district.candidates.length-1; i++){
-		var a = district.candidates[i];
-		for(var j=i+1; j<district.candidates.length; j++){
-			var b = district.candidates[j];
+	for(var i=0; i<cans.length-1; i++){
+		var a = cans[i];
+		for(var j=i+1; j<cans.length; j++){
+			var b = cans[j];
 
 			// Actually figure out who won.
 			var aWins = 0;
@@ -793,7 +921,7 @@ Election.minimax = function(district, model, options){ // Pairs of candidates ar
 	var topWinners = [];
 	
 	for(var id in tally){
-		if(tally[id]==district.candidates.length-1){
+		if(tally[id]==cans.length-1){
 			topWinners.push(id);
 		}
 	}
@@ -809,7 +937,7 @@ Election.minimax = function(district, model, options){ // Pairs of candidates ar
 		for (var i = pairs.length - 1; i >= 0; i--) { // i represents the strongest pair to be eliminated
 			
 			if (! pairs[i].tie) {
-				losses[district.candidates[pairs[i].loseI].id] -- // eliminate loss
+				losses[cans[pairs[i].loseI].id] -- // eliminate loss
 			}
 			
 			if (i > 0 && pairs[i].margin == pairs[i-1].margin) { // check if there is a tie for weakest win
@@ -843,8 +971,8 @@ Election.minimax = function(district, model, options){ // Pairs of candidates ar
 		
 	for (var i in pairs) {
 		if (reverseExplanation) i = pairs.length - i - 1
-		var a = district.candidates[pairs[i].winI]
-		var b = district.candidates[pairs[i].loseI]
+		var a = cans[pairs[i].winI]
+		var b = cans[pairs[i].loseI]
 		
 		if (i >= strongestElimination) {
 			var begintext = "<del>"
@@ -855,7 +983,7 @@ Election.minimax = function(district, model, options){ // Pairs of candidates ar
 		}
 
 
-		var eventID = 'pair_' + a.id + '_' + b.id
+		var eventID = 'pair_' + a.id + '_' + b.id + '_' + _rand5()
 		if (options.round) eventID += '_round' + options.round
 		eventID += '_district' + district.i
 		text += '<div id="' + eventID + '" class="pair">' // onmouseover="showOnlyPair(' + a.id + ',' + b.id + ')">'
@@ -864,73 +992,8 @@ Election.minimax = function(district, model, options){ // Pairs of candidates ar
 			var weightcopy = _jcopy(options.ballotweight)
 			var pastwinnerscopy = _jcopy(options.pastwinners)
 		}
-		var pairDraw = function(aid,bid,tie) { // a function is returned, so that i has a new scope
-			return function() {
-				// make a backup
-				var dBackup = [] // TODO: make a copy instead of a backup
-				for (var i = 0; i < district.candidates.length; i++) {
-					dBackup.push(district.candidates[i])
-				}
-				var mBackup = [] // TODO: make a copy instead of a backup
-				for (var i = 0; i < model.candidates.length; i++) {
-					mBackup.push(model.candidates[i])
-				} // hmm... TODO: is this a mistake?  should we be using model instead of district?
 
-				// remove all candidates except the pair
-				// start at the end of the list
-				for (var i = district.candidates.length-1; i >= 0; i--) {
-					c = district.candidates[i]
-					if (c.id == aid) {
-						var ai = i
-						continue // skip
-					}
-					if (c.id == bid) {
-						var bi = i
-						continue // skip
-					}
-					district.candidates.splice(i, 1); // remove from candidates...
-				}
-
-				// need to remove the candidates from the model list.
-				for (var i = model.candidates.length-1; i >= 0; i--) {
-					c = model.candidates[i]
-					if (c.id == aid) continue // skip
-					if (c.id == bid) continue // skip
-					model.candidates.splice(i, 1); // remove from candidates...
-				}
-
-				for (var i=0; i < model.voterGroups.length; i++) {
-					v = model.voterGroups[i]
-					v.update() // easy way to only show the two candidates.
-				}
-
-				for(var j=0; j<district.voterPeople.length; j++){
-					var v = district.voterPeople[j]
-					model.voterGroups[v.iGroup].voterPeople[v.iPoint].weight = weightcopy[j][ai][bi]
-				}
-
-
-				model.dontdrawwinners = true
-				model.drawArenas()
-				model.dontdrawwinners = false
-				district.candidates = dBackup
-				model.candidates = mBackup
-				for (var i=0; i < model.voterGroups.length; i++) {
-					model.voterGroups[i].update()
-				}
-
-				// also draw past winners
-				for (var i = 0; i < pastwinnerscopy.length; i++) {
-					var p = pastwinnerscopy[i]
-					model.candidatesById[p].draw(model.arena.ctx,model.arena)
-					model.candidatesById[p].drawText("WON",model.arena.ctx,model.arena)
-				}
-				// draw this pair's better half
-				if (! tie) district.candidates[ai].drawText("Better",model.arena.ctx,model.arena)
-			}
-		}
-
-		eventsToAssign.push({eventID,f:pairDraw(a.id,b.id,pairs[i].tie)})
+		eventsToAssign.push({eventID,f:pairDraw(model,district,a.id,b.id,pairs[i].tie,weightcopy,pastwinnerscopy)})
 		if (pairs[i].tie) {
 			if(reverseExplanation) {
 				text += begintext + model.icon(a.id)+"&"+model.icon(b.id) + " tie" + endtext	
@@ -952,7 +1015,7 @@ Election.minimax = function(district, model, options){ // Pairs of candidates ar
 
 	// sort losses
 	var sortedlosses = []
-	for(var i = 0; i < district.candidates.length; i++) sortedlosses.push({name:district.candidates[i].id,losses:losses[district.candidates[i].id]})
+	for(var i = 0; i < cans.length; i++) sortedlosses.push({name:cans[i].id,losses:losses[cans[i].id]})
 	sortedlosses.sort(function(a,b) {return a.losses - b.losses})
 
 	text += "<br>";
@@ -993,6 +1056,10 @@ Election.minimax = function(district, model, options){ // Pairs of candidates ar
 // PairElimination
 Election.rankedPairs = function(district, model, options){ // Pairs of candidates are sorted by their win margin.  Then we eliminate the weakest wins until there is a Condorcet winner.  A condorcet winner has 0 losses.
 
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"nopoll")	
+	let cans = district.stages[model.stage].candidates
+
 	var reverseExplanation = false
 
 	var text = "";
@@ -1013,10 +1080,10 @@ Election.rankedPairs = function(district, model, options){ // Pairs of candidate
 
 	// For each combination... who's the better ranking?
 	pairs = []
-	for(var i=0; i<district.candidates.length-1; i++){
-		var a = district.candidates[i];
-		for(var j=i+1; j<district.candidates.length; j++){
-			var b = district.candidates[j];
+	for(var i=0; i<cans.length-1; i++){
+		var a = cans[i];
+		for(var j=i+1; j<cans.length; j++){
+			var b = cans[j];
 
 			// Actually figure out who won.
 			var aWins = 0;
@@ -1062,7 +1129,7 @@ Election.rankedPairs = function(district, model, options){ // Pairs of candidate
 	var topWinners = [];
 	
 	for(var id in tally){
-		if(tally[id]==district.candidates.length-1){
+		if(tally[id]==cans.length-1){
 			topWinners.push(id);
 		}
 	}
@@ -1100,10 +1167,10 @@ Election.rankedPairs = function(district, model, options){ // Pairs of candidate
 				surviving.delete(l3)
 				survivedq(w3)
 			}
-			pairs[i].survivors = (Array.from(surviving)).map(x => district.candidates[x].id)
-			if (showdead) pairs[i].dead = (Array.from(dead)).map(x => district.candidates[x].id)
+			pairs[i].survivors = (Array.from(surviving)).map(x => cans[x].id)
+			if (showdead) pairs[i].dead = (Array.from(dead)).map(x => cans[x].id)
 		}
-		topWinners = (Array.from(surviving)).map(x => district.candidates[x].id)
+		topWinners = (Array.from(surviving)).map(x => cans[x].id)
 	}
 
 
@@ -1130,8 +1197,8 @@ Election.rankedPairs = function(district, model, options){ // Pairs of candidate
 	}
 	for (var i in pairs) {
 		if (reverseExplanation) i = pairs.length - i - 1
-		var a = district.candidates[pairs[i].winI]
-		var b = district.candidates[pairs[i].loseI]
+		var a = cans[pairs[i].winI]
+		var b = cans[pairs[i].loseI]
 		
 		if (pairs[i].conflict) {
 			var begintext = "<del>"
@@ -1155,19 +1222,19 @@ Election.rankedPairs = function(district, model, options){ // Pairs of candidate
 						deadtext = model.icon(c) + deadtext
 					}
 					survivorstext = survivorstext + deadtext
-					var extraspace = district.candidates.length - pairs[i].survivors.length - pairs[i].dead.length
+					var extraspace = cans.length - pairs[i].survivors.length - pairs[i].dead.length
 					survivorstext = survivorstext + "&nbsp;&nbsp;&nbsp;"
 				} else {
-					var extraspace = district.candidates.length - pairs[i].survivors.length
+					var extraspace = cans.length - pairs[i].survivors.length
 				}
-				if (pairs[i].survivors.length == 1 && pairs[i].dead.length + 1 == district.candidates.length) keepShowingSurvivors = false
+				if (pairs[i].survivors.length == 1 && pairs[i].dead.length + 1 == cans.length) keepShowingSurvivors = false
 				
 				var spaces = Math.round(extraspace * 3.4 + 0)
 				for (var j = 0; j < spaces; j++) {
 					survivorstext = survivorstext + "&nbsp;"
 				}
 			} else {
-				var spacelength = Math.round(district.candidates.length * 3.4 + 6)
+				var spacelength = Math.round(cans.length * 3.4 + 6)
 				for (var j = 0; j < spacelength; j++) {
 					survivorstext = survivorstext + "&nbsp;"
 				}
@@ -1215,6 +1282,11 @@ Election.rankedPairs = function(district, model, options){ // Pairs of candidate
 
 Election.rbvote = function(district, model, options){ // Use the RBVote from Rob Legrand
 
+	
+	options = _electionDefaults(options)
+	_beginElection_rbvote(district,model)
+	let cans = district.stages[model.stage].candidates
+
 	if (model.checkRunTextBallots()) {
 		// var filler = {candidates:[]}
 		// result = _check01(filler,model)
@@ -1240,7 +1312,7 @@ Election.rbvote = function(district, model, options){ // Use the RBVote from Rob
 
 		if (resultRB.str) { // e.g. when the sidebar is on
 			// replace some of the html in the output of rbvote to make it match the style of betterballot
-			var rbvote_string = (resultRB.str).replace("style.css","../play/css/rbvote.css").replace()
+			var rbvote_string = (resultRB.str).replace("style.css","./play/css/rbvote.css").replace()
 			rbvote_string = rbvote_string.replace('<th rowspan="5">for</th>',)
 			text += rbvote_string
 		}
@@ -1276,7 +1348,7 @@ Election.rbvote = function(district, model, options){ // Use the RBVote from Rob
 	if (!options.sidebar) return result 
 	
 	// replace some of the html in the output of rbvote to make it match the style of betterballot
-	var rbvote_string = (resultRB.str).replace("style.css","../play/css/rbvote.css").replace()
+	var rbvote_string = (resultRB.str).replace("style.css","./play/css/rbvote.css").replace()
 	var intext = []
 	var outtext = []
 	for(var i = model.candidates.length - 1; i >= 0; i--) {
@@ -1309,6 +1381,10 @@ Election.rbvote = function(district, model, options){ // Use the RBVote from Rob
 
 Election.rrv = function(district, model, options){
 
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"nopoll")	
+	let cans = district.stages[model.stage].candidates
+
 	var numreps = model.seats
 	var maxscore = 5
 
@@ -1336,15 +1412,15 @@ Election.rrv = function(district, model, options){
 	var winnerslist = []
 	
 	var candidates = [];
-	for(var i=0; i<district.candidates.length; i++){
-		candidates.push(district.candidates[i].id);
+	for(var i=0; i<cans.length; i++){
+		candidates.push(cans[i].id);
 	}
 	
 	for(var j=0; j<numreps;j++) {
 		// Tally the approvals & get winner!
-		var tally = _tally_i(district, model, function(tally, ballot, i){
-			for(var j=0; j<candidates.length; j++){
-				var candidate = candidates[j];
+		var tally = _tallyBC_i( ballots, cans, function(tally, ballot, i){
+			for(var k=0; k<candidates.length; k++){
+				var candidate = candidates[k];
 				tally[candidate] += ballot[candidate] * ballotweight[i]
 			}
 		})
@@ -1391,8 +1467,8 @@ Election.rrv = function(district, model, options){
 			var winner = winnerslist[j];
 			if (j>0) text += "<br><b>After votes go to winner,</b>"
 			text += "<br><b>score as %:</b><br>";
-			for(var i=0; i<district.candidates.length; i++){
-				var c = district.candidates[i].id;
+			for(var i=0; i<cans.length; i++){
+				var c = cans[i].id;
 				//text += model.icon(c)+"'s score: "+((tally[c]/district.voterPeople.length).toFixed(2))+" out of 5.00<br>";
 				text += model.icon(c)+": "+_percentFormat(district, tally[c] / maxscore)
 				if (winner == c) text += " &larr;"//" <--"
@@ -1451,6 +1527,10 @@ Election.rrv = function(district, model, options){
 };
 
 Election.rav = function(district, model, options){
+
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"nopoll")	
+	let cans = district.stages[model.stage].candidates
 	
 	var numreps = model.seats
 	var maxscore = 1
@@ -1479,17 +1559,17 @@ Election.rav = function(district, model, options){
 	var winnerslist = []
 	
 	var candidates = [];
-	for(var i=0; i<district.candidates.length; i++){
-		candidates.push(district.candidates[i].id);
+	for(var i=0; i<cans.length; i++){
+		candidates.push(cans[i].id);
 	}
 	
 	for(var j=0; j<numreps;j++) {
 		// Tally the approvals & get winner!
-		var tally = _tally_i(district, model, function(tally, ballot, i){
+		var tally = _tallyBC_i( ballots, cans, function(tally, ballot, i){
 			var approved = ballot.approved;
-			for(var i=0; i<approved.length; i++) {
-				if (candidates.includes(approved[i])) {
-					tally[approved[i]] += ballotweight[i];
+			for(var k=0; k<approved.length; k++) {
+				if (candidates.includes(approved[k])) {
+					tally[approved[k]] += ballotweight[i];
 				}
 			}
 		})
@@ -1538,8 +1618,8 @@ Election.rav = function(district, model, options){
 			var winner = winnerslist[j];
 			if (j>0) text += "<br><b>After votes go to winner,</b>"
 			text += "<br><b>score as %:</b><br>";
-			for(var i=0; i<district.candidates.length; i++){
-				var c = district.candidates[i].id;
+			for(var i=0; i<cans.length; i++){
+				var c = cans[i].id;
 				//text += model.icon(c)+"'s score: "+((tally[c]/district.voterPeople.length).toFixed(2))+" out of 5.00<br>";
 				text += model.icon(c)+": "+_percentFormat(district, tally[c])
 				if (winner == c) text += " &larr;"//" <--"
@@ -1597,9 +1677,14 @@ Election.rav = function(district, model, options){
 
 Election.borda = function(district, model, options){
 
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"nopoll")	
+	let cans = district.stages[model.stage].candidates
+
 	// Tally the approvals & get winner!
-	var numcan = district.candidates.length
-	var tally = _tally(district,model, function(tally, ballot){
+	var numcan = cans.length
+	var ballots = model.voterSet.getBallotsDistrict(district)
+	var tally = _tallyBC(ballots,cans, function(tally, ballot){
 		for(var i=0; i<numcan; i++){
 			var candidate = ballot.rank[i];
 			tally[candidate] += numcan - i - 1; // reverse the rank and subtract 1 because nobody's going to rank their least favorite.
@@ -1617,8 +1702,8 @@ Election.borda = function(district, model, options){
 	var text = "";
 	text += "<span class='small'>";
 	text += "<b>higher score is better</b><br>";
-	for(var i=0; i<district.candidates.length; i++){
-		var c = district.candidates[i].id;
+	for(var i=0; i<cans.length; i++){
+		var c = cans[i].id;
 		text += model.icon(c)+"'s total score: "+tally[c]+" = "+_percentFormat(district, tally[c] / (numcan-1))+"%<br>";
 	}
 	if(winners.length>=2){
@@ -1640,9 +1725,9 @@ Election.borda = function(district, model, options){
 
 Election.irv = function(district, model, options){
 
-	var dopoll = "Auto" == model.autoPoll
-	if (options.dontpoll) dopoll = false
-	if (dopoll) polltext = doPollAndUpdateBallots(district,model,options,"irv")
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"irv")	
+	let cans = district.stages[model.stage].candidates
 
 	var drawFlows = (model.ballotConcept != "off") && ( ! options.yeefast )
 	if (drawFlows) {
@@ -1654,18 +1739,19 @@ Election.irv = function(district, model, options){
 		var losers = []
 	}
 	var ballots = model.voterSet.getBallotsDistrict(district)
+	cBallots = _jcopy(ballots)
 
 	var text = "";
 	if (options.sidebar) text += "<span class='small'>";
 
-	if (dopoll) text += polltext;
+	text += polltext;
 	var resolved = null;
 	var roundNum = 1;
 
 	var candidates = [];
 	var startingCandidates = []
-	for(var i=0; i<district.candidates.length; i++){
-		var cid = district.candidates[i].id
+	for(var i=0; i< cans.length; i++){
+		var cid = cans[i].id
 		candidates.push(cid);
 		startingCandidates.push(cid)
 	}
@@ -1695,7 +1781,7 @@ Election.irv = function(district, model, options){
 		// 1. Tally
 
 		// Tally first choices
-		var pre_tally = _tally(district,model, function(tally, ballot){
+		var pre_tally = _tallyBC(cBallots,cans, function(tally, ballot){
 			var top = ballot.rank[0]; // just count #1
 			tally[top]++;
 		});
@@ -1724,11 +1810,7 @@ Election.irv = function(district, model, options){
 		if (drawFlows) {
 
 			// find top choices 
-			topChoice[roundNum-1] = []
-			for(var i=0; i<ballots.length; i++){
-				var top = ballots[i].rank[0];
-				topChoice[roundNum-1][i] = top
-			}
+			topChoice[roundNum-1] = cBallots.map(x => x.rank[0])
 
 			// count coalition members
 			coalitionInRound[roundNum-1] = {}
@@ -1742,8 +1824,8 @@ Election.irv = function(district, model, options){
 			}
 			// for all the ballots
 			// add to their current top choice's coalition
-			for(var k=0; k<ballots.length; k++){
-				cid = ballots[k].rank[0]
+			for(var k=0; k<cBallots.length; k++){
+				cid = cBallots[k].rank[0]
 				first = topChoice[0][k]
 				coalitionInRound[roundNum-1][cid][first] ++
 			}
@@ -1756,7 +1838,7 @@ Election.irv = function(district, model, options){
 		var winners = _countWinner(tally);
 		var winner = winners[0];
 		var ratio = tally[winner] / district.voterPeople.length;
-		var option100 = model.opt.IRV100
+		var option100 = model.opt.irv100
 		if (option100) {
 			if (candidates.length == 1) {
 				resolved = "done";
@@ -1832,8 +1914,8 @@ Election.irv = function(district, model, options){
 
 			// REMOVE THE LOSER
 			candidates.splice(candidates.indexOf(loser), 1); // remove from candidates...
-			for(var i=0; i<ballots.length; i++){ // remove from ballots
-				var ranking = ballots[i].rank;
+			for(var i=0; i<cBallots.length; i++){ // remove from ballots
+				var ranking = cBallots[i].rank;
 				var loserIndex = ranking.indexOf(loser)
 				ranking.splice(loserIndex, 1); 		
 			}
@@ -1855,11 +1937,11 @@ Election.irv = function(district, model, options){
 					}
 				}
 
-				for(var i=0; i<ballots.length; i++){
+				for(var i=0; i<cBallots.length; i++){
 					var old = topChoice[roundNum-1][i]
 					if (old === loser) {
 						var first = topChoice[0][i]
-						var now = ballots[i].rank[0];
+						var now = cBallots[i].rank[0];
 						transfer.flows[now][first] ++
 					}
 				}
@@ -1869,20 +1951,6 @@ Election.irv = function(district, model, options){
 		roundNum++
 		if (options.sidebar) text += "<br>"
 	
-	}
-
-
-	if(options.sidebar) {
-		
-		for(var i=0; i<model.voterGroups.length; i++){
-			var voter = model.voterGroups[i];
-			voter.update();
-		}
-		// for (var i=0; i<model.voterGroups.length; i++) {
-		// 	model.voterGroups[i].ballots = temp[i].ballots // originals
-		// }
-		// model.voterGroups = temp // restore the original ballots
-		// model.voterGroups = ov
 	}
 
 	if (drawFlows) {
@@ -1926,8 +1994,8 @@ Election.irv = function(district, model, options){
 				}
 	
 				// record the coalition
-				for(var k=0; k<ballots.length; k++){
-					var ranking = ballots[k].rank;
+				for(var k=0; k<cBallots.length; k++){
+					var ranking = cBallots[k].rank;
 					if (ranking[0] === cid) {
 						first = topChoice[0][k]
 						coalition.list[first] ++
@@ -1943,8 +2011,10 @@ Election.irv = function(district, model, options){
 		result.topChoice = topChoice
 		result.coalitions = coalitions
 		result.lastlosers = lastlosers
-		result.nBallots = ballots.length
+		result.nBallots = cBallots.length
 	}
+
+	// district.pollResults = undefined // clear polls for next time
 
 	if (!options.sidebar) return result
 
@@ -1965,6 +2035,10 @@ Election.irv = function(district, model, options){
 };
 
 Election.stv = function(district, model, options){
+
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"nopoll")	
+	let cans = district.stages[model.stage].candidates
 
 	var numreps = model.seats
 	
@@ -2004,16 +2078,17 @@ Election.stv = function(district, model, options){
 
 	var candidates = [];
 	var startingCandidates = []
-	for(var i=0; i<district.candidates.length; i++){
-		var cid = district.candidates[i].id
+	for(var i=0; i<cans.length; i++){
+		var cid = cans[i].id
 		candidates.push(cid);
 		startingCandidates.push(cid)
 	}
 	var loserslist = []
 	var winnerslist = []
-	var ballots = model.voterSet.getBallotsDistrict(district)	
+	var ballots = model.voterSet.getBallotsDistrict(district)
+	var cBallots = _jcopy(ballots)
 	var ballotweight = []
-	for(var i=0; i<ballots.length; i++){
+	for(var i=0; i<cBallots.length; i++){
 		ballotweight[i] = 1
 	}
 	while(!resolved){
@@ -2029,7 +2104,7 @@ Election.stv = function(district, model, options){
 
 			var roundHistory = {
 				q:_jcopy(ballotweight),
-				ballots:_jcopy(ballots),
+				ballots:_jcopy(cBallots),
 				stillin: stillin
 			}
 
@@ -2038,7 +2113,7 @@ Election.stv = function(district, model, options){
 			text += "who's voters' #1 choice?<br>";
 		}
 
-		var pre_tally = _tally_i(district, model, function(tally, ballot, i){
+		var pre_tally = _tallyBC_i( cBallots, cans, function(tally, ballot, i){
 			var first = ballot.rank[0]; // just count #1
 			tally[first] += ballotweight[i];
 		});
@@ -2067,8 +2142,8 @@ Election.stv = function(district, model, options){
 
 			// find top choices 
 			topChoice[roundNum-1] = []
-			for(var i=0; i<ballots.length; i++){
-				var top = ballots[i].rank[0];
+			for(var i=0; i<cBallots.length; i++){
+				var top = cBallots[i].rank[0];
 				topChoice[roundNum-1][i] = top
 			}
 
@@ -2084,8 +2159,8 @@ Election.stv = function(district, model, options){
 			}
 			// for all the ballots
 			// add to their current top choice's coalition
-			for(var k=0; k<ballots.length; k++){
-				cid = ballots[k].rank[0]
+			for(var k=0; k<cBallots.length; k++){
+				cid = cBallots[k].rank[0]
 				first = topChoice[0][k]
 				coalitionInRound[roundNum-1][cid][first] += ballotweight[k]
 			}
@@ -2100,7 +2175,7 @@ Election.stv = function(district, model, options){
 		var ratio = tally[winner]/district.voterPeople.length;
 		
 		// show all the transfers if the 100% option is chosen
-		var option100 = model.opt.IRV100
+		var option100 = model.opt.irv100
 		var lastwin = numreps - winnerslist.length == 1 // this could be the last winner
 		var oneleft = candidates.length == 1 // there is only one candidate left
 		var wait = option100 && lastwin & !oneleft // don't name the last winner unless he's the only one left
@@ -2130,8 +2205,8 @@ Election.stv = function(district, model, options){
 
 			candidates.splice(candidates.indexOf(winner), 1); // remove from candidates...
 			// var ballots = model.voterSet.getBallotsDistrict(district)
-			for(var i=0; i<ballots.length; i++){
-				var rank = ballots[i].rank;
+			for(var i=0; i<cBallots.length; i++){
+				var rank = cBallots[i].rank;
 				if (rank[0] === winner) {
 					ballotweight[i] *= reweight
 				}
@@ -2197,8 +2272,8 @@ Election.stv = function(district, model, options){
 					text += "eliminate loser, "+model.icon(loser)+".<br>";
 				}
 				candidates.splice(candidates.indexOf(loser), 1); // remove from candidates...
-				for(var i=0; i<ballots.length; i++){
-					var ranking = ballots[i].rank;
+				for(var i=0; i<cBallots.length; i++){
+					var ranking = cBallots[i].rank;
 					var loserIndex = ranking.indexOf(loser)
 					ranking.splice(loserIndex, 1); // REMOVE THE LOSER		
 				}
@@ -2226,11 +2301,11 @@ Election.stv = function(district, model, options){
 					}
 				}
 
-				for(var i=0; i<ballots.length; i++){
+				for(var i=0; i<cBallots.length; i++){
 					var old = topChoice[roundNum-1][i]
 					if (old === from) {
 						var first = topChoice[0][i]
-						var now = ballots[i].rank[0];
+						var now = cBallots[i].rank[0];
 						transfer.flows[now][first] += ballotweight[i]
 					}
 				}
@@ -2251,7 +2326,7 @@ Election.stv = function(district, model, options){
 		if (options.sidebar) {
 			
 			roundHistory.tally = tally
-			roundHistory.ballots = _jcopy(ballots)
+			roundHistory.ballots = _jcopy(cBallots)
 			if (winner) {
 				roundHistory.winners = [model.candidatesById[winner].i]
 			} else {
@@ -2267,7 +2342,7 @@ Election.stv = function(district, model, options){
 	if (options.sidebar) {
 			
 		roundHistory.tally = tally
-		roundHistory.ballots = _jcopy(ballots)
+		roundHistory.ballots = _jcopy(cBallots)
 		if (winner) {
 			roundHistory.winners = [model.candidatesById[winner].i]
 		} else {
@@ -2287,11 +2362,11 @@ Election.stv = function(district, model, options){
 
 			var roundHistory = {
 				q:_jcopy(ballotweight),
-				ballots:_jcopy(ballots),
+				ballots:_jcopy(cBallots),
 				stillin: stillin
 			}
 
-			var pre_tally = _tally_i(district, model, function(tally, ballot, i){
+			var pre_tally = _tallyBC_i( cBallots, cans, function(tally, ballot, i){
 				var first = ballot.rank[0]; // just count #1
 				tally[first] += ballotweight[i];
 			});
@@ -2308,7 +2383,7 @@ Election.stv = function(district, model, options){
 			var winner = winners[0];  // there needs to be a better tiebreaker here. TODO
 
 			roundHistory.tally = tally
-			roundHistory.ballots = _jcopy(ballots)
+			roundHistory.ballots = _jcopy(cBallots)
 			if (winner) {
 				roundHistory.winners = [model.candidatesById[winner].i]
 			} else {
@@ -2359,8 +2434,8 @@ Election.stv = function(district, model, options){
 				}
 	
 				// record the coalition
-				for(var k=0; k<ballots.length; k++){
-					var ranking = ballots[k].rank;
+				for(var k=0; k<cBallots.length; k++){
+					var ranking = cBallots[k].rank;
 					if (ranking[0] === cid) {
 						first = topChoice[0][k]
 						coalition.list[first] ++
@@ -2376,7 +2451,7 @@ Election.stv = function(district, model, options){
 		result.topChoice = topChoice
 		result.coalitions = coalitions
 		result.lastlosers = lastlosers
-		result.nBallots = ballots.length
+		result.nBallots = cBallots.length
 	}
 
 	if (options.sidebar) {
@@ -2418,15 +2493,14 @@ Election.stv = function(district, model, options){
 		}
 	}
 
-	// we messed around with the rankings, so lets put them back
-	for(var j=0; j<model.voterGroups.length; j++){
-		model.voterGroups[j].update();
-	}
-
 	return result;
 };
 
 Election.quotaMinimax = function(district, model, options){
+
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"nopoll")	
+	let cans = district.stages[model.stage].candidates
 
 	var numreps = model.seats
 
@@ -2454,19 +2528,20 @@ Election.quotaMinimax = function(district, model, options){
 	}
 
 	var candidates = [];
-	for(var i=0; i<district.candidates.length; i++){
-		candidates.push(district.candidates[i].id);
+	for(var i=0; i<cans.length; i++){
+		candidates.push(cans[i].id);
 	}
 	var winnerslist = []
-	var ballots = model.voterSet.getBallotsDistrict(district)	
+	var ballots = model.voterSet.getBallotsDistrict(district)
+	var cBallots = _jcopy(ballots)	
 	var oldballots = _jcopy(ballots)
 	var ballotweight = []
-	var numcan = district.candidates.length
-	for(var i=0; i<ballots.length; i++){
+	var numcan = cans.length
+	for(var i=0; i<cBallots.length; i++){
 		ballotweight[i] = []
-		for(var j=0; j < district.candidates.length; j++) {
+		for(var j=0; j < cans.length; j++) {
 			ballotweight[i][j] = []
-			for(var k=0; k < district.candidates.length; k++) {
+			for(var k=0; k < cans.length; k++) {
 				ballotweight[i][j][k] = 1
 			}
 		}
@@ -2474,8 +2549,13 @@ Election.quotaMinimax = function(district, model, options){
 	var all1 = _jcopy(ballotweight)
 	var ballotcounted = _jcopy(all1)
 
-	var oldCandidates = district.candidates
-	district.candidates = _jcopy(oldCandidates)
+
+	
+	// 	model.stage = "working"
+	// 	model.voterSet.copyDistrictBallotsToStage(district,"working")
+	// var workingCandids = district.stages[model.stage].candidates
+	var oldCandidates = cans
+	district.stages[model.stage].candidates = _jcopy(oldCandidates)
 	for ( var roundNum = 1; roundNum <= numreps; roundNum++) {
 
 		
@@ -2489,7 +2569,7 @@ Election.quotaMinimax = function(district, model, options){
 
 			var roundHistory = {
 				q:_jcopy(ballotweight),
-				ballots:_jcopy(ballots),
+				ballots:_jcopy(cBallots),
 				stillin: stillin
 			}
 
@@ -2504,6 +2584,8 @@ Election.quotaMinimax = function(district, model, options){
 		tempOptions.ballotweight = ballotweight
 		tempOptions.round = roundNum
 		tempOptions.pastwinners = winnerslist
+		tempOptions.justCount = true
+		// need to change candidates
 		var roundResult = Election.minimax(district, model,tempOptions)
 
 
@@ -2522,7 +2604,7 @@ Election.quotaMinimax = function(district, model, options){
 		if (options.sidebar) {
 			
 			roundHistory.tally = tally
-			roundHistory.ballots = _jcopy(ballots)
+			roundHistory.ballots = _jcopy(cBallots)
 			if (winner) {
 				roundHistory.winners = [model.candidatesById[winner].i]
 			} else {
@@ -2545,8 +2627,8 @@ Election.quotaMinimax = function(district, model, options){
 		var sequential = false
 		if (sequential) {
 			// add up support for the winner
-			for(var i=0; i<ballots.length; i++){
-				var rank = ballots[i].rank;
+			for(var i=0; i<cBallots.length; i++){
+				var rank = cBallots[i].rank;
 				var winpos = rank.indexOf(winner)
 				for(j=0; j<ballotweight[i].length; j++) {
 					for(k=0; k<ballotweight[i][j].length; k++) {
@@ -2564,7 +2646,7 @@ Election.quotaMinimax = function(district, model, options){
 			for(var j=0; j < numcan; j++) {
 				reweight[j] = []
 				for(var k=0; k < numcan; k++) {
-					var ratio = support[j][k] / (roundNum * quota * ballots.length)
+					var ratio = support[j][k] / (roundNum * quota * cBallots.length)
 					// reweight[j][k] = Math.max(0,1-ratio)
 					if (ratio == 0) {
 						reweight[j][k] = 1
@@ -2574,8 +2656,8 @@ Election.quotaMinimax = function(district, model, options){
 				}
 			}
 			// reweight and eliminate winner
-			for(var i=0; i<ballots.length; i++){
-				var rank = ballots[i].rank;
+			for(var i=0; i<cBallots.length; i++){
+				var rank = cBallots[i].rank;
 				var winpos = rank.indexOf(winner)
 				for(j=0; j<ballotweight[i].length; j++) {
 					for(k=0; k<ballotweight[i][j].length; k++) {
@@ -2618,7 +2700,7 @@ Election.quotaMinimax = function(district, model, options){
 			for(var j=0; j < numcan; j++) {
 				reweight[j] = []
 				for(var k=0; k < numcan; k++) {
-					var ratio = support[j][k] / (roundNum * quota * ballots.length)
+					var ratio = support[j][k] / (roundNum * quota * cBallots.length)
 					if (ratio == 0) {
 						reweight[j][k] = 1
 					} else {
@@ -2628,8 +2710,8 @@ Election.quotaMinimax = function(district, model, options){
 			}
 			ballotweight = _jcopy(all1)
 			// reweight and eliminate winner
-			for(var i=0; i<ballots.length; i++){
-				var rank = ballots[i].rank;
+			for(var i=0; i<cBallots.length; i++){
+				var rank = cBallots[i].rank;
 				var winpos = rank.indexOf(winner)
 				for(j=0; j<ballotweight[i].length; j++) {
 					for(k=0; k<ballotweight[i][j].length; k++) {
@@ -2642,18 +2724,18 @@ Election.quotaMinimax = function(district, model, options){
 			}
 		}
 		var cids = [] // candidate id's
-		for (var i=0; i < district.candidates.length; i++) {
-			cids.push(district.candidates[i].id)
+		for (var i=0; i < candidates.length; i++) {
+			cids.push(candidates[i].id)
 		}
-		district.candidates.splice(cids.indexOf(winner), 1); // remove from candidates...
+		candidates.splice(cids.indexOf(winner), 1); // remove from candidates...
 
 	}
-	district.candidates = oldCandidates
+	district.stages[model.stage].candidates = oldCandidates
 	
 	if (options.sidebar) {
 		
 		roundHistory.tally = tally
-		roundHistory.ballots = _jcopy(ballots)
+		roundHistory.ballots = _jcopy(cBallots)
 		if (winner) {
 			roundHistory.winners = [model.candidatesById[winner].i]
 		} else {
@@ -2673,11 +2755,11 @@ Election.quotaMinimax = function(district, model, options){
 
 			var roundHistory = {
 				q:_jcopy(ballotweight),
-				ballots:_jcopy(ballots),
+				ballots:_jcopy(cBallots),
 				stillin: stillin
 			}
 
-			var pre_tally = _tally_i(district, model, function(tally, ballot, i){
+			var pre_tally = _tallyBC_i( cBallots, cans, function(tally, ballot, i){
 				var first = ballot.rank[0]; // just count #1
 				tally[first] += ballotweight[i];
 			});
@@ -2694,7 +2776,7 @@ Election.quotaMinimax = function(district, model, options){
 			var winner = winners[0];  // there needs to be a better tiebreaker here. TODO
 
 			roundHistory.tally = tally
-			roundHistory.ballots = _jcopy(ballots)
+			roundHistory.ballots = _jcopy(cBallots)
 			if (winner) {
 				roundHistory.winners = [model.candidatesById[winner].i]
 			} else {
@@ -2765,15 +2847,14 @@ Election.quotaMinimax = function(district, model, options){
 		}
 	}
 
-	// we messed around with the rankings, so lets put them back
-	for(var j=0; j<model.voterGroups.length; j++){
-		model.voterGroups[j].update();
-	}
-
 	return result;
 };
 
 Election.quotaApproval = function(district, model, options){
+
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"nopoll")	
+	let cans = district.stages[model.stage].candidates
 	
 	var v = model.voterSet.getVoterArray()
 
@@ -2795,12 +2876,12 @@ Election.quotaApproval = function(district, model, options){
 	for (var i=0; i < v.length; i++) {
 		q.push(1)
 	}
-	for (var n = 0; n < district.candidates.length; n++) {
+	for (var n = 0; n < cans.length; n++) {
 		if (winners.length >= seats) {
 			break
 		}
 		var tally = []
-		for (var k = 0; k < district.candidates.length; k++) {
+		for (var k = 0; k < cans.length; k++) {
 			tally[k] = 0
 		}
 		for (var i = 0; i < v.length; i++) {
@@ -2819,8 +2900,8 @@ Election.quotaApproval = function(district, model, options){
 			text += '<div id="district'+district.i+'round' + (n+1) + '" class="round">'
 			text += "Round " + (n+1);
 			text += "<br>";
-			for(var i=0; i<district.candidates.length; i++){
-				var c = district.candidates[i].id;
+			for(var i=0; i<cans.length; i++){
+				var c = cans[i].id;
 				text += model.icon(c)+" got "+_percentFormat(district, tally[i])+"<br>";
 			}
 			text += "<br>";
@@ -2834,7 +2915,7 @@ Election.quotaApproval = function(district, model, options){
 		}
 		roundWinners = roundWinners.map(x => Number(x))
 		roundWinners.forEach(x => winnersIndexes.push(Number(x)))
-		roundWinnersId = roundWinners.map( x => district.candidates[x].id)
+		roundWinnersId = roundWinners.map( x => cans[x].id)
 		roundWinnersId.forEach(x => winners.push(x))
 
 		// subtract off the quota
@@ -2900,6 +2981,10 @@ Election.quotaApproval = function(district, model, options){
 }
 
 Election.quotaScore = function(district, model, options){
+
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"nopoll")	
+	let cans = district.stages[model.stage].candidates
 	
 	var v = model.voterSet.getVoterArray()
 
@@ -2922,12 +3007,12 @@ Election.quotaScore = function(district, model, options){
 	for (var i=0; i < v.length; i++) {
 		q.push(1)
 	}
-	for (var n = 0; n < district.candidates.length; n++) {
+	for (var n = 0; n < cans.length; n++) {
 		if (winners.length >= seats) {
 			break
 		}
 		var tally = []
-		for (var k = 0; k < district.candidates.length; k++) {
+		for (var k = 0; k < cans.length; k++) {
 			tally[k] = 0
 		}
 		for (var i = 0; i < v.length; i++) {
@@ -2944,8 +3029,8 @@ Election.quotaScore = function(district, model, options){
 			text += '<div id="district'+district.i+'round' + (n+1) + '" class="round">'
 			text += "Round " + (n+1);
 			text += "<br>";
-			for(var i=0; i<district.candidates.length; i++){
-				var c = district.candidates[i].id;
+			for(var i=0; i<cans.length; i++){
+				var c = cans[i].id;
 				text += model.icon(c)+" got "+_percentFormat(district, tally[i])+"<br>";
 			}
 			text += "<br>";
@@ -2959,7 +3044,7 @@ Election.quotaScore = function(district, model, options){
 		}
 		roundWinners = roundWinners.map(x => Number(x))
 		roundWinners.forEach(x => winnersIndexes.push(Number(x)))
-		roundWinnersId = roundWinners.map( x => district.candidates[x].id)
+		roundWinnersId = roundWinners.map( x => cans[x].id)
 		roundWinnersId.forEach(x => winners.push(x))
 
 		// subtract off the quota
@@ -3024,12 +3109,13 @@ Election.quotaScore = function(district, model, options){
 
 Election.toptwo = function(district, model, options){ // not to be confused with finding the top2 in a poll, which I already made as a variable
 
-	options = options || {};
-
-	if ("Auto" == model.autoPoll) polltext = doPollAndUpdateBallots(district,model,options,"plurality")
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"plurality")	
+	let cans = district.stages[model.stage].candidates
 
 	// Tally the approvals & get winner!
-	var tally1 = _tally(district,model, function(tally, ballot){
+	var ballots = model.voterSet.getBallotsDistrict(district)
+	var tally1 = _tallyBC(ballots,cans, function(tally, ballot){
 		tally[ballot.vote]++;
 	});
 	var sortedtally = _sortTally(tally1)
@@ -3039,17 +3125,20 @@ Election.toptwo = function(district, model, options){ // not to be confused with
 	var winningscores = toptwo.map(x => tally1[x])
 	toptwo = sortedtally.filter(x => winningscores.includes(tally1[x]))
 	
-
 	// only do 2 candidates
-	var oldcandidates = district.candidates
-	district.candidates = district.candidates.filter( x => toptwo.includes(x.id)) 
-	for(var j=0; j<model.voterGroups.length; j++){
-		model.voterGroups[j].update();
-	}
-	var tally = _tally(district,model, function(tally, ballot){
+	model.stage = "runoff"
+	district.stages["runoff"] = {candidates: cans.filter( x => toptwo.includes(x.id))  }
+	
+	model.updateDistrictBallots(district);
+
+	var ballots2 = model.voterSet.getBallotsDistrict(district)
+	var tally = _tallyBC(ballots2,cans, function(tally, ballot){
 		tally[ballot.vote]++;
 	});
-	district.candidates = oldcandidates
+
+	model.stage = "general" // set to general for display purposes
+	model.voterSet.loadDistrictBallotsFromStage(district,"general")
+
 
 	var winners = _countWinner(tally);
 	var result = _result(winners,model)
@@ -3057,6 +3146,10 @@ Election.toptwo = function(district, model, options){ // not to be confused with
 
 	if (model.doTop2) var theTop2 = _sortTally(tally).slice(0,2)
 	if (model.doTop2) result.theTop2 = theTop2
+
+	
+	district.pollResults = undefined // clear polls for next time
+
 	if (!options.sidebar) return result
 
 	// Caption
@@ -3065,13 +3158,13 @@ Election.toptwo = function(district, model, options){ // not to be confused with
 	text += "<span class='small'>";
 	if ("Auto" == model.autoPoll) text += polltext;
 	text += "<b>top two move to 2nd round</b><br>";
-	for(var i=0; i<district.candidates.length; i++){
-		var c = district.candidates[i].id;
+	for(var i=0; i<cans.length; i++){
+		var c = cans[i].id;
 		text += model.icon(c)+" got "+_percentFormat(district, tally1[c])+"<br>";
 	}
 	text += "<br><b>2nd round</b><br>";
-	for(var i=0; i<district.candidates.length; i++){
-		var c = district.candidates[i].id;
+	for(var i=0; i<cans.length; i++){
+		var c = cans[i].id;
 		if (toptwo.includes(c)) text += model.icon(c)+" got "+_percentFormat(district, tally[c])+"<br>";
 	}
 	// Caption text for winner, or tie
@@ -3093,39 +3186,55 @@ Election.toptwo = function(district, model, options){ // not to be confused with
 };
 
 Election.pluralityWithPrimary = function(district, model, options){
-	options = options || {};
 
-	// Tally the approvals & get winner!
-	var ptallies = _tally_primary(district, model, function(tally, ballot){
+	options = _electionDefaults(options)
+	var polltext = _beginElection_pluralityWithPrimary(district,model,options)
+	let cans = district.stages[model.stage].candidates
+	
+	// Look at each voter group and get tallies for all the candidates
+	let ptallies = _getBallotsAndTallyPrimary(district, model, function(tally, ballot){
 		tally[ballot.vote]++;
 	});
-	// if ("we gotta problem" == ptallies) {
-	// 	model.result.colors = ["#aaa"]
-	// 	return
-	// }
-
-	pwinners = []
+	
+	// Who won each primary?
+	let pwinners = []
 	for (var i in ptallies) {
-		var tally = ptallies[i]
+		let tally = ptallies[i]
 		pwinners = pwinners.concat(_countWinner(tally))
 	}
 
+	// Now we vote in the general election.
 	// only do 2 candidates
-	var oldcandidates = district.candidates
-	district.candidates = district.candidates.filter( x => pwinners.includes(x.id)) 
-	for(var j=0; j<model.voterGroups.length; j++){
-		model.voterGroups[j].update();
-	}
-	var tally = _tally(district,model, function(tally, ballot){
-		tally[ballot.vote]++;
-	});
+	model.stage = "general"
+	var cans2 = cans.filter( x => pwinners.includes(x.id))
+	district.stages["general"] = {candidates: cans2 }
 
-	// return original candidates and update voters' ballots 
-	// TODO: make this better.
-	district.candidates = oldcandidates
-	var ptallies = _tally_primary(district, model, function(tally, ballot){
+	
+	if ( ! options.justCount ) {
+		// fresh polls for general election
+		district.pollResults = undefined
+		var generalPollText = runPoll(district,model,options,"plurality")
+
+		model.updateDistrictBallots(district);
+	}
+	
+	var ballots2 = model.voterSet.getBallotsDistrict(district)
+	var tally = _tallyBC(ballots2,cans2, function(tally, ballot){
 		tally[ballot.vote]++;
 	});
+	// return original candidates and update voters' ballots 
+	// So we can see who they voted for in the primary.
+	// TODO: make this better.
+	// cans = district.stages["primary"].candidates
+	model.voterSet.loadDistrictBallotsFromStage(district,"primary")
+
+	// cleanup
+	model.stage = "general" // for display purposes
+	// clear the old poll results. we're done with casting ballots.
+	district.pollResults = undefined
+	district.primaryPollResults = undefined
+
+
 
 	var winners = _countWinner(tally);
 	var result = _result(winners,model)
@@ -3137,23 +3246,31 @@ Election.pluralityWithPrimary = function(district, model, options){
 	// Caption
 	var winner = winners[0];
 	var text = "";
+	text += polltext
 	text += "<span class='small'>";
-	for (var i in ptallies) {
+	for (let i in ptallies) {
 		var tally1 = ptallies[i]
+		let totalPeopleInPrimary = district.parties[i].voterPeople.length
 		var ip1 = i*1+1
 		text += "<b>primary for group " + ip1 + ":</b><br>";
 		var pwin = _countWinner(tally1)
-		for(var i=0; i<district.candidates.length; i++){
-			var c = district.candidates[i].id;
-			text += model.icon(c)+" got "+_percentFormat(district, tally1[c]);
-			if (pwin.includes(c)) text += " &larr;"
-			text += "<br>"
+		for(let k=0; k<cans.length; k++){
+			let c = cans[k]
+			let cid = c.id
+			if (district.parties[i].candidates.includes(c)) {
+				text += model.icon(cid)+" got "+_primaryPercentFormat(tally1[cid], totalPeopleInPrimary);
+				if (pwin.includes(cid)) text += " &larr;"
+				text += "<br>"
+			}
 		}
 		text += "<br>"
 	}
 	text += "<b>general election:</b><br>";
-	for(var i=0; i<district.candidates.length; i++){
-		var c = district.candidates[i].id;
+
+	text += generalPollText
+
+	for(var i=0; i<cans.length; i++){
+		var c = cans[i].id;
 		if (pwinners.includes(c)) text += model.icon(c)+" got "+_percentFormat(district, tally[c])+"<br>";
 	}
 	// Caption text for winner, or tie
@@ -3174,21 +3291,71 @@ Election.pluralityWithPrimary = function(district, model, options){
 	return result
 }
 
+function _beginElection(district,model,options,polltype) {
+	
+	district.stages = {}
+	model.stage = "general"
+	district.stages["general"] = {candidates: district.candidates }
+
+	var polltext = ""
+
+	if ( ! options.justCount ) {
+
+		if ("Auto" == model.autoPoll && ! options.dontpoll && polltype !== "nopoll") {
+			district.pollResults = undefined 
+			polltext += runPoll(district,model,options,polltype)
+		}
+
+		model.updateDistrictBallots(district)
+
+	}
+
+	return polltext
+}
+
+function _beginElection_pluralityWithPrimary(district,model,options) {
+
+	district.stages = {}
+	model.stage = "primary"
+	district.stages["primary"] = {candidates: district.candidates}
+	
+	polltext = ""
+	// Take polls and vote
+	if ( ! options.justCount ) {
+		district.primaryPollResults = undefined
+		polltext += runPrimaryPoll(district,model,options,"plurality")
+		district.pollResults = undefined
+		polltext += runPoll(district,model,options,"plurality")
+	
+		model.updateDistrictBallots(district)
+	}
+	return polltext
+}
+
+function _beginElection_rbvote(district,model) {
+
+	district.stages = {}
+	model.stage = "general"
+	district.stages["general"] = {candidates: district.candidates }
+	model.updateDistrictBallots(district)
+}
 
 Election.plurality = function(district, model, options){
+
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"plurality")
+	let cans = district.stages[model.stage].candidates
+	
 
 	// if (model.primaries == "Yes"){
 	// 	Election.pluralityWithPrimary(model, options)
 	// 	return
 	// }
-	options = options || {};
 	var result = {}
-
 	
-	if ("Auto" == model.autoPoll) polltext = doPollAndUpdateBallots(district,model,options,"plurality")
-
 	// Tally the approvals & get winner!
-	var tally = _tally(district,model, function(tally, ballot){
+	var ballots = model.voterSet.getBallotsDistrict(district)
+	var tally = _tallyBC(ballots,cans, function(tally, ballot){
 		tally[ballot.vote]++;
 	});
 	var winners = _countWinner(tally);
@@ -3197,7 +3364,9 @@ Election.plurality = function(district, model, options){
 	
 	if (model.doTop2) var theTop2 = _sortTally(tally).slice(0,2)
 	if (model.doTop2) result.theTop2 = theTop2
-	if (!options.sidebar) return result
+	if (!options.sidebar) {
+		return result
+	}
 
 
 	// Caption
@@ -3205,11 +3374,11 @@ Election.plurality = function(district, model, options){
 
 	if(options.verbose) {
 		text = "<span class='small'>";
-		for(var i=0; i<district.candidates.length; i++){
-			var c = district.candidates[i].id;
+		for(var i=0; i<cans.length; i++){
+			var c = cans[i].id;
 			text += model.icon(c)+": "+tally[c];
 			text+=" votes";
-			if(i<district.candidates.length-1) text+=", ";
+			if(i<cans.length-1) text+=", ";
 		}
 		text += "</span>";
 		text += "<br>";
@@ -3219,10 +3388,10 @@ Election.plurality = function(district, model, options){
 		return result
 	} else if (options.original) {
 		text = "<span class='small'>";
-		for(var i=0; i<district.candidates.length; i++){
-			var c = district.candidates[i].id;
+		for(var i=0; i<cans.length; i++){
+			var c = cans[i].id;
 			text += c+": "+tally[c];
-			if(i<district.candidates.length-1) text+=", ";
+			if(i<cans.length-1) text+=", ";
 		}
 		text += "</span>";
 		text += "<br>";
@@ -3236,8 +3405,8 @@ Election.plurality = function(district, model, options){
 	text += "<span class='small'>";
 	if ("Auto" == model.autoPoll) text += polltext;
 	text += "<b>most votes wins</b><br>";
-	for(var i=0; i<district.candidates.length; i++){
-		var c = district.candidates[i].id;
+	for(var i=0; i<cans.length; i++){
+		var c = cans[i].id;
 		text += model.icon(c)+" got "+_percentFormat(district, tally[c])+"<br>";
 	}
 	// Caption text for winner, or tie
@@ -3255,271 +3424,411 @@ Election.plurality = function(district, model, options){
 		// text = "<b>TIE</b> <br> <br>" + text;
 	}
 	result.text = text;
+
 	return result
 };
 
 
 // HELPERS:
-function _getBallots(district, model){
-	var ballots = [];
-	for(var i=0; i<district.voterPeople.length; i++){
-		var v = district.voterPeople[i]
-		var b = model.voterGroups[v.iGroup].voterPeople[v.iPoint].ballot
-		// var b = model.voterGroups[v.iGroup].ballots[v.iPoint]
-		ballots = ballots.concat(b);
+
+function _electionDefaults(options) {
+	options = options || {}
+	_fillInDefaults(options, {
+		justCount: false,
+		dontpoll: false,
+	})
+	return options
+}
+
+function head2HeadPoll(model,district,ballots) {
+
+	var cans = district.stages[model.stage].candidates
+
+	head2head = {}
+	// For each combination... who's the better ranking?
+	for(var i=0; i<cans.length; i++){
+		var a = cans[i];
+		head2head[a.id] = {}
+		for(var j=0; j<cans.length; j++){
+			var b = cans[j];
+			// How many votes did A get?
+			var aWins = 0;
+			for(var m=0; m<ballots.length; m++){
+				var rank = ballots[m].rank;
+				if(rank.indexOf(a.id)<rank.indexOf(b.id)){
+					aWins++; // a wins!
+				}
+			}
+			head2head[a.id][b.id] = aWins
+		}
 	}
-	return ballots;
-};
+	return head2head
+}
 
-var doPollAndUpdateBallots = function(district,model,options,electiontype){
+function runPoll(district,model,options,electiontype){
 
-	// check to see if there is a need for checking frontrunners
+	// check to see if there is a need for polling
 
-	var not_f = ["zero strategy. judge on an absolute scale.","normalize"]
-	var skipthis =  true
-	for(var i=0;i<model.voterGroups.length;i++){ // someone is looking at frontrunners, then don't skipthis
-		if (! not_f.includes(model.firstStrategy) && model.voterGroups[0].percentSecondStrategy != 100) skipthis = false
-		if (! not_f.includes(model.voterGroups[i].secondStrategy) && model.voterGroups[0].percentSecondStrategy != 0) skipthis = false
-	}   //not_f.includes(config.firstStrategy) && not_f.includes(config.secondStrategy)
-	if (skipthis) return ""
+	if ( ! model.checkRunPoll() ) return ""
 
-	// just sets the frontrunners and reruns the ballots, then sets the frontrunners back to normal, but keeps the altered ballots.
+	var cans = district.stages[model.stage].candidates
+	if ( cans.length < 3 ) return ""
 
 	polltext = ""
-	var oldkeep = model.preFrontrunnerIds // only a temporary change
-	model.preFrontrunnerIds = []
-	model.dm.districtsListCandidates()
 
-	model.pollResults = undefined
+
 	if (options.sidebar) {
+		polltext += '<span class="small" >'
 		if (electiontype=="irv") {
-			polltext += "A low-risk strategy in IRV is to look at who wins and make a compromise if you're not winning.  Voters look down their ballot and pick the first one that defeats the current winner head to head. <br> <br>"
-			polltext += "<b>Polling first preferences: </b></br>"
+			polltext += "A low-risk strategy in IRV is to look at who wins and make a compromise if you're not winning.  Voters look down their ballot and pick the first one that defeats the current winner head to head."
+			polltext += " <br> <br>"
+			polltext += "Reporting results is done with both head-to-head and instant runoff tallies."
+			polltext += " <br> <br>"
+			polltext += "<b>Here are polls for first preferences: </b></br>"
 			// this strategy could be further refined by voting for people who will be eliminated but who we like better
 		} else {
 			polltext += "<b>polling for viable candidates: </b><br>";
 			//polltext += "<b>(score > " + (100*threshold/district.voterPeople.length).toFixed(0) + " = half max)</b><br>"
 		}
 	}
+
+	var lastTally = {}
+	var collectTallies = []
 	for (var k=0;k<5;k++) { // do the polling many times
 			
-		// get the ballots (hold the poll)
-		for(var i=0; i<model.voterGroups.length; i++){
-			var voter = model.voterGroups[i];
-			voter.update();
-		}
+		// get polling information
+		model.updateDistrictBallots(district);
 
+		
 		// count the votes in the poll
+		var ballots = model.voterSet.getBallotsDistrict(district)
 
 		if (electiontype == "score") {
 			// Tally
-			var tally = _tally(district,model, function(tally, ballot){
+			var tally = _tallyBC(ballots,cans, function(tally, ballot){
 				for(var candidate in ballot){
 					tally[candidate] += ballot[candidate];
 				}
 			});
 		} else if (electiontype=="approval"){ 
 			// Tally the approvals & get winner!
-			var tally = _tally(district,model, function(tally, ballot){
+			var tally = _tallyBC(ballots,cans, function(tally, ballot){
 				var approved = ballot.approved;
 				for(var i=0; i<approved.length; i++) tally[approved[i]]++;
 			});
 		} else if (electiontype=="plurality"){
-			var tally = _tally(district,model, function(tally, ballot){
+			var tally = _tallyBC(ballots,cans, function(tally, ballot){
 				tally[ballot.vote]++;
 			});
 		} else if (electiontype=="irv"){
 
 			// for the report, get the first preferences
-			var pre_tally = _tally(district,model, function(tally, ballot){
+			var tally = _tallyBC(ballots,cans, function(tally, ballot){
 				var first = ballot.rank[0]; // just count #1
 				tally[first]++;
 			});
 
-			var options2 = {dontpoll:true, sidebar:true}
-			Election.irv(district,model,options2) // do an IRV election to find out who wins
-			
-			/// Get really good polling results.
-			temp1 = model.pollResults // doing a poll without strategy.  not sure if this would work
-			model.pollResults = undefined
-			for(var i=0; i<model.voterGroups.length; i++){
-				var voter = model.voterGroups[i];
-				voter.update();
-			}
-			var ballots = _getBallots(district, model) // kinda double effort here but okay
-			head2head = {}
-			// For each combination... who's the better ranking?
-			for(var i=0; i<district.candidates.length; i++){
-				var a = district.candidates[i];
-				head2head[a.id] = {}
-				for(var j=0; j<district.candidates.length; j++){
-					var b = district.candidates[j];
-					// How many votes did A get?
-					var aWins = 0;
-					for(var m=0; m<ballots.length; m++){
-						var rank = ballots[m].rank;
-						if(rank.indexOf(a.id)<rank.indexOf(b.id)){
-							aWins++; // a wins!
-						}
-					}
-					head2head[a.id][b.id] = aWins
-				}
-			}
-			model.pollResults = temp1
+			var options2 = {dontpoll:true, sidebar:true, justCount:true}
+			var result = Election.irv(district,model,options2) // do an IRV election to find out who wins
+			var winners = result.winners
 
-			tally = {head2head:head2head, firstpicks:pre_tally}
+			/// Get really good polling results.
+			temp1 = district.pollResults // doing a poll without strategy.  not sure if this would work
+			district.pollResults = undefined
+			
+			model.updateDistrictBallots(district);
+			
+			var ballots2 = model.voterSet.getBallotsDistrict(district)
+			let head2head = head2HeadPoll(model, district,ballots2)
+			district.pollResults = temp1
+			
+			var results = {head2head:head2head, firstpicks:tally, winners:winners}
+
 		}
 		
-		model.pollResults = tally
-
-		// decide who the frontrunners are
-		if (0) { // 0 - let the voters have individual thresholds
-			var factor = .5
-			var max1 = 0
-			for (var can in tally) {
-				if (tally[can] > max1) max1 = tally[can]
-			}
-			var threshold = max1 * factor
-			var viable = []
-			for (var can in tally) {
-				if (tally[can] > threshold) viable.push(can)
-			}
-
-			model.preFrontrunnerIds = viable 
-			model.dm.districtsListCandidates()
+		if (electiontype == 'irv') {
+			district.pollResults = results
+		} else {
+			district.pollResults = tally
 		}
 
 		if(options.sidebar) {
 			
-			for(var i=0; i<district.candidates.length; i++){
-				var c = district.candidates[i].id;
-				if (electiontype == "irv"){
-					polltext += model.icon(c)+""+_padAfter(3,_percentFormat(district, tally.firstpicks[c]) + ". ") + " "
-				} else {
-					polltext += model.icon(c)+""+ _padAfter(3,_percentFormat(district, tally[c]/model.voterGroups[0].voterModel.maxscore) + ".") + " "
-					//if (tally[c] > threshold) polltext += " &larr;"//" <--"
-					//polltext += "<br>"
+			
+			if (model.stage == "primary") {
+				let ptallies = _getBallotsAndTallyPrimary(district, model, function(tally, ballot){
+					tally[ballot.vote]++;
+				});
+				collectTallies.push(ptallies)
+			} else {
+			
+				for(var i=0; i<cans.length; i++){
+					var c = cans[i].id;
+					if (electiontype == "irv"){
+						polltext += model.icon(c)+""+_padAfter(3,_percentFormat(district, tally[c]) + ". ") + " "
+					}else {
+						polltext += model.icon(c)+""+ _padAfter(3,_percentFormat(district, tally[c]/model.voterGroups[0].voterModel.maxscore) + ".") + " "
+						//if (tally[c] > threshold) polltext += " &larr;"//" <--"
+						//polltext += "<br>"
+					}
 				}
+				polltext += "<br>"
 			}
-			polltext += "<br>"
 		}
+				
 		// end of one poll
-	}		
-	if (electiontype == "irv") polltext += "<br>"
-	// get the ballots
-	for(var i=0; i<model.voterGroups.length; i++){
-		var voter = model.voterGroups[i];
-		voter.update();
-	}
-	if (options.sidebar){
-		// model.draw() // not sure why this was here
-	}
-	if (1) {
-		model.preFrontrunnerIds = oldkeep // something interesting happens when you turn this off.
-		model.dm.districtsListCandidates()
+
+		// check if the results are the same as the previous poll, then quit if they are the same
+		if (_isEquivalent(lastTally,tally)) {
+			break
+		}
+		// update last tally
+		lastTally = _jcopy(tally)
+
 	}
 
+	// not yet needed
+	district.stages[model.stage].pollResults = district.pollResults
+
+	if (options.sidebar) {
+		if (model.stage == "primary") {
+			for (let i in collectTallies[0]) {	
+				text = ""
+				text += "<span class='small'>";
+				var ip1 = i*1+1
+				text += "<b>group " + ip1 + ":</b><br>";
+				for (var ptallies of collectTallies) {
+					var tally1 = ptallies[i]
+					let totalPeopleInPrimary = district.parties[i].voterPeople.length
+					var pwin = _countWinner(tally1)
+					for(let k=0; k<cans.length; k++){
+						let c = cans[k]
+						let cid = c.id
+						if (district.parties[i].candidates.includes(c)) {
+							
+							text += model.icon(cid)+""+ _padAfter(3,_primaryPercentFormat(tally1[cid]/model.voterGroups[0].voterModel.maxscore, totalPeopleInPrimary) + ".") + " "
+						}
+					}
+					text += "<br>"
+				}
+				polltext += text
+			}
+		}
+	}
+
+	if (options.sidebar){
+		polltext += "</span><br>"
+		// model.draw() // not sure why this was here
+	}
 	return polltext
 }
 
-
-var _tally = function(district, model, tallyFunc){
-
-	// Create the tally
-	var tally = {};
-	for(var candidateID in model.candidatesById) tally[candidateID] = 0;
-	
-	// Count 'em up
-	var ballots = model.voterSet.getBallotsDistrict(district)
-	for(var i=0; i<ballots.length; i++){
-		tallyFunc(tally, ballots[i]);
+function cellText(model,opt,hh,a,b) {
+	let win = hh[a.id][b.id]
+	let loss = hh[b.id][a.id]
+	if (opt.entity == "winner") {
+		let winnerTally = Math.max(win,loss)
+		var pairText = Math.round(100*winnerTally / (win+loss))
+	} else { // opt.entity == "row"
+		// let pairText = win + '-' + loss
+		// let pairText = win
+		var pairText = Math.round(100*win / (win+loss))
 	}
-
-	// only keep the candidates that are in the current list.
-	trim_tally = {}
-	for (var i = 0; i < district.candidates.length; i++) {
-		var cid = district.candidates[i].id
-		trim_tally[cid] = tally[cid]
-	}
-
-
-	// Return it.
-	return trim_tally;
-
+	let winnerColor = (win == loss) ? "#ccc" : (win > loss) ? a.fill : b.fill
+	let cellText = "<span class='nameLabelName' style='color:"+winnerColor+"'>" + pairText + "</span>"
+	// row += '<td bgcolor="' + winnerColor + '">' + cellText + '</td>'
+	return cellText
 }
 
-var _tally_primary = function(district, model, tallyFunc){
+function strategyTable(district,model,opt) {
 
-	var primaries_tallies = []
-	var oldcandidates = district.candidates// temporary change
-	caninprimary = []
-	for ( var j = 0; j < model.voterGroups.length; j++){
-		caninprimary.push([])
+	let a = district.parties[0].candidates
+	let b = district.parties[1].candidates
+	let text = ""
+	let header = `
+	<table class="strategyTable">
+	<tbody>
+	<tr>
+	<th>
+	+
+	</th>
+	`
+	for (let i = 0; i < b.length; i++) {
+		header += '<th>' + model.icon(b[i].id) + '</th>'
 	}
+	header += '</tr>'
+
+	text += header
+
+	let hh = district.primaryPollResults.head2head
+
+	for (let k = 0; k < a.length; k++) {
+		let row = "<tr>"
+		row += '<td>' + model.icon(a[k].id) + '</td>'
+		for (let i = 0; i < b.length; i++) {
+			row += '<td>' + cellText(model,opt,hh,a[k],b[i]) + '</td>'
+		}
+		row += "</tr>"
+
+		text += row
+	}
+
+	let footer = "</body></table>"
 	
-	for (var c in district.candidates){
-		var can = district.candidates[c]
-		var maxdist2 = Infinity
-		var votebelong = 0
-		for ( var j = 0; j < model.voterGroups.length; j++){
-			var dist2 = distF2(model, model.voterGroups[j], can)
-			// var dx = model.voterGroups[j].x - can.x
-			// var dy = model.voterGroups[j].y - can.y
-			// var dist2 = dx*dx + dy*dy
-			if (dist2 < maxdist2) {
-				votebelong = j
-				maxdist2 = dist2
+	text += footer
+	
+	return text
+}
+
+function pairwiseTable(district,model,opt) {
+
+	let cans = district.stages[model.stage].candidates
+	let a = cans
+	let b = a
+	let text = ""
+	let header = `
+	<table class="strategyTable"><tbody>
+	<tr>
+	<th>+</th>
+	`
+	for (let i = 0; i < b.length; i++) {
+		header += '<th>' + model.icon(b[i].id) + '</th>'
+	}
+	header += '</tr>'
+
+	text += header
+
+	let hh = district.primaryPollResults.head2head
+
+	for (let k = 0; k < a.length; k++) {
+		let row = "<tr>"
+		row += '<td>' + model.icon(a[k].id) + '</td>'
+		for (let i = 0; i < b.length; i++) {
+			if (i === k) {
+				// row += '<td>' + model.icon(a[k].id) + ' </td>'
+				row += '<td> </td>'
+			} else {
+				row += '<td>' + cellText(model,opt,hh,a[k],b[i]) + '</td>'
 			}
 		}
-		caninprimary[votebelong].push(district.candidates[c])
+		row += "</tr>"
+
+		text += row
 	}
 
-	// make sure there are candidates in each primary
-	// problem = false
-	// for ( var j in caninprimary){
-	// 	if (caninprimary[j].length == 0) problem = true
-	// }
-	// if (problem) return "we gotta problem"
+	let footer = "</body></table>"
+	
+	text += footer
+	
+	return text
+}
 
-	for ( var j = 0; j < model.voterGroups.length; j++){
-		
-		// Create the tally
-		var tally = {};
-		for(var candidateID in model.candidatesById) tally[candidateID] = 0;
 
-		// Count 'em up
-		district.candidates = caninprimary[j]	
-		if (district.candidates.length == 0) district.candidates = oldcandidates // workaround
-		model.voterGroups[j].update()
-		var ballots = model.voterSet.getBallotsCrowdAndDistrict(j,district)
-		for(var i=0; i<ballots.length; i++){
-			tallyFunc(tally, ballots[i]);
+var runPrimaryPoll = function(district,model,options,electiontype){
+
+	// do head to head polling to find electable candidates
+
+	let polltext = ""
+	district.primaryPollResults = {}
+
+	let numParties = district.parties.length
+	if (! model.doElectabilityPolls || numParties < 2) {
+		return ""
+	}
+
+	if (options.sidebar) {
+		polltext += "<span class='small'>"
+		polltext += "<b>polling for electable candidates: </b><br>";
+	}
+
+	// ask voters to cast ranked ballots
+	var ballots = []
+	let rankedVM = new VoterModel(model,"Ranked")
+	for (let voterPerson of district.voterPeople) {
+		let ballot = rankedVM.castBallot(voterPerson)
+		ballots.push(ballot)
+	}
+
+	// tally the ranked ballots
+	let head2head = head2HeadPoll(model,district,ballots)
+	district.primaryPollResults.head2head = head2head
+
+	// not yet needed
+	district.stages[model.stage].primaryPollResults = district.primaryPollResults
+
+	// display results
+	if(options.sidebar) {
+		// let opt = {entity:"row"}
+		let opt = {entity:"winner"}
+		if (opt.entity == "row") {
+			polltext += "Vote % for Row Nominee<br>"
+		} else { // opt.entity == "winner"
+			polltext += "Vote % for Winning Nominee<br>"
+		}
+		if (numParties == 2) {
+			polltext += strategyTable(district,model,opt)
+		} else {
+			polltext += pairwiseTable(district,model,opt)
+		}
+		polltext += "</span><br>"
+	}
+	
+	return polltext
+}
+
+function _tallyBC(ballots,cans,tallyFunc){
+	
+	// Create the tally
+	var tally = {}
+	for (let c of cans) {
+		tally[c.id] = 0
+	}
+	
+	// Count 'em up
+	for(var i=0; i<ballots.length; i++){
+		tallyFunc(tally, ballots[i])
+	}
+
+	// Return it.
+	return tally
+}
+
+var _getBallotsAndTallyPrimary = function(district, model, tallyFunc){
+
+	var primaries_tallies = []
+	// look at only the candidates in the party
+
+	var numParties = district.parties.length
+	for ( var j = 0; j < numParties; j++){
+		let ballots = model.voterSet.getBallotsPartyAndDistrict(j,district)
+		var tally = {}
+		var candidates = district.parties[j].candidates
+		for (let c of candidates) {
+			tally[c.id] = 0
+		}
+		for(let ballot of ballots){
+			tallyFunc(tally, ballot)
 		}
 		primaries_tallies.push(tally)
 	}
-	district.candidates = oldcandidates // reset
-	// Return it.
-	model.drawArenas()
-	return primaries_tallies;
-
+	return primaries_tallies
 }
 
-
-var _tally_i = function(district, model, tallyFunc){
-
+function _tallyBC_i(ballots,cans,tallyFunc){
+	
 	// Create the tally
 	var tally = {};
-	for(var candidateID in model.candidatesById) tally[candidateID] = 0;
-
+	for (let c of cans) {
+		tally[c.id] = 0
+	}
+	
 	// Count 'em up
-	var ballots = model.voterSet.getBallotsDistrict(district)
 	for(var i=0; i<ballots.length; i++){
-		tallyFunc(tally, ballots[i], i);
+		tallyFunc(tally, ballots[i], i)
 	}
 
 	// Return it.
-	return tally;
-
+	return tally
 }
 
 var _tallies = function(district, model, levels){
@@ -3661,6 +3970,17 @@ function _percentFormat(district,count) {
 	return a
 }
 
+function _primaryPercentFormat(count,total) {
+	var a = "" + (100*count/total).toFixed(0)
+	var dopadding = false
+	if (dopadding) {
+		for (var i = a.length; i < 2; i ++) {
+			a = "&nbsp;&nbsp;" + a
+		}	
+	}
+	return a
+}
+
 function _padBefore(padding,a){
 	for (var i = a.length; i < padding; i ++) {
 		a = "&nbsp;&nbsp;" + a
@@ -3731,24 +4051,27 @@ function _drawBars(iDistrict, arena, model, round) {
 	heightRectangle = 100
 
 
-	// draw background for quota and build
-	var base = 600
-	var left = 0
-	var right = width
-	var top = base - heightRectangle
-	var bottom = base
-	if (0) {
-		var color = "#492"
-		arena.ctx.fillStyle = color
-	} else {
-		var g = arena.ctx.createLinearGradient(0,top,0,bottom)
-		g.addColorStop(0,"#ccc")
-		g.addColorStop(1,"black")
-		arena.ctx.fillStyle = g
+	
+	if (model.showPowerChart) {
+			
+		// draw background for quota and build
+		var base = 600
+		var left = 0
+		var right = width
+		var top = base - heightRectangle
+		var bottom = base
+		if (0) {
+			var color = "#492"
+			arena.ctx.fillStyle = color
+		} else {
+			var g = arena.ctx.createLinearGradient(0,top,0,bottom)
+			g.addColorStop(0,"#ccc")
+			g.addColorStop(1,"black")
+			arena.ctx.fillStyle = g
+		}
+		arena.ctx.fillRect(left,top,right-left,bottom-top)
+		//arena.ctx.fill()
 	}
-	arena.ctx.fillRect(left,top,right-left,bottom-top)
-	//arena.ctx.fill()
-
 
 	
 	// calculate quota and build
@@ -3812,40 +4135,44 @@ function _drawBars(iDistrict, arena, model, round) {
 				if (support > 0) {
 					// draw the build
 
-					var left = Math.round(k * widthRectangle)
-					var right = Math.round((k+1) * widthRectangle)
-					var top = Math.round(base-(build[k] + rep*support) * heightRectangle)
-					var bottom = Math.round(base-build[k] * heightRectangle)
-					var bucket = Math.round(base- heightRectangle) // where the shadows start
+					
+					if (model.showPowerChart) {
+			
+						var left = Math.round(k * widthRectangle)
+						var right = Math.round((k+1) * widthRectangle)
+						var top = Math.round(base-(build[k] + rep*support) * heightRectangle)
+						var bottom = Math.round(base-build[k] * heightRectangle)
+						var bucket = Math.round(base- heightRectangle) // where the shadows start
 
-					// white background for bar
-					arena.ctx.globalAlpha = 1
-					arena.ctx.fillStyle = "white"
-					arena.ctx.fillRect(left,top,right-left,bottom-top)
-					arena.ctx.fill()
-					arena.ctx.globalAlpha = baralpha
+						// white background for bar
+						arena.ctx.globalAlpha = 1
+						arena.ctx.fillStyle = "white"
+						arena.ctx.fillRect(left,top,right-left,bottom-top)
+						arena.ctx.fill()
+						arena.ctx.globalAlpha = baralpha
 
-					var color = model.candidates[winnerIndex].fill
-					arena.ctx.fillStyle = color
+						var color = model.candidates[winnerIndex].fill
+						arena.ctx.fillStyle = color
 
-					var greyedout = .2
-					if (bottom > bucket) { // bottom is in bucket
-						if (top < bucket) { // top is out of bucket
-							arena.ctx.fillRect(left,bucket,right-left,bottom-bucket)
-							arena.ctx.fill()
+						var greyedout = .2
+						if (bottom > bucket) { // bottom is in bucket
+							if (top < bucket) { // top is out of bucket
+								arena.ctx.fillRect(left,bucket,right-left,bottom-bucket)
+								arena.ctx.fill()
+								arena.ctx.globalAlpha = greyedout
+								arena.ctx.fillRect(left,top,right-left,bucket-top)
+								arena.ctx.fill()
+							} else { // entirely in bucket
+								arena.ctx.fillRect(left,top,right-left,bottom-top)
+								arena.ctx.fill()
+							}
+						} else { // entirely out of bucket
 							arena.ctx.globalAlpha = greyedout
-							arena.ctx.fillRect(left,top,right-left,bucket-top)
-							arena.ctx.fill()
-						} else { // entirely in bucket
 							arena.ctx.fillRect(left,top,right-left,bottom-top)
 							arena.ctx.fill()
 						}
-					} else { // entirely out of bucket
-						arena.ctx.globalAlpha = greyedout
-						arena.ctx.fillRect(left,top,right-left,bottom-top)
-						arena.ctx.fill()
+						arena.ctx.globalAlpha = baralpha
 					}
-					arena.ctx.globalAlpha = baralpha
 
 					// calculate the next step
 					q[k] -= rep*support
@@ -3889,8 +4216,20 @@ function _drawBars(iDistrict, arena, model, round) {
 	
 			_drawStroked("Weight",70,400,40,arena.ctx)
 		}
+		
+	}
+	
+	if (model.showPowerChart) {
+	
+		_drawStroked("Power",10,480,40,arena.ctx,"start")
+
 	}
 
+
+
+
+
+	
 	// draw votes for each candidate in this round
 	var pos = 170
 	heightRectangle = 30	
@@ -4169,7 +4508,6 @@ function _drawBars(iDistrict, arena, model, round) {
 	} else {
 		_drawStroked("Votes",10,150,40,arena.ctx,"start")
 	}
-	_drawStroked("Power",10,480,40,arena.ctx,"start")
 	
 }
 
@@ -4226,12 +4564,14 @@ function _xToPercentile(x,model) {
 }
 
 _check01 = function(district,model) {
+	let cans = district.stages[model.stage].candidates
+
 	result = {good:false}
-	if (district.candidates.length === 0) {
+	if (cans.length === 0) {
 	    result = _result([],model)
 		result.text = "Nobody ran.";
-	} else if (district.candidates.length === 1) {
-	    result = _result([district.candidates[0].id],model)
+	} else if (cans.length === 1) {
+	    result = _result([cans[0].id],model)
 		result.text = "Uncontested.";
 	} else {
 		result.good = true

@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    
+    <!-- Meta -->
+    
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Condorcet Methods | Smart Voting Simulator</title>
+<meta name="generator" content="Jekyll v3.8.7" />
+<meta property="og:title" content="Condorcet Methods" />
+<meta name="author" content="Paretoman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="An Interactive Guide to Alternative Voting Methods" />
+<meta property="og:description" content="An Interactive Guide to Alternative Voting Methods" />
+<link rel="canonical" href="https://paretoman.github.io/ballot/condorcet.html" />
+<meta property="og:url" content="https://paretoman.github.io/ballot/condorcet.html" />
+<meta property="og:site_name" content="Smart Voting Simulator" />
+<script type="application/ld+json">
+{"headline":"Condorcet Methods","@type":"WebPage","url":"https://paretoman.github.io/ballot/condorcet.html","author":{"@type":"Person","name":"Paretoman"},"description":"An Interactive Guide to Alternative Voting Methods","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<!-- <link rel="stylesheet" href="/ballot/assets/css/style.css"> --><link type="application/atom+xml" rel="alternate" href="https://paretoman.github.io/ballot/feed.xml" title="Smart Voting Simulator" />
+    <title>Condorcet Methods</title>
+    
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <meta charset="utf-8">
+    <link rel="icon" type="image/png" href="favicon.png">
+    
+	<meta name="viewport" content="width=device-width, initial-scale=1, min-width=380">
+    
+    <!-- Schema.org markup for Google+ -->
+    <meta itemprop="name" content="Condorcet Methods">
+    <meta itemprop="description" content="An Interactive Guide to Alternative Voting Methods">
+    <meta itemprop="image" content="http://ncase.me/ballot/social/thumbnail.png">
+
+    <!-- Twitter Card data -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@paretoman1">
+    <meta name="twitter:title" content="Condorcet Methods">
+    <meta name="twitter:description" content="An Interactive Guide to Alternative Voting Methods">
+    <meta name="twitter:creator" content="@paretoman1">
+    <meta name="twitter:image" content="http://ncase.me/ballot/social/thumbnail.png">
+
+    <!-- Open Graph data -->
+    <meta property="og:title" content="Condorcet Methods">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://ncase.me/ballot/">
+    <meta property="og:image" content="http://ncase.me/ballot/social/thumbnail.png">
+    <meta property="og:description" content="An Interactive Guide to Alternative Voting Methods">
+
+    <base href="/ballot/">
+    <!-- <base target="_blank"> -->
+    
+    
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" type="text/css" href="css/some-minima.css">
+    
+    <link rel="stylesheet" type="text/css" href="play/css/model.css">
+    <link rel="stylesheet" type="text/css" href="play/css/ballot.css">
+    <link rel="stylesheet" type="text/css" href="play/css/election.css">
+    <link rel="stylesheet" type="text/css" href="play/css/sandbox.css">
+    <link rel="stylesheet" type="text/css" href="play/css/ballotInSandbox.css">
+
+    
+    <script src="js/viewport-min-width.js"></script>
+	<!-- <script src="../dev/js/gpu.js/gpu-browser.js"></script> -->
+    
+    <script src="play/js/helpers.js"></script>
+    <script src="play/js/minpubsub.js"></script>
+    <script src="play/js/hsluv-0.0.3.min.js"></script>
+    <script src="play/js/pako.min.js"></script>
+    <script src="play/js/Loader.js"></script>
+    <script src="play/js/Mouse.js"></script>
+    <script src="play/js/Draggable.js"></script>
+
+    <script src="play/js/gpu.js-develop/bin/gpu-core.js"></script>
+    <script src="play/js/gpu.js-develop/bin/gpu.js"></script>
+    <script src="play/js/FastYee.js"></script>
+
+    <script src="play/js/Model.js"></script>
+    <script src="play/js/Yee.js"></script>
+    <script src="play/js/Candidate.js"></script>
+    <script src="play/js/Color.js"></script>
+    <script src="play/js/Voters.js"></script>
+    <script src="play/js/Election.js"></script>
+    <script src="play/js/Buttons.js"></script>
+    <script src="play/js/Ballot.js"></script>
+    <script src="rbvote/rbvote.js"></script>
+    <script src="play/tsp/salesman.js"></script>
+    <script src="play/js/seedrandom.min.js"></script>
+
+    <script src="play/js/main_ballot.js"></script>
+    <script src="play/js/main_sandbox.js"></script>
+    <script src="play/js/Presets.js"></script>
+
+</head>
+
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/ballot/">Smart Voting Simulator</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          
+            
+            <a class="page-link" href=".">Home</a>
+            
+          
+            
+            <a class="page-link" href="commonground">Common Ground</a>
+            
+          
+            
+            <a class="page-link" href="primaries">Primaries</a>
+            
+          
+            
+            <a class="page-link" href="approval">Approval Voting</a>
+            
+          
+            
+            <a class="page-link" href="original">Original</a>
+            
+          
+            
+            <a class="page-link" href="newer">An Even Better Ballot</a>
+            
+          
+            
+            <a class="page-link" href="irv">Instant Runoff Voting</a>
+            
+          
+            
+            <a class="page-link" href="stv">Single Transferable Vote</a>
+            
+          
+            
+            <a class="page-link" href="proportional">Proportional Representation</a>
+            
+          
+            
+            <a class="page-link" href="condorcet">Condorcet Methods</a>
+            
+          
+            
+            <a class="page-link" href="testRuns">Test Runs</a>
+            
+          
+            
+            <a class="page-link" href="blog">Blog</a>
+            
+          
+            
+            <a class="page-link" href="sandbox/">Sandbox</a>
+            
+          
+          <!--<a class="page-link" href="/ballot/approval.html">Approval Voting</a><a class="page-link" href="/ballot/bees.html">Bees</a><a class="page-link" href="/ballot/blog.html">Blog</a><a class="page-link" href="/ballot/commonground.html">Home</a><a class="page-link" href="/ballot/condorcet.html">Condorcet Methods</a><a class="page-link" href="/ballot/draft-common-ground.html">Home</a><a class="page-link" href="/ballot/sandbox/embedbox.html">Embed Box for Smart Voting Simulator</a><a class="page-link" href="/ballot/sandbox/">Sandbox</a><a class="page-link" href="/ballot/">Home</a><a class="page-link" href="/ballot/irv.html">Instant Runoff Voting</a><a class="page-link" href="/ballot/modify.html">Modify the Simulator</a><a class="page-link" href="/ballot/newer.html">An Even Better Ballot</a><a class="page-link" href="/ballot/oncemore.html">Draft for An Even Better Ballot</a><a class="page-link" href="/ballot/sandbox/original.html">Sandbox for To Build a Better Ballot</a><a class="page-link" href="/ballot/original.html">Original</a><a class="page-link" href="/ballot/primaries.html">Primaries</a><a class="page-link" href="/ballot/proportional.html">Proportional Methods</a><a class="page-link" href="/ballot/quotaApproval.html">Quota Methods</a><a class="page-link" href="/ballot/stv.html">The Single Transferable Vote</a><a class="page-link" href="/ballot/testAttach.html">Test Attach</a><a class="page-link" href="/ballot/testBallot.html">Test Ballot</a><a class="page-link" href="/ballot/testPreset.html">Test Preset</a><a class="page-link" href="/ballot/testRuns.html">Test Runs</a><a class="page-link" href="/ballot/testSwitcher.html">Test Switcher</a><a class="page-link" href="/ballot/try.html">To Build a Better Ballot - QAPR</a>-->
+        </div>
+      </nav></div>
+</header>
+
+	
+	
+	
+
+	<div class="banner">
+		<h1>Condorcet Methods Explained</h1>
+		<p>An Interactive Guide to Alternative Voting Methods</p><p>
+		
+			By Paretoman and Contributors, June 2019
+		
+	</p>
+		<p>Based off Work by Nicky Case</p></div>
+<div id="content">
+
+    <div class="words">
+        
+<p>I’d like to describe on this page how Condorcet voting methods can help us find a common ground candidate and elect them.</p>
+
+<p>I’ll go into detail to explain the hard-to-understand parts of Condorcet methods. For that mental effort, you’ll get the benefit of not needing to think about the polls to decide who to vote for but simply be able to vote for the candidates in the order you like.  And you’ll have better candidates to vote for.</p>
+
+<h2 id="intro-to-condorcet">Intro to Condorcet</h2>
+
+<p><a href="commonground">If you haven’t yet, please read this page about how counting votes for each pair of candidates allows us to find common ground</a>.</p>
+
+<p>To summarize, the key mechanism that allows this method to work so well is that your support goes 100% to the candidate you like better out of every pair of candidates. This is a lot better than just choosing one candidate: there’s no spoiler effect and there’s no vote splitting. This is a tremendous burden off of the voters and the candidates.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Pairwise Ranked Ballot</h2>
+        <p class="ballot_caption"></p>
+        
+        
+        <script id="1">
+            sandbox({idScript:"1",link:"[link](https://paretoman.github.io/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VSu04DMRD8F9cuvN5dP67mCxDd6YpADnEiukQkCCEE387awzVBkYvxPjyeWfvLBTeMY2ZPsU5-JFJPhdtOg-VK21XL5VaNsVpOp8k7asdYvLW1kN0QvBM3uJ_qvFM3kHfJeqyWDYL_t6xSblbqzQqFfhURyCkihAASgAJSl0EmgMTQrlOD2ovReCwZqffECABNFERGwwYJyYyoIDKWaL5DF0ptBGBiCGIwMZjYmEbyf6s1JxwHJ8Mu-ejZi5Wl0bY-aTabbYnbhreS9LNyTS1wLRlPArlSe1IxPCUATCukKmaneDuFaQWLln6XwnQKABhOMJzAkrRbsR_kEigSFCSMPUNBxtkMBZkBUJDxenn7PhnFcjWjDEsFhAWWCsQUiCkgLCAs0PO4OxyOl4fP02y_9X63vs57-7Hnl-PH3Xx-eltOl-W4to_8vu7n52W18vcv6dXEticDAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>We’re going to use that background map for ballot visualization in the two elections below.  We’ll overlay the ballots for all the voters to try to make it more clear how everybody’s ballots get added together.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">FPTP Spoilers, Condorcet None</h2>
+        <p class="ballot_caption">Switch between FTPTP and Condorcet</p>
+        
+        
+        <script id="2">
+            sandbox({idScript:"2",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VSy07DMBD8lchnH7z2-tEei9QbUoGKS9qDKVFbCA0K7aFC8O2sPVRCQlUO48muJ7Oz-VRGTduWiDS5yVq3FL2cUjmR15b9eq0V1R52mtgU7tTUaMVqqr6N0spXGqRJalHA6H-PVNLVyuRqhUzVpuKgcgsOB8QAGKAAEAfEgvI9JyDipJUVIXlpRcgKWABkLKPF1wsWMjaCJbBJveBMdUolA6oFB0POoQ5DTpRaSRSNASXoOcxK2kqJze9YfJmP7eUggm3t4XqP_0pyqIY5Yg-wyBjUIzFPZTsrdT-cc9_c55fV6jA7jdtubGZ5PAi77fKxedjlzauQx2673XfN477vs9DFuH8bmtnsTs7LXdfMh9PYPHT5Yzh8rFRZOQL0GNsjQO8BCNDDnccaPAIMBkC1MyC8gDUEX6NxMmCARMBkYVIhYrKIu9ECHADBRziI5V9U88VyIVZvhsPzMG66oyp_Z0RDumxBO83lPcJLBoDdJthLsJe4Wk8egK0-5b4fjsvzeydxL_rTmPv98ay-fgBXNw8TWAMAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Condorcet: No Vote Splitting</h2>
+        <p class="ballot_caption">Switch between FTPTP and Condorcet</p>
+        
+        
+        <script id="3">
+            sandbox({idScript:"3",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VSy24bMQz8lQXPOogS9bCPLpBbADcxcln7oCQL283WW2zsg1Ek315Kk1xSBAt4SJEaD4f6S5aWfc_eG45-Z3r9Ndlp4JweJalHPhnHC41iMCy82xnidku0RWzNPS2tIaElvVsyFFoatUlrScGa_z6t5G8ri28rbBs3VwUtd8ihgAUAARwBqoBFUf8vKCg5G3JKpIdOiZyCA4DGCVqUxiuAxiVkGdmiXfC2KeXqAbeChyDvUYcgr0w9m4-vNkeUwekxLxtnvFHPSezHePI5p7jPQIl7VwNpd-UrtcQmXhJ2ArmCoQPcC1w3taW76VrG7q782m5Pq8u8H-ZuVeaTZrdDOXf3h_L0osnDsN8fh-7hOI5F0_V8_D11q9VPjTeHobuZLnN3P5TX6fS6pbp-mBlgQYCZIQBgZoC6kNsMAWZGC-DWGWFkxEpiaBbpG6UIiojJ4qJBwmQJd5MDeACWkKAg1XdJN-vNWqX-mE7P0_w0nKm-1ISG_GUbCeZlC8CeM-RlyMvSpOcAwHYfyzhO5831z6B2r8fLXMbj-Upv_wDlHFtGdgMAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>How does this work? We have this information about each pair of candidates, so the obvious thing to do is check if there is a winner that won all of their matches, which is called the Condorcet winner. If you ever hear somebody talking about counting by pairs or Condorcet methods, well, they’re pretty much the same thing.</p>
+
+<p>The name Condorcet comes from the guy that thought it up, the Marquis de Condorcet, whose actual name is Nicholas Caritat and who is actually just from the town of Condorcet, so really it gets its name from a town in France. And actually, it maybe should be called Llull because Ramon Llull thought it up 500 years before Condorcet.</p>
+
+<p><strong>Statues of Concorcet and Llull</strong></p>
+
+<p><img src="img\condorcet.jpg" alt="condorcet" class="picture" /> <img src="img\llull.jpg" alt="llull" class="picture" /></p>
+
+<p>Also, when there is a Condorcet winner, Arrow’s Impossibility Theorem does not apply. So I would say this is the perfect voting system.</p>
+
+<!--Maybe more here about Arrow's theorem-->
+
+<h2 id="visualizing-cycles">Visualizing Cycles</h2>
+
+<p>There’s only one hard to understand part about Condorcet methods, and that is what to do when there is a kind of a tie called a Condorcet cycle, which means there is no Condorcet winner. You already know this. It’s a rock-paper-scissors cycle. It’s like a tie because each candidate got one win, so there’s a tie in the number of wins.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Rock Paper Scissors.</h2>
+        <p class="ballot_caption">Rock beats scissors, and scissors beats paper, but paper beats rock, so it’s a tie, or a cycle.</p>
+        
+        
+        <script id="4">
+            sandbox({idScript:"4",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VTy24CMQz8F59ziO28lq-o2t5YDtAuEgJBBe2hquDb62SULVKFQJqJHc_a490f8rRYLot3zLxyS5HsWIoxDsFJHFYrR1yv5OhEa0I0OS6hXlF12dcbSgvvKNCCbgM5iu2YrMxy2cC7fz_LlIeZ4WGGfdPm2hPdRvIj2QONcCfSiXYSOomdpE5yJ6WTYRb8k561eRbnWZ1neZ71uT6gdivoVqszI52223aDA8LwiRPAjOJgaLaowdCiYvNaUGxeNjA9MYDfEhCMrUAgIxmngtPQCrRuudqn3MKKvhQ6inbUdJamdzt-HQ7k2HEtSBCAqprqD11279NmfabF5_lruloU6xKnVhB8U0F14L7IepD7g95fC009xPtYasOFjFcL44ShBaMHMGx9Pr3tx_Fo_5e33eVyOl-MPq0_pnNzO8K0qACYFiMApkU8JcL6CNOSB8D6BMsSLEuxzVIHTpBI6DBhbRmvaUZtFoACYHfG9nP_TDKS-Ci4uulCjWPkAsGC_RU0U9BMgWCBYEE_m_XhcPp8_f6YzKTn9XE_vdP1FyrG79fvAwAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>This visualization <strong>above</strong> is a little crowded.  The colors here are the same is in the case of the single ballot.  The three voter’s ballot diagrams are overlapping in this combined diagram.</p>
+
+<p>Lets clean up the visual by showing a map of where a candidate can beat an opponent.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Beat Map of Rock Paper Scissors</h2>
+        <p class="ballot_caption">This map shows that scissors is in rock's territory, but paper is outside, so paper beats rock.  Wiggle rock to see it's territory move.</p>
+        
+        
+        <script id="41">
+            sandbox({idScript:"41",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WTy24CMQxF_8XrLGI7r-ErqrY7hgW0g4RAUEG7qCr49jq5yhSpQjOSH4lP7JuZH_K0WC6Ld8y8ckuR7FiKeRyCkzisVo64bsnRidYF0eS4hLpF1WVfdygtvKNAC7oN5Ci2MFmZrWUz3v17bKU8XBkerrBvbK490W0kP5IdaA53R7qj3Qndid1J3cndKd0ZZuAfembzDOeZzjOeZz7XA2q3gm61KjPSabttOzggDZ04wZhQHMyaLGpmaFmxeS0pNi-bMZ6Ygd4SkIytQICRjKggGlqB1luu8im3tKIvBUfRjhpnabzb8etwIMeOa0ECAFQ16g9ddu_TZn2mxef5a7paFtclTq0g-EZBdeB-kTWQ-0Dvt4VGD_E-l9pwIePTwjhhaMnoYRiyPp_e9uN4tPflbXe5nM4Xc5_WH9O5qR0hWtR2SIRoMcJAtJgRQfoI6ZNvdQnSJ0iWIFmKbZY6cAIiocOE2ozPNKM2C4zCQO6M28_9N0ELGT8FVzVdqHmMXAAsuL-CZgqaKQAWAAv62awPh9Pn6_fHZCI9r4_76Z2uv_hO5zDvAwAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>This cycle can happen when there is division between three deeply divided groups. It goes away if we add voters to the middle.  (Also, let’s use odd numbers so we don’t have to deal with ties.)</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Middle Voters Break the Cycle</h2>
+        <p class="ballot_caption">The middle voters' choice determines who wins because the rest of the voters can’t agree.</p>
+        
+        
+        <script id="5">
+            sandbox({idScript:"5",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VTy04DMQz8F59zWNtxHv0MxK3toYgiISpAPA4I0W_HzpAFgdAePJmsJ-PJ7jsttNluq6Vu-7QVkcTSHHGWJCXv94k43hBtifsSO_6OdQe1Jsk5GNXEOfrZqiOJLqXNkijThs6dEtlYFpfyveplSX8e32n_7vR_d3gZ2hw-6byjZUd-oAOeQCbQCfIENkGZoE7QJuir4Lf0qs2rOK_qvMrzqs9xQLgVuNVIZkcPNzfjDc6gkRMXFA-Ks1ePRb30wYrP66T4vOzF9cQL8pYM0kaDQEYqVg2rPho0Lj7iUx60wpdCR2FHXWfreuf719OJEieOhgIBqKqrvtPz7fXx6vBEm5en1-OHs7guSeoNeRkqX08Q_PMyg5DfhP5uyeO0bJMProxhc8WnhvFyH6ThozAMZwjJdIgYQjJDQUhWsULUhqjLMvoKoi6IqCCiYsNzDFggUeCgoLfCQUVvFRRFQbwVt13nbwELFT8BR3opB4-RGgQbRmow02CmQbBBsMHP1eF0eni5fHs8-rd2cbi_O17Txyf46F9d8gMAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>Or if we add one candidate to the middle, then they win.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Common ground Candidate Breaks Cycle</h2>
+        <p class="ballot_caption">A common ground candidate enters the race and wins all their matches.</p>
+        
+        
+        <script id="6">
+            sandbox({idScript:"6",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VTy24CMQz8l5xziO04Dz6j6m3hAGKRqqJStfRQIfj2OhllS1WhPXjs2JPJJHtxwa2mKauvuvETM3viYogie06xIbWals3GO2q9LMVTDW3FurUayNlzjK1D3Cp4F93K3arzTnuabMzWsoXg_322Uh6u1IcrFDo3NU3utnZh7WxDAzQADyADxAF0gDRAHqAMUBfCX-qFmxZyWthpoaeFn9oGTS1DrTRn1u50OPQOiijDJ0oIZhRFi2ZLC7VXOfSM7bxkwfjYAvzmiKLRiAXQcEZWkNU-IO26m31CvSzQJeARyBHjmcj3r7UmjIJPjO_iPl_282774Vbnj6_5alVcFHvpIzEMhpbQuMSW8H0i922x88e_m8fUjxYzHhYOE2svKp6A4igKS1Q6jcISVQRYohlZQQuMTaHPJRibYEiCIUm7WjEhCRQJChJmMxRkzGZGEASYmXG3efwEkJDx5Kk7FlsdRyogLDhSgZgCMQWEBYQFenbb4_F0fv5-n-1lPW3fXue9u_4A0be67dYDAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>There is tremendous competitive pressure to go towards the middle as you can see in this new diagram, a win map.  The solid yellow region is where <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> needs to be in order to win.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Win Map</h2>
+        <p class="ballot_caption">This is a map of where B would have to go to win. Move B around.</p>
+        
+        
+        <script id="7">
+            sandbox({idScript:"7",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VTQW4CMQz8i885xHGcZHlG1RtwALGHqqitaHuoELy9jodskSq0B48dezKZZM8UabVetxIab8M65RhYsiHOEpKKoxq46nYbiL1XQ0rZm4st1N4iOWjpHUKrGCjTiq4TBVJPi43ZWrUQw7_PVtrDlenhCkfn5q6JrhuKG7INDfAAaQAZIA-gA5QB6gBtgGkh_KNeuHkh54WdF3pe-Llv0NUmqDV_xEJGBnu4IJg_nC2aGz1MXk3Rs2THZAtGkyzA5pRRVCdNoEkVWUM2-YD0W-6uCXtZIEfAI5Aj6mbzzWApGK2-iRjfmT5fDvN-d6LV1-l7vlgV95OCBHs-lPs2bAye8Li7nqT7RO7bsuvNOmqoFt81V7wnHCZPXlTcvOIoCksUziosUUUAi4JFGzphbImeFRhbYEiBIQVO2OunAlcLFBTMViiomK0JQRBgZsXd1vH24WJtN4u7Y7nXcaQGwoYjNYhpENNA2EDYoGe_Ox7fv55_Pmb71Z52b6_zgS6_tHc9bs0DAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>This map is much fuller when there are voters in the center.  (Also, the striped region in the below diagram is just a regular tie, not a cycle, like the above diagram with thinner striping.)</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Win Map with Middle</h2>
+        <p class="ballot_caption">Middle voters make it easy for common ground candidates to win. Move B around.</p>
+        
+        
+        <script id="win_map_middle_sim">
+            sandbox({idScript:"win_map_middle_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VTy24CMQz8l5xziO04j_2MqjfgAGIPVVFb0fZQIfj2OhmyVFRoDx479mQyyZ5ccNNqVYInoo1fMWdPXAxRjJ61dqSeMm023lFrzupZWgtL8lRiaxHxOfRest4-r9UWQ5sSNwXvopvcpTrvtKfJqGwtWwj-32cr5eFKfbhCoXNT0-kuaxfWzjY0QAPwADJAHEAHSAPkAcoAdSG8US_ctJDTwk4LPS381DZoahlqzR-xEJHBHkoI5g9Fi-ZGC7VXOfSM7ZhkwWjYAmzmiKJ2UgYNZ2QFWe0D0q6-uSbUywI5Ah6BHNFuNl0NloTR3DcR4zu5z5f9vNse3fR1_J7PVsX9sBdvT8rFto29CnytQH_vrxX4viD3I7Hrj3qrt2rqKmLG-8LhYu1FxUtQHE1hkcJphUWqCGBRsGhBJ4xOoWcJRicYlGBQgjNiQhJcTlCQMJuhIGM2M4IgwNyMu87jX4CruVwtbw7GVseRCggLjlQgpkBMAWEBYYGe3fZweP96_vmY7dd72r69znt3_gW2C1UD8gMAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>Let’s go back to the beat maps.  They show where any candidate would need to go to beat <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> in a one-on-one.  It looks like B has most locations locked down except for a white angular area in the center.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Beat Maps</h2>
+        <p class="ballot_caption">B beats any candidate in the yellow region.  Move everybody to see how their beat maps change.</p>
+        
+        
+        <script id="beat_map_middle_sim">
+            sandbox({idScript:"beat_map_middle_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VTy24CMQz8l5xziGPnxWdUvS0cQIBUFZWqpYcKwbfX8ShLS4X24IljT8aT7NkFt5imKr60lZ8iF09UFBFXHyV0lMiT1NXKO-q1hXy0kihaXKw4Ni_NAGutoTp3sVsE78Qt3LU575Its1LpXtEQ_L9Pd-rDnfZwh4JxU9fprksXlk4PVEADxAF4ABkgDZAHKAPUAdpMeKOeuWkmp5mdZnqa-akf0NVGqOXuzNId93urIEEaPlFGUKNINKotPTTLxmCrqPOSBuWLGuB3FCSVhjWAJhasKlbNGrg_gW4fk6UZuhg8DDmsPJNeaf96aUYr-Fj5zu7zZbvbrD_c4vTxtbtoFhcVPVuLhBsDEvT7Insi3if4vkXsPPkrRrKNKgUPDcNJs2TCk0gYLcGixAiwKCUEWJQKVtVOSjA6B2vIMDrDoAyDcjLVrEIyKDIUZPQWKCjoLRGBEWBuwV2X8VNAQsEvQOag9DxGqiCsGKlCTIWYCsIKwgo9m_XhcDw9f7_v9KU9rd9ed1t3-QHvGxz6-gMAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>Also, just to make a pretty picture, you can see that if the two middle voters are exactly in the middle, then the regions where the cycle happens become very thin.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Thin Beat Maps</h2>
+        <p class="ballot_caption"></p>
+        
+        
+        <script id="thin_beat_map_middle_sim">
+            sandbox({idScript:"thin_beat_map_middle_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VTy24CMQz8F59ziOM8-Yyqt4UDCJCqolK19FAh-PY6HmVpqdAePHHsyXg2OZOnxTTV6Kqs3BSkOOaiiKW6EH1HiR3Hulo5YqsVF6wkSHOcextzc6l1EKvV9q6kqPUuoYV3FGlB10aOki2zUule0eDdv0936sOd9nCHvXFz10nXJfkl6YEKeIAwgAwQB0gD5AHKAHWANhPeqGdunsl5ZueZnmd-7gd0tQFqpTuzpON-bxUckYZPnBHUKI4a1ZYemmWDt1XQeVmD8gUN8DtEJJVGNIAmFKwqVs0apF-Bbp-wpQW6BDwCOaI8k16E_vXSjFbwifKd6fNlu9usP2hx-vjaXTSLHxWcWEv0NwYk-PeP7Ilwn5D7lmjnxb9iYrZRY8FFw3CxWTLhSiSMlmBREqNJsCglBFiUClYVJTA6e-vLMDrDoAyDcjLV-g4ogyJDQUZvgYKC3hIQBAHmFvzrMh4FJBQ8ATYHY89jpArCipEqxFSIqSCsIKzQs1kfDsfT8_f7Tm_a0_rtdbelyw-7tzRV-gMAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>In an election, there are many more voters (the dots below), and <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span>’s beat map is a circle (close to it).</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">B's Election Beat Map</h2>
+        <p class="ballot_caption">Only candidates more near the middle can win.  Move A, C, and D to make them win.</p>
+        
+        
+        <script id="election_beat_map_middle_sim">
+            sandbox({idScript:"election_beat_map_middle_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VTQW4CMQz8i885xHYSZ3lG1RtwAMGhKmorSg8VgrfXyZBFqEJ78NhOJuNJ9kyRFstljYGZ12EpYoGlOuKUguSpIctBYlmvA3FbzEmC17xTahC1tk2Ll_piR8XaWqVFDJRoQdeJAuWeFifwnnmI4d_nnfq0Mz3tcOzc3NTRdUVxRX6gAx5ABtAB0gB5gDKADVAHmGbCO_XMzTM5z-w80_PMz-2Aplag1v1RDwkZ7OGC4P5w8uhutDD1qsSeiY_JHpxGPMBmSSjmTiqgEUNWkU19g7YLb64p97JCjoJHIUdzN5tvBmvBVuuHqPOd6fttt99ujrQ4HX_2F6_ifiRo8IdEKd6vq6X8mMpj6ocvOfSvpanrTvmxWvrpyfCuMFSaejHjBWSMlGFNVvRgTc4IsCZjlFyxEgaX2LMCgwuMKYoiHFEXUkBRoKBgr0GBYa8JAhQYTDXcsY1_ABKs3qxuzqVWx0gVhBUjVYipuKUKwgrCCj3bzeHweXr9_dr7L_ey-Xjf7-jyBzeDGAjgAwAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>Let’s look at all the candidate’s beat maps to show that there is a cycle between A, C, and D, but B beats them all.  Also, the white spot in the middle is where a new candidate could win.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">All Beat Maps in Election</h2>
+        <p class="ballot_caption">The spot in the middle is where a new candidate can win.</p>
+        
+        
+        <script id="all_election_beat_map_middle_sim">
+            sandbox({idScript:"all_election_beat_map_middle_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VTQW4DIQz8C2cO2AYDeUbV2yaHRNlD1ait0vRQRcnbaxix0aqKVlqPjT0Mw-7VBbeZphI8Ee38xJw9cTFkb8-iDdXkqdTdzjtqzRTZU062oq0ltzFRK9XWbEhz6xW3Cd5Ft3H36rxLPVUjsLVsIfh_j62Upyv16QqFzk1NnbtvXdg629AADcADyABxgDSADpAHKAPUhfBBvXDTQk4LOy30tPBT26CpZag1f8RCRAZ7SBHMH4oWzY0Waq9y6BnbMcmC0bAF2MwRxdRJGTSckRVktQ9Iu_DmmlAvC-QIeARyxHgm8v1prYrR3DcR47u677fjfNif3eZy_plvVsX9sJc-EsPjulpK65TXqay2i7HrjmsRUfvuMeO7wqFi7cWELyDhSAnWJEGANSkhwJqEo6SCFhisoWcKgxXGKFg0dcViQhQUCgWK2QwFGbOZEQQBpmbccR7_ACRkfPHUnYutjiMVEBYcqUBMwS0VEBYQFug57E-nz8vr79dsv9zL_uN9PrrbH9CaVlbgAwAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>These examples are made to show particular concepts, and a real election would have a wider spread of voters and candidates.</p>
+
+<p>In the voting systems to follow, I added the beat maps to try to make voting more visually understandable.</p>
+
+<p>I’d also like to point out that, in a case where you have to resolve a tie, really any of the candidates would be an okay choice. The differences between Condorcet methods are just in how they go about doing a tiebreaker.</p>
+
+<h2 id="specific-condorcet-methods">Specific Condorcet Methods</h2>
+
+<p>A variety of voting methods will pick the Condorcet winner if it exists.  I’m just going to go through a couple different methods: Minimax, Schulze, an alternative way to count Schulze, and Ranked Pairs.  I think Minimax is the simplest, so let’s start there.</p>
+
+<h3 id="minimax">Minimax</h3>
+
+<p>Minimax is a Condorcet method. That means if there’s a guy that beats everyone head to head, then that guy wins. That’s easy. It’s a clear winner. Sometimes there isn’t a clear winner. Then you go through some rules. If you’re just finding one winner, then the rules are pretty simple. You want to find who lost by the least, basically. So just start crossing off all the smallest losses until there is that guy that has no losses. <strong>Try it out below.</strong></p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Minimax</h2>
+        <p class="ballot_caption"></p>
+        
+        
+        <script id="minimax_sim">
+            sandbox({idScript:"minimax_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VSW44DIQy7C9_5IO8wVxn1JNXu2TdgVaq6qubDOCHGmHmOOa77XkKxHnQLT8q5F-bEJb1iWyS-a65d4seDBu8Zntx8nS1Fi_diOcmUvUXHNWnYuMZvDBo-LqYRPde9bJj07-tOfe2srx2e5yhmiLOAwgAbwAEBaANsjX2cN7S20JDW6aLwsSoCgIwYWMtoA2QkwQpsHdB5jPKOAEoKQwolhZK20t354dub45hQaCquyySkZN22-br_JvxO5J3oS3YTO1r2eZTFsWCJJ4J9W6foCNMZIMeUKwDWHW_pCMETvTpnOUKIeYqBAAIBBAIIP361jQQkAg4CswkHidmEg1QwvGbiNfP1OyWa9ZFZ4koFwcKVCmYKZgqCBcHafn7-AEVp81gTAwAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<h3 id="schulze">Schulze</h3>
+
+<p>Schulze breaks ties in a way that aligns with the intent of a Condorcet winner; Schulze takes all the pairs of candidates and strings the pairs together into chains. At the beginning of the chain is the winner and at the end the loser. The strength of a chain is only as strong as its weakest link. There are many chains between any pair of candidates. The strongest chain is found for each pair. Magically, there is only one candidate who goes undefeated. This is a really cool way to break ties.  <strong>Try it out below.</strong></p>
+
+<p>There’s an excellent website that Rob LeGrand created that counts ballots using many more Condorcet methods than I have programmed so far on this site, so I have included his code directly into this site. You can see the explanations are a little bit different in formatting.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Schulze</h2>
+        <p class="ballot_caption"></p>
+        
+        
+        <script id="schulze_sim">
+            sandbox({idScript:"schulze_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSwU4DMQxE_yVnH2I7dpz9DMRt1UMRPVEBBy4IwbfXyahSVVTtYTJxMnlx9qfUsu37EPJxoF24Uq9z0Iw4JEfcBonNOdOc4sOBCs89XDn9WEuCBs_BMJIqc4mWrVJpZSt_WqhY2ZiK576s9ZRK_76sxMPKeFjhuo5iRjgLLAC4QQzikATgxOE8zlIyW6hI5rQUXqgiEMRIg8sYTUGMdLiAG0u0LlCeLUCSAkiRpEjSTNqzf_jmYl8QikzFdZmElFqWW73efxq-NXJr9Bo7TVtZ7f6o5guhdTwR8NtYk4ZmGkNkQZlCgG54S0MTrKMW6yxDE7yuSUcDHA1wNMBt8WqCOCIcBI69HQQdezsIusLhNTtes19_p45i3PWs40qBwMCVAjABmEBgIDDA83I8nz--nr8_T_n3Ph3f306v5fcC57Zt6SkDAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<h3 id="schulze-alternative">Schulze Alternative</h3>
+
+<p>Here’s an alternative way to count Schulze that is a lot like Minimax, but with an extra rule. Also, I may have the implementation incorrect, but it seems to work. Again, this Schulze Alternative breaks ties in a way that aligns with the intent of a Condorcet winner; there’s a tie, so it sees who is tied, and just picks from that group. The candidates with the least losses are automatically in that group, and also we add in anybody that beat them (and anybody that beats anybody we add). Then we have a group that beats everyone, and we pick from that group. After that, it’s just minimax. Resolve the tie by making the smallest change you can; remove the smallest tie. And keep making that Condorcet group each step (this is called the Schwartz set if you want to tell your friends). <strong>Try it out below.</strong></p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Schulze Alternative</h2>
+        <p class="ballot_caption"></p>
+        
+        
+        <script id="schulze_alt_sim">
+            sandbox({idScript:"schulze_alt_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSwU4DMQxE_yVnH2I7jpP9DMRt1UMRPVEBBy4IwbfX8ahSVVTtYTJxMnlx9qfUsu37FOrzQLtwJa9r0Ix4SIy4TRJbc6YxxYcDFV57uHL4mUsGTV6DaSRV1hItW6XSylb-vFCxsjGVHvui5iGV_n1RGQ8r82GFax7FjHAWWABwgxikQwKAA4fjOAuJbKEikdNCOFFFIIiRBhcxGoIYcbgBN1O0JiivFiBJAaRIUiRpJO3RP3xrcU8IRabiukxCSi3KrV7vvwzfGrk1eo1dpmVWuz-q9URojicCfps5aWimMUQSyhQCdMNbGppgjtrIswxN6DUnOxrQ0YCOBnRLXg2QjogOgo69DgLHXgeBKxxe0_Gafv2dHMVx1zPHlQYCB640ADMAMxA4EDjA83I8nz--nr8_T_H3Ph3f306v5fcCdowcpSkDAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<h3 id="ranked-pairs">Ranked Pairs</h3>
+
+<p>Ranked pairs is a lot like Minimax. If there’s a clear winner that beats everyone head-to-head, then they are the winner. If there isn’t a clear winner, then we follow some rules. If you’re just interested in the #1 winner and not #2, then the rules are pretty simple. You want to find who won by the most, basically. So start crossing off candidates that lost by a lot. Unless they are the last one left and the guy they lost to already had a bigger loss. Also, you can just stop once you figure out who the winner is. You don’t have to go through the whole list. <strong>Try it out below.</strong></p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Ranked Pairs</h2>
+        <p class="ballot_caption"></p>
+        
+        
+        <script id="ranked_pairs_sim">
+            sandbox({idScript:"ranked_pairs_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSwU4DMQxE_yVnH2I7jp39DMRt1UMRPVEBBy4IwbfXyahSVVTtYTJxMnlx9qfUsu37EOrjQLtwJa9z0Iw4JEfcBonNOdOc4sOBCs89XDn9WEuCBs_BMJIqc4mWrVJpZSt_UahY2ZhKz31Z85RK_76sxMPKeFjhuo5iRjgLLAC4QQzSIQnAicN5nKVktlCRzGkpvFBFIIiRBpcxmoIYcbiAG0u0LlCeLUCSAkiRpEjSTNqzf_jm4r4gFJmK6zIJKbUst3q9_zR8a-TW6DV2mray2v1RrS-E5ngi4LexJg3NNIbIgjKFAN3wloYmmKMW6yxDE3pdkx0N6GhARwO6LV5NkI6IDoKOvQ4Cx14HgSscXtPxmn79nRzFuOuZ40qBwMCVAjABmEBgIDDA83I8nz--nr8_T_n3Ph3f306v5fcCmdLP3ykDAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<h3 id="even-more-condorcet-methods">Even More Condorcet Methods</h3>
+
+<p>Rob LeGrand’s site has a lot more voting methods, so try them out in the simulation below.  The explanations in the sidebar are very thorough and explain the way in which the winner was selected. One detail is that he uses a tie-breaking ballot whenever he runs into a regular tie (not a cycle)</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">More Methods</h2>
+        <p class="ballot_caption">Rob LeGrand did a lot of work to include all these Condorcet methods, and some that aren't.</p>
+        
+        
+        <script id="robla_sim">
+            sandbox({idScript:"robla_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSvU5DMQyF3yWzh9iOE-c-BmK76lBEJypgYEEInh3Hh0pVUXWHE__k5Itzv0ot275PoT4PtAtXGnUtmhG7xIrbJLGVi5SIHg5UeO3hytEys8Vp8lrMaKmyWrRslUorW_nRQsXKxlR67IvaCKn074uK363MuxWueRQvKF6xIAYBN4hBOiQIuIXGeRYS5kJFwiiSwskqAoGNNERhoyGwkYHIEc0UrUm6SBROCiCFk8JJbeHS37eae0IoPBX3ZRJSalFu9TKAFfB1INeBXmxX0NKr3R7VeiK0gTcCfpuZNEzTGCIJZQoBuuExDUOwgZrnWYYh9JrJjgF0DKBjAN2SVwOkw6KDoGPvAMHA3gGCoYjwmgOvOS7_00DRb2Y2cCWHoeNKDhgHjMPQYejgeTqez28fj5_vp_h9H46vL6fn8v0Lqgq8QSoDAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<h2 id="strategy">Strategy</h2>
+
+<p>In each of these Condorcet methods, voters would have a hard time trying to use a strategy. What I mean by strategy is that you might say you like someone less than you actually do. Like you might put a viable competitor low on your ballot below people you actually don’t like as much in the hope that the tiebreaker would work in your favor. However, these strategies are hard to think about because they can backfire.</p>
+
+<p><strong>Backfiring</strong> - Jameson Quinn’s study of how often strategies backfire versus work.  The Condorcet methods Schulze and Ranked Pairs (Rp) have a high likelihood of backfiring and a small likelihood of working.</p>
+
+<p><img src="img/backfire.png" alt="backfire" class="picture100" /></p>
+
+<p>Pair counts are never affected by strategy. It’s only in a cycle-breaker that voters would even think about using strategy, because cycle-breakers don’t use just plain pair counts. In a Condorcet cycle, candidates are virtually in a tie, so candidates will always feel a pressure to move toward the middle, and there will always be a spot in the middle for a new common ground candidate to enter the race.</p>
+
+<h2 id="afterward">Afterward</h2>
+
+<p>You may have noticed the above examples seem to all be ties, so what does it matter which condorcet method we choose?  They all seem to be about the same.  As long as we pick one, we’ll be okay.</p>
+
+<p>The benefit of Condorcet methods is that voters don’t split the vote and candidates don’t need to fight each other to avoid splitting the vote. By using a Condorcet method, we end up finding common ground.</p>
+
+<h3 id="links">Links</h3>
+
+<p><a href="http://electionscience.github.io/vse-sim/VSE/">Jameson Quinn’s VSE Study on Strategies</a>.</p>
+
+<p><a href="http://www.cs.angelo.edu/~rlegrand/rbvote/calc.html">Rob LeGrand’s Calculator</a></p>
+
+<h3 id="sandbox-notes">Sandbox Notes</h3>
+
+<p>In the sandbox mode below, you can find the visualizations under the “viz” menu and Rob LeGrand’s methods under the “RBVote” option for voting system.</p>
+
+    </div>
+    
+        <div id="sandbox-section">
+            <div class="sim-sandbox">
+                <div class="sim-container">
+                    <h1 class="caption-test" style="margin: 30px 0 15px 0;">SANDBOX MODE! <a href="sandbox">(link to <em>just</em> this)</a></h1>
+		                
+		<div id="sandbox" class="div-sandbox div-election div-ballot-in-sandbox div-model" scrolling="no">
+		</div>
+		<script>
+			sandbox({quick:"sandbox"})
+		</script>
+                </div>
+            </div>
+            <div class="words">
+                
+			<p>
+				<b>From Nicky Case:</b> One hope for Sandbox Mode is that readers can debate with me and each other
+				<em>using</em> this tool! Not just telling me I'm wrong, but
+				<em>showing</em> me I'm wrong.  Granted, this tool is very limited – it doesn't handle strategic voting
+				or imperfect information – but I think it's a start, and may help improve our Democratic Discourse&trade;
+			</p>
+			<p>
+				<b> From Paretoman: </b>if you'd like your own models included here, 
+				save it, copy the saved link, and tweet it with the <a href="https://twitter.com/hashtag/smartvotesim">hashtag #smartvotesim.</a>
+			</p>
+            </div>
+        </div>
+
+</div><footer class="site-footer h-card">
+  <data class="u-url" href="/ballot/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/ballot/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/ballot/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+        <ul class="contact-list">
+          <li class="p-name">Paretoman</li>
+          <li><a class="u-email" href="mailto:smartvotingsimulator1@gmail.com">smartvotingsimulator1@gmail.com</a></li>
+        </ul>
+        <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/Paretoman" title="Paretoman"><svg class="svg-icon grey"><use xlink:href="/ballot/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/Paretoman1" title="Paretoman1"><svg class="svg-icon grey"><use xlink:href="/ballot/assets/minima-social-icons.svg#twitter"></use></svg></a></li><li><a rel="me" href="https://www.youtube.com/channel/UCrwpT8YjxePjH0RxSCwbTlQ" title="Paretoman"><svg class="svg-icon grey"><use xlink:href="/ballot/assets/minima-social-icons.svg#youtube"></use></svg></a></li></ul>
+</div>
+      </div>
+      <div class="footer-col">
+        <p>A simulator for voting methods - so you can understand how voting methods work for making group decisions. The best voting methods are responsive to all parts of the group and can even work when voters use strategies.</p>
+      </div>
+    </div>
+            
+            <div style="text-align:center; color:#fff; background-color: #222;margin-bottom:0px;">
+				Share this:
+				<ul class="share-buttons">
+                    <li class="reddit">
+                        <a href="http://www.reddit.com/submit?url=https://paretoman.github.io/ballot/condorcet.html&title=Condorcet%20Methods%20Explained" target="_blank">
+                            <img height="32" width="32" alt="Post on Reddit" src="/ballot/social/reddit.png">
+                        </a>
+                    </li>
+                    <li class="hn">
+                        <a href="http://news.ycombinator.com/submitlink?u=https://paretoman.github.io/ballot/condorcet.html&t=Condorcet%20Methods%20Explained" target="_blank">
+                            <img height="32" width="32" alt="Share on Hacker News" src="/ballot/social/ycombinator.png">
+                        </a>
+                    </li>
+                    <li class="twitter">
+                        <a href="https://twitter.com/intent/tweet?via=paretoman1&url=https://paretoman.github.io/ballot/condorcet.html&text=Condorcet%20Methods%20Explained" target="_blank">
+                            <img alt="Tweet" src="/ballot/social/Twitter.png">
+                        </a>
+                    </li>
+                    <li class="email">
+                        <a href="mailto:?subject=Condorcet%20Methods%20Explained&body=Condorcet%20Methods%20Explained:https://paretoman.github.io/ballot/condorcet.html" target="_blank" title="Send email">
+                            <img alt="Send email" src="/ballot/social/Email.png">
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://paretoman.github.io/ballot/condorcet.html&t=Condorcet%20Methods%20Explained" title="Share on Facebook" target="_blank">
+                            <img alt="Share on Facebook" src="/ballot/social/Facebook.png">
+                        </a>
+                    </li>
+				</ul>
+			</div></div>
+
+</footer>
+</body>
+
+</html>

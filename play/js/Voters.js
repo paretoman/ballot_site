@@ -58,8 +58,6 @@ function VoterModel(model,type) {
 var InitVoterModel = {}
 
 InitVoterModel.Score = function (model, voterModel) {
-// InitVoterModel.Score = function (model, voterPerson) {
-	// var voterModel = voterPerson.ballot
 
 	voterModel.maxscore = 5;
 	voterModel.minscore = 0;
@@ -102,15 +100,17 @@ CastBallot.Score = function (model,voterModel,voterPerson) {
 	var y = voterPerson.y
 	var strategy = voterPerson.strategy
 	var iDistrict = voterPerson.iDistrict
+	let district = model.district[iDistrict]
 	var i = voterPerson.iPoint
+
 
 // return function(x, y, strategy, iDistrict, i){
 
 	doStar =  (model.election == Election.star  &&  strategy != "zero strategy. judge on an absolute scale.") || model.doStarStrategy
-	if (model.autoPoll == "Auto" && model.pollResults) {
-		tally = model.pollResults
+	if (model.autoPoll == "Auto" && district.pollResults) {
+		tally = district.pollResults
 
-		var factor = voterModel.poll_threshold_factor
+		var factor = voterPerson.poll_threshold_factor
 		var max1 = 0
 		for (var can in tally) {
 			if (tally[can] > max1) max1 = tally[can]
@@ -123,7 +123,7 @@ CastBallot.Score = function (model,voterModel,voterPerson) {
 	} else {
 		viable = model.district[iDistrict].preFrontrunnerIds
 	}
-	var cans = model.district[iDistrict].candidates
+	var cans = model.district[iDistrict].stages[model.stage].candidates
 	var scoresfirstlast = dostrategy(model,x,y,voterModel.minscore,voterModel.maxscore,strategy,viable,cans,voterModel.defaultMax,doStar,model.utility_shape)
 	
 	voterModel.radiusFirst[i] = scoresfirstlast.radiusFirst // this is okay for now but could mess up if one voterModel is shared by more than one voterCrowd
@@ -151,7 +151,7 @@ CastBallot.Approval = function (model,voterModel,voterPerson) {
 	
 	// Anyone close enough. If anyone.
 	var approved = [];
-	var cans = model.district[iDistrict].candidates
+	var cans = model.district[iDistrict].stages[model.stage].candidates
 	for(var j=0;j<cans.length;j++){
 		var c = cans[j];
 		if(scores[c.id] == 1){
@@ -169,12 +169,13 @@ CastBallot.Ranked = function (model,voterModel,voterPerson) {
 	var y = voterPerson.y
 	var strategy = voterPerson.strategy
 	var iDistrict = voterPerson.iDistrict
+	let district = model.district[iDistrict]
 	var i = voterPerson.iPoint
 
 
 	// Rank the peeps I'm closest to...
 	var rank = [];
-	var cans = model.district[iDistrict].candidates
+	var cans = model.district[iDistrict].stages[model.stage].candidates
 	for(var j=0;j<cans.length;j++){
 		var c = cans[j];
 		rank.push(c.id);
@@ -198,28 +199,42 @@ CastBallot.Ranked = function (model,voterModel,voterPerson) {
 	});
 
 	var considerFrontrunners =  (strategy != "normalize"  &&  strategy != "zero strategy. judge on an absolute scale.")
-	if (considerFrontrunners && model.election == Election.irv && model.autoPoll == "Auto" && model.pollResults) {
+	if (considerFrontrunners && model.election == Election.irv && model.autoPoll == "Auto" && district.pollResults) {
 		// we can do an irv strategy here
 
 		// so first figure out if our candidate is winning
 		// should figure out how close we are to winning
 		
+		var tally = district.pollResults
+
 		// who do we have first?
 		var ourFirst = rank[0]
+
+		
+		var weLostElectability = ! _electable_all(ourFirst,tally.head2head,voterPerson)
+
+		// are they viable?
+		var viable = _findViable(tally.firstpicks,voterPerson)
+		var weLostFirstChoices = ! viable.includes(ourFirst)
+
 		// who was first?
-		var weLost = ! model.result.winners.includes(ourFirst)
+		var weLostActually = ! tally.winners.includes(ourFirst)
+		// var weLost = ! model.result.winners.includes(ourFirst)
+
+		// var weLost = weLostElectability || weLostFirstChoices
+
+		var weLost = weLostActually
 
 		if ( weLost ) {
 			// find out if our second choice could win head to head
-			var tally = model.pollResults
 			for (var i in rank) {
 				var ourguy = rank[i]
 				if (ourguy == winguy) {
 					break // there is no better candidate, so let's just keep the same strategy
 				}
 				var ourguyWins = true
-				for (var iwinguy in model.result.winners) {
-					var winguy = model.result.winners[iwinguy]
+				for (var iwinguy in tally.winners) {
+					var winguy = tally.winners[iwinguy]
 					var ours = tally.head2head[ourguy][winguy]
 					var theirs = tally.head2head[winguy][ourguy]
 					if (theirs > ours) ourguyWins = false
@@ -246,54 +261,213 @@ CastBallot.Ranked = function (model,voterModel,voterPerson) {
 }
 
 
+function _electable_all(ourCan,hh,voterPerson) {
+	var cs = Object.keys(hh)
+	var others = cs.filter(x => x !== ourCan)
+
+	var badness = 1/voterPerson.poll_threshold_factor 
+
+	// Which candidates are not defeated badly?
+	let electable = true
+	for (let b of others) {
+		// check how badly we are defeated
+		let howbad = hh[b][ourCan] / hh[ourCan][b]
+
+		if (howbad > badness) {
+			// this parameter can be changed.
+			electable = false
+		}
+	}
+	return electable
+}
+
 CastBallot.Plurality = function (model,voterModel,voterPerson) {
 	var x = voterPerson.x
 	var y = voterPerson.y
 	var strategy = voterPerson.strategy
 	var iDistrict = voterPerson.iDistrict
+	let district = model.district[iDistrict]
+
+	// first, make a list of all the candidates
+	// if we're in a primary then consider electability (if there are polls)
+	//   consider only viable candidates (if there are polls)
+	//   find the closest candidate
+	//   return
+	// if we're in a general election then consider only viable candidates (if there are polls) 
+
+	// make a list of all the candidates in this stage
+	// if it's a primary, then only consider our party's candidates
+	var cans = district.stages[model.stage].candidates
+
+	var goodCans = cans
 	
-	// return function(x, y, strategy, iDistrict, i){
+	if (district.primaryPollResults && model.stage == "primary") {
 
-	if (model.autoPoll == "Auto" && model.pollResults) {
-		// if (model.autoPoll == "Auto" && (typeof model.pollResults !== 'undefined')) {
-		tally = model.pollResults
-
-		var factor = voterModel.poll_threshold_factor
-		var max1 = 0
-		for (var can in tally) {
-			if (tally[can] > max1) max1 = tally[can]
+		// if we're in a primary 
+		// then consider electability (if there are polls)
+		if (model.doElectabilityPolls) {
+			goodCans = _bestElectable(model, voterPerson)
+		} else {
+			// otherwise, only consider our party's candidates
+			goodCans = district.parties[voterPerson.iParty].candidates
 		}
-		var threshold = max1 * factor
-		var viable = []
-		for (var can in tally) {
-			if (tally[can] > threshold) viable.push(can)
-		}
-	} else {
-		viable = model.district[iDistrict].preFrontrunnerIds
 	}
 
-	// Who am I closest to? Use their fill
-	var checkOnlyFrontrunners = (strategy!="zero strategy. judge on an absolute scale." && viable.length > 1 && strategy!="normalize")
-	
-	if (model.election == Election.pluralityWithPrimary) checkOnlyFrontrunners = false // workaround
-	
-	var closest = {id:null};
-	var closestDistance = Infinity;
-	var cans = model.district[iDistrict].candidates
-	for(var j=0;j<cans.length;j++){
-		var c = cans[j];
-		if(checkOnlyFrontrunners && ! viable.includes(c.id)  ) {
-			continue // skip this candidate because he isn't one of the 2 or more frontrunners, so we can't vote for him
+	// if we have a strategy, then
+	var checkOnlyFrontrunners = (strategy!="zero strategy. judge on an absolute scale." && strategy!="normalize")
+	if (checkOnlyFrontrunners) {
+
+		//   consider only viable candidates (if there are polls, 
+		if (district.pollResults && model.autoPoll == "Auto") { // Auto is here for safety
+			var viable = _findViableFromSet(goodCans, district, voterPerson)
+
+		} else if (model.autoPoll == "Manual") {  // manually set viable candidates, if we want to
+			var viable = district.preFrontrunnerIds
+
+		} else { // we're the first to take the polls, so any candidate is viable
+			var viable = goodCans.map(c => c.id)
 		}
-		var dist = distF2(model,{x:x,y:y},c)
-		if(dist<closestDistance){
-			closestDistance = dist;
-			closest = c;
+
+		// but only if there is more than one viable candidate
+		if (viable.length > 1) {
+			goodCans = viable.map(cid => model.candidatesById[cid])
 		}
 	}
+
+	// Who am I closest to?
+	var closest = _findClosest(model,goodCans,x,y)
+
 	// Vote for the CLOSEST
 	return { vote:closest.id };
 
+}
+
+function _bestElectable(model, voterPerson) {
+	let iDistrict = voterPerson.iDistrict
+	let district = model.district[iDistrict]
+
+	// check for defeats against other party's candidates
+	let hh = district.primaryPollResults.head2head  // format hh[win][against] = numwins
+	
+	// What party do we belong to?
+	// Check our group id
+	var iMyParty = voterPerson.iParty
+	var parties = district.parties
+
+	// Which candidates not defeated badly?
+	var electset = _electable(iMyParty,parties,hh)
+
+	// if no candidates are electable
+	if (electset.length == 0) {
+		// find the most electable candidate
+		// the one with the best "worst defeat"
+		var electset = _mostElectable(iMyParty,parties,hh)
+	}
+	return electset
+}
+
+
+function _electable(iMyParty,parties,hh) {
+	// Which candidates are not defeated badly?
+	var myParty = parties[iMyParty]
+	var electset = []
+	for (let a of myParty.candidates) {
+		let electable = true
+		for (let i = 0; i < parties.length; i++) {
+			if (iMyParty !== i) {
+				let party = parties[i]
+				for (let b of party.candidates) {
+					// check how badly we are defeated
+					let howbad = hh[b.id][a.id] / hh[a.id][b.id]
+
+					if (howbad > 1.1) {
+						// this parameter can be changed.
+						electable = false
+					}
+					
+				}
+			}
+		}
+		if (electable) {
+			electset.push(a)
+		}
+	}
+	return electset
+}
+
+function _mostElectable(iMyParty,parties,hh) {
+	// find the most electable candidate
+	// the one with the best "worst defeat"
+	var myParty = parties[iMyParty]
+
+	let mostelectable = {id:null};
+	let leastbad = Infinity;
+	for (let a of myParty.candidates) {
+		let worstdefeat = 0
+		for (let i = 0; i < parties.length; i++) {
+			if (iMyParty !== i) {
+				let party = parties[i]
+				for (let b of party.candidates) {
+					let howbad = hh[b.id][a.id] / hh[a.id][b.id]
+					// also, find the most electable
+					if (worstdefeat < howbad) { 
+						worstdefeat = howbad
+					}
+				}
+			}
+		}
+		if (leastbad > worstdefeat) {
+			leastbad = worstdefeat
+			mostelectable = a
+		}
+	}
+	electset = [mostelectable]
+	return electset
+}
+
+function _findClosest(model,electset,x,y) {
+	var closest = {id:null};
+	var closestDistance = Infinity;
+	for(var j=0;j<electset.length;j++){
+		let e = electset[j];
+		var dist = distF2(model,{x:x,y:y},e)
+		if(dist<closestDistance){
+			closestDistance = dist;
+			closest = e;
+		}
+	}
+	return closest
+}
+
+function _findViableFromSet(cans, district, voterPerson) {
+	let tally = district.pollResults
+	tally = _tallyFromSet(cans, tally)
+	var viable = _findViable(tally,voterPerson)
+	return viable
+}
+
+function _tallyFromSet(electset, tally) {
+	let oldtally = tally
+	var tally = {}
+	for (let e of electset) {
+		tally[e.id] = oldtally[e.id] 
+	}
+	return tally
+}
+
+
+function _findViable(tally,voterPerson) {
+	var factor = voterPerson.poll_threshold_factor
+	var max1 = 0
+	for (var can in tally) {
+		if (tally[can] > max1) max1 = tally[can]
+	}
+	var threshold = max1 * factor
+	var viable = []
+	for (var can in tally) {
+		if (tally[can] > threshold) viable.push(can)
+	}
+	return viable
 }
 
 function dostrategy(model,x,y,minscore,maxscore,strategy,preFrontrunnerIds,candidates,defaultMax,doStar,utility_shape) {
@@ -554,7 +728,7 @@ DrawMap.Score = function (ctx, model,voterModel,voterPerson) {
 	var strategy = voterPerson.strategy
 	var iDistrict = voterPerson.iDistrict
 	var k = voterPerson.iPoint
-	var ballot = voterPerson.ballot
+	var ballot = voterPerson.stages[model.stage].ballot
 
 
 	if (model.ballotConcept == "off") return
@@ -670,7 +844,7 @@ DrawMap.Ranked = function (ctx, model,voterModel,voterPerson) {
 	var strategy = voterPerson.strategy
 	var iDistrict = voterPerson.iDistrict
 	var i = voterPerson.iPoint
-	var ballot = voterPerson.ballot
+	var ballot = voterPerson.stages[model.stage].ballot
 	
 
 	if (model.ballotConcept == "off") return
@@ -1008,20 +1182,20 @@ DrawMap.Ranked = function (ctx, model,voterModel,voterPerson) {
 		var regularLine = false
 
 		var rankByCandidate = []
-		var cans = []
+		var sortedCans = []
 		for(var i=0; i<ballot.rank.length; i++){
 			var rank = ballot.rank[i];
 			var c = model.candidatesById[rank];
-			cans.push(c)
+			sortedCans.push(c)
 			rankByCandidate[c.i] = i
 		}
-		for(var i = 0; i < cans.length; i++) {
+		for(var i = 0; i < sortedCans.length; i++) {
 			for (var k = 0; k < i; k++) {
-				var c1 = model.arena.modelToArena(cans[i])
-				c1.fill = cans[i].fill
-				var c2 = model.arena.modelToArena(cans[k])
-				c2.fill = cans[k].fill
-				var win = rankByCandidate[cans[k].i] > rankByCandidate[cans[i].i]
+				var c1 = model.arena.modelToArena(sortedCans[i])
+				c1.fill = sortedCans[i].fill
+				var c2 = model.arena.modelToArena(sortedCans[k])
+				c2.fill = sortedCans[k].fill
+				var win = rankByCandidate[sortedCans[k].i] > rankByCandidate[sortedCans[i].i]
 					
 				if (connectCandidates) {
 					ctx.setLineDash([5, 45]);
@@ -1130,7 +1304,7 @@ DrawMap.Plurality = function (ctx, model,voterModel,voterPerson) {
 	var strategy = voterPerson.strategy
 	var iDistrict = voterPerson.iDistrict
 	var i = voterPerson.iPoint
-	var ballot = voterPerson.ballot
+	var ballot = voterPerson.stages[model.stage].ballot
 
 	
 	if (model.ballotConcept == "off") return
@@ -1163,7 +1337,7 @@ DrawMe.Score = function (ctx, model,voterModel,voterPerson) {
 	var x = voterPerson.xArena
 	var y = voterPerson.yArena
 	var size = voterPerson.size
-	var ballot = voterPerson.ballot
+	var ballot = voterPerson.stages[model.stage].ballot
 	var weight = voterPerson.weight
 
 
@@ -1221,7 +1395,7 @@ DrawMe.Approval = function (ctx, model,voterModel,voterPerson) {
 	var x = voterPerson.xArena
 	var y = voterPerson.yArena
 	var size = voterPerson.size
-	var ballot = voterPerson.ballot
+	var ballot = voterPerson.stages[model.stage].ballot
 	var weight = voterPerson.weight
 
 
@@ -1265,7 +1439,7 @@ DrawMe.Ranked = function (ctx, model,voterModel,voterPerson) {
 	var x = voterPerson.xArena
 	var y = voterPerson.yArena
 	var size = voterPerson.size
-	var ballot = voterPerson.ballot
+	var ballot = voterPerson.stages[model.stage].ballot
 	var weight = voterPerson.weight
 	var iDistrict = voterPerson.iDistrict
 
@@ -1297,7 +1471,7 @@ DrawMe.Ranked = function (ctx, model,voterModel,voterPerson) {
 		}
 		
 		if (orderByCandidate) {
-			for(var [i,c] of Object.entries(model.district[iDistrict].candidates)){
+			for(var [i,c] of Object.entries(model.district[iDistrict].stages[model.stage].candidates)){
 				slices[i] = slicesById[c.id]
 			}
 		}
@@ -1305,7 +1479,7 @@ DrawMe.Ranked = function (ctx, model,voterModel,voterPerson) {
 	if (model.drawSliceMethod == "barChart") {
 		if (model.system == "Borda") {
 			_drawVoterBarChart(model, ctx, x, y, size, slices, totalSlices,n);
-		} else if (model.system == "IRV") {
+		} else if (model.system == "IRV" || model.system == "STV") {
 			if (model.squareFirstChoice) {
 				_drawIRVStack(model, ctx, x, y, size, slices, totalSlices * 1/Math.max(weight,.000001));
 			} else {
@@ -1313,7 +1487,12 @@ DrawMe.Ranked = function (ctx, model,voterModel,voterPerson) {
 			}
 		} else {
 			if (model.pairOrderByCandidate) {
-				_drawPairTableByCandidate(model, ctx, x, y, size, ballot, weight)
+				if (n==2) {
+					ballot_sub = {rank: [ballot.rank[0]]}
+					_drawPairTableByCandidate(model, ctx, x, y, size, ballot_sub, weight)
+				} else {
+					_drawPairTableByCandidate(model, ctx, x, y, size, ballot, weight)
+				}
 			} else { // order by rank
 				_drawRankList(model, ctx, x, y, size, slices, totalSlices * 1/Math.max(weight,.000001));
 			}
@@ -1333,7 +1512,7 @@ DrawMe.Plurality = function (ctx, model,voterModel,voterPerson) {
 	var x = voterPerson.xArena
 	var y = voterPerson.yArena
 	var size = voterPerson.size
-	var ballot = voterPerson.ballot
+	var ballot = voterPerson.stages[model.stage].ballot
 
 	// RETINA
 	x = x*2;
@@ -1387,6 +1566,7 @@ function _drawPairTableByCandidate(model, ctx, x, y, size, ballot, weight) {
 		}
 	}
 	// now draw table
+	size = size * Math.sqrt(weight)
 	var sizeSquare = size / n
 	var yaxis = _lineVertical(n,size)
 	var xaxis = _lineHorizontal(n,size)
@@ -1407,30 +1587,45 @@ function _drawPairTableByCandidate(model, ctx, x, y, size, ballot, weight) {
 }
 
 function _drawIRVStack(model, ctx, x, y, size, slices, totalSlices) {
+
+
 	x = x * 2
 	y = y * 2
 	size = size * 2
 	var maxscore = model.candidates.length
+	var extraspace = .5 // how much extra space the stack at the bottom should use.  - as a fraction.
 
-	//draw outline
-	_centeredRectStroke(ctx,x,y+size*.25,size,size*1.5)
+	let noLastRank = true
+	if (noLastRank) {
+		slices.pop()
+		maxscore --
+	}
+
+	// special case looks weird
+	if (maxscore == 2) {
+		extraspace = .25
+	}
 
 	// draw top slice
 	_centeredRect(ctx,x,y,size,size,slices[0].fill)
 	slices.shift() // remove top slice
 
-	var yaxis = _lineVertical( slices.length, size * .5 ) 
+	var yaxis = _lineVertical( slices.length, size * extraspace ) 
 
-	var sizeSquare = size/2  / (maxscore-1)
+	var sizeSquare = size * extraspace  / (maxscore-1)
 	for(var i in slices){
 		var point = yaxis[i]
 		var slice = slices[i]
 		var xp = x
-		var yp = y + .75 * size + point[1]
+		var yp = y + .5 * (1+extraspace) * size + point[1]
 		_centeredRect(ctx,xp,yp,size,sizeSquare,slice.fill)
 	}
 	// _centeredRectStroke(ctx,x,y*1.25,size,size*1.5,'#888')
 	// _centeredRectStroke(ctx,x,y,size,size,'#888')
+
+	//draw outline
+	_centeredRectStroke(ctx,x,y+size*(.5*extraspace),size,size*(1+extraspace))
+	_centeredRectStroke(ctx,x,y,size,size)
 
 }
 
@@ -1733,7 +1928,7 @@ function _drawBlank(model, ctx, x, y, size){
 var DrawBallot = {}
 
 DrawBallot.Score = function (model,voterModel,voterPerson) {
-	var ballot = voterPerson.ballot
+	var ballot = voterPerson.stages[model.stage].ballot
 
 	var text = ""
 	var scoreByCandidate = []
@@ -1759,7 +1954,7 @@ DrawBallot.Three = function (model,voterModel,voterPerson) {
 }
 
 DrawBallot.Approval = function (model,voterModel,voterPerson) {
-	var ballot = voterPerson.ballot
+	var ballot = voterPerson.stages[model.stage].ballot
 	
 	var text = ""
 
@@ -1784,7 +1979,7 @@ DrawBallot.Approval = function (model,voterModel,voterPerson) {
 }
 
 DrawBallot.Ranked = function (model,voterModel,voterPerson) {
-	var ballot = voterPerson.ballot
+	var ballot = voterPerson.stages[model.stage].ballot
 
 	var text = ""
 
@@ -1805,7 +2000,7 @@ DrawBallot.Ranked = function (model,voterModel,voterPerson) {
 }
 
 DrawBallot.Plurality = function (model,voterModel,voterPerson) {
-	var ballot = voterPerson.ballot
+	var ballot = voterPerson.stages[model.stage].ballot
 
 	var text = ""
 	var onePickByCandidate = []
@@ -1827,7 +2022,7 @@ DrawBallot.Plurality = function (model,voterModel,voterPerson) {
 var DrawTally = {}
 
 DrawTally.Score = function (model,voterModel,voterPerson) {
-	var ballot = voterPerson.ballot
+	var ballot = voterPerson.stages[model.stage].ballot
 	
 	var system = model.system
 	
@@ -1885,7 +2080,7 @@ DrawTally.Score = function (model,voterModel,voterPerson) {
 }
 
 DrawTally.Three = function (model,voterModel,voterPerson) {
-	var ballot = voterPerson.ballot
+	var ballot = voterPerson.stages[model.stage].ballot
 	
 	var text = ""
 	cIDs = Object.keys(ballot).sort(function(a,b){return -(ballot[a]-ballot[b])}) // sort descending
@@ -1956,7 +2151,7 @@ DrawTally.Three = function (model,voterModel,voterPerson) {
 }
 
 DrawTally.Approval = function (model,voterModel,voterPerson) {
-	var ballot = voterPerson.ballot
+	var ballot = voterPerson.stages[model.stage].ballot
 
 	var text = ""
 	if (voterModel.say) text += "<span class='small' style> Approved </span> <br />" 
@@ -1973,12 +2168,13 @@ DrawTally.Approval = function (model,voterModel,voterPerson) {
 }
 
 DrawTally.Ranked = function (model,voterModel,voterPerson) {
-	var ballot = voterPerson.ballot
+	var ballot = voterPerson.stages[model.stage].ballot
 
 	var system = model.system
 	var rbsystem = model.rbsystem
 	// todo: star preferences
 	var text = ""
+	var eventsToAssign = []
 
 	var pick = _pickRankedDescription(model)
 
@@ -2066,23 +2262,40 @@ DrawTally.Ranked = function (model,voterModel,voterPerson) {
 			text += "</pre></span>"
 		}
 		if(1){
+
+			let district = model.district[voterPerson.iDistrict]
+			
 			text += "<span class='small'>"
 			// text += " Pair Preferences:  <br />"
 			text += "<pre>" 
 			for(var i=1; i<ballot.rank.length; i++){
 				text += ""
+				let iid = ballot.rank[i]
 				for(var j=0; j<i; j++){
+					let jid = ballot.rank[j]
+					
+					let eventID = 'tallypair_' + iid + '_' + jid + '_' + _rand5()
+					let e = {
+						eventID: eventID,
+						f: pairDraw(model,district,jid,iid,false)
+					}
+					eventsToAssign.push(e)
+
+					text += '<span id="' + eventID + '">'
+
 					if (j>0) text += "  "
-					text += model.icon(ballot.rank[j]) + ">"
-					text += model.icon(ballot.rank[i])
+					text += model.icon(jid) + ">"
+					text += model.icon(iid)
+
+					text += "</span>"
 				} 
 				// 01  
 				// 02  12
 				// 03  13  23
-				text += "</span>"
 				text += "<br />"
 				text += "<br />"
 			}
+			text += "</span>"
 			text += "</pre>"
 		}
 	}
@@ -2100,6 +2313,7 @@ DrawTally.Ranked = function (model,voterModel,voterPerson) {
 		}
 	}
 
+	model.tallyEventsToAssign = eventsToAssign
 	return text
 	
 }
@@ -2156,7 +2370,7 @@ function _pickRankedDescription(model) {
 }
 
 DrawTally.Plurality = function (model,voterModel,voterPerson) {
-	var ballot = voterPerson.ballot
+	var ballot = voterPerson.stages[model.stage].ballot
 	{
 		var text = ""
 		if (voterModel.say) text += "<span class='small' style> One vote for </span> " 
@@ -2300,10 +2514,12 @@ function VoterPerson(model,voterModel) {
 		iGroup: undefined,
 		iAll: undefined,
 		iDistrict: undefined,
+		iParty: undefined,
 		ballot: undefined,
 		weight: undefined,
 		// ballotType: voterModel.type,
-		// voterModel: voterModel, // will set later in bulk
+		// voterModel: voterModel,
+		stages: {},
 	})
 }
 
@@ -2349,7 +2565,7 @@ function VoterSet(model) {
 		var ballots = [];
 		for(var i=0; i<district.voterPeople.length; i++){
 			var v = district.voterPeople[i]
-			var b = model.voterGroups[v.iGroup].voterPeople[v.iPoint].ballot
+			var b = model.voterGroups[v.iGroup].voterPeople[v.iPoint].stages[model.stage].ballot
 			ballots = ballots.concat(b);
 		}
 		return ballots;
@@ -2359,18 +2575,28 @@ function VoterSet(model) {
 		for(var i=0; i<district.voterPeople.length; i++){
 			var v = district.voterPeople[i]
 			if (v.iGroup == iCrowd) {
-				// var b = self.crowds[iCrowd].voterPeople[v.iPoint].ballot
-				var b = model.voterGroups[iCrowd].voterPeople[v.iPoint].ballot
+				// var b = self.crowds[iCrowd].voterPeople[v.iPoint].stages[model.stage].ballot
+				var b = model.voterGroups[iCrowd].voterPeople[v.iPoint].stages[model.stage].ballot
 				ballots.push(b)
 			}
 		}
 		return ballots;
 	}
+	self.getBallotsPartyAndDistrict = function(iParty,district) {
+		var ballots = [];
+		var voterPeople = district.parties[iParty].voterPeople
+		for(var i=0; i<voterPeople.length; i++){
+			var voterPerson = voterPeople[i]
+			var b = voterPerson.stages[model.stage].ballot
+			ballots.push(b)
+		}
+		return ballots
+	}
 	self.getBallotsCrowd = function(iCrowd) {
 		var voterPeople = model.voterGroups[iCrowd].voterPeople
 		var ballots = []
 		for (var voterPerson of voterPeople) {
-			ballots.push(voterPerson.ballot)
+			ballots.push(voterPerson.stages[model.stage].ballot)
 		}
 		return ballots
 	}
@@ -2460,6 +2686,52 @@ function VoterSet(model) {
 		}
 		return s
 	}
+
+	self.updateBallots = function() {
+		for (var voterGroup of model.voterGroups) {
+			self.updateCrowdBallots(voterGroup)
+		}
+	}
+	self.updateCrowdBallots = function(crowd) {
+		for(var voterPerson of crowd.voterPeople){
+			self.updatePersonBallot(voterPerson)
+		}
+	}
+	self.updateCrowdDistrictBallots = function(crowd,district) {
+		for(var voterPerson of crowd.voterPeople){
+			if (voterPerson.iDistrict == district.i) {
+				self.updatePersonBallot(voterPerson)
+			}
+		}
+	}
+	self.updateDistrictBallots = function(district) {
+		for(var voterPerson of district.voterPeople){
+			self.updatePersonBallot(voterPerson)
+		}
+	}
+	self.updatePersonBallot = function(voterPerson) {
+		var voterModel = model.voterGroups[voterPerson.iGroup].voterModel
+		var ballot = voterModel.castBallot(voterPerson)
+		// store ballot for current stage
+		self.loadPersonBallot(voterPerson, ballot)
+	}
+	self.loadDistrictBallotsFromStage = function(district,stage) {
+		for(var voterPerson of district.voterPeople){
+			var ballot = voterPerson.stages[stage].ballot
+			self.loadPersonBallot(voterPerson, ballot)
+		}			
+	}
+	self.copyDistrictBallotsToStage = function(district,stage) {
+		for (let voterPerson of district.voterPeople) {
+			voterPerson.stages[stage] = {ballot: _jcopy(voterPerson.stages[model.stage].ballot)}
+		}
+	}
+	self.loadPersonBallot = function(voterPerson, ballot) {
+		var stageInfo = {}
+		stageInfo[model.stage] = {ballot:ballot}
+		_addAttributes(voterPerson.stages, stageInfo)
+	}
+
 }
 
 function VoterCrowd(model) {
@@ -2513,10 +2785,10 @@ function VoterCrowd(model) {
 		}
 	}
 	self.updateBallots = function() {
-		for(var voterPerson of self.voterPeople){	
-			var ballot = self.voterModel.castBallot(voterPerson)
-			voterPerson.ballot = ballot
-		}
+		model.voterSet.updateCrowdBallots(self)
+	}
+	self.updateDistrictBallots = function(district) {
+		model.voterSet.updateCrowdDistrictBallots(self,district)
 	}
 }
 
@@ -2531,7 +2803,6 @@ function _fillVoterDefaults(self) {
 		x_voters: false,
 		// SECOND group in "exp_addVoters"
 		// same for all voter groups in model
-		firstStrategy:"zero strategy. judge on an absolute scale.",
 		preFrontrunnerIds:["square","triangle"],
 		doTwoStrategies: false,
 		spread_factor_voters: 1,
@@ -2558,16 +2829,14 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 		self.initVoterSet()
 	}
 
-	self.update = function(){
+	self.updatePeople = function() {
 
 		self.updateVoterSet()
 
 		self.strategyPick()
 
-		self.updateBallots()
+	}
 
-	};
-	
 	self.initPoints = function () {
 		// puts the voters into position
 				
@@ -2750,15 +3019,15 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 				}
 			}	
 			if (r1 < self.percentSecondStrategy && self.doTwoStrategies) { 
-				var strategy = self.secondStrategy // yes
+				var strategy = model.secondStrategy // yes
 			} else {
-				var strategy = self.firstStrategy; // no e.g. 
+				var strategy = model.firstStrategy; // no e.g. 
 			}
 			
 			// choose the threshold of voters for polls
 			var r_11 = Math.random() * 2 - 1 
 			
-			self.voterModel.poll_threshold_factor = _erfinv(r_11) * .2 + .5
+			self.voterPeople[i].poll_threshold_factor = _erfinv(r_11) * .2 + .5
 
 			self.voterPeople[i].strategy = strategy
 		}
@@ -2969,19 +3238,18 @@ function SingleVoter(model){
 		self.voterPerson = self.voterPeople[0] // shorthand
 		
 	}
-	self.update = function(){
+
+	self.updatePeople = function() {
 
 		self.updateVoterSet()
 
-		self.voterModel.poll_threshold_factor = .6
-
-		
 		var voterPerson = self.voterPeople[0]
 
-		voterPerson.strategy = self.firstStrategy
+		voterPerson.poll_threshold_factor = .6
 
-		self.updateBallots()
-	};
+		voterPerson.strategy = model.firstStrategy
+
+	}
 
 	// DRAW!
 	self.draw = function(ctx){
@@ -3086,7 +3354,7 @@ function _findClosestCan(x,y,iDistrict,model) {
 	
 	var closest = {id:null};
 	var closestDistance = Infinity;
-	var cans = model.district[iDistrict].candidates
+	var cans = model.district[iDistrict].stages[model.stage].candidates
 	for(var c of cans){
 		var dist = distF2(model,{x:x,y:y},c)
 		if(dist<closestDistance){
