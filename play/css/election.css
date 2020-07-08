@@ -36,7 +36,7 @@ Election/Sandbox design:
 }
 
 /* Extra Small Devices, Phones */ 
-@media (max-width : 540px) {
+@media (max-width : 656px) {
 	.div-election{
 		text-align:center;
 		display:block;
@@ -45,20 +45,26 @@ Election/Sandbox design:
 	.div-election #left,
 	.div-election #right,
 	.div-election #center{
-		display:inline-block;
-		float:none;
+        display:block;
+        margin: 10px auto;
+		/* float:none;
 		margin-left: 0px;
 		padding-left: 0px;
 		margin-right: 0px;
-		padding-right: 0px;
-        text-align: left;
+		padding-right: 0px; */
+        /* text-align: left; */
     }
 	.div-election #center{
 		text-align: center;
-	}
+    }
+	.div-election #center{
+        text-align: center;
+        
+    }
 }
 
 .div-election #caption{
+    margin: 0px auto;
 	text-align: left;
     line-height: 1.0em;
     font-size: 23px;
@@ -120,6 +126,10 @@ Election/Sandbox design:
     -moz-transition: all 0.1s;
     -o-transition: all 0.1s;
     transition: all 0.1s;
+}
+
+.div-election .button-group .smaller{
+    font-size: 80%;
 }
 
 .div-election .button svg{
@@ -297,6 +307,10 @@ svg {
 
 .displayNoneClass {
     display:none !important;
+}
+
+.displayAboveClass {
+    display:block !important;
 }
 
 .strategyTable {

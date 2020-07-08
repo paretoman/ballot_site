@@ -79,6 +79,8 @@ a:hover { text-decoration: underline; }
 @media screen and (max-width: 600px) { .site-title { padding-right: 45px; } }
 .site-title, .site-title:visited { color: var(--text-1); }
 
+.site-nav {z-index: 1;}
+
 .site-nav { position: absolute; top: 9px; right: 15px; background-color: var(--back); border: 1px solid #e8e8e8; border-radius: 5px; text-align: right; }
 .site-nav .nav-trigger { display: none; }
 .site-nav .menu-icon { float: right; width: 36px; height: 26px; line-height: 0; padding-top: 10px; text-align: center; }

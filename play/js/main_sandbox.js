@@ -392,56 +392,79 @@ function bindModel(ui,model,config) {
         ui.redrawButtons() // make sure the icons show up
         
         // CREATE A BALLOT
-        _removeSubnodes(ui.dom.right)  // remove old one, if there was one
-        // ui.dom.basediv.querySelector("#ballot").remove()
+        if (ui.dom.rightBallot) ui.dom.rightBallot.remove() // remove old one, if there was one
 
-        var doOldBallot = false
-        if (config.oneVoter) {
+        // decide whether to draw the election explanation
+        var hideSidebar = ! model.optionsForElection.sidebar
+
+        // decide whether to draw a ballot
+        var dragging = model.arena.mouse.dragging
+        if (model.arena.viewMan.active || dragging && dragging.isViewMan) {
+            var doDrawBallot = true
+            var voterPerson = model.arena.viewMan.focus
+            if (voterPerson == null) doDrawBallot = false
+        } else if (config.oneVoter && model.voterGroups[0].voterGroupType == "SingleVoter") {
+            hideSidebar = true
+            var doDrawBallot = true
+            var voterPerson = model.voterGroups[0].voterPeople[0]
+        } 
+
+        if (hideSidebar) {
+            _addClass(model.caption,"displayNoneClass")
+        } else {
+            _removeClass(model.caption,"displayNoneClass")
+        }
+
+        if (hideSidebar && ! doDrawBallot) {
+            _addClass(ui.dom.right,"displayNoneClass")
+        } else {
+            _removeClass(ui.dom.right,"displayNoneClass")
+        }
+
+
+        if (doDrawBallot) {
+
+            var doOldBallot = false
+            
             if (doOldBallot) {
+
                 var BallotType = model.BallotType
                 var ballot = new BallotType(model);
-                ui.dom.right.appendChild(ballot.dom);
+                ui.dom.rightBallot = ballot.dom
+                ballot.update(voterPerson.stages[model.stage].ballot);
+
             } else {
+
                 var divBallot = document.createElement("div")
-                ui.dom.right.appendChild(divBallot);
-            }
-        }
-        ui.dom.right.appendChild(model.caption);
-        
-        if (config.oneVoter) {
-            if (model.voterGroups[0].voterGroupType == "SingleVoter") {
-                var text = ""
-                if (doOldBallot) ballot.update(model.voterGroups[0].voterPeople[0].stages[model.stage].ballot);
-                if (doOldBallot) text += "<br />"
-                text += '<div class="div-ballot">'
-                // text += model.voterGroups[0].voterModel.toTextV(model.voterGroups[0].voterPeople[0].stages[model.stage].ballot);
-                text += model.voterGroups[0].voterModel.toTextV(model.voterGroups[0].voterPeople[0]);
-                text += '</div>'
-                if (0) {
-                    text += "<br /><br />"
-                    text += model.result.text
-                }
-                if (doOldBallot) {
-                    _removeClass(model.caption,"displayNoneClass")
-                    model.caption.innerHTML = text
-                    var target = model.caption
-                } else {
-                    model.caption.innerHTML = ""
-                    _addClass(model.caption,"displayNoneClass")
-                    // model.caption.style.display = "none"
-                    divBallot.innerHTML = text
+                ui.dom.rightBallot = divBallot
+
+                divBallot.innerHTML = ""
+
+                var currentStage = model.stage
+                for (var stage of Object.keys(voterPerson.stages)) {
+                    model.stage = stage
+
+                    var text = ""                    
+                    text += '<div class="div-ballot">'
+                    // text += model.voterGroups[0].voterModel.toTextV(voterPerson.stages[model.stage].ballot);
+                    text += model.voterGroups[0].voterModel.toTextV(voterPerson);
+                    text += '</div>'
+                    
+                    divBallot.innerHTML += text
                     var target = divBallot
-                }
-                if (model.tallyEventsToAssign) {
-                    for (let e of model.tallyEventsToAssign) {
-                        target.querySelector("#" + e.eventID).addEventListener("mouseover", e.f)
-                        target.querySelector("#" + e.eventID).addEventListener("mouseleave", ()=>model.draw())
+                    if (model.tallyEventsToAssign) {
+                        for (let e of model.tallyEventsToAssign) {
+                            target.querySelector("#" + e.eventID).addEventListener("mouseover", e.f)
+                            target.querySelector("#" + e.eventID).addEventListener("mouseleave", ()=>model.draw())
+                        }
+                        model.tallyEventsToAssign = undefined
                     }
-                    model.tallyEventsToAssign = undefined
                 }
+                model.stage = currentStage
             }
-            
+            ui.dom.right.prepend(ui.dom.rightBallot)
         }
+           
     };
 
     model.updateFromModel = function() {
@@ -529,6 +552,7 @@ function Config(ui, config, initialConfig) {
         firstStrategy: "zero strategy. judge on an absolute scale.",
         secondStrategy: "zero strategy. judge on an absolute scale.",
         doTwoStrategies: true,
+        centerPollThreshold: .5,
         yeefilter: yes_all_candidates,
         computeMethod: "ez",
         pixelsize: 60,
@@ -542,6 +566,7 @@ function Config(ui, config, initialConfig) {
         sidebarOn: "on",
         lastTransfer: "off",
         voterIcons: "circle",
+        voterCenterIcons: "on",
         candidateIconsSet: ["image","note"],
         pairwiseMinimaps: "off",
         doTextBallots: false,
@@ -549,6 +574,8 @@ function Config(ui, config, initialConfig) {
         behavior: "stand",
         showToolbar: "on",
         rankedVizBoundary: "atWinner",
+        useBeatMapForRankedBallotViz: false,
+		doMedianDistViz: false,
         doElectabilityPolls: true,
         partyRule: "crowd",
         doFilterSystems: false,
@@ -867,28 +894,36 @@ function Config(ui, config, initialConfig) {
             }
             
             if (config.scoreFirstStrategy == undefined) {
-                config.scoreFirstStrategy = config.firstStrategy
+                config.scoreFirstStrategy = tr(s1,"Score")
             }
 
             if (config.choiceFirstStrategy == undefined) {
-                config.choiceFirstStrategy = config.firstStrategy
+                config.choiceFirstStrategy = tr(s1,"FPTP")
             }
 
             if (config.pairFirstStrategy == undefined) {
-                config.pairFirstStrategy = config.firstStrategy
+                config.pairFirstStrategy = tr(s1,"Condorcet")
             }
 
             if (config.scoreSecondStrategy == undefined) {
-                config.scoreSecondStrategy = config.secondStrategy
+                config.scoreSecondStrategy = tr(s2,"Score")
             }
 
             if (config.choiceSecondStrategy == undefined) {
-                config.choiceSecondStrategy = config.secondStrategy
+                config.choiceSecondStrategy = tr(s2,"FPTP")
             }
 
             if (config.pairSecondStrategy == undefined) {
-                config.pairSecondStrategy = config.secondStrategy
+                config.pairSecondStrategy = tr(s2,"Condorcet")
             }
+
+            // double check to correct some weird errors
+            config.scoreFirstStrategy = tr(config.scoreFirstStrategy, "Score")
+            config.choiceFirstStrategy = tr(config.choiceFirstStrategy, "FPTP")
+            config.pairFirstStrategy = tr(config.pairFirstStrategy, "Condorcet")
+            config.scoreSecondStrategy = tr(config.scoreSecondStrategy, "Score")
+            config.choiceSecondStrategy = tr(config.choiceSecondStrategy, "FPTP")
+            config.pairSecondStrategy = tr(config.pairSecondStrategy, "Condorcet")
 
             config.secondStrategies = []  // no longer using this
 
@@ -971,7 +1006,7 @@ function Config(ui, config, initialConfig) {
             var link = baseUrl + relativePath + uri;
         }
         if (ui.embed) {            
-		    var linkText = '<iframe src="' + link + '" scrolling="yes" width="1000" height="600"></iframe>'
+		    var linkText = '<iframe src="' + link + '" scrolling="yes" width="100%" height="650"></iframe>'
         } else {
             var linkText = link
         }
@@ -1099,6 +1134,10 @@ function Cypher(ui) {
         84:"scoreSecondStrategy",
         85:"choiceSecondStrategy",
         86:"pairSecondStrategy",
+        87:"voterCenterIcons",
+        88:"useBeatMapForRankedBallotViz",
+        89:"centerPollThreshold",
+        90:"doMedianDistViz",
     } 
     // HOWTO
     // add more on to the end ONLY
@@ -1562,6 +1601,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
     // BUTTONS - WHAT VOTING SYSTEM //
     //////////////////////////////////
 
+    function _smaller(x) { return `<span class="smaller">${x}</span>`}
 
     ui.menu.systems = new function() { // Which voting system?
         // "new function () {code}" means make an object "this", and run "code" in a new scope
@@ -1593,7 +1633,10 @@ function menu(ui,model,config,initialConfig, cConfig) {
             {name:"QuotaScore", value:"QuotaScore", realname:"Using a quota with score voting to make proportional representation.",ballotType:"Score", election:Election.quotaScore, margin:4},
             {name:"QuotaApproval", value:"QuotaApproval", realname:"Using a quota with approval voting to make proportional representation.",ballotType:"Approval", election:Election.quotaApproval},
             {name:"STV", value:"STV", ballotType:"Ranked", election:Election.stv, margin:4},
-            {name:"QuotaMinimax", value:"QuotaMinimax", realname:"Using a quota with Minimax Condorcet voting to make proportional representation.",ballotType:"Ranked", election:Election.quotaMinimax}
+            {name:"QuotaMinimax", value:"QuotaMinimax", realname:"Using a quota with Minimax Condorcet voting to make proportional representation.",ballotType:"Ranked", election:Election.quotaMinimax},
+            {name:"Test LP", value:"PhragmenMax", realname:"Phragmen's method of minimizing the maximum representation with assignments.",ballotType:"Score", election:Election.phragmenMax},
+            {name:_smaller("Equal Facility"), value:"equalFacilityLocation", realname:"Facility location problem with equal assignments.",ballotType:"Score", election:Election.equalFacilityLocation},
+            
         ];
         self.systemsCodebook = [
             {
@@ -1619,6 +1662,8 @@ function menu(ui,model,config,initialConfig, cConfig) {
                     17:"QuotaApproval",
                     18:"QuotaMinimax",
                     19:"QuotaScore",
+                    20:"PhragmenMax",
+                    21:"equalFacilityLocation",
                 }
             }
         ]
@@ -1635,6 +1680,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             config.ballotType = data.ballotType
             // CONFIGURE
             self.configure()
+            ui.strategyOrganizer.configure()
             // UPDATE
             
             // TODO: work this out so that the voters get re initialized in the correct place
@@ -1648,7 +1694,6 @@ function menu(ui,model,config,initialConfig, cConfig) {
             model.dm.redistrict()
             model.update();
             ui.menu_update()
-            ui.strategyOrganizer.configure()
             ui.strategyOrganizer.showOnlyStrategyForTypeOfSystem()
         };
         self.choose = new ButtonGroup({
@@ -1662,6 +1707,8 @@ function menu(ui,model,config,initialConfig, cConfig) {
             showMenuItemsIf("divRBVote", config.system === "RBVote")
             showMenuItemsIf("divLastTransfer", config.system === "IRV" || config.system === "STV")
             showMenuItemsIf("divDoElectabilityPolls", config.system == "+Primary")
+            showMenuItemsIf("divSeats", model.checkMultiWinner(config.system))
+
             
             model.system = config.system;
 
@@ -2057,7 +2104,6 @@ function menu(ui,model,config,initialConfig, cConfig) {
             self.configure()
             //_objF(ui.menu,"configure")  // TODO: do I need this?
             ui.strategyOrganizer.configure()
-            ui.menu.secondStrategy.configure()
             ui.menu.spread_factor_voters.configure()
             // INIT
             model.initMODEL()
@@ -2190,7 +2236,6 @@ function menu(ui,model,config,initialConfig, cConfig) {
             // CONFIGURE
             ui.menu.nVoterGroups.configure() // same settings in this other button
             ui.strategyOrganizer.configure()
-            ui.menu.secondStrategy.configure()
             ui.menu.spread_factor_voters.configure()
             // INIT
             model.initMODEL()
@@ -2530,6 +2575,8 @@ function menu(ui,model,config,initialConfig, cConfig) {
             "QuotaApproval": scoreType,
             "QuotaMinimax": pairType,
             "QuotaScore": scoreType,
+            "PhragmenMax": scoreType,
+            "equalFacilityLocation": scoreType,
         }
         self.menuNameFirst = {
             "choice":"choiceFirstStrategy",
@@ -2540,6 +2587,16 @@ function menu(ui,model,config,initialConfig, cConfig) {
             "choice":"choiceSecondStrategy",
             "pair":"pairSecondStrategy",
             "score":"scoreSecondStrategy",
+        }
+        self.divMenuNameFirst = {
+            "choice":"divChoiceFirstStrategy",
+            "pair":"divPairFirstStrategy",
+            "score":"divScoreFirstStrategy",
+        }
+        self.divMenuNameSecond = {
+            "choice":"divChoiceSecondStrategy",
+            "pair":"divPairSecondStrategy",
+            "score":"divScoreSecondStrategy",
         }
         self.decodeList = {
             0:"zero strategy. judge on an absolute scale.",
@@ -2579,7 +2636,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         };
         self.configure = function() {
             // take on the strategy of the relevant system type
-            var theType = self.stratBySys[model.system]
+            var theType = self.stratBySys[config.system]
             var theConfigFirst = self.menuNameFirst[theType]
             config.firstStrategy = config[theConfigFirst]
             var theConfigSecond = self.menuNameSecond[theType]
@@ -2588,34 +2645,28 @@ function menu(ui,model,config,initialConfig, cConfig) {
             _showOrHideMenuForStrategy(config)
             model.firstStrategy = config.firstStrategy
             model.secondStrategy = config.secondStrategy
+
+            var listMenuFirst = ui.menu[theConfigFirst].list
+            var itemFirst = listMenuFirst.filter(x => x.value == config.firstStrategy)
+            model.realNameFirstStrategy = itemFirst[0].realname
+            var listMenuSecond = ui.menu[theConfigSecond].list
+            var itemSecond = listMenuSecond.filter(x => x.value == config.secondStrategy)
+            model.realNameSecondStrategy = itemSecond[0].realname
         }
 
         self.showOnlyStrategyForTypeOfSystem = function() {
 
             var theType = self.stratBySys[model.system]
-            var menuNameFirst = self.menuNameFirst
-            var menuNameSecond = self.menuNameSecond
-    
             var types = self.types
     
             // show only the one that applies
             for (var t of types) {
-                m = menuNameFirst[t]
-                if (t == theType) {
-                    ui.menu[m].choose.dom.hidden = false
-                } else {   
-                    ui.menu[m].choose.dom.hidden = true
-                }
-                m = menuNameSecond[t]
-                if (t == theType) {
-                    ui.menu[m].choose.dom.hidden = false
-                } else {   
-                    ui.menu[m].choose.dom.hidden = true
-                }
+                df = self.divMenuNameFirst[t]
+                ds = self.divMenuNameSecond[t]
+                showMenuItemsIf(df, t == theType )
+                showMenuItemsIf(ds, t == theType )
             }
     
-            // hide features if they are filtered out
-            _hideFeatures()
         }
     }
     
@@ -2669,7 +2720,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             ui.strategyOrganizer.onChoose()
         };
         self.choose = new ButtonGroup({
-            label: "strategy for choice-type voter:",
+            label: "Voter Strategy <span class='smaller'>(choice-type)</span>:",
             width: bw(5),
             data: self.list,
             onChoose: self.onChoose
@@ -3074,6 +3125,47 @@ function menu(ui,model,config,initialConfig, cConfig) {
         });
     }
 
+
+    ui.menu.centerPollThreshold = new function() { // do a poll to find frontrunner
+        var self = this
+        self.list = [
+            {name:".5", value:.5, margin:4},
+            {name:".7", value:.7, margin:4},
+            {name:".9", value:.9,}
+        ];
+        // self.codebook = [
+        //     {
+        //         field: "centerPollThreshold",
+        //         decode: {
+        //             0:.5,
+        //             1:.7,
+        //             2:.9,
+        //         }
+        //     }
+        // ]
+        self.onChoose = function(data){
+            // LOAD INPUT
+            config.centerPollThreshold = data.value
+            // CONFIGURE
+            self.configure()
+            // UPDATE
+            model.update()
+        };
+        self.configure = function() {
+            model.centerPollThreshold = config.centerPollThreshold
+        }
+        self.select = function() {
+            self.choose.highlight("value", config.centerPollThreshold)
+        }
+        self.choose = new ButtonGroup({
+            label: "What fraction of leading frontrunner's votes is viable?",
+            width: bw(4),
+            data: self.list,
+            onChoose: self.onChoose
+        });
+    }
+
+
     ui.menu.yee = new function() { // yee
         var self = this
         self.list = undefined
@@ -3330,6 +3422,10 @@ function menu(ui,model,config,initialConfig, cConfig) {
                     69: "scoreSecondStrategy",
                     70: "choiceSecondStrategy",
                     71: "pairSecondStrategy",
+                    72: "voterIcons",
+                    74: "useBeatMapForRankedBallotViz",
+                    75: "centerPollThreshold",
+                    76: "doMedianDistViz",
                 },
             }
         ]
@@ -3354,23 +3450,18 @@ function menu(ui,model,config,initialConfig, cConfig) {
         var noneShow = _showFeatures()
         _hideFeatures()
 
-        // special config for "seats"
-        var notMultiWinnerSystem = ! ( config.system == "QuotaApproval"  || config.system == "QuotaScore" || config.system == "RRV" ||  config.system == "RAV" ||  config.system == "STV" || config.system == "QuotaMinimax")
-        if (notMultiWinnerSystem) {
-            ui.menu.seats.choose.dom.hidden = true
+        if (noneShow) {
+            _addClass(ui.dom.left,"displayNoneClass")
+        } else {
+            _removeClass(ui.dom.left,"displayNoneClass")
         }
 
-        if (noneShow) {
-            ui.dom.left.id = "noClass"
-            ui.dom.left.style.display = "none"
+        if ( !noneShow && config.putMenuAbove  && ! model.devOverrideShowAllFeatures) {
+            _addClass(ui.dom.left,"displayAboveClass")
         } else {
-            ui.dom.left.id = "left"
-            if (config.putMenuAbove) {
-                ui.dom.left.style.display = "block"
-            } else {
-                ui.dom.left.style.display = "inline-block"
-            }
+            _removeClass(ui.dom.left,"displayAboveClass")
         }
+        
         return
     }
 
@@ -3610,10 +3701,10 @@ function menu(ui,model,config,initialConfig, cConfig) {
     ui.menu.colorChooser = new function () {
         var self = this
         self.list = [
-            {name:"pick and repeat", value:"pick and repeat",margin:4},
-            {name:"pick and repeat w/ offset", value:"pick and repeat w/ offset",margin:4},
-            {name:"generate all", value:"generate all",margin:4},
-            {name:"pick and generate", value:"pick and generate"}
+            {name: "pr", realname:"pick and repeat", value:"pick and repeat",margin:4},
+            {name: "pro", realname:"pick and repeat w/ offset", value:"pick and repeat w/ offset",margin:4},
+            {name: "g", realname:"generate all", value:"generate all",margin:4},
+            {name: "pg", realname:"pick and generate", value:"pick and generate"}
         ]
         self.codebook = [
             {
@@ -3646,7 +3737,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.choose = new ButtonGroup({
             label: "Method of Choosing Colors:",
-            width: bw(1),
+            width: bw(4),
             data: self.list,
             onChoose: self.onChoose
         });
@@ -3870,20 +3961,10 @@ function menu(ui,model,config,initialConfig, cConfig) {
             config.theme = data.value
             // CONFIGURE
             self.configure()
-
-            if (config.theme == "Nicky" || config.theme == "Bees") {
-                config.colorChooser = "pick and repeat"
-            } else {
-                config.colorChooser = "pick and generate"
-            }
-            ui.menu.colorChooser.configure()
+            
+            // some configurations might have updated, so update the ui selections
             ui.menu.colorChooser.select()
-
-            if (config.theme == "Bees") {
-                config.behavior == "bounce"
-                ui.menu.behavior.configure()
-                ui.menu.behavior.select()
-            }
+            ui.menu.behavior.select()
 
             // INIT MODEL
 		    model.arena.initARENA()
@@ -3906,12 +3987,32 @@ function menu(ui,model,config,initialConfig, cConfig) {
 
 		    if (config.theme == "Nicky") {
                 model.useBorderColor = true
-                model.drawSliceMethod = "circlesNicky"
+                model.drawSliceMethod = "circleNicky"
                 model.allCan = false
+                model.voterCenterIcons = "off"
+                model.showToolbar = "off"
             } else {
                 model.useBorderColor = false
                 model.drawSliceMethod = "barChart"
                 model.allCan = true
+                model.voterCenterIcons = "on"
+                model.showToolbar = "on"
+            }
+            
+            if (config.theme == "Nicky" || config.theme == "Bees") {
+                config.colorChooser = "pick and repeat"
+            } else {
+                config.colorChooser = "pick and generate"
+            }
+
+            ui.menu.colorChooser.configure()
+
+            if (config.theme == "Bees") {
+                config.behavior = "bounce"
+                ui.menu.behavior.configure()
+            } else {
+                config.behavior = "stand"
+                ui.menu.behavior.configure()
             }
         }
         self.init_sandbox = function() {
@@ -4261,18 +4362,15 @@ function menu(ui,model,config,initialConfig, cConfig) {
             self.configure()
         };
         self.configure = function() {
+
+            showMenuItemsIf( "advanced", config.menuLevel === "advanced" )
+
             var hideButton = ui.menu.stepMenu.choose.buttonHidden // stepMenu options
 
             if (config.menuLevel === "normal") { // hide advanced features
-                for( var dom of ui.m2.menuNameDivs["advanced"]) {
-                    dom.hidden = true
-                }
                 hideButton["ui"] = true
                 hideButton["dev"] = true // these options only have advanced features
             } else if (config.menuLevel === "advanced") {
-                for( var dom of ui.m2.menuNameDivs["advanced"]) {
-                    dom.hidden = false
-                }
                 hideButton["ui"] = false
                 hideButton["dev"] = false 
             }
@@ -4319,10 +4417,9 @@ function menu(ui,model,config,initialConfig, cConfig) {
         };
         self.configure = function() {
             for (var e of self.list) {
-                ui.m2.menuNameDivs[e.value][0].hidden = true
+                var name = e.value
+                showMenuItemsIf( name, name == config.stepMenu)
             }
-            // one on
-            ui.m2.menuNameDivs[config.stepMenu][0].hidden = false
         }
         self.choose = new ButtonGroup({
             label: "Steps:", // Sub Menu
@@ -4607,17 +4704,12 @@ function menu(ui,model,config,initialConfig, cConfig) {
             // UPDATE
             if (config.sidebarOn == "on") {
                 model.update()
+            } else {
+                model.onDraw()
             }
         };
         self.configure = function() {
             model.optionsForElection.sidebar = (config.sidebarOn == "on")
-            if (config.sidebarOn == "on") {
-                ui.dom.right.id = "right"
-                model.caption.hidden = false
-            } else {
-                model.caption.hidden = true
-                ui.dom.right.id = "noClass"
-            }
         }
         self.choose = new ButtonGroup({
             label: "Written Results:", // Sub Menu
@@ -4703,6 +4795,40 @@ function menu(ui,model,config,initialConfig, cConfig) {
         });
         self.select = function() {
             self.choose.highlight("value", config.voterIcons);
+        }
+    }
+
+    ui.menu.voterCenterIcons = new function () {
+        var self = this
+        self.list = [
+            {name:"on",value:"on",realname:"on",margin:4},
+            {name:"off",value:"off",realname:"off"},
+        ]
+        self.codebook = [ {
+            field: "voterCenterIcons",
+            decode: {
+                0:"off",
+                1:"on",
+            }
+        } ]
+        self.onChoose = function(data){
+            // LOAD
+            config.voterCenterIcons = data.value
+            // CONFIGURE
+            self.configure()
+            model.draw()
+        };
+        self.configure = function() {
+            model.voterCenterIcons = config.voterCenterIcons
+        }
+        self.choose = new ButtonGroup({
+            label: "Voter Center Icons:", // Sub Menu
+            width: bw(4),
+            data: self.list,
+            onChoose: self.onChoose
+        });
+        self.select = function() {
+            self.choose.highlight("value", config.voterCenterIcons);
         }
     }
 
@@ -4899,7 +5025,6 @@ function menu(ui,model,config,initialConfig, cConfig) {
         self.configure = function() {
             showMenuItemsIf("divDoTextBallots", config.doTextBallots)
             model.doTextBallots = config.doTextBallots
-            ui.menu.textBallotInput.choose.dom.hidden = ( ! model.doTextBallots )
         }
         self.select = function() {
             self.choose.highlight("value", config.doTextBallots);
@@ -5088,7 +5213,6 @@ function menu(ui,model,config,initialConfig, cConfig) {
     }
 
     ui.menu.rankedVizBoundary = new function () {
-        // where to put the boundary for a candidate's region
         var self = this
         self.list = [
             {name:"atWinner",value:"atWinner",margin:4},
@@ -5131,6 +5255,76 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
     }
 
+    ui.menu.useBeatMapForRankedBallotViz = new function () {
+        var self = this
+        self.list = [
+            {name:"Yes",value:true,margin:4},
+            {name:"No",value:false,margin:4},
+        ]
+        self.codebook = [ {
+            field: "useBeatMapForRankedBallotViz",
+            decode: {
+                0:false,
+                1:true,
+            }
+        } ]
+        self.onChoose = function(data){
+            // LOAD
+            config.useBeatMapForRankedBallotViz = data.value
+            // CONFIGURE
+            self.configure()
+            // UPDATE
+            model.draw()
+        };
+        self.configure = function() {
+            model.useBeatMapForRankedBallotViz = config.useBeatMapForRankedBallotViz
+        }
+        self.choose = new ButtonGroup({
+            label: "Use Beat Map for Ranked Viz", // Sub Menu
+            width: bw(4),
+            data: self.list,
+            onChoose: self.onChoose
+        });
+        self.select = function() {
+            self.choose.highlight("value", config.useBeatMapForRankedBallotViz);
+        }
+    }
+
+    ui.menu.doMedianDistViz = new function () {
+        var self = this
+        self.list = [
+            {name:"Yes",value:true,margin:4},
+            {name:"No",value:false,margin:4},
+        ]
+        self.codebook = [ {
+            field: "doMedianDistViz",
+            decode: {
+                0:false,
+                1:true,
+            }
+        } ]
+        self.onChoose = function(data){
+            // LOAD
+            config.doMedianDistViz = data.value
+            // CONFIGURE
+            self.configure()
+            // UPDATE
+            model.draw()
+        };
+        self.configure = function() {
+            model.doMedianDistViz = config.doMedianDistViz
+        }
+        self.choose = new ButtonGroup({
+            label: "Show Special Median Viz",
+            width: bw(4),
+            data: self.list,
+            onChoose: self.onChoose
+        });
+        self.select = function() {
+            self.choose.highlight("value", config.doMedianDistViz);
+        }
+    }
+
     ui.menu.showDescription = new function () {
         var self = this
         self.list = [
@@ -5164,7 +5358,6 @@ function menu(ui,model,config,initialConfig, cConfig) {
     }
 
     ui.menu.doElectabilityPolls = new function () {
-        // where to put the boundary for a candidate's region
         var self = this
         self.list = [
             {name:"Yes",value:true,margin:4},
@@ -5200,7 +5393,6 @@ function menu(ui,model,config,initialConfig, cConfig) {
     }
 
     ui.menu.partyRule = new function () {
-        // where to put the boundary for a candidate's region
         var self = this
         self.list = [
             {name:"crowd",value:"crowd",margin:4},
@@ -5237,7 +5429,6 @@ function menu(ui,model,config,initialConfig, cConfig) {
     }
 
     ui.menu.doFilterSystems = new function () {
-        // where to put the boundary for a candidate's region
         var self = this
         self.list = [
             {name:"Yes",value:true,margin:4},
@@ -5331,6 +5522,8 @@ function menu(ui,model,config,initialConfig, cConfig) {
                 "RAV",
                 "QuotaApproval",
                 "QuotaScore",
+                "PhragmenMax",
+                "equalFacilityLocation",
             ]
         }
         includeOnlyIf = {
@@ -5341,11 +5534,15 @@ function menu(ui,model,config,initialConfig, cConfig) {
                 "QuotaApproval",
                 "QuotaMinimax",
                 "QuotaScore",
+                "PhragmenMax",
+                "equalFacilityLocation",
             ],
             dev: [
                 "QuotaApproval",
                 "QuotaMinimax",
                 "QuotaScore",
+                "PhragmenMax",
+                "equalFacilityLocation",
             ]
         }
 
@@ -5373,6 +5570,8 @@ function menu(ui,model,config,initialConfig, cConfig) {
             "QuotaApproval",
             "QuotaMinimax",
             "QuotaScore",
+            "PhragmenMax",
+            "equalFacilityLocation",
         ]
         
         // helper
@@ -5426,8 +5625,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
 
     }
 
-    ui.menu.doFilterStrategy = new function () {
-        // where to put the boundary for a candidate's region
+    ui.menu.doFilterStrategy = new function () { // this is actually the old way of doing things... it doesn't do anything anymore
         var self = this
         self.list = [
             {name:"Yes",value:true,margin:4},
@@ -5445,7 +5643,6 @@ function menu(ui,model,config,initialConfig, cConfig) {
             config.doFilterStrategy = data.value
             // CONFIGURE
             self.configure()
-            // ui.showHideStrategy()
         };
         self.configure = function() {
             return
@@ -5466,7 +5663,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
     ui.menu.includeSystems = new function () {
         var self = this
         self.list = [
-            {name:'<span style="font-size: 80%;">choice</span>',value:"choice",realname:"choice",margin:4},
+            {name:'<span class="smaller">choice</span>',value:"choice",realname:"choice",margin:4},
             {name:"pair",value:"pair",margin:4},
             {name:"score",value:"score",margin:4},
             {name:"multi",value:"multi",margin:4},
@@ -5505,7 +5702,6 @@ function menu(ui,model,config,initialConfig, cConfig) {
     }
 
     ui.menu.putMenuAbove = new function () {
-        // where to put the boundary for a candidate's region
         var self = this
         self.list = [
             {name:"Yes",value:true,margin:4},
@@ -5541,16 +5737,18 @@ function menu(ui,model,config,initialConfig, cConfig) {
     
     // helper
     function showMenuItemsIf(name,condition) {
-        if (condition) {
-            ui.m1.menuNameDivs[name][0].hidden = false
-            ui.m2.menuNameDivs[name][0].hidden = false
-        } else {
-            ui.m1.menuNameDivs[name][0].hidden = true
-            ui.m2.menuNameDivs[name][0].hidden = true
+        // show or hide all menu items with the given name
+
+        var hideIt = ! (condition === true)
+
+        for (var m of [ ui.m1, ui.m2 ]) { // both menus
+            var divs = m.menuNameDivs[name]
+            if (divs == undefined) continue
+            for (var div of divs) { // all divs
+                div.hidden = hideIt
+            }
         }
     }
-
-
 }
 
 function createMenu(ui) {
@@ -5611,6 +5809,8 @@ function createMenu(ui) {
             "ballotVis",
             "visSingleBallotsOnly",
             "rankedVizBoundary",
+            "useBeatMapForRankedBallotViz",
+            "doMedianDistViz",
             "sidebarOn",
             ["divLastTransfer", [
                 "lastTransfer",
@@ -5619,6 +5819,7 @@ function createMenu(ui) {
                 "pairwiseMinimaps",
             ]],
             "voterIcons",
+            "voterCenterIcons",
             "candidateIcons",
             "showToolbar",
             "showDescription",
@@ -5626,8 +5827,8 @@ function createMenu(ui) {
             "gearoff",
             "doFilterSystems",
             "filterSystems" ,
-            "doFilterStrategy",
             "putMenuAbove",
+            "centerPollThreshold",
         ]],
         [ "main", [
             "includeSystems",
@@ -5637,7 +5838,9 @@ function createMenu(ui) {
             ]],
             "dimensions",
             "nDistricts",
-            "seats",
+            ["divSeats", [
+                "seats",
+            ]],
             "nVoterGroups",
             [ "divXVoterGroups", [
                 "xVoterGroups",
@@ -5653,14 +5856,26 @@ function createMenu(ui) {
             ["divDoElectabilityPolls", [
                 "doElectabilityPolls",
             ]],
-            "choiceFirstStrategy",
-            "pairFirstStrategy",
-            "scoreFirstStrategy",
+            [ "divChoiceFirstStrategy", [
+                "choiceFirstStrategy",
+            ]],
+            [ "divPairFirstStrategy", [
+                "pairFirstStrategy",
+            ]],
+                [ "divScoreFirstStrategy", [
+                "scoreFirstStrategy",
+            ]],
             "doTwoStrategies",
             [ "divSecondStrategy", [
-                "choiceSecondStrategy",
-                "pairSecondStrategy",
-                "scoreSecondStrategy",
+                [ "divChoiceSecondStrategy", [
+                    "choiceSecondStrategy",
+                ]],
+                [ "divPairSecondStrategy", [
+                    "pairSecondStrategy",
+                ]],
+                    [ "divScoreSecondStrategy", [
+                    "scoreSecondStrategy",
+                ]],
                 "percentSecondStrategy",
             ]],
             // "primaries", // not doing this one, comment out
@@ -5694,6 +5909,9 @@ function createMenu(ui) {
             "stepMenu",
             "menuLevel",
             "spacer",
+        ]],
+        ["obsolete", [
+            "doFilterStrategy",
         ]],
     ]
 
@@ -5739,6 +5957,7 @@ function createMenu(ui) {
                     "voterIcons",
                 ]],
                 ["advanced", [
+                    "voterCenterIcons",
                     "colorChooser",
                     "colorSpace",
                     "behavior",
@@ -5751,18 +5970,32 @@ function createMenu(ui) {
                     [ "divRBVote", [
                         "rbSystems",
                     ]],
-                    "seats",
+                    ["divSeats", [
+                        "seats",
+                    ]],
                     ["divDoElectabilityPolls", [
                         "doElectabilityPolls",
                     ]],
-                    "choiceFirstStrategy",
-                    "pairFirstStrategy",
-                    "scoreFirstStrategy",
+                    [ "divChoiceFirstStrategy", [
+                        "choiceFirstStrategy",
+                    ]],
+                    [ "divPairFirstStrategy", [
+                        "pairFirstStrategy",
+                    ]],
+                        [ "divScoreFirstStrategy", [
+                        "scoreFirstStrategy",
+                    ]],
                     "doTwoStrategies",
                     [ "divSecondStrategy", [
-                        "choiceSecondStrategy",
-                        "pairSecondStrategy",
-                        "scoreSecondStrategy",
+                        [ "divChoiceSecondStrategy", [
+                            "choiceSecondStrategy",
+                        ]],
+                        [ "divPairSecondStrategy", [
+                            "pairSecondStrategy",
+                        ]],
+                            [ "divScoreSecondStrategy", [
+                            "scoreSecondStrategy",
+                        ]],
                         "percentSecondStrategy",
                     ]],
                     [ "divPoll", [
@@ -5775,6 +6008,7 @@ function createMenu(ui) {
                     // "primaries", // not doing this one, comment out               
                 ]],
                 ["advanced", [
+                    "centerPollThreshold",
                     "doTextBallots",
                     ["divDoTextBallots", [
                         "textBallotInput",
@@ -5809,6 +6043,8 @@ function createMenu(ui) {
                     "ballotVis",
                     "visSingleBallotsOnly",
                     "rankedVizBoundary",
+                    "useBeatMapForRankedBallotViz",
+                    "doMedianDistViz",
                 ]],
             ]],
             ["ui", [
@@ -5823,7 +6059,6 @@ function createMenu(ui) {
                     "presetconfig",
                     "doFilterSystems",
                     "filterSystems" ,
-                    "doFilterStrategy",
                     "putMenuAbove",
                 ]],
             ]],
@@ -5841,6 +6076,9 @@ function createMenu(ui) {
             "gearoff",
             "gearicon",
         ]],
+        ["obsolete", [
+            "doFilterStrategy",
+        ]],
     ]
 
     // TODO
@@ -5857,6 +6095,7 @@ function createMenu(ui) {
     
     ui.m1.menuNameDivs["gearList"][0].hidden = true
     ui.m1.menuNameDivs["hidden"][0].hidden = true
+    ui.m1.menuNameDivs["obsolete"][0].hidden = true
 
     ui.m1.buildSubMenus()
     
@@ -5865,6 +6104,7 @@ function createMenu(ui) {
     ui.m2.assignMenu( menu2 , ui.dom.left, "basediv" )
 
     ui.m2.menuNameDivs["hidden"][0].hidden = true
+    ui.m2.menuNameDivs["obsolete"][0].hidden = true
 
     
 

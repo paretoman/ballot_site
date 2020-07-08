@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Digression: median systems | Smart Voting Simulator</title>
+<meta name="generator" content="Jekyll v3.8.7" />
+<meta property="og:title" content="Digression: median systems" />
+<meta name="author" content="Paretoman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A simulator for voting methods - so you can understand how voting methods work for making group decisions. The best voting methods are responsive to all parts of the group and can even work when voters use strategies." />
+<meta property="og:description" content="A simulator for voting methods - so you can understand how voting methods work for making group decisions. The best voting methods are responsive to all parts of the group and can even work when voters use strategies." />
+<link rel="canonical" href="https://paretoman.github.io/ballot/draft-digression-median-systems.html" />
+<meta property="og:url" content="https://paretoman.github.io/ballot/draft-digression-median-systems.html" />
+<meta property="og:site_name" content="Smart Voting Simulator" />
+<script type="application/ld+json">
+{"headline":"Digression: median systems","@type":"WebPage","url":"https://paretoman.github.io/ballot/draft-digression-median-systems.html","author":{"@type":"Person","name":"Paretoman"},"description":"A simulator for voting methods - so you can understand how voting methods work for making group decisions. The best voting methods are responsive to all parts of the group and can even work when voters use strategies.","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/ballot/assets/css/style.css?v=">
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+      <h1><a href="https://paretoman.github.io/ballot/">Smart Voting Simulator</a></h1>
+      
+
+      <h2 id="digression-median-systems">Digression: median systems</h2>
+
+<p><a href="newer#lightly-strategic-voting-normalization">skip this digression</a></p>
+
+<p>Ever watched the Olympics? In events like figure skating, there are a number of Olympic judges from different countries. In order to prevent any one judge from having too much influence, they use a “trimmed mean”: they throw away the highest and lowest scores before they take the average.</p>
+
+<p>Olympic judges are supposedly supposed to be unbiased. But for voters, there’s nothing wrong with having political opinions. (I mean, obviously your opinions, dear reader, are the best, and everybody else should just listen to you. But much as I’d like to, I can’t force them to.) So let’s imagine voting used the olympic system.</p>
+
+<p>Throwing away just one highest and lowest score, with thousands or millions of voters, obviously wouldn’t make an appreciable difference. So we’d have to throw away some more scores. And, why not? Let’s throw away a few more while we’re at it.</p>
+
+<p>When should we stop? When there’s just 1 or 2 scores left to take the average. But if you do that, most people wouldn’t called that a “trimmed mean” anymore; they’d just call it the median, the middle number.</p>
+
+<p>There are several voting methods that use the median to find the winner. (It turns out that can lead to a lot of ties, so you need a tiebreaker system to avoid that.) In the 1910s, over a dozen US cities, starting with Grand Junction, CO, used “Bucklin voting”, a median-based system using a hybrid ranked/rated ballot. More recently, voting theorists Balinski and Laraki have proposed Majority Judgment, a median-based method using a rated ballot that’s now been used in a number of competitions.</p>
+
+<p>Using the median reduces the incentives for a single voter to strategize. After all, unless you happen to be the exact median rating for a candidate, the only thing that matters about the rating you gave them is whether it’s above or below the median.</p>
+
+<p>Still, large groups of voters can still get a strategic advantage. The larger the voting bloc, the greater the chance is that the median rating for a given candidate happens to be a voter in that bloc.</p>
+
+<p>I used to think that median voting methods were the best. But then I did the simulations I’ll talk about below, and they were merely OK; not much better outcomes than approval voting, but without the simplicity. I still think they’re hugely better than FPTP and a bit better than IRV, but I’m not sold enough on them for it to be worth my time programming them in to Nicky’s simulator.</p>
+
+
+      
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+    
+  </body>
+</html>

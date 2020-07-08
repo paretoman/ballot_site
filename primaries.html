@@ -82,6 +82,8 @@
     <script src="play/js/gpu.js-develop/bin/gpu.js"></script>
     <script src="play/js/FastYee.js"></script>
 
+    <script src="play/js/javascript-lp-solver/prod/solver.js"></script>
+
     <script src="play/js/Model.js"></script>
     <script src="play/js/Yee.js"></script>
     <script src="play/js/Candidate.js"></script>
@@ -131,11 +133,7 @@
             
           
             
-            <a class="page-link" href="original">Original</a>
-            
-          
-            
-            <a class="page-link" href="newer">An Even Better Ballot</a>
+            <a class="page-link" href="condorcet">Condorcet Methods</a>
             
           
             
@@ -147,11 +145,15 @@
             
           
             
-            <a class="page-link" href="proportional">Proportional Representation</a>
+            <a class="page-link" href="proportional">Proportional Methods</a>
             
           
             
-            <a class="page-link" href="condorcet">Condorcet Methods</a>
+            <a class="page-link" href="original">Original</a>
+            
+          
+            
+            <a class="page-link" href="newer">An Even Better Ballot</a>
             
           
             
@@ -163,10 +165,14 @@
             
           
             
+            <a class="page-link" href="links">Links</a>
+            
+          
+            
             <a class="page-link" href="sandbox/">Sandbox</a>
             
           
-          <!--<a class="page-link" href="/ballot/approval.html">Approval Voting</a><a class="page-link" href="/ballot/bees.html">Bees</a><a class="page-link" href="/ballot/blog.html">Blog</a><a class="page-link" href="/ballot/commonground.html">Home</a><a class="page-link" href="/ballot/condorcet.html">Condorcet Methods</a><a class="page-link" href="/ballot/draft-common-ground.html">Home</a><a class="page-link" href="/ballot/sandbox/embedbox.html">Embed Box for Smart Voting Simulator</a><a class="page-link" href="/ballot/sandbox/">Sandbox</a><a class="page-link" href="/ballot/">Home</a><a class="page-link" href="/ballot/irv.html">Instant Runoff Voting</a><a class="page-link" href="/ballot/modify.html">Modify the Simulator</a><a class="page-link" href="/ballot/newer.html">An Even Better Ballot</a><a class="page-link" href="/ballot/oncemore.html">Draft for An Even Better Ballot</a><a class="page-link" href="/ballot/sandbox/original.html">Sandbox for To Build a Better Ballot</a><a class="page-link" href="/ballot/original.html">Original</a><a class="page-link" href="/ballot/primaries.html">Primaries</a><a class="page-link" href="/ballot/proportional.html">Proportional Methods</a><a class="page-link" href="/ballot/quotaApproval.html">Quota Methods</a><a class="page-link" href="/ballot/stv.html">The Single Transferable Vote</a><a class="page-link" href="/ballot/testAttach.html">Test Attach</a><a class="page-link" href="/ballot/testBallot.html">Test Ballot</a><a class="page-link" href="/ballot/testPreset.html">Test Preset</a><a class="page-link" href="/ballot/testRuns.html">Test Runs</a><a class="page-link" href="/ballot/testSwitcher.html">Test Switcher</a><a class="page-link" href="/ballot/try.html">To Build a Better Ballot - QAPR</a>-->
+          <!--<a class="page-link" href="/ballot/approval.html">Approval Voting</a><a class="page-link" href="/ballot/bees.html">Bees</a><a class="page-link" href="/ballot/blog.html">Blog</a><a class="page-link" href="/ballot/commonground.html">Home</a><a class="page-link" href="/ballot/condorcet.html">Condorcet Methods</a><a class="page-link" href="/ballot/draft-common-ground.html">Home</a><a class="page-link" href="/ballot/draft-gerrymander.html">Condorcet Methods</a><a class="page-link" href="/ballot/sandbox/embedbox.html">Embed Box for Smart Voting Simulator</a><a class="page-link" href="/ballot/sandbox/">Sandbox</a><a class="page-link" href="/ballot/">Home</a><a class="page-link" href="/ballot/irv.html">Instant Runoff Voting</a><a class="page-link" href="/ballot/links.html">Links</a><a class="page-link" href="/ballot/modify.html">Modify the Simulator</a><a class="page-link" href="/ballot/newer.html">An Even Better Ballot</a><a class="page-link" href="/ballot/oncemore.html">Draft for An Even Better Ballot</a><a class="page-link" href="/ballot/sandbox/original.html">Sandbox for To Build a Better Ballot</a><a class="page-link" href="/ballot/original.html">Original</a><a class="page-link" href="/ballot/primaries.html">Primaries</a><a class="page-link" href="/ballot/proportional.html">Proportional Methods</a><a class="page-link" href="/ballot/quotaApproval.html">Quota Methods</a><a class="page-link" href="/ballot/stv.html">The Single Transferable Vote</a><a class="page-link" href="/ballot/testAttach.html">Test Attach</a><a class="page-link" href="/ballot/testBallot.html">Test Ballot</a><a class="page-link" href="/ballot/testPreset.html">Test Preset</a><a class="page-link" href="/ballot/testRuns.html">Test Runs</a><a class="page-link" href="/ballot/testSwitcher.html">Test Switcher</a><a class="page-link" href="/ballot/try.html">To Build a Better Ballot - QAPR</a><a class="page-link" href="/ballot/draft-digression-median-systems.html">Digression: median systems</a>-->
         </div>
       </nav></div>
 </header>
@@ -199,8 +205,8 @@
   <thead>
     <tr>
       <th>Method of Voting</th>
-      <th>Lots of Scenarios</th>
-      <th>Best Case Scenario</th>
+      <th>Outcome in Lots of Scenarios</th>
+      <th>Outcome in Best Case Scenario</th>
     </tr>
   </thead>
   <tbody>
@@ -225,16 +231,18 @@
 
 <p>Let’s back up a little here and ask what the purpose of voting systems is.  You use voting systems when you have a large group of people and have to come to a decision. This can be a referendum or a ballot initiative, or you could elect a representative to make the decision for you. </p>
 
-<p>A referendum is actually pretty simple; you just say yes or no. Really, the *hard *part of the referendum is to decide what the wording is going to be for the question.  The wording is not up to you; that’s up to the group that puts the initiative together or the legislators that wrote the referendum.  This group tries to consider what the voters want, and that is the hard part.  It’s part of the mechanism for the idea that you are represented.</p>
+<p>A referendum is actually pretty simple; you just say yes or no. Really, the *hard *part of the referendum is to decide what the wording is going to be for the question.  The wording is not up to you; that’s up to the group that puts the initiative together or the legislators that wrote the referendum. This group tries to consider what the voters want, and that is the hard part. It’s part of the mechanism for the idea that you are represented.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Referendum - Your Ballot</h2>
-        <p class="ballot_caption">Yes or No?</p>
+        <p class="ballot_caption">Yes or No?
+        
+        </p>
         
         
         <script id="yesno_sim">
-            sandbox({idScript:"yesno_sim",link:"[link](http://localhost:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VRy04DMQz8lVXOOcSPOLv9CMSBC9rdQ5F6QFpRBOVQofbbcTwCDlUVKY4z9ngm-U4l7ea5tkyV1zyzWiYd1zUn6gDJmMm455J2JSeNvcZuXsH5Znltc6Tkm-XIeBeZ7iJUYhx1RT1lpBBEUESQRK6JPLgAUo8-jj1MAbLz-CUTMg6MQcMajew04sFw2ZCNyKZokBJCqT8JmARMIggQJM40E8oMANhk-uvXThWHbq1bVf49ONks_aDRpf90Co_a8CEQp1Nc1oLgfOm6pOH58Dksy9vwcByWlByA1CrxEhWma0WA6dpQMsbcCtNWEGDY8AOGp7MahrpYA4VBk-HZG76vobdxDHvZb9vx9HR-P7jSx-3rY7-9ns7p8gN-hdYHkQIAAA)"})
+            sandbox({idScript:"yesno_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VSu04DQQz8lZPrFVo_9nH5CERBg-5SBCkF0gkQhCJC8O14PQoUKLpi1h7v7Ni-T8q0W5bSEhfZp0WsJra-3yfiQbD2xFVGrLTLiYx29J0pUYmwepFzzSGnf58z_SozX2U4hzYzxFkQwgAbAO-zG2AHN8Dm6M-JwxykuI4nhRFJcAIZsbgoLqMOFcmGqCOa44LmMMpjBFBSGFIFD0PqSgujrIKAms6_921IxWG0Nlo1uRxcbNFxsLhlf3KGHq1hATBncyRLBvBYy0rTw_F9Wtfn6fZlWmlsCU0XDdGCpksBoOnSUNJRgqZrBnBUVjRcMbpaoqFhtkKiwlPF2BvW1zCsJiHRFIBhNWyvXX6fBhI_CydJmmzk0WSHYOfw1GGmw0w3JAsAfjr0Omz1YeumJHo8bNvL6f78evRp3W0fb4ft6XSmrx9CIcEjBQMAAA)"})
         </script>
         
     </div>
@@ -246,7 +254,9 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Referendum - Result</h2>
-        <p class="ballot_caption">Everybody Votes</p>
+        <p class="ballot_caption">Everybody Votes
+        
+        </p>
         
         
         <script id="yesno_many_sim">
@@ -262,7 +272,9 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">General Election</h2>
-        <p class="ballot_caption"><span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> or <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span>?</p>
+        <p class="ballot_caption"><span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> or <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span>?
+        
+        </p>
         
         
         <script id="ab_sim_general">
@@ -278,7 +290,9 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Primary Election</h2>
-        <p class="ballot_caption"><span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> or <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span>? Which would beat the other party?</p>
+        <p class="ballot_caption"><span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> or <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span>? Which would beat the other party?
+        
+        </p>
         
         
         <script id="ab_sim_primary">
@@ -298,7 +312,9 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Pairwise Ranking</h2>
-        <p class="ballot_caption">Your full support always counts for the better candidate in each pair of candidates.</p>
+        <p class="ballot_caption">Your full support always counts for the better candidate in each pair of candidates.
+        
+        </p>
         
         
         <script id="pairwise_intro">
@@ -314,7 +330,9 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Pairwise Election</h2>
-        <p class="ballot_caption">Each candidate gets the full weight of their side against the other party. Mouse over each pair to see the support.</p>
+        <p class="ballot_caption">Each candidate gets the full weight of their side against the other party. Mouse over each pair to see the support.
+        
+        </p>
         
         
         <script id="pairwise_election">
@@ -325,35 +343,37 @@
 
 </div>
 
-<p>So, this solves the problem of splitting votes, which is caused by limiting your vote to choose only one candidate.  The head-to-head pairwise ranked ballot achieves the goal of the primary in a better way than the primary could. It does better because each voter knows for themself, who is better for themself.  The voter knows their own preferences better than they can guess the preferences of the entire population (or watch polls).  There is no more hard part of guessing what nominees to put forward.  You’re asking more from the voter, and it’s information that the voter has: what their own preferences are.  </p>
+<p>So, this solves the problem of splitting votes, which is caused by limiting your vote to choose only one candidate. The head-to-head pairwise ranked ballot achieves the goal of the primary in a better way than the primary could. It does better because each voter knows for themself, who is better for themself.  The voter knows their own preferences better than they can guess the preferences of the entire population (or watch polls).  There is no more hard part of guessing what nominees to put forward.  You’re asking more from the voter, and it’s information that the voter has: what their own preferences are.  </p>
 
 <p>If, in a primary, the voters are not engaged and not paying attention to the head-to-head polls, then their vote can be manipulated by whatever media they are consuming. The polling data itself could even be inaccurate.  A better voting system wouldn’t ask you to find the middle from the polling data.  It would find the middle for you.</p>
 
-<p>Now, the voting system is smarter, and the voter also needs to get smarter.  The voter needs to do more work because now they have to consider every candidate.  With primaries, we got away with doing our civic duty pretty easily: we voted for one candidate and said, “Well I voted for that guy, that’s all I need to do.”  Now it’s your duty to consider all the candidates.</p>
+<p>Now, the voting system is smarter, and the voter also needs to get smarter. The voter needs to do more work because now they have to consider every candidate. With primaries, we got away with doing our civic duty pretty easily: we voted for one candidate and said, “Well I voted for that guy, that’s all I need to do.”  Now it’s your duty to consider all the candidates.</p>
 
 <h3 id="a-brief-intro-to-the-world-of-voting-methods">A Brief Intro to the World of Voting Methods</h3>
 
 <p>There are also other ways to count ranked ballots and there are other kinds of ballots that avoid vote-splitting.  Scored ballots avoid vote splitting.  A scored ballot allows you to give a rating from 0 to 5 on a candidate. A specific kind of scored ballot is an approval ballot, which allows you to rate on a very simple scale: do you approve or not?  And simply because you are no longer limited to vote for a single candidate, you can vote for that candidate without feeling like you’re splitting with other groups of voters that support other candidates.  Why would you split if you are not forced into the dilemma of choosing one?</p>
 
-<p>I think scored ballots aren’t quite as good as pairwise because the voter has to watch the polls to decide which candidates need their vote.  This is a little more work for the voter, but in the end, it works out pretty much the same as counting by pairs.</p>
+<p>I think scored ballots aren’t quite as good as pairwise because the voter has to watch the polls to decide which candidates need their vote. This is a little more work for the voter, but in the end, it works out pretty much the same as counting by pairs.</p>
 
-<p>Also, up to now, we haven’t called our voting system by it’s proper English name: First Past the Post (FPTP). FPTP is another name for our choose only one voting method.  Let’s compare these methods in the simulation below.</p>
+<p>Also, up to now, we haven’t called our voting system by it’s proper English name: First Past the Post (FPTP). FPTP is another name for our choose only one voting method. Let’s compare these methods in the simulation below.</p>
 
-<div class="sim-test">
-	<div class="sim-container">
-		<p class="caption-test">
-			<h2 class="ballot_title" style="margin-bottom: 0.15em;">More Voting Methods</h2>
-			<p class="ballot_caption">drag <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> to <em>just under</em> <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> to create a spoiler effect.<br /> then compare these four different voting methods:</p>
-		</p>
-		<div id="election31" class="div-election div-ballot-in-sandbox div-model" scrolling="no">
-		</div>
-		<script>
-			sandbox({quick:"election31"})
-		</script>
-	</div>
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">More Voting Methods</h2>
+        <p class="ballot_caption">drag <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> under <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> to create a spoiler effect.<br /> then compare these four different voting methods:
+        
+        </p>
+        
+        
+        <script id="election31">
+            sandbox({idScript:"election31",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VSXWsbMRD8K4eelaLVt_0WFwJ5KDi28cvZD6orHCcXy1zsgCntb-9KU0OhBINHe7uam5m9n0KJad8TkSQz2cqeguNTrCftpTa03UpBbcYaSVbV2oipksKKqfithBSulZ6HuBcYlPzvx534aWfyaYdU46aqoNUaNRSQBUAAeQArIMvI7zMMTE5SaCbih5qJNIMGgEZbjLh2QYNGB1QR1aRdMKoppZoBtYaBIGPQhyDDTD0nikGPFvgMvJLU3LLqry1782f17cCEfZux7br9l9L6JtgG7AESLYw6JOaobmcjFuWahm6RXjab4-wy7vPYzdJ45OpbTudu-Zx2r1ys835_yN36MAyJy_l4eCvdbPbE59Vz7h7KZeyWOb2X4_tG1JUjQAfbDgE6B0CADuoc1uAQoFcAapMe4XmswbsWjWGDHhQezvykQYCzgLtBAwwAwQcoCPVbFF_L8UcZd_nMeh_mqznD42LN__en01g-0sBHc6fviHG5ul80qP3lroxZ1G85gC7ediaNtPU5oo4KgG8qwkyEmYi1RQeAnwi-CFux2voSpPiehqGcV9dT5p3Nh8uYhsP5Kn79ARKuovWdAwAA)"})
+        </script>
+        
+    </div>
+
 </div>
 
-<p>Another method you’ve likely heard of if you are reading this page is Ranked Choice Voting (RCV), which is a new name (as of the past 20 years) for Instant Runoff Voting (IRV).  It is also a name that is used for Single Transferable Voting (STV), which is different than IRV, and so you have to tell from the context which method people are talking about. IRV avoids some vote splitting by using a process of elimination.  It’s worth getting into on its own page.</p>
+<p>Another method you’ve likely heard of if you are reading this page is Ranked Choice Voting (RCV), which is a new name (as of the past 20 years) for Instant Runoff Voting (IRV). It is also a name that is used for Single Transferable Voting (STV), which is different than IRV, and so you have to tell from the context which method people are talking about. IRV avoids some vote splitting by using a process of elimination. It’s worth getting into on its own page.</p>
 
 <p>Read more about:</p>
 
@@ -365,7 +385,7 @@
   <li><a href="condorcet">Condorcet Methods</a></li>
 </ul>
 
-<p>This is just a brief introduction to the world of voting methods.  After you’re finished with this page, see the other pages on this site for more explorable explanations of voting methods.</p>
+<p>This is just a brief introduction to the world of voting methods. After you’re finished with this page, see the other pages on this site for more explorable explanations of voting methods.</p>
 
 <h2 id="game-theory-the-competitive-pressure-that-the-primary-relies-on-has-a-flaw-and-only-works-in-the-best-case-scenario">Game Theory: The Competitive Pressure that the Primary Relies on has a Flaw and Only Works in the Best Case Scenario</h2>
 
@@ -375,12 +395,14 @@
 
 <p>Say we have a set of candidates in two primaries, <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span><span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span><span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span>, arranged in a line, like in the drawing below.  There are some candidates more towards the middle that would better represent all the voters: that’s <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> and <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span>.  Ideally, in the best case scenario, <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> or <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> would win.   That’s what we want the voting system to do.  We also want <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span>&amp;<span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> to actually run.  We want them to not think that they will cause any problems for their party by splitting votes or in any other way. </p>
 
-<p>This is kind of a game.  There’s two players: the <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party and the <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span><span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> party. A party takes an action by nominating a candidate.  The party is happier when their candidate wins.   They are the least happy when an extreme candidate of the other party wins.  This defines what is known in game theory as a normal form game.</p>
+<p>This is kind of a game. There’s two players: the <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party and the <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span><span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> party. A party takes an action by nominating a candidate. The party is happier when their candidate wins . They are the least happy when an extreme candidate of the other party wins. This defines what is known in game theory as a normal form game.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Game with Two Players</h2>
-        <p class="ballot_caption">The <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party and the <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span><span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> party are the players.  The action is nominating a candidate in the primary.  The outcome is who wins the general election.</p>
+        <p class="ballot_caption">The <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party and the <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span><span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> party are the players. The action is nominating a candidate in the primary. The outcome is who wins the general election.
+        
+        </p>
         
         
         <script id="game_setup_sim">
@@ -393,7 +415,7 @@
 
 <h3 id="strategy">Strategy</h3>
 
-<p>Let’s focus on the <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party.  Let’s draw a table that shows how happy the <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party is with each outcome.  These numbers are called the payoff or the utility. For this example, we have assigned these numbers for the <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party: <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> <span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> -&gt; 4 3 2 1.   We’re assuming that all these candidates are considered based on their position rather than any other qualities that would make them appeal to a broader base.  </p>
+<p>Let’s focus on the <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party. Let’s draw a table that shows how happy the <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party is with each outcome.  These numbers are called the payoff or the utility. For this example, we have assigned these numbers for the <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party: <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> <span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> -&gt; 4 3 2 1 . We’re assuming that all these candidates are considered based on their position rather than any other qualities that would make them appeal to a broader base.  </p>
 
 <p>The payoffs only exist in the way that they affect the decisions each group makes.  It would be easy to add these numbers up, but it’s hard to make sense of them.  To really get into this idea, you’d have to think about things like how society should work, and that you’d like all voters to be treated equally. It’s an idea worth getting back to.  For now, you can just understand that a voter would like the outcome to be a bigger number.</p>
 
@@ -421,12 +443,14 @@
   </tbody>
 </table>
 
-<p>Now, let’s take an action (in the language of game theory).  Let’s have each party pick a nominee.  What happens if the parties pick <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> and <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> as the nominees?  <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> is closer to the middle so <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> wins in the general election.  </p>
+<p>Now, let’s take an action (in the language of game theory). Let’s have each party pick a nominee. What happens if the parties pick <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> and <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> as the nominees?  <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> is closer to the middle so <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> wins in the general election.  </p>
 
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Action Example</h2>
-        <p class="ballot_caption">The <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party nominates <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span>.  The <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span><span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> party nominates <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span>.  <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> wins the general election.</p>
+        <p class="ballot_caption">The <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party nominates <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span>. The <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span><span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> party nominates <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span>. <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> wins the general election.
+        
+        </p>
         
         
         <script id="action_1_sim">
@@ -442,7 +466,9 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Tie Example</h2>
-        <p class="ballot_caption">The <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party nominates <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span>.  The <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span><span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> party nominates <span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span>.  There is a tie in the general election.</p>
+        <p class="ballot_caption">The <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party nominates <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span>. The <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span><span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> party nominates <span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span>. There is a tie in the general election.
+        
+        </p>
         
         
         <script id="action_2_tie_sim">
@@ -453,9 +479,9 @@
 
 </div>
 
-<p>In a real election with millions of voters, there won’t be a tie, so let’s model this tie as a probability: there’s a 50/50 chance between <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> and <span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span>.  How do we compute the utility?  We could average the two utilities of the two outcomes.  But we wouldn’t get the full picture.  We want to know what our risks are, so we consider both possibilities.  There is another variable.  It’s kind of like another player.  We’re treating chance as another player in the game.</p>
+<p>In a real election with millions of voters, there won’t be a tie, so let’s model this tie as a probability: there’s a 50/50 chance between <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> and <span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span>.  How do we compute the utility? We could average the two utilities of the two outcomes. But we wouldn’t get the full picture. We want to know what our risks are, so we consider both possibilities. There is another variable. It’s kind of like another player. We’re treating chance as another player in the game.</p>
 
-<p>I’m going to use a table to show these actions and the utility of the outcome.  The table below shows the utility for the <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party when the <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party nominates <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span>.  In each column is a different set of actions that are outside the control of the <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party.  I used a +/- sign to represent chance. <span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span>+ means chance favors us, and <span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span>- means we had a negative outcome.  The entries in the table show the outcome and the utility of that outcome.</p>
+<p>I’m going to use a table to show these actions and the utility of the outcome. The table below shows the utility for the <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party when the <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party nominates <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span>. In each column is a different set of actions that are outside the control of the <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party. I used a +/- sign to represent chance. <span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span>+ means chance favors us, and <span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span>- means we had a negative outcome. The entries in the table show the outcome and the utility of that outcome.</p>
 
 <p><strong>Outcomes When <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party nominates <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span></strong> - Columns are <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span><span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> party and chance.</p>
 
@@ -476,7 +502,7 @@
   </tbody>
 </table>
 
-<p>We can extend this table to consider when the <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party nominates <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span>.  We add rows for each action the <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party can take.</p>
+<p>We can extend this table to consider when the <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party nominates <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span>. We add rows for each action the <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party can take.</p>
 
 <p><strong>Strategy Table for <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span></strong> - Row is <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party, columns are <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span><span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> party and chance.</p>
 
@@ -563,7 +589,7 @@
 
 <p>We can make the same table for the <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span><span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> party.  <span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> is the party center candidate and <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> is the moderate. You can be lucky (+),  or you could be unlucky (-).  And you can even use the same values in reverse.  You have <span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> in order from best to worst and I used the numbers 4 3 2 1 again. </p>
 
-<p>Side Note: They could be any numbers just as long as the candidates are in this order.  For example, the numbers could be  8 6 1 0.  By choosing 4 3 2 1, I actually made this a zero-sum game which means that, in a slightly-wrong technical sense, no candidate is better than any other candidate.  I don’t think utilities can be added in this way, but if these were a divisible good like dollars, then this would be a zero-sum game.   The numbers are really just here as useful tools for making comparisons for a single player.  Maybe you could extend the idea if you had two outcomes being decided.</p>
+<p>Side Note: They could be any numbers just as long as the candidates are in this order.  For example, the numbers could be  8 6 1 0.  By choosing 4 3 2 1, I actually made this a zero-sum game which means that, in a slightly-wrong technical sense, no candidate is better than any other candidate. I don’t think utilities can be added in this way, but if these were a divisible good like dollars, then this would be a zero-sum game . The numbers are really just here as useful tools for making comparisons for a single player. Maybe you could extend the idea if you had two outcomes being decided.</p>
 
 <p><strong><span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span><span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> Party’s Utility (or Happiness) for Each Outcome</strong></p>
 
@@ -625,12 +651,14 @@
 
 <p>Voters can try to find out what’s best for everybody by looking at the polls.  Specifically, there are head-to-head polls done each election that put one candidate from one side against one candidate from the other side.  If a voter sees that the candidate they like best would lose to a candidate from the other side then rationally, if they want to have an effect on the results of the election, they need to support someone else.  They need to support a candidate that can win: a candidate that is electable.  <!--\<third time mentioning electable\> \<maybe take out whole paragraph\>--></p>
 
-<p>Let’s show this competitive pressure with a map.  If a candidate enters the race in the right position, they can win.  The map below shows those positions in grey.  This win region is only on the side with the losing party because the winning party doesn’t need a new candidate and won’t vote for them.  All the pressure is on the losing party, which is kind of common sense.  If you’re losing, you need to try harder.  Even existing candidates will feel this pressure to move toward the middle.</p>
+<p>Let’s show this competitive pressure with a map. If a candidate enters the race in the right position, they can win. The map below shows those positions in grey. This win region is only on the side with the losing party because the winning party doesn’t need a new candidate and won’t vote for them. All the pressure is on the losing party, which is kind of common sense. If you’re losing, you need to try harder. Even existing candidates will feel this pressure to move toward the middle.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Candidate Pressure</h2>
-        <p class="ballot_caption">A new candidate can enter the contest if they're in the center.  (when there is competitive pressure)</p>
+        <p class="ballot_caption">A new candidate can enter the contest if they're in the center. (when there is competitive pressure)
+        
+        </p>
         
         
         <script id="new_can_win_circle_sim">
@@ -641,7 +669,7 @@
 
 </div>
 
-<p>(That’s all the game theory you need for this article.  Later, you can see more <a href="https://www.youtube.com/user/gametheoryonline">game theory through this class on youtube</a>. There are some quiz questions that are only on the Coursera site.)</p>
+<p>(That’s all the game theory you need for this article. Later, you can see more <a href="https://www.youtube.com/user/gametheoryonline">game theory through this class on youtube</a>. There are some quiz questions that are only on the Coursera site.)</p>
 
 <h3 id="problems-with-this-game-model">Problems with this Game Model</h3>
 
@@ -656,7 +684,9 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Honest Voters</h2>
-        <p class="ballot_caption">Honesty is not the best policy.  Strategy would have helped elect the best candidate.</p>
+        <p class="ballot_caption">Honesty is not the best policy. Strategy would have helped elect the best candidate.
+        
+        </p>
         
         
         <script id="honest_sim">
@@ -671,7 +701,7 @@
 
 <p>Additionally there’s another concern in this strategic scenario. If one party knows the other party’s choice, then they can adjust their strategy. In particular, if one party knows the other party chose a party center candidate, then suddenly a lot of candidates become electable that are not moderates but closer to their own party’s center. </p>
 
-<p>Here’s an example. You have <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span><span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span><span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span>.   Now say <span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> is the <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span><span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> party’s choice.   Then the game table gets cut in half.  Which candidate should the <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party put forward?  Say there’s a candidate between <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> and <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span>: call them <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span>.  Say <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span> has a 3.5 utility for that party; that’s better than <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> at 3.  The <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party would choose <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span> because <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span> and <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> are both electable and they might as well get something more.  So <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span> is chosen, and <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span> wins the general election even though they are not the best candidate for everyone; <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> is a better candidate for everyone; more people prefer <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> over <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span>. That’s a problem: competitive pressure can go away when a candidate is chosen by the other party. You end up with a candidate that is not good for everybody but just good for one party.</p>
+<p>Here’s an example. You have <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span><span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span><span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span>.   Now say <span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> is the <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span><span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> party’s choice.   Then the game table gets cut in half.  Which candidate should the <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party put forward?  Say there’s a candidate between <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> and <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span>: call them <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span>.  Say <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span> has a 3.5 utility for that party; that’s better than <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> at 3.  The <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> party would choose <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span> because <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span> and <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> are both electable and they might as well get something more. So <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span> is chosen, and <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span> wins the general election even though they are not the best candidate for everyone; <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> is a better candidate for everyone; more people prefer <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> over <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span>. That’s a problem: competitive pressure can go away when a candidate is chosen by the other party. You end up with a candidate that is not good for everybody but just good for one party.</p>
 
 <p><strong><span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> Strategy Table When <span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> is Certain</strong></p>
 
@@ -705,7 +735,9 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Information Failure</h2>
-        <p class="ballot_caption"><span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> is certain, so <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span> is chosen even though more people would prefer the moderate <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span>.</p>
+        <p class="ballot_caption"><span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> is certain, so <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span> is chosen even though more people would prefer the moderate <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span>.
+        
+        </p>
         
         
         <script id="asymmetric_info">
@@ -718,12 +750,14 @@
 
 <h4 id="lopsided-districts">Lopsided Districts</h4>
 
-<p>The same scenario plays out when one party is dominant: when we don’t have a 50-50 split between parties. There is no reason for a party to back down from nominating somebody who they think they would be best for their party without thinking about what’s best for everyone.  And if nobody is considering you then you don’t have any representation, because choices are made without you.  And in this scenario where there is a “safe seat”, the losing side doesn’t get any representation. </p>
+<p>The same scenario plays out when one party is dominant: when we don’t have a 50-50 split between parties. There is no reason for a party to back down from nominating somebody who they think they would be best for their party without thinking about what’s best for everyone.  And if nobody is considering you then you don’t have any representation, because choices are made without you. And in this scenario where there is a “safe seat”, the losing side doesn’t get any representation. </p>
 
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Party Dominance</h2>
-        <p class="ballot_caption">One party can leave out any consideration of the other voters and choose a candidate from their own party center.</p>
+        <p class="ballot_caption">One party can leave out any consideration of the other voters and choose a candidate from their own party center.
+        
+        </p>
         
         
         <script id="party_dominance_sim">
@@ -751,7 +785,9 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Center Squeeze</h2>
-        <p class="ballot_caption"><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> gets squeezed out, even though <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> is the best option</p>
+        <p class="ballot_caption"><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> gets squeezed out, even though <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> is the best option
+        
+        </p>
         
         
         <script id="center_squeeze_sim">
@@ -773,7 +809,9 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Poll Amplification</h2>
-        <p class="ballot_caption"><span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> small advantage in polls becomes a big advantage.</p>
+        <p class="ballot_caption">A small advantage in polls becomes a big advantage.
+        
+        </p>
         
         
         <script id="amplify_sim">
@@ -786,7 +824,7 @@
 
 <h3 id="false-leverage">False Leverage</h3>
 
-<p>There is an flawed idea that single-choice voting can give power to a small groups of voters through a mechanism of leverage.  The idea goes that voting for only one makes your vote valuable, and gives your favorite candidate leverage over the others so that your policies can get adopted.  Your candidate would pull some strings to make a deal in exchange for dropping out of the election.  Philosophically, the bad part about this argument is that it gives all the power to the candidate.  Candidates are deciding among themselves who will be elected rather than asking the voter who is best.  Practically, not all voters would be on-board to vote for their favorite if their favorite has no chance of winning.  Without the voters, the candidate will have no leverage.  In the worst case, a corrupt candidate could use their leverage for personal gain, so less power goes to the voter.</p>
+<p>There is an flawed idea that single-choice voting can give power to a small groups of voters through a mechanism of leverage. The idea goes that voting for only one makes your vote valuable, and gives your favorite candidate leverage over the others so that your policies can get adopted. Your candidate would pull some strings to make a deal in exchange for dropping out of the election. Philosophically, the bad part about this argument is that it gives all the power to the candidate. Candidates are deciding among themselves who will be elected rather than asking the voter who is best. Practically, not all voters would be on-board to vote for their favorite if their favorite has no chance of winning. Without the voters, the candidate will have no leverage. In the worst case, a corrupt candidate could use their leverage for personal gain, so less power goes to the voter.</p>
 
 <p><strong>Decision for Viable Candidate</strong> - Leverage only works if the voters follow through.</p>
 
@@ -826,18 +864,20 @@
 
 <h3 id="rankings">Rankings</h3>
 
-<p>We said we could use utilities because it would help us put the candidates in order.   But we couldn’t make sense of adding utilities from different people, so we don’t need to add.  Grades have an order and can’t be added, so maybe we could use those.  But grades imply comparisons between different people, and that doesn’t make sense either.  Really, the most accurate notation we could use would be rankings.  Rankings only have an order.  That’s it.  No adding, no comparisons between different people.  Exactly what we need.</p>
+<p>We said we could use utilities because it would help us put the candidates in order . But we couldn’t make sense of adding utilities from different people, so we don’t need to add. Grades have an order and can’t be added, so maybe we could use those. But grades imply comparisons between different people, and that doesn’t make sense either. Really, the most accurate notation we could use would be rankings. Rankings only have an order. That’s it. No adding, no comparisons between different people. Exactly what we need.</p>
 
 <h3 id="chicken-dilemma">Chicken Dilemma</h3>
 
-<p>Even in some better voting methods, there can be a game of chicken.  The game of chicken is weird.  Let’s consider the center squeeze example with <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span> <span class="letterBig" style="color:#32cbf8;"><b>F</b></span> again.  <span class="letterBig" style="color:#32cbf8;"><b>F</b></span> voters can pull back their support from <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> if they think <span class="letterBig" style="color:#32cbf8;"><b>F</b></span> can win against <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span>. And some of the <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> supporters can pull away from <span class="letterBig" style="color:#32cbf8;"><b>F</b></span>. But if the <span class="letterBig" style="color:#32cbf8;"><b>F</b></span> supporters are overconfident, they can lose to <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span>.</p>
+<p>Even in some better voting methods, there can be a game of chicken. The game of chicken is weird. Let’s consider the center squeeze example with <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span> <span class="letterBig" style="color:#32cbf8;"><b>F</b></span> again. <span class="letterBig" style="color:#32cbf8;"><b>F</b></span> voters can pull back their support from <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> if they think <span class="letterBig" style="color:#32cbf8;"><b>F</b></span> can win against <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span>. And some of the <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> supporters can pull away from <span class="letterBig" style="color:#32cbf8;"><b>F</b></span>. But if the <span class="letterBig" style="color:#32cbf8;"><b>F</b></span> supporters are overconfident, they can lose to <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span>.</p>
 
-<p><a href="newer">The page on scored systems</a> has a more thorough chicken dilemma explanation.  Personally, I have a hard time trying to think of the chicken dilemma for pairwise voting, so I don’t think it would affect voters.</p>
+<p><a href="newer">The page on scored systems</a> has a more thorough chicken dilemma explanation. Personally, I have a hard time trying to think of the chicken dilemma for pairwise voting, so I don’t think it would affect voters.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Chicken Dilemma</h2>
-        <p class="ballot_caption">I want my friend to win.. but I would rather win myself.</p>
+        <p class="ballot_caption">I want my friend to win.. but I would rather win myself.
+        
+        </p>
         
         
         <script id="chicken_sim">

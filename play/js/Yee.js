@@ -15,6 +15,8 @@ function Viz(model) {
 	voterMapGPU.init()
 	self.yee = yee
 	self.beatMap = beatMap
+	self.medianDistViz = new MedianDistViz(model)
+	self.lpAssignmentsViz = new LpAssignmentsViz(model)
 
 	self.calculateBeforeElection = function() {
 		
@@ -43,6 +45,7 @@ function Viz(model) {
 		if (model.doVoterMapGPU) {
 			voterMapGPU.calculateVoterMapGPU()
 		}
+
 	}
 
 	self.drawBackground = function() {
@@ -57,6 +60,15 @@ function Viz(model) {
 
 		if (model.doVoterMapGPU) {
 			voterMapGPU.drawVoterMapGPU()
+		}
+		
+		if (model.doMedianDistViz) {
+			self.medianDistViz.drawMedianDistViz()
+		}
+
+		model.doLpAssignmentsViz = model.system == "PhragmenMax" || model.system == "equalFacilityLocation"
+		if (model.doLpAssignmentsViz) {
+			self.lpAssignmentsViz.drawLpAssignmentsViz()
 		}
 	}
 
@@ -439,10 +451,7 @@ function Yee(model) {
 
 				model.dm.redistrict()
 				model.yeeobject = undefined
-				for(var voterGroup of model.voterGroups){
-					voterGroup.updatePeople()
-				}
-			
+							
 			} else {
 
 				model.dm.redistrict()
@@ -450,6 +459,9 @@ function Yee(model) {
 				// model.update()
 	
 			}
+		}
+		for(var voterGroup of model.voterGroups){
+			voterGroup.updatePeople()
 		}
 	}
 	
@@ -1098,6 +1110,171 @@ VoterMapGPU = function(model) {
 		}
 		return contextColorScale.getImageData(0, 0, 255, 1).data;
 		// return contextColorScale.getImageData(0, 0, colors.length-1, 1).data;
+	}
+
+}
+
+function MedianDistViz(model) {
+	var self = this
+	self.drawMedianDistViz = function() {
+
+		var median = function(values) {
+
+			values.sort( function(a,b) {return a - b;} );
+		
+			var half = Math.floor(values.length/2);
+		
+			if(values.length % 2)
+				return values[half];
+			else
+				return (values[half-1] + values[half]) / 2.0;
+		}
+
+		for (var district of model.district) {
+				
+			let cans = district.stages[model.stage].candidates
+			if (model.stage == "primary") {
+				cans = district.parties[voterPerson.iParty].candidates
+			}
+
+			if ( model.dimensions == "2D") {
+				var voterPeople = district.voterPeople
+				var distancemeasure = (xd,yd) => Math.sqrt(xd*xd+yd*yd)
+				var guess = meanPeople(voterPeople)
+				var median = numericApproxGeometricMedian(voterPeople, guess, distancemeasure)
+
+				var ctx = model.arena.ctx
+				ctx.save()
+				ctx.globalAlpha = .5
+				ctx.globalCompositeOperation = "multiply"
+				for (var c of cans) {
+					doDraw2(c)
+				}
+				ctx.globalAlpha = 1
+				median.fill = "#ccc"
+				doDraw2(median)
+				ctx.restore()
+	
+				function doDraw2(c) {
+					for (var voterPerson of voterPeople) {
+						ctx.beginPath();
+						ctx.moveTo(voterPerson.x*2,voterPerson.y*2)
+						ctx.lineTo(c.x*2,c.y*2)
+						ctx.lineWidth = 10
+						ctx.strokeStyle = c.fill;
+						ctx.stroke();
+					}
+				}
+
+
+			} else if( model.dimensions == "1D") {
+				xvals = []
+				for (var voterPerson of district.voterPeople) {
+	
+					xvals.push(voterPerson.x)
+				}
+				var xmed = median(xvals)
+				var scaley = 100 / xvals.length
+				var widthy = 100 / xvals.length
+				var ctx = model.arena.ctx
+				ctx.save()
+				ctx.globalAlpha = .5
+				ctx.globalCompositeOperation = "multiply"
+				for (var c of cans) {
+					doDraw(c)
+				}
+				ctx.globalAlpha = 1
+				doDraw({x:xmed,fill:"#ccc"})
+				ctx.restore();
+	
+				function doDraw(c) {
+					for (var i = 0; i < xvals.length; i++) {
+						var x = xvals[i]
+						var y = i * scaley + 150
+						ctx.beginPath();
+						ctx.moveTo(x*2,y*2)
+						ctx.lineTo(c.x*2,y*2)
+						ctx.lineWidth = widthy
+						ctx.strokeStyle = c.fill;
+						ctx.stroke();
+					}
+				}
+				
+			}
+		}
+	}
+}
+
+
+function meanPeople(voterPeople) {
+	var x = 0
+	var y = 0
+	for(var voterPerson of voterPeople){
+		x += voterPerson.x
+		y += voterPerson.y
+	}
+	var totalnumbervoters = voterPeople.length
+	x/=totalnumbervoters
+	y/=totalnumbervoters
+	return {x:x, y:y}
+}
+
+function LpAssignmentsViz(model) {
+	var self = this
+	self.drawLpAssignmentsViz = function() {
+		for (var district of model.district) {
+
+			var a = LpGetA(district)
+			
+			drawA(a,district)
+
+		}
+	}
+
+	function LpGetA(district) {
+		var r = district.stages[model.stage].lpResult
+		console.log(r)
+		var cans = district.stages[model.stage].candidates
+		var nk = cans.length
+		var ni = district.voterPeople.length
+	
+		var a = []
+		for(var i = 0; i < ni; i++ ){
+			a[i] = []
+			for(var k = 0; k < nk; k++){
+				a[i][k] = r["y" + i + "_" + k]
+			}
+		}
+		return a
+	}
+
+	function drawA(a,district) {
+		var ctx = model.arena.ctx
+		ctx.save()
+		var cans = district.stages[model.stage].candidates
+		for (var i = 0; i < a.length; i++) {
+			var x = district.voterPeople[i].x
+			var y = district.voterPeople[i].y
+			for (var k = 0; k < a[0].length; k++) {
+				var assign = a[i][k]
+
+				if (assign) {
+					// if we draw it
+					ctx.globalAlpha = assign
+
+					var c = cans[k]
+					
+					ctx.beginPath();
+					ctx.moveTo(x*2,y*2)
+					ctx.lineTo(c.x*2,c.y*2)
+					ctx.lineWidth = 4
+					ctx.strokeStyle = c.fill;
+					ctx.stroke();
+				}
+			}
+
+		}
+		ctx.restore()
 	}
 
 }

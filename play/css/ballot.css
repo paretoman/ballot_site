@@ -101,26 +101,31 @@ BALLOT DESIGN
 	text-align: center;
 }
 .div-ballot #paper div{
-	display: inline-block;
+	display: block;
 	vertical-align:top;
 	text-align: left;
 }
 .div-ballot #paper table{
 	border-collapse: collapse;
+	border: 2px solid #ccc;
+}
+.div-ballot #paper table table{
+	border: none;
 }
 .div-ballot #paper table.main{
 	padding: 2px;
 	background-color: #fff;
-	width: 160px;
+	width: 234px;
 	
 }
 .div-ballot #paper table.main2{
 	background-color: #fff;
 	/* min-width: 220px; */
-	width: 160px;
+	width: 234px;
 }
 .div-ballot #paper table.num{
     border: 2px solid #ccc;
+    min-width: 25px;
 }
 /* .div-ballot #paper table{
 	min-width: unset;
@@ -136,6 +141,7 @@ BALLOT DESIGN
     vertical-align: middle;
 	font-size: 1.4em;
 	white-space: nowrap;
+	padding-left: 5px;
 }
 .div-ballot #paper td.nameLabel svg{
     vertical-align: middle;
@@ -160,21 +166,20 @@ BALLOT DESIGN
 }
 .div-ballot #paper th.main{
 	padding: 5px;
-	background-color: #ccc;
+	background-color: #eee;
+	text-align:center;
 }
 .div-ballot #paper td.main{
-	padding: 5px;
+	padding: 10px;
 }
 .div-ballot #paper table.main,
 .div-ballot #paper table.main2{
-	margin-left: 10px;
-	margin-right: 10px;
-	margin-bottom: 10px;
+	margin: 10px auto;
+	margin-top: 0px;
 }
 
 .div-ballot #paper table.main2 th{
 	padding: 5px;
-	background-color: #F0EAD6;
 	color: #302702;
 }
 .div-ballot #paper table.main2 td{
@@ -187,15 +192,26 @@ BALLOT DESIGN
 	line-height: .8em;
 	font-weight: normal;
 }
+
+div.circle {
+	width: .7em;
+	height: .7em;
+	-webkit-border-radius: .35em;
+	-moz-border-radius: .35em;
+	border-radius: .35em;
+	background: white;
+	border: .1em solid #ccc;
+}
+
 .div-sandbox .div-ballot {
 	/* transform: scale(.5); */
-	font-size: 65%;
+	font-size: 55%;
 	line-height: 1.0em;
 }
 
 
 /* Extra Small Devices, Phones */ 
-@media (max-width : 650px) {
+@media (max-width : 656px) {
 	.div-ballot #b-right{
 		margin-left: 10px;
 	}

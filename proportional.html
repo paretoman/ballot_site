@@ -82,6 +82,8 @@
     <script src="play/js/gpu.js-develop/bin/gpu.js"></script>
     <script src="play/js/FastYee.js"></script>
 
+    <script src="play/js/javascript-lp-solver/prod/solver.js"></script>
+
     <script src="play/js/Model.js"></script>
     <script src="play/js/Yee.js"></script>
     <script src="play/js/Candidate.js"></script>
@@ -131,11 +133,7 @@
             
           
             
-            <a class="page-link" href="original">Original</a>
-            
-          
-            
-            <a class="page-link" href="newer">An Even Better Ballot</a>
+            <a class="page-link" href="condorcet">Condorcet Methods</a>
             
           
             
@@ -147,11 +145,15 @@
             
           
             
-            <a class="page-link" href="proportional">Proportional Representation</a>
+            <a class="page-link" href="proportional">Proportional Methods</a>
             
           
             
-            <a class="page-link" href="condorcet">Condorcet Methods</a>
+            <a class="page-link" href="original">Original</a>
+            
+          
+            
+            <a class="page-link" href="newer">An Even Better Ballot</a>
             
           
             
@@ -163,10 +165,14 @@
             
           
             
+            <a class="page-link" href="links">Links</a>
+            
+          
+            
             <a class="page-link" href="sandbox/">Sandbox</a>
             
           
-          <!--<a class="page-link" href="/ballot/approval.html">Approval Voting</a><a class="page-link" href="/ballot/bees.html">Bees</a><a class="page-link" href="/ballot/blog.html">Blog</a><a class="page-link" href="/ballot/commonground.html">Home</a><a class="page-link" href="/ballot/condorcet.html">Condorcet Methods</a><a class="page-link" href="/ballot/draft-common-ground.html">Home</a><a class="page-link" href="/ballot/sandbox/embedbox.html">Embed Box for Smart Voting Simulator</a><a class="page-link" href="/ballot/sandbox/">Sandbox</a><a class="page-link" href="/ballot/">Home</a><a class="page-link" href="/ballot/irv.html">Instant Runoff Voting</a><a class="page-link" href="/ballot/modify.html">Modify the Simulator</a><a class="page-link" href="/ballot/newer.html">An Even Better Ballot</a><a class="page-link" href="/ballot/oncemore.html">Draft for An Even Better Ballot</a><a class="page-link" href="/ballot/sandbox/original.html">Sandbox for To Build a Better Ballot</a><a class="page-link" href="/ballot/original.html">Original</a><a class="page-link" href="/ballot/primaries.html">Primaries</a><a class="page-link" href="/ballot/proportional.html">Proportional Methods</a><a class="page-link" href="/ballot/quotaApproval.html">Quota Methods</a><a class="page-link" href="/ballot/stv.html">The Single Transferable Vote</a><a class="page-link" href="/ballot/testAttach.html">Test Attach</a><a class="page-link" href="/ballot/testBallot.html">Test Ballot</a><a class="page-link" href="/ballot/testPreset.html">Test Preset</a><a class="page-link" href="/ballot/testRuns.html">Test Runs</a><a class="page-link" href="/ballot/testSwitcher.html">Test Switcher</a><a class="page-link" href="/ballot/try.html">To Build a Better Ballot - QAPR</a>-->
+          <!--<a class="page-link" href="/ballot/approval.html">Approval Voting</a><a class="page-link" href="/ballot/bees.html">Bees</a><a class="page-link" href="/ballot/blog.html">Blog</a><a class="page-link" href="/ballot/commonground.html">Home</a><a class="page-link" href="/ballot/condorcet.html">Condorcet Methods</a><a class="page-link" href="/ballot/draft-common-ground.html">Home</a><a class="page-link" href="/ballot/draft-gerrymander.html">Condorcet Methods</a><a class="page-link" href="/ballot/sandbox/embedbox.html">Embed Box for Smart Voting Simulator</a><a class="page-link" href="/ballot/sandbox/">Sandbox</a><a class="page-link" href="/ballot/">Home</a><a class="page-link" href="/ballot/irv.html">Instant Runoff Voting</a><a class="page-link" href="/ballot/links.html">Links</a><a class="page-link" href="/ballot/modify.html">Modify the Simulator</a><a class="page-link" href="/ballot/newer.html">An Even Better Ballot</a><a class="page-link" href="/ballot/oncemore.html">Draft for An Even Better Ballot</a><a class="page-link" href="/ballot/sandbox/original.html">Sandbox for To Build a Better Ballot</a><a class="page-link" href="/ballot/original.html">Original</a><a class="page-link" href="/ballot/primaries.html">Primaries</a><a class="page-link" href="/ballot/proportional.html">Proportional Methods</a><a class="page-link" href="/ballot/quotaApproval.html">Quota Methods</a><a class="page-link" href="/ballot/stv.html">The Single Transferable Vote</a><a class="page-link" href="/ballot/testAttach.html">Test Attach</a><a class="page-link" href="/ballot/testBallot.html">Test Ballot</a><a class="page-link" href="/ballot/testPreset.html">Test Preset</a><a class="page-link" href="/ballot/testRuns.html">Test Runs</a><a class="page-link" href="/ballot/testSwitcher.html">Test Switcher</a><a class="page-link" href="/ballot/try.html">To Build a Better Ballot - QAPR</a><a class="page-link" href="/ballot/draft-digression-median-systems.html">Digression: median systems</a>-->
         </div>
       </nav></div>
 </header>
@@ -186,15 +192,135 @@
 <div id="content">
 
     <div class="words">
-        <p><strong><em>Draft</em></strong></p>
+        <p>I’m going to describe how we can motivate proportional voting from a mathematical perspective, and we’ll look at simpler methods that keep the same motivation.</p>
 
-<hr />
-
-<p><a href="stv">First, read this page on STV to see the motivation for proportional methods</a></p>
+<p><a href="stv">You may first like to read this page on STV to see the political motivation for proportional methods</a>.</p>
 
 <p>Then continue on to read about proportional voting methods other than STV and how they compare.</p>
 
-<p><strong>Quota with Other Ballots</strong></p>
+<h2 id="a-closer-candidate">A Closer Candidate</h2>
+
+<p>Proportional representation is similar to a well-known problem called the facility location problem. Say you’re in the grocery supply business. You want to save on gas, so you want to minimize the distance between the distribution facility and the grocery stores. So you want to minimize the sum of the distances between each store and its assigned facility.</p>
+
+<p><strong>Facility Location Problem</strong> - Colors indicate facility-store assignments.  Blank facilities were proposed and rejected.  Northern England is pictured.</p>
+
+<p><img src="img/facility location.png" alt="facility location" class="picture100" /></p>
+
+<p>Let’s apply this idea to voting.  Above, we’re selecting multiple facilities to serve a larger set of stores.  Now we’re thinking of electing multiple candidates to multiple seats in a legislature for the same voter population.</p>
+
+<p>We already used the idea of minimizing distance to find a candidate that is in the middle of the voters (on the common ground page). This is what the median does.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Median in 1D</h2>
+        <p class="ballot_caption">Recall this example of finding the median.  <b>Try moving some voters.  Add a candidate (+). </b> The total area of the bars below is the sum of all the distances between the voters and the candidate or median.  The median minimizes this sum.  A winning candidate should also minimize this sum.
+        
+        </p>
+        
+        
+        <script id="median_1d_sim">
+            sandbox({idScript:"median_1d_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA4VTu04EMQz8l9QRih9JvPsVFHSnKw6JAmklEDoKhLhvx-tJruHQaYtxHHsynk2-U0nr4ZgTORyoUmYrx3xYZkBLHRFzmTnqM9JrrsmMuo6ot9kqNiKdqbbMvQYK1yBp5Zw0relSUk41rSWnBn3doeQ_n--Y76QL7R0X5nSjYokK5holUm7VeP9-GtGwg7EUgAKgiBrAJZE6GpZ-CuXEzuNJppjF9QSAhhUlTiMOoOGOFVh4iQYZf0UosgI1AoMEaqSOmoYseGRBVncGyv98ewHddvTqiPK9Arl3hIYkHUK1xfjaQ75iYIVtFfZXzFthW5Xor7CtVgBsqx0lhpIFd6VEsoGlwbUG81uNccSFNFA0KGjo7VDQKU7pDBAAHO_4_31eyY5NC2J_MHsO4xjIDGQGIQYhpiHSKgBaDFxmgF3SQ_ebW2L9fNq2t_PT1_uLv43H7fPjtL2ev9LPL23Jkue-AwAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>A median can also be found in two dimensions by using the same idea of minimizing distance.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Median in 2D</h2>
+        <p class="ballot_caption"><b>Move some voters.  Add a candidate (+). </b> Just like for the 1D case, the total area or length of the lines below is the sum of all the distances between the voters and the candidate or median.  The median we chose here minimizes this sum.  A winning candidate should also minimize this sum.
+        
+        </p>
+        
+        
+        <script id="median_2d_sim">
+            sandbox({idScript:"median_2d_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA4VTwUpEMQz8l56DNGmS5u1XePC27GEFD8KCInoQcb_dpLOC4Iq8wzTJdDpN8z5ab7v9gRon7FmERMeB9hHEvOWCw4i9V0ppFk4mtuIMTQ4Xp3fizWuluS9qZZIpq5QbudaiNnLUSiatmrCTcGmJZFH5kE5G23Vq2nbt3Bs1W6HD5Uzo9OvLSmSlnbl2nEXaFca2GCK2KKNf4-T-Oo350hRBCEusADhiB6Ql1sRAmKcwNUmdTErqSIIAICOKKGVGAmRkIoKKbIsyLm8zeGUH3IyBItwMu3AcWeiMDVkthezsX19R-HpPf3RF5X_K-P8gXdb0Ylh9dUonnhsXV7TP8AyGexvaZ2P11BQUA6B9NkGJdYRtmJm-kg4VR_ccj-C2rpSj1xwSDgeOvRMOJq9TpgAGAJ2fmIP5PZoTxVjCTFI5XCcgFhALGAkYCUxDGABeAloRgLJ0M3OC-4rvj6fT0-vd-_ND_iO3p7eX4-nx9b19fgGnVnGdzAMAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>We can get distances from score voting, or approval voting, or star voting. We can just use the ballot scores and try to find the candidates with the highest scores. This is the same as finding the candidates with the shortest distance to the voters.  You’ve seen this before on the common ground page.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Scoring Measures Distance</h2>
+        <p class="ballot_caption">Basically, scoring asks, "Is the candidate close to you?"
+        
+        </p>
+        
+        
+        <script id="score_sim">
+            sandbox({idScript:"score_sim",link:"[link](https://paretoman.github.io/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VRQU4DMQz8i885xI6dbPfMD-ht1QO0i6hUdau2CCEEb8fOlAuoymHs2J7MOJ-UaZymVhNr26SJeUg81IjMI5WIhna7E_GotM0mEccYZ8-zRl5ozImURuZE5pCoektO_443t7uV4W5ldbfCub_NISlSQQpFrAAD1K6MXQCroz9nDqteFOfxS-HeIwIAjSgypykOFZcN2YDMWcQXkbtQjp2AqYCpgKmAqTjTxOl2orliHJwFdjlJKkm9rEEbfRo2w7bKb-DEU4lA-6z-pVa41oY_glxd9UvD8owBkGqQatid4TsNpq11nTb0twymawbAcMUPVLBU61ZCYAVFhYKKtTcoaJht0pmenw6H5br-OM000uN2Oc-U6PK6vD_Ml-15f7rul6NXvt-Ou_llf5x39PUDc7xiOMsCAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>Let’s introduce now a new idea that we are also going to make assignments. Each voter will be assigned to exactly one candidate out of the set of elected winners. Only the scores they gave to that candidate will matter for the optimization. You maximize the scores that each candidate gets from only their assigned voters. That means a candidate can get closer to their assigned voters. This is very similar to districts except the voting system is doing the hard part of dividing the voters into groups.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Equal Facility Location Problem</h2>
+        <p class="ballot_caption">Similar results to STV in broadness of support.
+        
+        </p>
+        
+        
+        <script id="facility_sim">
+            sandbox({idScript:"facility_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VTsU4DMQz9l8wWih07zvUDmNhasZw6HFWHSicKqAwVgm_HyRuKBCjDc2L7-eVd7iPltJlnzcSW9zQ3IWGLgDMTlxFZJsnSo2ki1haRqJJIPxP3aOX9nhJ3Jg-m2tvEjNi9J0raZEqaNulLOFGysa9RHkkPyPRrRab9m5n-zXAe3Ny1FHLSnuDWM4IMxLACIIUrILSwBsZkD4gxTEmCMg5D-UYCBAAaUZQETQkAjTh2DbtpNJQ8NHO3g0eiyOgtBXkIKsE0h_O31RsqSsBbcHsmoUJKRjVKFPTdAuVbKLcwxswy6FQHj_41SusQpY5PhisojDB4a5BvMMIg32CEGQBGmCPXxjyDETUDeFRWfJUKO6sNvSWEVFBUKKjTAIcCR6_DQC8AGOhQ4P11pe3uMZ7b8fV9We-Xw2k9Xa4P58NyOZ2fU396jtr209B-jvu2DMC0BqUNSpuOWzQDQGwDX4Pm1jXfWbxWqH5a1vV82V1fjvEjbA_nt2P6_AbVg3LOfwMAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>That was actually a lot of computation, but the good thing is that this problem is already solved. There are techniques called the branch and bound method and the Simplex method that are used together to solve this problem. Basically, branch and bound means you can look at all the possibilities without calculating every one. You put them into groups called branches, and the best case scenario for that branch is bound by some value. Then you can cut branches off and simplify the problem.</p>
+
+<p>If you would like to know more about branch and bound and Simplex, they are part of a more general set of algorithms called mixed integer linear programming. These tools are used in the business world in what is known as the field of operations research. They deal with logistics - physically moving around things, like groceries.  They also apply to our case of electing representatives to serve voters.</p>
+
+<p>This is a good method to inspire other methods like the Single Transferable Vote, STV.  Voters might be more willing to accept STV because they can see the calculations being done.  Also, STV gets pretty close to the motivating idea of the facility location problem, and if you compare their visualizations they look very similar. There are more methods like the Monroe method that are also very close to this motivating idea of optimizing assignments of voters to the candidates they scored highest.</p>
+
+<h2 id="stvs-quota">STV’s Quota</h2>
+
+<p>STV uses a quota to assign voters to candidates in a similar way to the facility location problem.</p>
+
+<p>Once a candidate has been elected by a quota of voters, the voters have successfully used their ballot to get representation, so it is not counted again for a second candidate.</p>
+
+<p><strong>Refresher:</strong> STV asks voters to rank the candidates in order from best to worst. During counting, your vote counts for your top candidate. One-by-one, the candidate with the least number of votes is eliminated and taken out of the running. <strong>Check out the sketch below</strong> that shows everyone connected to their first pick. Colored flow lines show some voters moving to their next choice after their top pick is eliminated.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Quotas Give Proportional Results</h2>
+        <p class="ballot_caption">Here's two groups with a 1:2 ratio (really 4:7). The winners are also in the same ratio.
+        
+        </p>
+        
+        
+        <script id="proportional_two_to_one_sim">
+            sandbox({idScript:"proportional_two_to_one_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA31Ty05cMQz9l6y9iJ3Ezp1dP6ALHmIzmsWlnQXqlBkhQCBEv722DxWVKNVdHL9inxznvpRaNtttr8Sj7mjL7FZXt3onqUuEqpJwc2tWkszZQizshogRa1SJdbckLI1szdjwkyOsxm7NN4tFdzsqHJPN52mWjEFsFolWNpVKL5vyi7VQGemrlwt9-LzePFPpw-eZ-Wlm-TTDNcdx0GtkFNrMiAviYMcdAG5OM8GZcHf0uSyOPoWpiHf0qHhHD4oA0Ec6SrxPc0AfMXgT3pIHWk3KHAJxJprk2daQB6Pmnbau8b--OKooxoQGGXw51KjTIPULT_IFejDKO4aGLp3fTXk3W64la3v27P8n0DVJd8OSccUOoQakH7jegFAD1xsQagwAhBqG3MzJA0JpBaCLYm2KLjpyq_FqFC0UDHRJMDAwzikGga0BILCBgcV7LGcPx_v14tvxbu_vNJ0vp9Pd8XE9_PG_3tze_Fyf3L24vCrxWg3n59_SRxwazJpwvR4Ox_vL59Pef4Pz9fbH_nt5_Q0IWhoZrgMAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>Notice the chart that shows a visual of the process of elimination. It starts at the top and each row tracks who the <strong>voter’s</strong> top pick is. Each column is a voter. Transparency is used to represent the excess vote that remains after a quota is filled. As candidates are eliminated, the groups of voters become visually apparent.</p>
+
+<p>Below this chart is another chart which I called a <strong>power</strong> chart. When a candidate is elected in a round, the voters whose vote counted for that candidate are added to fill up the power chart. The intuition is that the voter could have voted for someone else, so the candidate owes them some share of their power . (This is best viewed on a bigger screen. there’s a lot of bookkeeping to do between rounds.)</p>
+
+<hr />
+
+<p><strong><em>Draft</em></strong> - the first part above is nice. The second part below is a draft and includes voting methods that are in development.</p>
+
+<hr />
+
+<h2 id="using-stvs-quota-with-other-ballots">Using STV’s Quota with Other Ballots</h2>
 
 <p>The concept of a quota extends to multiple ballot counting methods:</p>
 
@@ -202,15 +328,17 @@
   <li>Single-Top Ranking Methods: the Single Transferable Vote (STV), also known as multi-winner Ranked Choice Voting RCV</li>
   <li>Scoring methods (including Approval Voting and STAR voting): Monroe voting</li>
   <li>Pairwise ballot methods (I’m working on the version of minimax below)</li>
-  <li>Choose only one methods: Single Non-Transferable Vote (SNTV).  An obvious Improvement would be to have a Single Transferable Vote.</li>
+  <li>Choose only one methods: Single Non-Transferable Vote (SNTV). An obvious Improvement would be to have a Single Transferable Vote.</li>
 </ol>
 
-<p>The power chart is more useful for scoring methods because the voter can support multiple candidates at the same time.  That means the voter is able to say that their vote counted for a candidate so that candidate owes them some share of representation.  Also, the votes by round has an additional data dimension for the same reason, and it’s hard to visualize, so you need to mouse over the rounds to see how the election was counted.</p>
+<p>The power chart is more useful for scoring methods because the voter can support multiple candidates at the same time. That means the voter is able to say that their vote counted for a candidate so that candidate owes them some share of representation. Also, the votes by round has an additional data dimension for the same reason, and it’s hard to visualize, so you need to mouse over the rounds to see how the election was counted.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Score Voting with Quotas</h2>
-        <p class="ballot_caption">Similar results to STV in this three-party example.  Mouse over the rounds to see the progression.</p>
+        <p class="ballot_caption">Similar results to STV in this three-party example. Mouse over the rounds to see the progression.
+        
+        </p>
         
         
         <script id="score_quota_sim">
@@ -224,7 +352,9 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Approval Voting with Quotas</h2>
-        <p class="ballot_caption">Pretty much the same as score. Mouse over the rounds.</p>
+        <p class="ballot_caption">Pretty much the same as score. Mouse over the rounds.
+        
+        </p>
         
         
         <script id="approval_quota_sim">
@@ -238,7 +368,9 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Pairwise Voting with Quotas</h2>
-        <p class="ballot_caption">Under active development. Mouse over the pairs.</p>
+        <p class="ballot_caption">Under active development. Mouse over the pairs.
+        
+        </p>
         
         
         <script id="pair_quota_sim">
@@ -249,65 +381,76 @@
 
 </div>
 
-<p><strong>Proportionality</strong></p>
+<h2 id="proportionality">Proportionality</h2>
 
-<p>Let’s get back to the idea of proportionality.  You can see that in these proportional methods, a voter group with two times as many voters gets two times as many representatives.</p>
+<p>Let’s get back to the idea of proportionality. You can see that in these proportional methods, a voter group with two times as many voters gets two times as many representatives.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Quotas Give Proportional Results</h2>
-        <p class="ballot_caption">Try all the voting systems.  They each give a 1:2 ratio of voters between the groups.  Also try a larger number of seats.  The large group is 63% of voters, so it's a 4:7 ratio.</p>
+        <p class="ballot_caption">Try all the voting systems. They each give a 1:2 ratio of voters between the groups. Also try a larger number of seats. The large group is 63% of voters, so it's a 4:7 ratio.
+        
+        </p>
         
         
         <script id="proportional_two_to_one_sim">
-            sandbox({idScript:"proportional_two_to_one_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA31Ty24UMRD8F5_74G73w7M3PoBDlIjLaA8LyiHSwq6igEAIvp12V1CQIGgO1e8ulz3fW2-HfddObP1IO3Na6mmpkvRthbqT8EhrdpLKxUYsnIZIEPuqktC0ZFm-sr1ilp22rMFpzWeLxY9Harw2R-7zKjEjjliJ0Q6dmrZD-8lbo2ble5ZnMhI6_fVlZr6a2V7NcK_ZvLgMCtLnsCAMJqwA8GAHJBHWxFzLkphLmJrkwIxKDsygCABzRFGSc0YC5kjAm_C2ahi9GPMSgysxpHrHQB6MRk7aU89_favVUYwNAyrkRdAgJSPP807Ky8rgKlcsXedXfjHlxczlu9Ro1Zqp_yegXqQ1cKE4okIog_KG4xmEMhzPIJQZAEJZIDdrs0Eo7wCuSse1OeR2K-b5cptjhIOBbwUBBoHegMAxABA4wCDW22s3ny9Pp9sPl8f7fJPlvLleHy9fTuff_tuHTw8fT1_Tvb1719ZjDfTPP6VfcWgwOwAMJhhMMJhaJ5sGwFW-P53Pl6e7b9f7_DlA5ccvleXDK8MDAAA)"})
+            sandbox({idScript:"proportional_two_to_one_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA31TTY8TMQz9LzlbKHbsJNMbF05wgF1xGfUwlB6qHTpl1UWsEPx27DzQIsGikfr8Ffv5Jf2WctrNs2Ziy3uamd3S6pYqSZ4ilCsJF7d6Jhm5NhELuyHSiGtUSVO3JKwa2Txi5ictrMJu9V8WS93vKXFMbj6vjhIz4tYiUdIuU9K0Sz-4Jko2_OrlnmwOmf76PNOfzUzPZjiP3hxcCjXSSATRxIIMyLACQMVZDXAurI4-mcXR5zAl8Z4eFe_pQREA-oiixPsUB_SRBq_Dm8aBkgdpDj14JAoYlYI8GBXvNLuk__riaEUxJhQI4XdBhZSMqq_cye_Lg1GuGBrKKD-Z8mT68FlGa9XRU_9PQOtYWBvuFCsqhDKIb1jPIJRhPYNQZgAIZQ25PiYbhKoZwKOyQqQKuasN5v54U0WLCgZ1GtDAoOFsE0ABQOAGBi2eX3r7sF2Xm8N2f_RnOZyXl8v99mVZf_tvTufTp-Wruze37_33-PlhWV8th9N6uj6-3g7L9bSdU7zjhr79zyuJOLTpGQBtOrbq2Krr2LgbAIt19OvYr8d-L8yfPjb8sKzrdr19vBz9X_VuOd8dP6bvPwEoyRya_QMAAA)"})
         </script>
         
     </div>
 
 </div>
 
-<p>This proportionality applies even when there aren’t distinct groups.  In the example below, there is a difference between STV and the other methods.  STV picks a set of candidates that is spaced more widely to cover a larger area of voters.  The other methods tend to pick candidates more toward the center.  This is probably because STV considers the first choices above others, while the other systems consider all the options at the same time.</p>
+<p>This proportionality applies even when there aren’t distinct groups. In the example below, there is a difference between STV and the other methods. STV picks a set of candidates that is spaced more widely to cover a larger area of voters. The other methods tend to pick candidates more toward the center. This is probably because STV considers the first choices above others, while the other systems consider all the options at the same time.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
-        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Differences Between Proportional Methods</h2>
-        <p class="ballot_caption">STV picks a broader set of candidates to match the voters, but other methods pick more broad candidates that more voters would like.</p>
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Differences Regarding Evenly Spaced Winners</h2>
+        <p class="ballot_caption">STV picks a broader set of candidates to match the voters, but other methods pick more broad candidates that more voters would like.
+        
+        </p>
         
         
         <script id="distribution_matching_sim">
-            sandbox({idScript:"distribution_matching_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA31Tu24cMQz8F9UsRIqktNflA1I4NtIsrtjEVxi5-A6GYzgI4m83xXHgAI6DLYYvkcOR9lepZbeuWomt7mllDks9LFWSusxQdRJuYY1Kkrm-EAuHIdKJfVZJ17BkWj6zNWMWJ21ajcMaLxaL7_dUeE7uMc-zxIy495loZVepaNmVJ_ZCxdL3KI9kD6j05ovMeDezvJvhmr15cmnUSV_CgjCYsALAIyglBBHWwBjLEhhDmIpEw4hKNIygCAB9RFESfVoA-kiHN-AteaDVZMxTDM5EA6PWkAejFp3W0PNf3zzqKMaEBhXiIqiRkpHHvoPisiI4yxVD5_7Kr6a8mjF8lWytmj31_wTUc2HtuFCsqBDKoLxhPYNQhvUMQpkBIJR15EZONgjlFcBZ6RDJIbdbMo-XWxwtHAx8Sehg0HG2C6ABIHAHgz7fXrn4cbrfLr-e7g7xJtP5cD7fnR624x__483tzfftMdzLq89lPtaO8-Nv6WccGowKgAYD7AfYD83NhgFwlV-24_F0f_XzfIif49N2--1wXX4_A3lVJanEAwAA)"})
+            sandbox({idScript:"distribution_matching_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA41Ty24TQRD8lzm30EzPq9c3LpzgEBJxsXxYjA9WjNeJHESEyLdT02WEI4SELG2_pqurH_4RYlit192k2UbWqlGsupIkWYaW6nTRpiypmLtUkqahxSxTHErH--jaFBEsQ0v5kqlIaOqZRaw7fsErL1miqA5fzdLyZiMhDUpaKjnVKM1rFUN99ZQmmtp4msMqSihhFV5SCxKq2w0ACHaIKH_9EDFEkBGR8aLNvxoQg4zh1cvJX2q-dl-FATEKpuSlkg2X0kVqqVCQGDi6ALNUIMEjVcjJ3ai9glcBliCAoxDE0UIncDIEcbTTMlqTJ-RILmM6yQOZjHJmnIwykNZY2r9_A6AxhXXyRGRRyVIE-5EuJrgPOJGAqxgngrwS_4x-mOlSi7SKvo6C1zoDMkkeJvhhJuV_-JXmUymdZ8A5lMmdlaupnEHlNCtnUDnNWik4zdoZM2-2cpqNKI0ojZNsRGmDojrpRohGBo377Mzt3GdXikzBLXQy6ONiw83Tcp5vt8vjDhfpxtvT6XH5Nh9-2x_2x_3X-TvM27tP-O4enubDu3m7P-zPz--X7XzeL8cwTr8T1643NvycjUUKMjN2Zbw0K96cVQo2ZsQz9mejvzdY0sQOP8-Hw3K-ez7t8Ef8OB_vd1_Cz19X_VUPWwQAAA)"})
         </script>
         
     </div>
 
 </div>
 
-<p><strong>Semi-Proportional Multi-Winner Methods</strong></p>
+<h3 id="semi-proportional-multi-winner-methods">Semi-Proportional Multi-Winner Methods</h3>
 
-<p>There are more methods that only provide proportionality to distinct groups, and don’t provide the kind of distribution matching that STV does to cover an area of voters with evenly-spaced candidates.  They are mechanically-different.  They apply a method of counting votes that is used for apportionment.  Apportionment means you have separate groups like different states, and you want to find out how many representatives to give to each state.  Two examples are given below: reweighted range voting and reweighted approval voting.</p>
+<p>There are more methods that only provide proportionality to distinct groups, and don’t provide the kind of distribution matching that STV does to cover an area of voters with evenly-spaced candidates. They are mechanically-different. They apply a method of counting votes that is used for apportionment. Apportionment means you have separate groups like different states, and you want to find out how many representatives to give to each state. Two examples are given below: reweighted range voting and reweighted approval voting.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
-        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Differences Between Proportional Methods</h2>
-        <p class="ballot_caption">STV picks a broader set of candidates to match the voters, but other methods pick more broad candidates that more voters would like.</p>
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Semi-Proportional Methods</h2>
+        <p class="ballot_caption">STV picks a broader set of candidates to match the voters, but other methods pick more broad candidates that more voters would like.
+        
+        </p>
         
         
         <script id="semi_proportional_sim">
-            sandbox({idScript:"semi_proportional_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA31Ty25TQQz9l1l7Mfb4MTe7fgCLPtRNlEVAXVQKJKoKAiH4djw-RUWCokj3-DX28ZnJ99bbbr_XTmz9QHvmtNTTUiXp2wp1J-GR1uwklYuNWDgNkSD2VSWhacmyfGV7xSxP2rIGpzVfLBY_HKjxmhw5z6vEjDhiJUbbdWradu0na6Nm5XuWZzISOv31y8x8M7O9meFevXlxGRSkL2FBGEySRAF4sAOSCGtijmVJzCFMTbJhRiUbZlAEgD6iKMk-IwF9JOBNeFsdGL0Y8xKDKzGkzo6BPBiN7LRPPf_1W0cdxZgwoEJeBA1SMvLcd1JeVgZXuWLo2l_51ZRXM4fvpVqr1pr6fwLqRVoDF4oVFUIZlDesZxDKsJ5BKDMAhLJAbtY2BqG8A7gqHdfmkNutmOfLbY4WDga-FQQYBM4GBI4BgMABBrHeXrv-fH4-3n44Pz3kmyzn6nJ5On85nn777x4_PX48fk339u4-vzc39b26b-vhBnrNP69hxaHH7ACwmWAzwWZqbTkNgGt9fzydzs933y4P-UcBrR-_AMatsZLPAwAA)"})
+            sandbox({idScript:"semi_proportional_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA31TPY8TQQz9L1NbaOyxx5N0NFRUdyeaVYoQpYgUEUChOCH47dh-SIcEh1ba5_Xn85vZ7623_bZpJ7Z-oI05LJ1hqZL0Xbr6JOER1uokFfMdsXAYIk48M0tcw5K0ZkZ7-SwqLa3BYa3fFss8HKhxTvaYNyvFjNg9A6PtOzVt-_aTtVGz-p6RHkEP6PTXE5H1amT3aoR79ebkMshJM5BEGwsiIBM8CkCFJyC4sAbGZJbAmMPUJHqGV6JnOEUA6COKlOgzAtBHHF8LX7sqGL1Ic-rBFRhStWMgDkYjOm0h6b-eLJ1IxoQBIeIsaJCS0YyVF8V5hTPTFUNTGeUXU17MGL5JtVatNfX_BHQWaXWcKVZUCGUQ37CeQSjDegahzAAQyhyxVdsYhJodwJU5cWwTck8r5nF520SLCQZzV-Bg4Kh1COwDAIEdDDyvX3t8-hD38eGh3m_zff7y7Xh9dzxdrpf78_vb6Xi_3D61vKeOuvWn5OnH7qsDMHmB9QLrpbXRMgCIL_Rb4L-S_xuLq40NPh6v19v96fnzOf6ax9Pt67n9-AW7Hm2n3AMAAA)"})
         </script>
         
     </div>
 
 </div>
 
-<p><strong>Party Proportional Methods</strong></p>
+<h3 id="party-proportional-methods">Party Proportional Methods</h3>
 
 <p>Additionally, there are ways to have proportionality by using a party system, but that is a mechanically-different method that I haven’t added to the simulator yet, so we’ll discuss it on another page to come in the near future.</p>
 
-<p><strong>Future Work</strong></p>
+<h2 id="future-work">Future Work</h2>
 
-<p>I still need to work out what the strategies would be for voters and candidates.  So far, in the above examples, I’ve been using the honest strategy for ranking and the normalization strategy for scoring.</p>
+<p>I still need to work out what the strategies would be for voters and candidates. So far, in the above examples, I’ve been using the honest strategy for ranking and the normalization strategy for scoring.</p>
+
+<h2 id="afterward">Afterward</h2>
+
+<p>I hope that by seeing how proportional methods work you’re inspired to improve our ability to represent all members of society.  Basically, proportional methods allow candidates to better serve a segment of society by being closer to them.</p>
+
 
     </div>
     

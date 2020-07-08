@@ -16,11 +16,13 @@ Election.score = function(district, model, options){
 
 	// Tally the approvals & get winner!
 	var ballots = model.voterSet.getBallotsDistrict(district)
-	var tally = _tallyBC(ballots,cans, function(tally, ballot){
+
+	var tally = _zeroTally(cans)
+	for(var ballot of ballots){
 		for(var candidate in ballot){
 			tally[candidate] += ballot[candidate];
 		}
-	});
+	}
 
 
 	var maxscore = 5
@@ -72,11 +74,13 @@ Election.star = function(district, model, options){
 
 	// Tally the approvals & get winner!
 	var ballots = model.voterSet.getBallotsDistrict(district)
-	var tally = _tallyBC(ballots,cans, function(tally, ballot){
+	var tally = _zeroTally(cans)
+	for(var ballot of ballots){
 		for(var candidate in ballot){
 			tally[candidate] += ballot[candidate];
 		}
-	});
+	}
+	
 	var frontrunners = [];
 
 	for (var i in tally) {
@@ -152,13 +156,25 @@ Election.three21 = function(district, model, options){
 	
 	var ballots = model.voterSet.getBallotsDistrict(district)
 
-	// Tally the approvals & get winner!
-	var tallies = _tallies(district, model, 3);
+	// Create the tally
+	var tallies = [];
+	for (var level=0; level < 3; level++) {
+		var tally = _zeroTally(cans);
+		tallies.push(tally)
+	}
+
+	// Count 'em up
+	for(var i=0; i<ballots.length; i++){
+		var ballot = ballots[i]
+		for(var candidate in ballot){
+			tallies[ballot[candidate]][candidate] += 1;
+		}
+	}
 
 	var semifinalists = [];
 
-	for (var i in model.candidatesById) {
-	   semifinalists.push(i);
+	for (var c of cans) {
+	   semifinalists.push(c.id);
 	}
 	semifinalists.sort(function(a,b){return tallies[2][b]-tallies[2][a]})
 
@@ -204,7 +220,7 @@ Election.three21 = function(district, model, options){
 		var text = "";
 		text += "<span class='small'>";
 		if ("Auto" == model.autoPoll) text += polltext;
-		text += "<b>Semifinalists: 3 most good. Finalists: 2 least bad. Winner: more preferred.</b><br>";
+		text += "Semifinalists: 3 most good. <br>Finalists: 2 least bad. <br>Winner: more preferred.<br><br>";
 		text += "<b>Semifinalists:</b><br>";
 		for(var i=0; i<semifinalists.length; i++){
 			var c = semifinalists[i];
@@ -238,10 +254,11 @@ Election.approval = function(district, model, options){
 
 	// Tally the approvals & get winner!
 	var ballots = model.voterSet.getBallotsDistrict(district)
-	var tally = _tallyBC(ballots,cans, function(tally, ballot){
+	var tally = _zeroTally(cans)
+	for(var ballot of ballots){
 		var approved = ballot.approved;
 		for(var i=0; i<approved.length; i++) tally[approved[i]]++;
-	});
+	}
 
 	var winners = _countWinner(tally);
 
@@ -1392,7 +1409,7 @@ Election.rrv = function(district, model, options){
 		var text = ""
 		var history = {}
 		history.rounds = []
-		var v =  model.voterSet.getVoterArray()
+		var v =  model.voterSet.getDistrictVoterArray(district)
 		history.v = v
 		history.seats = numreps
 		history.maxscore = maxscore
@@ -1418,12 +1435,14 @@ Election.rrv = function(district, model, options){
 	
 	for(var j=0; j<numreps;j++) {
 		// Tally the approvals & get winner!
-		var tally = _tallyBC_i( ballots, cans, function(tally, ballot, i){
+		var tally = _zeroTally(cans)
+		for(var i=0; i<ballots.length; i++){
+			var ballot = ballots[i]
 			for(var k=0; k<candidates.length; k++){
 				var candidate = candidates[k];
 				tally[candidate] += ballot[candidate] * ballotweight[i]
 			}
-		})
+		}
 		tallies.push(tally)
 		
 		var winners = _countWinner(tally);
@@ -1539,7 +1558,7 @@ Election.rav = function(district, model, options){
 		var text = ""
 		var history = {}
 		history.rounds = []
-		var v =  model.voterSet.getVoterArray()
+		var v =  model.voterSet.getDistrictVoterArray(district)
 		history.v = v
 		history.seats = numreps
 		history.maxscore = maxscore
@@ -1565,14 +1584,16 @@ Election.rav = function(district, model, options){
 	
 	for(var j=0; j<numreps;j++) {
 		// Tally the approvals & get winner!
-		var tally = _tallyBC_i( ballots, cans, function(tally, ballot, i){
+		var tally = _zeroTally(cans)
+		for(var i=0; i<ballots.length; i++){
+			var ballot = ballots[i]
 			var approved = ballot.approved;
 			for(var k=0; k<approved.length; k++) {
 				if (candidates.includes(approved[k])) {
 					tally[approved[k]] += ballotweight[i];
 				}
 			}
-		})
+		}
 		tallies.push(tally)
 		
 		var winners = _countWinner(tally);
@@ -1684,12 +1705,13 @@ Election.borda = function(district, model, options){
 	// Tally the approvals & get winner!
 	var numcan = cans.length
 	var ballots = model.voterSet.getBallotsDistrict(district)
-	var tally = _tallyBC(ballots,cans, function(tally, ballot){
+	var tally = _zeroTally(cans)
+	for(var ballot of ballots){
 		for(var i=0; i<numcan; i++){
 			var candidate = ballot.rank[i];
 			tally[candidate] += numcan - i - 1; // reverse the rank and subtract 1 because nobody's going to rank their least favorite.
 		}
-	});
+	}
 	var winners = _countWinner(tally);
 	var result = _result(winners,model)
 	var color = result.color
@@ -1704,7 +1726,7 @@ Election.borda = function(district, model, options){
 	text += "<b>higher score is better</b><br>";
 	for(var i=0; i<cans.length; i++){
 		var c = cans[i].id;
-		text += model.icon(c)+"'s total score: "+tally[c]+" = "+_percentFormat(district, tally[c] / (numcan-1))+"%<br>";
+		text += model.icon(c)+"'s total score: "+tally[c]+" = "+_percentFormat(district, tally[c] / (numcan-1))+"<br>";
 	}
 	if(winners.length>=2){
 		// NO WINNER?! OR TIE?!?!
@@ -1781,10 +1803,11 @@ Election.irv = function(district, model, options){
 		// 1. Tally
 
 		// Tally first choices
-		var pre_tally = _tallyBC(cBallots,cans, function(tally, ballot){
+		var pre_tally = _zeroTally(cans)
+		for(var ballot of cBallots){
 			var top = ballot.rank[0]; // just count #1
-			tally[top]++;
-		});
+			pre_tally[top]++;
+		}
 
 		// Filter
 		// ONLY list the remaining candidates
@@ -2057,7 +2080,7 @@ Election.stv = function(district, model, options){
 		var text = ""
 		var history = {}
 		history.rounds = []
-		var v =  model.voterSet.getVoterArray()
+		var v =  model.voterSet.getDistrictVoterArray(district)
 		history.v = v
 		history.seats = numreps
 		history.maxscore = 5
@@ -2113,10 +2136,12 @@ Election.stv = function(district, model, options){
 			text += "who's voters' #1 choice?<br>";
 		}
 
-		var pre_tally = _tallyBC_i( cBallots, cans, function(tally, ballot, i){
+		var pre_tally = _zeroTally(cans)
+		for(var i=0; i<cBallots.length; i++){
+			var ballot = cBallots[i]
 			var first = ballot.rank[0]; // just count #1
-			tally[first] += ballotweight[i];
-		});
+			pre_tally[first] += ballotweight[i];
+		}
 
 		// ONLY tally the remaining candidates...
 		var tally = {};
@@ -2132,7 +2157,7 @@ Election.stv = function(district, model, options){
 				// text += model.icon(c)+":"+Math.round(tally[c]);
 				text += model.icon(c)+":"+_percentFormat(district,tally[c]);
 				
-				if(i<candidates.length-1) text+=", ";
+				if(i<candidates.length-1) text+=",<br>";
 			}
 			text += "<br>";
 		}
@@ -2366,10 +2391,12 @@ Election.stv = function(district, model, options){
 				stillin: stillin
 			}
 
-			var pre_tally = _tallyBC_i( cBallots, cans, function(tally, ballot, i){
-				var first = ballot.rank[0]; // just count #1
-				tally[first] += ballotweight[i];
-			});
+			var pre_tally = _zeroTally(cans)
+			for(var i=0; i<cBallots.length; i++){
+				var ballot = cBallots[i]
+				var f1 = ballot.rank[0]; // just count #1
+				pre_tally[f1] += ballotweight[i];
+			}
 	
 			// ONLY tally the remaining candidates...
 			var tally = {};
@@ -2510,7 +2537,7 @@ Election.quotaMinimax = function(district, model, options){
 		var text = ""
 		var history = {}
 		history.rounds = []
-		var v =  model.voterSet.getVoterArray()
+		var v =  model.voterSet.getDistrictVoterArray(district)
 		history.v = v
 		history.seats = numreps
 		history.maxscore = 5
@@ -2759,11 +2786,13 @@ Election.quotaMinimax = function(district, model, options){
 				stillin: stillin
 			}
 
-			var pre_tally = _tallyBC_i( cBallots, cans, function(tally, ballot, i){
-				var first = ballot.rank[0]; // just count #1
-				tally[first] += ballotweight[i];
-			});
-	
+			var pre_tally = _zeroTally(cans)
+			for(var i=0; i<cBallots.length; i++){
+				var ballot = cBallots[i]
+				var f1 = ballot.rank[0]; // just count #1
+				pre_tally[f1] += ballotweight[i];
+			}
+			
 			// ONLY tally the remaining candidates...
 			var tally = {};
 			for(var i=0; i<candidates.length; i++){
@@ -2856,7 +2885,7 @@ Election.quotaApproval = function(district, model, options){
 	var polltext = _beginElection(district,model,options,"nopoll")	
 	let cans = district.stages[model.stage].candidates
 	
-	var v = model.voterSet.getVoterArray()
+	var v = model.voterSet.getDistrictVoterArray(district)
 
 	var seats = model.seats
 	var winners = []
@@ -2986,7 +3015,7 @@ Election.quotaScore = function(district, model, options){
 	var polltext = _beginElection(district,model,options,"nopoll")	
 	let cans = district.stages[model.stage].candidates
 	
-	var v = model.voterSet.getVoterArray()
+	var v = model.voterSet.getDistrictVoterArray(district)
 
 	var seats = model.seats
 	var winners = []
@@ -3107,6 +3136,399 @@ Election.quotaScore = function(district, model, options){
 	return result
 }
 
+
+Election.phragmenMax = function(district, model, options){
+
+	return lpGeneral(_solvePhragmenMax,district,model,options)
+
+}
+
+function lpGeneral(_solver,district,model,options) {
+
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"score")
+	let cans = district.stages[model.stage].candidates
+
+	// Tally the approvals & get winner!
+	var ballots = model.voterSet.getBallotsDistrict(district)
+
+	if (cans.length == 0 || ballots.length == 0) return _result([],model)
+
+	var b = _getBallotsAsB(ballots, cans)
+
+	var phragmenResult = _solver(b,model.seats)
+	district.stages[model.stage].lpResult = phragmenResult.results
+
+	var winners = _getWinnersFromPhragmenResult(phragmenResult,cans)
+
+	var maxscore = 5
+
+	// var winners = _countWinner(tally);
+	var result = _result(winners,model)
+	var color = result.color
+
+	if (0 && options.sidebar) {
+
+		// Caption
+		var winner = winners[0];
+		var text = "";
+		text += "<span class='small'>";
+		if ("Auto" == model.autoPoll) text += polltext;
+		text += "<b>score as % of max possible: </b><br>";
+		for(var i=0; i<cans.length; i++){
+			var c = cans[i].id;
+			text += model.icon(c)+"'s score: "+_percentFormat(district, tally[c] / maxscore)+"<br>";
+		}
+		if(!winner | winners.length>=2){
+			// NO WINNER?! OR TIE?!?!
+			text += _tietext(model,winners);
+			// text = "<b>TIE</b> <br> <br>" + text;
+		} else {
+			text += "<br>";
+			text += model.icon(winner)+" has the highest score, so...<br>";
+			text += "</span>";
+			text += "<br>";
+			text += "<b style='color:"+color+"'>"+model.nameUpper(winner)+"</b> WINS";
+			// text = "<b style='color:"+color+"'>"+model.nameUpper(winner)+"</b> WINS <br> <br>" + text;
+		}
+
+		result.text = text;
+	}
+	
+	if (model.doTop2) var theTop2 = _sortTally(tally).slice(0,2)
+	if (model.doTop2) result.theTop2 = theTop2
+	return result;
+};
+
+
+function _getBallotsAsB(ballots,cans) {
+	var b = []
+	for(var i = 0; i < ballots.length; i++ ){
+		var ballot = ballots[i]
+		b[i] = []
+		for(var k = 0; k < cans.length; k++){
+			var cid = cans[k].id
+			b[i][k] = ballot[cid]
+		}
+	}
+	return b
+}
+
+function _solvePhragmenMax(b,seats) {
+
+	// doesn't work right now due to limitations of the solver.
+
+	var lb = true
+
+	var nk = b[0].length
+	var ni = b.length
+	var nw = seats
+
+	var con = {}
+	var va = {}
+	var ints = {}
+
+	var kset = []
+	for (var k = 0; k < nk; k++) {
+		kset.push(k)
+	}
+	var iset = []
+	for (var i = 0; i < ni; i++) {
+		iset.push(i)
+	}
+
+	// variables x for selection of candidates
+	for (var k of kset) {
+		va['x' + k] = {}
+	}
+
+	// candidate is either selected or not, 1 or 0
+	for (var k of kset) {
+		con['x' + k] = {"max": 1}
+		va['x' + k]['x' + k] = 1
+		ints['x' + k] = 1
+	}
+
+	// n winners
+	con["winners"] = {"equal": nw}
+	for (var k of kset) {
+		va['x' + k]['winners'] = 1
+	}
+	
+	// variables for representation assignment
+	for (var k of kset) {
+		for (var i of iset) {
+			va["y" + i + "_" + k] = {}
+			// con["y" + i + "_" + k] =  {"min": 0} 		// no negative assignment allowed
+			// va["y" + i + "_" + k]["y" + i + "_" + k] = 1 // no negative assignment allowed
+		}
+	}
+
+	// support must be the same for all winning candidates
+	for (var k of kset) {
+		con['xby' + k] = {"equal": 0}
+		va['x' + k]["xby" + k] = ni / seats // 1
+		for (var i of iset) {
+			va["y" + i + "_" + k]["xby" + k] = -b[i][k] * .2
+			// va["y" + i + "_" + k]["xby" + k] = -1 // or.. same assignment level for all winning candidates
+		}
+	}
+
+	// find upper bound of assignment level for voters
+	va["z"] = {}
+	for (var i of iset) {
+		con["zoy" + i] = {"min": 0},
+		va["z"]["zoy" + i] = 1
+		for (var k of kset) {
+			va["y" + i + "_" + k]["zoy" + i] = -1
+			// va["y" + i + "_" + k]["zoy" + i] = -b[i][k] // or.. find ub of support level
+		}
+	}
+
+	// minimize highest assignment level
+	var solver = window.solver,
+	results,
+	model = {
+		"optimize": "z",
+		"opType": "min",
+		"constraints": con,
+		"variables": va,
+		"ints": ints,
+		"options": {
+			"tolerance": 0.05
+		}
+	};
+
+	// put lower bound on assignment level
+	if (lb) {
+		va["w"] = {}
+		for (var i of iset) {
+			con["woy" + i] = {"max": 0},
+			va["w"]["woy" + i] = 1
+			for (var k of kset) {
+				va["y" + i + "_" + k]["woy" + i] = -1
+			}
+		}
+
+		// minimize difference between upper and lower bounds
+		va["d"] = {}
+		con["dzw"] = {"equal": 0}
+		va["z"]["dzw"] = 1
+		va["d"]["dzw"] = -1
+		va["w"]["dzw"] = -1
+		
+		model.optimize = "d"
+	}
+
+	console.log(model)
+	results = solver.Solve(model);
+	console.log(results)
+	var canResult = []
+	for (var k = 0; k < nk; k++) {
+		canResult[k] = results['x' + k]
+	}
+
+	var phragmenResult = { results:results, canResult:canResult}
+
+	return phragmenResult
+}
+
+// for reference regarding above
+// model = {
+//   "optimize": "z",
+//   "opType": "min",
+//   "constraints": {
+// 	  "zoyI": {"min": 0},
+// 	  "xbyK": {"equal": 0},
+// 	  "winners": {"equal": 1},
+// 	  "xK": {"max": 1},
+// 	  // "yIK": {"max": 1},
+// 	  "yIK": {"min": 0},
+//   },
+//   "variables": {
+// 	  "z": {
+// 		  "zoyI": 1,
+// 	  },
+// 	  "yIK": {
+// 		  "zoyI": -1,
+// 		  "xbyK": -b11,
+// 	  },
+// 	  "xK": {
+// 		  "xbyK": 1,
+// 		  // "xI": 1,
+// 		  "winners":1,
+// 	  },
+//   },
+//   "ints": {
+// 	  "xK": 1,
+//   }
+// };
+
+
+function _getWinnersFromPhragmenResult(phragmenResult,cans) {
+	var winners = []
+	for (var k = 0; k < cans.length; k++) {
+		if (phragmenResult.canResult[k] == 1) {
+			winners.push(cans[k].id)
+		}
+	}
+	return winners
+} 
+
+Election.equalFacilityLocation = function(district, model, options){
+
+	var result = lpGeneral(_solveEqualFacilityLocation,district,model,options)
+
+	var lpr = district.stages[model.stage].lpResult
+	var maxscore = model.voterGroups[0].voterModel.maxscore
+	var numvoters = district.voterPeople.length
+	var comboScore = lpr.result / maxscore / numvoters
+	
+	var makeIcons = x => x ? x.map(a => model.icon(a)) : ""
+
+	result.text = `
+	The computer has determined that with a total combined score of 
+	<b>${_textPercent(comboScore)}</b>, the winners are 
+	${makeIcons(result.winners)}
+	`
+	return result
+
+}
+
+function _solveEqualFacilityLocation(b,seats) {
+
+	var nk = b[0].length
+	var ni = b.length
+	var nw = seats
+
+	var con = {}
+	var va = {}
+	var ints = {}
+
+	var kset = []
+	for (var k = 0; k < nk; k++) {
+		kset.push(k)
+	}
+	var iset = []
+	for (var i = 0; i < ni; i++) {
+		iset.push(i)
+	}
+
+	// variables x for selection of candidates
+	for (var k of kset) {
+		va['x' + k] = {}
+	}
+
+	// candidate is either selected or not, 1 or 0
+	for (var k of kset) {
+		con['x' + k] = {"max": 1}
+		va['x' + k]['x' + k] = 1
+		ints['x' + k] = 1
+	}
+	
+
+	// n winners
+	con["winners"] = {"equal": nw}
+	for (var k of kset) {
+		va['x' + k]['winners'] = 1
+	}
+	
+	// variables for representation assignment
+	for (var k of kset) {
+		for (var i of iset) {
+			va["y" + i + "_" + k] = {}
+			// con["y" + i + "_" + k] =  {"min": 0} 		// no negative assignment allowed
+			// va["y" + i + "_" + k]["y" + i + "_" + k] = 1 // no negative assignment allowed
+		}
+	}
+
+	// voter is either assigned to a candidate or not, 1 or 0
+	for (var k of kset) {
+		for (var i of iset) {
+			con["y" + i + "_" + k] = {"max": 1}
+			va["y" + i + "_" + k]["y" + i + "_" + k] = 1
+			ints["y" + i + "_" + k] = 1
+		}
+	}
+
+	// voters are assigned exactly once
+	for (var i of iset) {
+		con["y" + i] = {"equal":1}
+		for (var k of kset) {
+			va["y" + i + "_" + k]["y" + i] = 1
+		}
+	}
+
+
+
+
+
+	// assignments must be the same for all winning candidates
+	// within rounding error
+	lbSumY = Math.floor( ni / seats )
+	ubSumY = Math.ceil( ni / seats )
+	for (var k of kset) {
+		con['lyx' + k] = {"min": 0} // lower bound
+		con['uyx' + k] = {"max": 0} // upper bound
+		va['x' + k]["lyx" + k] = -lbSumY
+		va['x' + k]["uyx" + k] = -ubSumY
+		for (var i of iset) {
+			va["y" + i + "_" + k]["lyx" + k] = 1 // -b[i][k] * .2
+			va["y" + i + "_" + k]["uyx" + k] = 1
+			// va["y" + i + "_" + k]["xby" + k] = -1 // or.. same assignment level for all winning candidates
+		}
+	}
+
+
+	if (1) {
+		va["z"] = {}
+		for (var i of iset) {
+			for (var k of kset) {
+				va["y" + i + "_" + k]["z"] = b[i][k]
+			}
+		}
+	} else {
+		// this doesn't work, we have to set variables to contribute directly to the objective.  It's a limitation of the solver, it seems.
+		// find upper bound of assignment level for voters
+		con["zby"] = {"equal": 0},
+		va["z"] = {}
+		va["z"]["zby"] = -1
+		for (var i of iset) {
+			for (var k of kset) {
+				va["y" + i + "_" + k]["zby"] = 6-b[i][k]
+				// va["y" + i + "_" + k]["zby" + i] = -b[i][k] // or.. find ub of support level
+			}
+		}
+	}
+
+
+	// minimize highest assignment level
+	var solver = window.solver,
+	results,
+	model = {
+		"optimize": "z",
+		"opType": "max",
+		"constraints": con,
+		"variables": va,
+		"ints": ints,
+		"options": {
+			"tolerance": 0.05
+		}
+	};
+
+	console.log(model)
+	results = solver.Solve(model);
+	console.log(results)
+	var canResult = []
+	for (var k = 0; k < nk; k++) {
+		canResult[k] = results['x' + k]
+	}
+
+	var phragmenResult = { results:results, canResult:canResult}
+
+	return phragmenResult
+}
+
 Election.toptwo = function(district, model, options){ // not to be confused with finding the top2 in a poll, which I already made as a variable
 
 	options = _electionDefaults(options)
@@ -3115,9 +3537,10 @@ Election.toptwo = function(district, model, options){ // not to be confused with
 
 	// Tally the approvals & get winner!
 	var ballots = model.voterSet.getBallotsDistrict(district)
-	var tally1 = _tallyBC(ballots,cans, function(tally, ballot){
-		tally[ballot.vote]++;
-	});
+	var tally1 = _zeroTally(cans)
+	for(var ballot of ballots){
+		tally1[ballot.vote]++;
+	}
 	var sortedtally = _sortTally(tally1)
 	var toptwo = sortedtally.slice(0,2)
 	
@@ -3132,9 +3555,10 @@ Election.toptwo = function(district, model, options){ // not to be confused with
 	model.updateDistrictBallots(district);
 
 	var ballots2 = model.voterSet.getBallotsDistrict(district)
-	var tally = _tallyBC(ballots2,cans, function(tally, ballot){
+	var tally = _zeroTally(cans)
+	for(var ballot of ballots2){
 		tally[ballot.vote]++;
-	});
+	}
 
 	model.stage = "general" // set to general for display purposes
 	model.voterSet.loadDistrictBallotsFromStage(district,"general")
@@ -3219,17 +3643,15 @@ Election.pluralityWithPrimary = function(district, model, options){
 	}
 	
 	var ballots2 = model.voterSet.getBallotsDistrict(district)
-	var tally = _tallyBC(ballots2,cans2, function(tally, ballot){
+	var tally = _zeroTally(cans2)
+	for(var ballot of ballots2){
 		tally[ballot.vote]++;
-	});
+	}
+	
 	// return original candidates and update voters' ballots 
-	// So we can see who they voted for in the primary.
-	// TODO: make this better.
-	// cans = district.stages["primary"].candidates
-	model.voterSet.loadDistrictBallotsFromStage(district,"primary")
+	model.stage = "primary" // for display purposes
 
 	// cleanup
-	model.stage = "general" // for display purposes
 	// clear the old poll results. we're done with casting ballots.
 	district.pollResults = undefined
 	district.primaryPollResults = undefined
@@ -3355,9 +3777,10 @@ Election.plurality = function(district, model, options){
 	
 	// Tally the approvals & get winner!
 	var ballots = model.voterSet.getBallotsDistrict(district)
-	var tally = _tallyBC(ballots,cans, function(tally, ballot){
+	var tally = _zeroTally(cans)
+	for(var ballot of ballots){
 		tally[ballot.vote]++;
-	});
+	}
 	var winners = _countWinner(tally);
 	var result = _result(winners,model)
     var color = result.color
@@ -3472,7 +3895,6 @@ function runPoll(district,model,options,electiontype){
 	if ( ! model.checkRunPoll() ) return ""
 
 	var cans = district.stages[model.stage].candidates
-	if ( cans.length < 3 ) return ""
 
 	polltext = ""
 
@@ -3505,42 +3927,50 @@ function runPoll(district,model,options,electiontype){
 
 		if (electiontype == "score") {
 			// Tally
-			var tally = _tallyBC(ballots,cans, function(tally, ballot){
+			var tally = _zeroTally(cans)
+			for(var ballot of ballots){
 				for(var candidate in ballot){
 					tally[candidate] += ballot[candidate];
 				}
-			});
+			}
 		} else if (electiontype=="approval"){ 
 			// Tally the approvals & get winner!
-			var tally = _tallyBC(ballots,cans, function(tally, ballot){
+			var tally = _zeroTally(cans)
+			for(var ballot of ballots){
 				var approved = ballot.approved;
 				for(var i=0; i<approved.length; i++) tally[approved[i]]++;
-			});
+			}
 		} else if (electiontype=="plurality"){
-			var tally = _tallyBC(ballots,cans, function(tally, ballot){
+			var tally = _zeroTally(cans)
+			for(var ballot of ballots){
 				tally[ballot.vote]++;
-			});
+			}
 		} else if (electiontype=="irv"){
 
 			// for the report, get the first preferences
-			var tally = _tallyBC(ballots,cans, function(tally, ballot){
+			var tally = _zeroTally(cans)
+			for(var ballot of ballots){
 				var first = ballot.rank[0]; // just count #1
 				tally[first]++;
-			});
+			}
 
 			var options2 = {dontpoll:true, sidebar:true, justCount:true}
 			var result = Election.irv(district,model,options2) // do an IRV election to find out who wins
 			var winners = result.winners
 
-			/// Get really good polling results.
-			temp1 = district.pollResults // doing a poll without strategy.  not sure if this would work
-			district.pollResults = undefined
-			
-			model.updateDistrictBallots(district);
-			
-			var ballots2 = model.voterSet.getBallotsDistrict(district)
-			let head2head = head2HeadPoll(model, district,ballots2)
-			district.pollResults = temp1
+			if (1) {
+				/// Get really good polling results.
+				temp1 = district.pollResults // doing a poll without strategy.  not sure if this would work
+				district.pollResults = undefined
+				
+				model.updateDistrictBallots(district);
+				
+				var ballots2 = model.voterSet.getBallotsDistrict(district)
+				let head2head = head2HeadPoll(model, district,ballots2)
+				district.pollResults = temp1
+			} else {
+				let head2head = head2HeadPoll(model, district,ballots)
+			}
 			
 			var results = {head2head:head2head, firstpicks:tally, winners:winners}
 
@@ -3620,6 +4050,10 @@ function runPoll(district,model,options,electiontype){
 		polltext += "</span><br>"
 		// model.draw() // not sure why this was here
 	}
+
+	
+	if ( cans.length < 3 ) return "" // don't show poll text if the poll was not interesting
+
 	return polltext
 }
 
@@ -3776,20 +4210,12 @@ var runPrimaryPoll = function(district,model,options,electiontype){
 	return polltext
 }
 
-function _tallyBC(ballots,cans,tallyFunc){
-	
+function _zeroTally(cans) {
 	// Create the tally
-	var tally = {}
+	var tally = {};
 	for (let c of cans) {
 		tally[c.id] = 0
 	}
-	
-	// Count 'em up
-	for(var i=0; i<ballots.length; i++){
-		tallyFunc(tally, ballots[i])
-	}
-
-	// Return it.
 	return tally
 }
 
@@ -3812,47 +4238,6 @@ var _getBallotsAndTallyPrimary = function(district, model, tallyFunc){
 		primaries_tallies.push(tally)
 	}
 	return primaries_tallies
-}
-
-function _tallyBC_i(ballots,cans,tallyFunc){
-	
-	// Create the tally
-	var tally = {};
-	for (let c of cans) {
-		tally[c.id] = 0
-	}
-	
-	// Count 'em up
-	for(var i=0; i<ballots.length; i++){
-		tallyFunc(tally, ballots[i], i)
-	}
-
-	// Return it.
-	return tally
-}
-
-var _tallies = function(district, model, levels){
-
-	// Create the tally
-	var tallies = [];
-	for (var level=0; level<levels; level++) {
-		var tally = {};
-		for(var candidateID in model.candidatesById) tally[candidateID] = 0;
-		tallies.push(tally)
-	}
-
-	// Count 'em up
-	var ballots = model.voterSet.getBallotsDistrict(district)
-	for(var i=0; i<ballots.length; i++){
-		var ballot = ballots[i]
-		for(var candidate in ballot){
-			tallies[ballot[candidate]][candidate] += 1;
-		}
-	}
-
-	// Return it.
-	return tallies;
-
 }
 
 var _countWinner = function(tally){
@@ -3960,24 +4345,24 @@ function _tietext(model,winners) {
 }
 
 function _percentFormat(district,count) {
-	var a = "" + (100*count/(district.voterPeople.length)).toFixed(0)
-	var dopadding = false
-	if (dopadding) {
-		for (var i = a.length; i < 2; i ++) {
-			a = "&nbsp;&nbsp;" + a
-		}	
-	}
-	return a
+	var f = count/(district.voterPeople.length)
+	return _textPercent(f)
 }
 
 function _primaryPercentFormat(count,total) {
-	var a = "" + (100*count/total).toFixed(0)
+	var f = count/total
+	return _textPercent(f)
+}
+
+function _textPercent(f) {
+	var a = "" + (100 * f).toFixed(0)
 	var dopadding = false
 	if (dopadding) {
 		for (var i = a.length; i < 2; i ++) {
 			a = "&nbsp;&nbsp;" + a
 		}	
 	}
+	a += "<span class='percent'>%</span>"
 	return a
 }
 

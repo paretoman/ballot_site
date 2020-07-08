@@ -116,3 +116,10 @@ DAT RESET BUTTON
 	background: #999;
 	border-bottom-color: #777;
 }
+
+span.percent {
+	font-stretch: ultra-condensed;
+	font-weight:lighter;
+	font-size: 80%;
+	opacity: .6;
+}

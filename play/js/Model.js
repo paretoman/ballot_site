@@ -85,6 +85,7 @@ function Model(idModel){
         ballotConcept: "auto",
         roundChart: "auto",
 		voterIcons: "circle",
+		voterCenterIcons: "off",
 		candidateIconsSet: ["image","note"],
 		placeHoldDuringElection: false,
 		doPlaceHoldDuringElection: true,
@@ -92,8 +93,10 @@ function Model(idModel){
 		doTextBallots: false,
 		behavior:"stand",
 		showVoters:true,
-		showToolbar: "on",
+		showToolbar: "off",
 		rankedVizBoundary: "atWinner",
+		useBeatMapForRankedBallotViz: false,
+		doMedianDistViz: false,
 		drawSliceMethod: "circleNicky", // "circleBunch" or "old"
 		allCan: false,
 		useBorderColor: true,
@@ -105,6 +108,8 @@ function Model(idModel){
 		partyRule: 'crowd',
 		stage: "general",
 		showPowerChart: true,
+		centerPollThreshold: .5,
+		howBadlyDefeatedThreshold: 1.1,
 	})
 	
 	self.viz = new Viz(self);
@@ -207,7 +212,7 @@ function Model(idModel){
 		return x
 	}
 	self.onDrop = function() {
-		if (self.theme != "Nicky" && self.showToolbar == "on") {
+		if (self.showToolbar == "on") {
 			if (self.arena.trashes.overTrash) {
 				self.arena.trashes.tossInTrash()
 			}
@@ -303,7 +308,7 @@ function Model(idModel){
 	self.textBallotUpdate = function() {
 		// run an election with RBVote
 		if (self.system === "RBVote") {
-			self.result = self.election("",self,self.optionsForElection)
+			self.result = self.election(self.district[0] ,self,self.optionsForElection)
 			self.district[0].result = self.result
 			self.drawSidebar()
 		}
@@ -663,7 +668,7 @@ function Model(idModel){
 			self.placeHolding = true
 			return "^PlaceholderNameUpper{" + id + "}"
 			
-		} else if (self.candidateIconsSet.includes("name") && self.theme != "Nicky") {
+		} else if (self.candidateIconsSet.includes("name")) {
 			var c = self.candidatesById[id]
 			// return "<span class='letterBig' style='color:"+c.fill+";'>"+c.name.toUpperCase()+"</span>"
 			return "<span class='letterBig'>"+c.name.toUpperCase()+"</span>"
@@ -686,6 +691,9 @@ function Model(idModel){
 		var on = (self.beatMap == "on") || autoBeatMap
 		var doBeatMap = on && ( ! self.doTextBallots)
 		return doBeatMap
+	}
+	self.checkDrawCircle = function() {
+		return self.yeeon || self.checkDoBeatMap()
 	}
 	self.checkDoBallotConcept = function() {
 		// ranked voter and not (original or IRV or Borda)
@@ -715,8 +723,8 @@ function Model(idModel){
 		return ! skipthis
 	}
 	
-	self.checkMultiWinner = function() {
-		return (self.system == "QuotaApproval"  || self.system == "QuotaScore" || self.system == "RRV" ||  self.system == "RAV" ||  self.system == "STV" || self.system == "QuotaMinimax") 
+	self.checkMultiWinner = function(system) {
+		return (system == "QuotaApproval"  || system == "QuotaScore" || system == "RRV" ||  system == "RAV" ||  system == "STV" || system == "QuotaMinimax" || system == "PhragmenMax" || system == "equalFacilityLocation") 
 	}
 
 	self.updateVC = function() {
@@ -781,6 +789,7 @@ function Arena(arenaName, model) {
 		self.plusXVoterGroup.isPlusXVoterGroup = true
 		self.trashes = new Trashes(model)
 		self.modify = new Modify(model)
+		self.viewMan = new ViewMan(model)
 	}
 	self.initDOM = function() {
 		// RETINA canvas, whatever.
@@ -795,6 +804,7 @@ function Arena(arenaName, model) {
 		self.plusXVoterGroup.init()
 		self.trashes.init()
 		self.modify.init()
+		self.viewMan.init()
 	}
 
 
@@ -1035,6 +1045,14 @@ function Arena(arenaName, model) {
 					model.voterGroups.splice(i,1)
 					// need to init voterSet
 					model.voterSet.init()
+
+					// also, check if the viewMan was on a voter in the group
+					var viewMan = model.arena.viewMan
+					if (viewMan.active && i == viewMan.focus.iGroup) {
+						viewMan.unInit()
+						viewMan.configure()
+					}
+
 					break
 				}
 			}
@@ -1073,6 +1091,7 @@ function Arena(arenaName, model) {
 		var self = this;
 		Draggable.call(self);
 		self.isModify = true // might help later
+		self.isGear = true
 		self.isArenaObject = true
 		
 		// CONFIGURE DEFAULTS
@@ -1105,13 +1124,16 @@ function Arena(arenaName, model) {
 		self.draw = function(ctx,arena){
 			// if it is near a candidate, then draw it on that candidate
 			// when the mouse is let go, the coordinates will snap to the candidate
-
-
+			
+			if (self.active) {
+				var f = model.arena.modelToArena(self.focus)
+				self.x = f.x
+				self.y = f.y
+			}
 
 			// RETINA
-			var p = self
-			var x = p.x*2;
-			var y = p.y*2;
+			var x = self.x*2;
+			var y = self.y*2;
 			var size = self.size*2;
 	
 			if(self.highlight) {
@@ -1151,6 +1173,115 @@ function Arena(arenaName, model) {
 			self.focus = null
 			model.arena.up = null
 			model.arena.right = null
+		}
+	}
+	function ViewMan(model) {
+		var self = this;
+		Draggable.call(self);
+		self.isModify = true // might help later
+		self.isViewMan = true // might help later
+		self.isArenaObject = true
+		
+		// CONFIGURE DEFAULTS
+		self.size = 20;
+		self.sizey = 60;
+		
+		self.init = function() {
+			var srcMod = "play/img/viewMan.png"
+			// if (Loader) {
+			// 	if (Loader.assets[srcMod]) {
+			// 		self.img = Loader.assets[srcMod]
+			// 	}
+			// }
+			self.img = new Image();
+			self.img.src = srcMod
+			model.nLoading++
+			self.img.onload = onLoadTool
+			self.configure()
+		}
+		self.configure = function() {
+			if (self.active) {
+				var f = model.arena.modelToArena(self.focus)
+				self.x = f.x
+				self.y = f.y
+			} else {
+				self.y = model.size - 20
+				var between = 40
+				self.x = model.size - between * 6.5
+			}
+		}
+		self.draw = function(ctx,arena){
+			// if it is near a candidate, then draw it on that candidate
+			// when the mouse is let go, the coordinates will snap to the candidate
+
+
+			if (self.active) {
+				var f = model.arena.modelToArena(self.focus)
+				self.x = f.x
+				self.y = f.y
+			}
+
+			// RETINA
+			var x = self.x*2;
+			var y = self.y*2;
+			var size = self.size*2;
+			var sizey = self.sizey*2;
+	
+			var doDoubleSize = self.highlight || self.active || model.arena.mouse.dragging == self
+			if(doDoubleSize) {
+				var temp = ctx.globalAlpha
+				ctx.globalAlpha = 0.8
+				size *= 2
+				sizey *= 2
+				// y -= size/4
+			}
+			ctx.drawImage(self.img, x-size/2, y-sizey/2, size, sizey);
+			if(doDoubleSize) {
+				ctx.globalAlpha = temp
+			}
+		};
+		self.drag = function(arena) {
+
+			arena.update() // update position of draggable
+
+			// focus on closest voter
+			var closest = arena.draggableManager.nearestVoterToMouse()
+			if (closest) {
+				self.focus = closest
+				
+				// check for snap
+				self.snap(arena)
+			}
+
+			model.drawArenas() // draw everything inside the arenas
+			if (closest) model.onDraw() // draw ballot for closest voter
+
+		}
+		self.snap = function(arena) {
+			
+			if (self.focus) {
+				
+				// check for snap
+				var hit = self.objectMouseHitTest(25, self.focus, arena)
+				if (hit) {
+					self.active = true
+					self.configure()
+					return true
+				}
+				// model.arena.initARENA() // add the controls to the arena
+			}
+			self.active = false
+			return false
+		}
+
+		self.drop = function() {
+			self.configure()
+			// model.arena.initARENA()
+		}
+
+		self.unInit = function() {
+			self.active = false
+			self.focus = null
 		}
 	}
 
@@ -1331,7 +1462,7 @@ function Arena(arenaName, model) {
 		var doVoters = true
 		var doCandidates = true
 		
-		if (self.id == "arena" && model.theme != "Nicky" && model.showToolbar == "on") {
+		if (self.id == "arena" && model.showToolbar == "on") {
 			doControls = true
 		}
 
@@ -1362,6 +1493,7 @@ function Arena(arenaName, model) {
 				}
 				self.draggables.push(self.right)
 			}
+			self.draggables.push(self.viewMan)
 		}
 	}
 
@@ -1392,7 +1524,7 @@ function Arena(arenaName, model) {
 			if (model.dimensions == "1D+B") {
 				if (d.isCandidate) {
 					y = self.yFromB(d.b)
-				} else if (d.isVoter || d.isVoterCenter) {
+				} else if (d.isVoter || d.isVoterCenter || d.isVoterPerson) {
 					y = self.yDimOne
 				} else {
 					y = d.y
@@ -1400,7 +1532,7 @@ function Arena(arenaName, model) {
 			} else if (model.dimensions == "1D" ) {
 				if (d.isCandidate) {
 					y = model.size - self.yDimOne
-				} else if (d.isVoter || d.isVoterCenter) {
+				} else if (d.isVoter || d.isVoterCenter || d.isVoterPerson) {
 					y = self.yDimOne
 				} else {
 					y = d.y
@@ -1544,6 +1676,9 @@ function Arena(arenaName, model) {
 			if (self.modify.focus.group_spread) { // this value might have changed
 				self.up.configure()	
 			} 
+		}
+		if (self.viewMan && self.viewMan.active) { // update the viewMan value
+			self.viewMan.configure()
 		}
 	}
 
@@ -1691,7 +1826,7 @@ function Arena(arenaName, model) {
 		}
 
 		function drawToolbar() {
-			if (model.theme != "Nicky" && model.showToolbar == "on") {
+			if (model.showToolbar == "on") {
 				self.plusCandidate.draw(self.ctx,self)
 				self.plusOneVoter.draw(self.ctx,self)
 				self.plusVoterGroup.draw(self.ctx,self)
@@ -1874,7 +2009,7 @@ function Arena(arenaName, model) {
 
 
 		function drawExtraTrash() {
-			if (model.theme != "Nicky" && model.dimensions != "2D" && model.showToolbar == "on") {
+			if (model.dimensions != "2D" && model.showToolbar == "on") {
 				self.trashes.t[1].draw(self.ctx,self)
 			}
 		}
@@ -2106,7 +2241,7 @@ function Arena(arenaName, model) {
 		}
 			
 		function drawModify() {
-			if (model.theme != "Nicky" && model.showToolbar == "on") {
+			if (model.showToolbar == "on") {
 				self.modify.draw(self.ctx,self)
 				
 				if (self.modify.active) {
@@ -2115,6 +2250,8 @@ function Arena(arenaName, model) {
 					}
 					self.right.draw(self.ctx,self)
 				}
+
+				self.viewMan.draw(self.ctx,self)
 			}
 
 		}
@@ -2125,7 +2262,7 @@ function Arena(arenaName, model) {
 
 				// check how many winners there should be
 				let winnersAllowed = 1
-				if (model.checkMultiWinner()) {
+				if (model.checkMultiWinner(model.system)) {
 					winnersAllowed = model.seats
 				}
 
@@ -2292,6 +2429,8 @@ function DistrictManager(model) {
 		// put candidate into correct party
 		if (model.partyRule == 'leftright') {
 			c.iParty = ( c.x > model.size * .5 ) ? 1 : 0
+		} else if (model.district[c.iDistrict].parties.length == 1){
+			c.iParty = 0
 		} else {
 			var min = Infinity
 			for ( var j = 0; j < model.voterGroups.length; j++){

@@ -19,12 +19,21 @@ function Draggable(){ // Voter and Candidate classes are extended to make them d
 
 	self.hitTest = function(x,y,arena){
 		var a = arena.modelToArena(self)
-		var dx = x-a.x;
-		var dy = y-a.y;
 		var r = self.grabsize * self.radiusScale
 		if (arena.mouse.isTouch) r += self.touchAdd
-		return((dx*dx+dy*dy) < r*r);
+		return self.generalHitTest(r, x, y, a.x, a.y)
+	}
+	self.generalHitTest = function(radius,x1,y1,x2,y2){
+		var dx = x1-x2;
+		var dy = y1-y2;
+		return((dx*dx+dy*dy) < radius*radius);
 	};
+
+	self.objectMouseHitTest = function(radius, o, arena) {
+		var a = arena.modelToArena(o)
+		return self.generalHitTest(radius, a.x, a.y, arena.mouse.x, arena.mouse.y)
+	}
+	
 	self.hitDistance = function(x,y,arena){
 		var a = arena.modelToArena(self)
 		var dx = x-a.x;
@@ -111,20 +120,43 @@ function DraggableManager(arena,model){
 		}
 	}
 
+	self.nearestVoterToMouse = function() {
+		var min = Infinity
+		var closest = null
+
+		for (var voterGroup of model.voterGroups) {
+			for (var voterPerson of voterGroup.voterPeople) {
+				var a = arena.modelToArena(voterPerson)
+				let dx = a.x - arena.mouse.x
+				let dy = a.y - arena.mouse.y
+				var d2 = dx * dx + dy * dy
+				if (min > d2) {
+					min = d2
+					closest = voterPerson
+				}
+			}
+		}
+
+		return closest
+	}
+
 	// INTERFACING WITH THE *MOUSE*
 	subscribe(model.id + "-" + arena.id+"-mousemove", function(){
-		if(arena.mouse.pressed && ! (arena.mouse.dragging && arena.mouse.dragging.isModify)){
+		var dragging = arena.mouse.dragging
+		if(dragging && dragging.isViewMan) {
+			dragging.drag(arena)
+		} else if(arena.mouse.pressed && ! (dragging && dragging.isModify)){
 			// open the trash can
-			if (arena.mouse.dragging) {
+			if (dragging) {
 				if (model.arena.mouse.dragging) {
-					if (model.theme != "Nicky") {
+					if (model.showToolbar == "on") {
 						// if we are in the main arena, then do the trash test
 						model.arena.trashes.test();
 					}
 				}
 				model.update();
 			}
-		}else if(self.isOver() || (arena.mouse.dragging && arena.mouse.dragging.isModify)){
+		}else if(self.isOver() || (dragging && dragging.isModify)){
 			// If over anything, grab cursor!
 			arena.canvas.setAttribute("cursor", "grab");
 			// also, highlight one object
@@ -135,7 +167,7 @@ function DraggableManager(arena,model){
 			}
 			var flashydude = self.isOver()
 			if (flashydude) flashydude.highlight = true
-			if (arena.mouse.dragging && arena.mouse.dragging.isModify) model.update()
+			if (dragging && dragging.isModify) model.update()
 			model.drawArenas()
 			self.lastwas = "hovering"
 		}else{
@@ -174,6 +206,8 @@ function DraggableManager(arena,model){
 			}
 			model.update();
 
+			if(d.isViewMan) d.drag(arena) // act as if we are already dragging viewMan
+
 			// GrabBING cursor!
 			arena.canvas.setAttribute("cursor", "grabbing");
 
@@ -181,18 +215,24 @@ function DraggableManager(arena,model){
 
 	});
 	subscribe(model.id + "-" + arena.id+"-mouseup", function(){
-		if (arena.mouse.dragging) { // we are dragging something, not just air
-			model.onDrop()
-			if (arena.mouse.dragging.isModify) {
-				var flashydude = self.isOver()
-				arena.mouse.dragging.doModify(flashydude)
-				arena.mouse.dragging = null;
+		var dragging = arena.mouse.dragging
+		if (dragging) { // we are dragging something, not just air
+			model.onDrop() // drop in trash if there is one
+			
+			if (dragging.isViewMan) {
+				dragging.drop()
 				model.drawArenas()
-				return
+			} else if (dragging.isGear) {
+				var flashydude = self.isOver()
+				dragging.doModify(flashydude)
+				model.drawArenas()
+			} else {
+				model.update();
 			}
-			model.update();
+			arena.mouse.dragging = null;
+			model.update()
+			
 		}
-		arena.mouse.dragging = null;
 	});
 
 }

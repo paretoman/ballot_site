@@ -34,12 +34,16 @@
 
 	<base href="../" />
 	
-	
+    
     <link rel="stylesheet" type="text/css" href="play/css/model.css">
     <link rel="stylesheet" type="text/css" href="play/css/ballot.css">
     <link rel="stylesheet" type="text/css" href="play/css/election.css">
     <link rel="stylesheet" type="text/css" href="play/css/sandbox.css">
     <link rel="stylesheet" type="text/css" href="play/css/ballotInSandbox.css">
+    
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" type="text/css" href="css/some-minima.css">
+    
 	
 	
     <script src="play/js/helpers.js"></script>
@@ -53,6 +57,8 @@
     <script src="play/js/gpu.js-develop/bin/gpu-core.js"></script>
     <script src="play/js/gpu.js-develop/bin/gpu.js"></script>
     <script src="play/js/FastYee.js"></script>
+
+    <script src="play/js/javascript-lp-solver/prod/solver.js"></script>
 
     <script src="play/js/Model.js"></script>
     <script src="play/js/Yee.js"></script>
@@ -73,15 +79,21 @@
 </head>
 
 <body>
+    <div id="content">
     	
-	<div class="contain-model">
-		
+        <div id="sandbox-embed-section">
+            <div class="sim-sandbox">
+                <div class="sim-container">
+		            
 		<div id="sandbox" class="div-sandbox div-election div-ballot-in-sandbox div-model" scrolling="no">
 		</div>
 		<script>
 			sandbox({quick:"sandbox"})
 		</script>
-	</div>
+                </div>
+            </div>
+        </div>
+</div>
 </body>
 
 </html>

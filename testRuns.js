@@ -106,9 +106,14 @@ var e = [
         ["bug for strategies with irv","http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VRu2oEMQz8F9cqrKfX-xkh3bLFhVyVI0mRJoT8e7Sag4MchzEja-TxSP5pva3bxrIQ99hpEx7EZhnxUBLhjJZJ0uVIWZJj7js1xjUhdj2YMMp9MNrWTs3aatS84shaobuVtSOZTncrmeUhMx8ynL1wAleF0iCrtJQLhjE2AKxxANIIp1_OZz1hVlZ6NSFcspIykgAZMSRTRhMgIwOnBadZF7SXHT5Gw0UolFQBMKSptDFd11EcoKGpaJtzcEr5Pc0gezRofAvlFqb8piVlVhr2_wmLasIGvgy2bVbSe50clh2WHZYdlh0zdDTvA9xSbzmajw7ACAM_ERhhOP4pjQQkAg4C4x9wMHB3CEALXk6Xy8fX8_fnua3t6fT-dn5tv3-Q54nAzQIAAA"],
         ["good test example of districts and parties and yee","http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VRQWoDMQz8StDZB0u25d19ROmhl7K7hxRyKCxNaZNDKO3bK2kKoYTggySPPBqPvijTNM8sY2LJa5p7TzyoJVJ7EimetWJ3w7omYm8eJHGrDogBjR0oNOVElSZO1CJXa5V0c6y3G5LTzTFkuIuMdxHOMZRdmpcS0xmCuCJAEitaTQBXizbOwxig5KiEURmNWACN4GNiNMWC4rKjGlCN8aDkEMpuCZiKxNtSgENQMaaZUxxvVYBgLPgsm11mP1VQ-l8rX1O5pgVkntZgqP_pK-hrx5IguI5YVo6qGTP9LPR8-FyWt93DcbcQ2TVsaLCh_e23IcDNBtY2xOQGGzQjcLQodqJg0RbK_WsKJxWKFIvoUNTxtsO-XiK87LfteHq6vB9M7uN2_thvr6cLff8CNBlSnccCAAA"],
         ["press poll2. not working","http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VRu04EMQz8l9Qu4ley2c9AdNEWh7iKE1DQIMS_43juGk6naDW2x54dJz-lln3OIdTGQVO4Uq8rMCfeJCK2QeKr5qtUj4MKrxn2SvGtXMteqVjZeaPimbRoEbo70dyDqXR3gtkeMuMhw-GfAzg7lDpZliVdMJyxAWCNGyCMsAXGbz1gZFVCL4rCKSshIwGQEUMxZDQAMtKRbchGDmhNOxyG1soKNZVsVUUPTGmoTabrWc0NNHR1XJUktCxoS-kV8C2QWxDCU1dgOWv_pa2lD-t4L1i2kUWvmTkDsLjDqsOq4_4ci3sHt-W_HIu3CsDCDa_QcH3N8UZhpEGiwUHD1Xc46JjtAlAAHLycLpePr-fvz3PZy9Pp_e38Wn7_AN_rDtfEAgAA"],
+        ["nice example of lp solving","http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VSwUpEMQz8l56LNGnSpO839PbYg8reFlbEi4h-u2mGxyKyPMoknXQ6yetXaWXbd5vV5qnuzHQLYkUU1ApOtdCqJG011sp72VotUrbyw1Rq0cxHVAVpAa3--4Lxu8y8y1C4pADKil5t7XHeR7BBAoAJGoBwQRIYdy6YqcIts_C8cQADIMOCkpDpAZBhQ-bIZh7oLb3QGgQl0TnP9g4ehnoo7VTzW6UDJBQ7Oo5R1x6kpOQK6Aj4CEJ05xVInpS_sjLyajH8EhgVtKstM4VJRbuKdhUmFVNTqKihxPMmRbujAShLBmY_oDIUvyWMDExswMGYCQYHhrOGMVkHwIHBgR2vx0D6bT5V1j5acgg6BB1mHGZc0qgrAH4ceu6AZevB4sFB5-X5crl-PH2-neMtP75e38_l-xcWvw90GQMAAA"],
+        ["proportional and distributed","http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSzU4DMQyE3yXnCMVJ_LN9DbitegDUWyUQ4oIQPDsTD6hSUbWHSWxn8tnZz9LKYd91qzLsWHfpo0r4WllDTNdqQ8wDqz4CsXY81iLrmGFrcyUUJdZXYpRDq2WWQ_nuUmrR3BvKkXRIq_8-ZOJmZruZEbALRLJiVF-xnvcJMWRSCCFGAYVMKO5UyJYuHWYIgvnQIZ1Cmz5ZApsBoU137oK7LQ-MliyyBiGZGD3PjsE8gQacdqm_3yo2puk52LPUjq4w3zJpu5qecln2yxL2e0-rOdNjXl8xLUGm84GIPdm8ttwpkZXN60gjJbJyhsrm1VkSLNn4yC2DJulpfAnjCE35SAAxWhgJjGedBM6zzqH5oJDASeB__5IzGVezcrYUNAwaBmGCMDETNJRCnqBfBGVh3Tl-P_o8PZ7PL-8PH68n_Nn3zy9vp_L1A26_XvU9AwAA"],
+        ["The colors. The colors.","http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA4VTwUpEMQz8l56DNGma5u1XePC27GEFD8KCInoQcb_dJKOouCDvMM3LdDJv2vfWetvt99KFmPVAexskMmPBwqQ9FzaJt3U4UOPksgiJjui4x6YtKR4US7IrrcTFxDM5Q4PDyek9ZCxXGvs8VzOmbvNzhuV4zo3sNX9R9YSNhFNLwhIrp5PRdp2atl0790ZtVmlhL3oroNOfJzoenXbm3HEWaRcYWzEigaKMfokT-3MaM8axoIQlVgAcsQHCEmtgGEiIKUxNelUSOhIgAMiIogqZEQAZWagc1VaU0WFjcL0dcDMGmnAzQmYf2eWTVEMTcmOrvJiEIuSm_Zt76UkKX074R0Yq_1PG_4O0HOpv-2oVny7cAaShyHTibCbCmMh0jgp6KigTgEznAsVr0txwkXq9NKgYIjWcjM36sozKIGFwYNi74GBxTVkCGAAcx8LlWF_3daHpX-eQ7_A5DjGHmMOIw4jjivgEwItDyx2Qlq5WXOte9e3xdHp4vnl9vIsf5_r08nQ83T-_tvcPBpctWgYEAAA"],
+        ["One art please.","http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA4VTzWqcMQx8F59Fsf5sffsUPeS27CGFHAILLSU9hNJ99kgaQlq6EHwYyxpL8431_R5znM5n0YN8XegsTDsSt5OsWQehxBGXCw0uJouQmGYmgpiP3HA4cZPDaBduJvbiqCWHizMn8VEd2PJe1M4lj7yOltOy2tRFrv4smzonvEi4aklqY-NSouM0adg4jdscNLzDlfIytxMm_bcyE5kZN64bN5Fxh3E0Q8SbovMeJ-9XN2a0Y0EISWwAKOIFSElsiSmgILswDZkdSdaRBAGgjBiiLKMJKCMbUSA6mqITMpT7VKFGFUmo0SxzTu9qFXUhiXJ6tF9MQmnysPnBvbeKwvcd_ssjk88p-nkja4X2r3xbbZ9tzADcMHjqeBuHGQ5PXdtoN1AcAE99gxLdyQ8M0uzDhSoLli68zPL-srJqocSCgoW7Gwo2d5ctAAXgOTaGY7_P60Yy3t-hzvA5gWKBYgEhASGBEQkHQEugVgSgJH3ZOdaz42-P1-v3l4fXH0_543y9_vr5eH1-eR1_3gCthqVSBAQAAA"],
         // ["",""],
         // ["",""],
     ]],
+    // ["",""],
     // ["",""],
     // ["",""],
     // ["",""],
@@ -123,7 +128,7 @@ for (var [d,a] of e) {
     c += "<ul>"
     for (var [i,b] of a) {
         c += "<li>"
-        // embed = '<iframe src="' + b + '" scrolling="yes" width="1000" height="600"></iframe>'
+        // embed = '<iframe src="' + b + '" scrolling="yes" width="100%" height="650"></iframe>'
         var f = b.replace("http://127.0.0.1:8000/","")
         c += '<a href="' + f + '"> ' + i + '</a>, '
         c += "</li>"

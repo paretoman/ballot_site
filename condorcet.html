@@ -82,6 +82,8 @@
     <script src="play/js/gpu.js-develop/bin/gpu.js"></script>
     <script src="play/js/FastYee.js"></script>
 
+    <script src="play/js/javascript-lp-solver/prod/solver.js"></script>
+
     <script src="play/js/Model.js"></script>
     <script src="play/js/Yee.js"></script>
     <script src="play/js/Candidate.js"></script>
@@ -131,11 +133,7 @@
             
           
             
-            <a class="page-link" href="original">Original</a>
-            
-          
-            
-            <a class="page-link" href="newer">An Even Better Ballot</a>
+            <a class="page-link" href="condorcet">Condorcet Methods</a>
             
           
             
@@ -147,11 +145,15 @@
             
           
             
-            <a class="page-link" href="proportional">Proportional Representation</a>
+            <a class="page-link" href="proportional">Proportional Methods</a>
             
           
             
-            <a class="page-link" href="condorcet">Condorcet Methods</a>
+            <a class="page-link" href="original">Original</a>
+            
+          
+            
+            <a class="page-link" href="newer">An Even Better Ballot</a>
             
           
             
@@ -163,10 +165,14 @@
             
           
             
+            <a class="page-link" href="links">Links</a>
+            
+          
+            
             <a class="page-link" href="sandbox/">Sandbox</a>
             
           
-          <!--<a class="page-link" href="/ballot/approval.html">Approval Voting</a><a class="page-link" href="/ballot/bees.html">Bees</a><a class="page-link" href="/ballot/blog.html">Blog</a><a class="page-link" href="/ballot/commonground.html">Home</a><a class="page-link" href="/ballot/condorcet.html">Condorcet Methods</a><a class="page-link" href="/ballot/draft-common-ground.html">Home</a><a class="page-link" href="/ballot/sandbox/embedbox.html">Embed Box for Smart Voting Simulator</a><a class="page-link" href="/ballot/sandbox/">Sandbox</a><a class="page-link" href="/ballot/">Home</a><a class="page-link" href="/ballot/irv.html">Instant Runoff Voting</a><a class="page-link" href="/ballot/modify.html">Modify the Simulator</a><a class="page-link" href="/ballot/newer.html">An Even Better Ballot</a><a class="page-link" href="/ballot/oncemore.html">Draft for An Even Better Ballot</a><a class="page-link" href="/ballot/sandbox/original.html">Sandbox for To Build a Better Ballot</a><a class="page-link" href="/ballot/original.html">Original</a><a class="page-link" href="/ballot/primaries.html">Primaries</a><a class="page-link" href="/ballot/proportional.html">Proportional Methods</a><a class="page-link" href="/ballot/quotaApproval.html">Quota Methods</a><a class="page-link" href="/ballot/stv.html">The Single Transferable Vote</a><a class="page-link" href="/ballot/testAttach.html">Test Attach</a><a class="page-link" href="/ballot/testBallot.html">Test Ballot</a><a class="page-link" href="/ballot/testPreset.html">Test Preset</a><a class="page-link" href="/ballot/testRuns.html">Test Runs</a><a class="page-link" href="/ballot/testSwitcher.html">Test Switcher</a><a class="page-link" href="/ballot/try.html">To Build a Better Ballot - QAPR</a>-->
+          <!--<a class="page-link" href="/ballot/approval.html">Approval Voting</a><a class="page-link" href="/ballot/bees.html">Bees</a><a class="page-link" href="/ballot/blog.html">Blog</a><a class="page-link" href="/ballot/commonground.html">Home</a><a class="page-link" href="/ballot/condorcet.html">Condorcet Methods</a><a class="page-link" href="/ballot/draft-common-ground.html">Home</a><a class="page-link" href="/ballot/draft-gerrymander.html">Condorcet Methods</a><a class="page-link" href="/ballot/sandbox/embedbox.html">Embed Box for Smart Voting Simulator</a><a class="page-link" href="/ballot/sandbox/">Sandbox</a><a class="page-link" href="/ballot/">Home</a><a class="page-link" href="/ballot/irv.html">Instant Runoff Voting</a><a class="page-link" href="/ballot/links.html">Links</a><a class="page-link" href="/ballot/modify.html">Modify the Simulator</a><a class="page-link" href="/ballot/newer.html">An Even Better Ballot</a><a class="page-link" href="/ballot/oncemore.html">Draft for An Even Better Ballot</a><a class="page-link" href="/ballot/sandbox/original.html">Sandbox for To Build a Better Ballot</a><a class="page-link" href="/ballot/original.html">Original</a><a class="page-link" href="/ballot/primaries.html">Primaries</a><a class="page-link" href="/ballot/proportional.html">Proportional Methods</a><a class="page-link" href="/ballot/quotaApproval.html">Quota Methods</a><a class="page-link" href="/ballot/stv.html">The Single Transferable Vote</a><a class="page-link" href="/ballot/testAttach.html">Test Attach</a><a class="page-link" href="/ballot/testBallot.html">Test Ballot</a><a class="page-link" href="/ballot/testPreset.html">Test Preset</a><a class="page-link" href="/ballot/testRuns.html">Test Runs</a><a class="page-link" href="/ballot/testSwitcher.html">Test Switcher</a><a class="page-link" href="/ballot/try.html">To Build a Better Ballot - QAPR</a><a class="page-link" href="/ballot/draft-digression-median-systems.html">Digression: median systems</a>-->
         </div>
       </nav></div>
 </header>
@@ -189,7 +195,7 @@
         
 <p>I’d like to describe on this page how Condorcet voting methods can help us find a common ground candidate and elect them.</p>
 
-<p>I’ll go into detail to explain the hard-to-understand parts of Condorcet methods. For that mental effort, you’ll get the benefit of not needing to think about the polls to decide who to vote for but simply be able to vote for the candidates in the order you like.  And you’ll have better candidates to vote for.</p>
+<p>I’ll go into detail to explain the hard-to-understand parts of Condorcet methods. For that mental effort, you’ll get the benefit of not needing to think about the polls to decide who to vote for but simply be able to vote for the candidates in the order you like. And you’ll have better candidates to vote for.</p>
 
 <h2 id="intro-to-condorcet">Intro to Condorcet</h2>
 
@@ -200,7 +206,9 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Pairwise Ranked Ballot</h2>
-        <p class="ballot_caption"></p>
+        <p class="ballot_caption">
+        
+        </p>
         
         
         <script id="1">
@@ -211,16 +219,18 @@
 
 </div>
 
-<p>We’re going to use that background map for ballot visualization in the two elections below.  We’ll overlay the ballots for all the voters to try to make it more clear how everybody’s ballots get added together.</p>
+<p>We’re going to use that background map for ballot visualization in the two elections below. We’ll overlay the ballots for all the voters to try to make it more clear how everybody’s ballots get added together.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">FPTP Spoilers, Condorcet None</h2>
-        <p class="ballot_caption">Switch between FTPTP and Condorcet</p>
+        <p class="ballot_caption">Switch between FTPTP and Condorcet
+        
+        </p>
         
         
         <script id="2">
-            sandbox({idScript:"2",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VSy07DMBD8lchnH7z2-tEei9QbUoGKS9qDKVFbCA0K7aFC8O2sPVRCQlUO48muJ7Oz-VRGTduWiDS5yVq3FL2cUjmR15b9eq0V1R52mtgU7tTUaMVqqr6N0spXGqRJalHA6H-PVNLVyuRqhUzVpuKgcgsOB8QAGKAAEAfEgvI9JyDipJUVIXlpRcgKWABkLKPF1wsWMjaCJbBJveBMdUolA6oFB0POoQ5DTpRaSRSNASXoOcxK2kqJze9YfJmP7eUggm3t4XqP_0pyqIY5Yg-wyBjUIzFPZTsrdT-cc9_c55fV6jA7jdtubGZ5PAi77fKxedjlzauQx2673XfN477vs9DFuH8bmtnsTs7LXdfMh9PYPHT5Yzh8rFRZOQL0GNsjQO8BCNDDnccaPAIMBkC1MyC8gDUEX6NxMmCARMBkYVIhYrKIu9ECHADBRziI5V9U88VyIVZvhsPzMG66oyp_Z0RDumxBO83lPcJLBoDdJthLsJe4Wk8egK0-5b4fjsvzeydxL_rTmPv98ay-fgBXNw8TWAMAAA)"})
+            sandbox({idScript:"2",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSMWsDMQyF_4tmUyxbsnVZC50zZDtuSNsMhaMpIR1CaX97Zb0GAiVkeFYkv3xP8Rdl2swzF0usuqSZTfxUxilbKpWXJRHHjGbv5FFX2uREQhv6yZRIo2w-5L3uktO_j3fsbme62-Ec3jwIoi6oQcACAQA3iBOwuPrvVRc350TFjfzL4kbFpUBgUwQjGhcKbEpHZaimuFBzkPLYAUejAqhW9AFU3WnmxBhsaMGvIisnXzFJ_osl13xSrgc3nGNG4p7cWkoLYOn4H4AoCKrYmAJPEVSBpwiqCkFQ7ehhXYqgLUM4JhtCNqyraUSoDtJg0UDQppAOgo67vUAqBAvqIOjjzdDTdrf1V_R4fH89nl4OZxqvqGPAbrbVEdAyBPYGNAOaSWCbQkBn8DKDDMiHnuh5v67H8-7ycfB3vF0_T_v17Xyh718YJyuqEwMAAA)"})
         </script>
         
     </div>
@@ -230,11 +240,13 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Condorcet: No Vote Splitting</h2>
-        <p class="ballot_caption">Switch between FTPTP and Condorcet</p>
+        <p class="ballot_caption">Switch between FTPTP and Condorcet
+        
+        </p>
         
         
         <script id="3">
-            sandbox({idScript:"3",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VSy24bMQz8lQXPOogS9bCPLpBbADcxcln7oCQL283WW2zsg1Ek315Kk1xSBAt4SJEaD4f6S5aWfc_eG45-Z3r9Ndlp4JweJalHPhnHC41iMCy82xnidku0RWzNPS2tIaElvVsyFFoatUlrScGa_z6t5G8ri28rbBs3VwUtd8ihgAUAARwBqoBFUf8vKCg5G3JKpIdOiZyCA4DGCVqUxiuAxiVkGdmiXfC2KeXqAbeChyDvUYcgr0w9m4-vNkeUwekxLxtnvFHPSezHePI5p7jPQIl7VwNpd-UrtcQmXhJ2ArmCoQPcC1w3taW76VrG7q782m5Pq8u8H-ZuVeaTZrdDOXf3h_L0osnDsN8fh-7hOI5F0_V8_D11q9VPjTeHobuZLnN3P5TX6fS6pbp-mBlgQYCZIQBgZoC6kNsMAWZGC-DWGWFkxEpiaBbpG6UIiojJ4qJBwmQJd5MDeACWkKAg1XdJN-vNWqX-mE7P0_w0nKm-1ISG_GUbCeZlC8CeM-RlyMvSpOcAwHYfyzhO5831z6B2r8fLXMbj-Upv_wDlHFtGdgMAAA)"})
+            sandbox({idScript:"3",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VSsU5DMQz8F88Wih07SbsiMXfo9tShQAekiiJUhgrBt-P46AKq3nB2bF_u_PJJhdbLItVYXHe8yBCWUiNSrSxjRmLOahKRexyV3Y5JcsxLjGVeaV2YjNb0XYjJM23RFLUeUPjfF5Vxs7K6WZGS3DIVZK7IoUAMAAHSAKFALDDu84AgFyYNojjUINIABYBGDS1BUwNAox3ZQLbKgVpSqcwdSBYqBNWKOgTVYFpitfhmc0MZnBV-hZUrW5St_Nqzq0_TaxDEi87Actb-UltL8dbxTyDXYNqxPYdUh2mHVIdpdwBMe0dt5F0O060AJDsbDDesrnlaiYdDDRQNCtoqoUNBx2xXQAVgWR0K-nw_9LDZbuJF3Z9en0_vT4czzRfV0TCuW5tnMDgKAPQD0gakDUvZwwFQN8A1BmCKvOtMj_vj8XTeXt4O8aY3x4_3_fHlfKGvHw30UswyAwAA)"})
         </script>
         
     </div>
@@ -245,13 +257,14 @@
 
 <p>The name Condorcet comes from the guy that thought it up, the Marquis de Condorcet, whose actual name is Nicholas Caritat and who is actually just from the town of Condorcet, so really it gets its name from a town in France. And actually, it maybe should be called Llull because Ramon Llull thought it up 500 years before Condorcet.</p>
 
-<p><strong>Statues of Concorcet and Llull</strong></p>
+<p style="text-align: center;"><strong>Statues of Concorcet and Llull</strong></p>
 
-<p><img src="img\condorcet.jpg" alt="condorcet" class="picture" /> <img src="img\llull.jpg" alt="llull" class="picture" /></p>
+<div class="picture-container">
+ <img src="img\condorcet.jpg" alt="condorcet" class="picture" /> <img src="img\llull.jpg" alt="llull" class="picture" />
+</div>
+<p>Also, when there is a Condorcet winner, I would say this is the perfect voting system because we get around Arrow’s Impossibility Theorem. Arrow’s theorem requires a set of good principles for a voting system, and when there is a Condorcet winner, all those principles are met. The only problem is that there could be a Condorcet cycle, which we’ll talk about next.</p>
 
-<p>Also, when there is a Condorcet winner, Arrow’s Impossibility Theorem does not apply. So I would say this is the perfect voting system.</p>
-
-<!--Maybe more here about Arrow's theorem-->
+<!--Maybe more here about Arrow's theorem, or link at bottom-->
 
 <h2 id="visualizing-cycles">Visualizing Cycles</h2>
 
@@ -260,7 +273,9 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Rock Paper Scissors.</h2>
-        <p class="ballot_caption">Rock beats scissors, and scissors beats paper, but paper beats rock, so it’s a tie, or a cycle.</p>
+        <p class="ballot_caption">Rock beats scissors, and scissors beats paper, but paper beats rock, so it’s a tie, or a cycle.
+        
+        </p>
         
         
         <script id="4">
@@ -271,14 +286,16 @@
 
 </div>
 
-<p>This visualization <strong>above</strong> is a little crowded.  The colors here are the same is in the case of the single ballot.  The three voter’s ballot diagrams are overlapping in this combined diagram.</p>
+<p>This visualization <strong>above</strong> is a little crowded. The colors here are the same is in the case of the single ballot. The three voter’s ballot diagrams are overlapping in this combined diagram.</p>
 
 <p>Lets clean up the visual by showing a map of where a candidate can beat an opponent.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Beat Map of Rock Paper Scissors</h2>
-        <p class="ballot_caption">This map shows that scissors is in rock's territory, but paper is outside, so paper beats rock.  Wiggle rock to see it's territory move.</p>
+        <p class="ballot_caption">This map shows that scissors is in rock's territory, but paper is outside, so paper beats rock. Wiggle rock to see it's territory move.
+        
+        </p>
         
         
         <script id="41">
@@ -289,12 +306,14 @@
 
 </div>
 
-<p>This cycle can happen when there is division between three deeply divided groups. It goes away if we add voters to the middle.  (Also, let’s use odd numbers so we don’t have to deal with ties.)</p>
+<p>This cycle can happen when there is division between three deeply divided groups. It goes away if we add voters to the middle. (Also, let’s use odd numbers so we don’t have to deal with ties.)</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Middle Voters Break the Cycle</h2>
-        <p class="ballot_caption">The middle voters' choice determines who wins because the rest of the voters can’t agree.</p>
+        <p class="ballot_caption">The middle voters' choice determines who wins because the rest of the voters can’t agree.
+        
+        </p>
         
         
         <script id="5">
@@ -310,7 +329,9 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Common ground Candidate Breaks Cycle</h2>
-        <p class="ballot_caption">A common ground candidate enters the race and wins all their matches.</p>
+        <p class="ballot_caption">A common ground candidate enters the race and wins all their matches.
+        
+        </p>
         
         
         <script id="6">
@@ -321,12 +342,14 @@
 
 </div>
 
-<p>There is tremendous competitive pressure to go towards the middle as you can see in this new diagram, a win map.  The solid yellow region is where <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> needs to be in order to win.</p>
+<p>There is tremendous competitive pressure to go towards the middle as you can see in this new diagram, a win map. The solid yellow region is where <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> needs to be in order to win.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Win Map</h2>
-        <p class="ballot_caption">This is a map of where B would have to go to win. Move B around.</p>
+        <p class="ballot_caption">This is a map of where B would have to go to win. Move B around.
+        
+        </p>
         
         
         <script id="7">
@@ -337,12 +360,14 @@
 
 </div>
 
-<p>This map is much fuller when there are voters in the center.  (Also, the striped region in the below diagram is just a regular tie, not a cycle, like the above diagram with thinner striping.)</p>
+<p>This map is much fuller when there are voters in the center. (Also, the striped region in the below diagram is just a regular tie, not a cycle, like the above diagram with thinner striping.)</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Win Map with Middle</h2>
-        <p class="ballot_caption">Middle voters make it easy for common ground candidates to win. Move B around.</p>
+        <p class="ballot_caption">Middle voters make it easy for common ground candidates to win. Move B around.
+        
+        </p>
         
         
         <script id="win_map_middle_sim">
@@ -353,12 +378,14 @@
 
 </div>
 
-<p>Let’s go back to the beat maps.  They show where any candidate would need to go to beat <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> in a one-on-one.  It looks like B has most locations locked down except for a white angular area in the center.</p>
+<p>Let’s go back to the beat maps. They show where any candidate would need to go to beat <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> in a one-on-one. It looks like B has most locations locked down except for a white angular area in the center.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Beat Maps</h2>
-        <p class="ballot_caption">B beats any candidate in the yellow region.  Move everybody to see how their beat maps change.</p>
+        <p class="ballot_caption">B beats any candidate in the yellow region. Move everybody to see how their beat maps change.
+        
+        </p>
         
         
         <script id="beat_map_middle_sim">
@@ -374,7 +401,9 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Thin Beat Maps</h2>
-        <p class="ballot_caption"></p>
+        <p class="ballot_caption">
+        
+        </p>
         
         
         <script id="thin_beat_map_middle_sim">
@@ -390,7 +419,9 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">B's Election Beat Map</h2>
-        <p class="ballot_caption">Only candidates more near the middle can win.  Move A, C, and D to make them win.</p>
+        <p class="ballot_caption">Only candidates more near the middle can win. Move A, C, and D to make them win.
+        
+        </p>
         
         
         <script id="election_beat_map_middle_sim">
@@ -401,12 +432,14 @@
 
 </div>
 
-<p>Let’s look at all the candidate’s beat maps to show that there is a cycle between A, C, and D, but B beats them all.  Also, the white spot in the middle is where a new candidate could win.</p>
+<p>Let’s look at all the candidates’ beat maps to show that there is a cycle between <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span>, <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span>, and <span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span>, but <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> beats them all. Also, the white spot in the middle is where a new candidate could win.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">All Beat Maps in Election</h2>
-        <p class="ballot_caption">The spot in the middle is where a new candidate can win.</p>
+        <p class="ballot_caption">The spot in the middle is where a new candidate can win.
+        
+        </p>
         
         
         <script id="all_election_beat_map_middle_sim">
@@ -419,13 +452,85 @@
 
 <p>These examples are made to show particular concepts, and a real election would have a wider spread of voters and candidates.</p>
 
+<h3 id="median-math---how-to-make-a-beat-map">Median Math - How to Make a Beat Map</h3>
+
+<p>To get a more fundamental understanding of Condorcet cycles, let’s talk about how this beat map is related to the median. In this section, I’ll show that the reason we have Condorcet cycles is because there’s no one single position in two dimensions that would beat all the other positions head-to-head.</p>
+
+<p>The median works in one dimension just like the Condorcet winner. If you compare the median to any other position, then, in a vote, it would beat the other position .</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Median Beats All in 1D</h2>
+        <p class="ballot_caption">Candidate A takes the position at the median of the position of voters and wins. Move B to show there's no other position that beats A.
+        
+        </p>
+        
+        
+        <script id="median_1d_sim">
+            sandbox({idScript:"median_1d_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA21SMU4EMQz8i-sUsWPHyb6Cgm51xSFRIK0EQkdxQvB2HI8OCk5bzNqOxzNOPqnStu-ss_R5KjtPL15Pp0J8y7PZihttUkhpo-9KhYy2WqjHoah5QC3_vqiMqNA3a6e75ZllaXa_zDWnMGMMC8IGUACUcAeEFNbAkXI5BnAhCZ5ICmdSBAAaURwJmhYAGnFEA9HMhlbTJq9lcBYaBDXspkFQmNl2xrGOAtja_O3XpFo_y1pm5JYJsr2tH80u_aOLLS6p6jlHIU5h0bAqgzCDRWtJYbBoBoBFA4sNHJm4z5p9HSwd9joW1S3lL2kdFB0KOnodChy9LjnMGwCrcdyV356NoziwlyIrBzsDZIMRQciAkKEpchgAWga4ns7H8Xp5vL49x0N9OD7ez8fL5UpfPzIyeM7oAgAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>In two dimensions, the median doesn’t work this way. Finding the median in two dimensions actually has many definitions.</p>
+
+<p>One definition is called the geometric median. It minimizes the distance between itself and all the points. More precisely, it minimizes the sum of these distances. A more familiar concept is the mean, which minimizes the sum of the squares of these distances.</p>
+
+<p>The geometric median works in this simple symmetric case:</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Median Beats All in 2D</h2>
+        <p class="ballot_caption">In this circular distribution of voters, the candidate that positions themselves at the geometric median beats all other candidates.
+        
+        </p>
+        
+        
+        <script id="median_2d_sim">
+            sandbox({idScript:"median_2d_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA22SsW7DMAxE_0WzBpESJdlf0aGbkSEFOhQw0KJIh6Bovr00H9KlgWGc6BNPd5S_U0nrtomV7O8pb1KXrMVOp5wkmLY4o0dd01pyamlNt5Jysii7b3JuOJT873FmOpNu0np6SC9Ba7XHtJQ4RYRjRCmxIg3AiXTArUhz9IPVwQ-QnNR1_KNKfFQFkNHGFpepDsjooJpUSzTUEjHlGIYEUTFUKzyGPMy6SfivHQK1uvz1t5A6FnJf6H3hYpseixZdDbno6mG1Da4Cc42IxqgMY0ZEqyFhRDQDiGiDarJl4T5L9HVUOvE6g-oW9qsb6Uh0HHR6Bw4GvUNDflSA0Qzuatx_GyyMyVzykXoQZyI2hQojEyOzhclpAF4mWi_nfX-_PF8_Xv1Hfdq_Ps_72-Wafn4BRE0OAuoCAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>The geometric median doesn’t work in the multi-modal distributions we’ve been looking at that have Condorcet cycles.</p>
+
+<p>You can see that the zone of positions that could beat this median is pretty small compared to other ideas for where the median would be. Maybe that’s a good figure of merit, but it doesn’t quite describe the idea of a single median.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Median Doesn't Quite Beat All in a Multi-Modal Distribution</h2>
+        <p class="ballot_caption">In this triangular distribution of voters, there is a small white region near the center where a candidate can take a position to beat the candidate positioned at the median.
+        
+        </p>
+        
+        
+        <script id="median_2d_multimodal_sim">
+            sandbox({idScript:"median_2d_multimodal_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VTu27DMAz8F80aTFKiZH9G0c3JkCAeigZtkaZDESTfXooHOQiKwANf0vF4lC9hCNM8Uxojad7GmUqOPOh2GwOhwtFyVtEaWYo5LGqpsR02T0s7K2EaYkhhCrcxxJA9VAOwWjEzxH-fVerTyvi0QoNjU2MXbpswbII1NIe6w92R7qTu5O5od0p3anfGFfAOvWLTCk4rOq3wtOJTa9DYMtiaPmImIYI8pDCmDyWzpgabGT3LNqYl2cYkM-w1hsyckMwOyoDhgqgiGv2CtO021YQ8LaAjwBHQEcOZycUVxbXiDcSwLuH77bDsd6cwnU8_y9Wy2A3Z8TTc19RCegz5MRRv418Lk_NNaO4Z9a6p4C1hkDR6MmPrGWNkyJGhaoYcOcNAjowRMkTNEFUHjxQoCjFUkMzOVoyIAkLBQHG3gEHB3cIOXwQGQhbstfR3DwoFr5wiR4mp5TFSBWAFYAWZis1UAFYAVvCpwNvvjsfP8-vv12J_28vu4305hOsfg2mgwsgDAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>There’s another definition of median you could think of. You could project to one dimension and find the median as usual.</p>
+
+<p>I used these projected medians to make the beat maps. The median isn’t a single position. There’s a projection for every angle, so you have a median associated with each angle. Just choose an origin, and you can make a plot. So I used each candidate as an origin and found where the median voter was. Then I doubled that distance to see a position that would tie with the candidate. That made the beat map.</p>
+
+<p>By the way, there’s also something called a windmill problem that 3Blue1Brown made a video about, and this is actually a really good visual for a two-dimensional median.  Another interesting way to find a median is Tukey’s half-space depth.</p>
+
+<p>To restate the main point of this section, the reason we have Condorcet cycles is because there’s no one single position in two dimensions that would beat all the other positions head-to-head.</p>
+
 <p>In the voting systems to follow, I added the beat maps to try to make voting more visually understandable.</p>
 
-<p>I’d also like to point out that, in a case where you have to resolve a tie, really any of the candidates would be an okay choice. The differences between Condorcet methods are just in how they go about doing a tiebreaker.</p>
+<p>I’d also like to point out that, in a case where you have to resolve a cycle, really any of the candidates would be an okay choice. The differences between Condorcet methods are just in how they go about resolving the cycle.</p>
 
 <h2 id="specific-condorcet-methods">Specific Condorcet Methods</h2>
 
-<p>A variety of voting methods will pick the Condorcet winner if it exists.  I’m just going to go through a couple different methods: Minimax, Schulze, an alternative way to count Schulze, and Ranked Pairs.  I think Minimax is the simplest, so let’s start there.</p>
+<p>A variety of voting methods will pick the Condorcet winner if it exists. I’m just going to go through a couple different methods: Minimax, Schulze, an alternative way to count Schulze, and Ranked Pairs. I think Minimax is the simplest, so let’s start there.</p>
 
 <h3 id="minimax">Minimax</h3>
 
@@ -434,7 +539,9 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Minimax</h2>
-        <p class="ballot_caption"></p>
+        <p class="ballot_caption">
+        
+        </p>
         
         
         <script id="minimax_sim">
@@ -447,14 +554,16 @@
 
 <h3 id="schulze">Schulze</h3>
 
-<p>Schulze breaks ties in a way that aligns with the intent of a Condorcet winner; Schulze takes all the pairs of candidates and strings the pairs together into chains. At the beginning of the chain is the winner and at the end the loser. The strength of a chain is only as strong as its weakest link. There are many chains between any pair of candidates. The strongest chain is found for each pair. Magically, there is only one candidate who goes undefeated. This is a really cool way to break ties.  <strong>Try it out below.</strong></p>
+<p>Schulze breaks ties in a way that aligns with the intent of a Condorcet winner; Schulze takes all the pairs of candidates and strings the pairs together into chains. At the beginning of the chain is the winner and at the end the loser. The strength of a chain is only as strong as its weakest link. There are many chains between any pair of candidates. The strongest chain is found for each pair. Magically, there is only one candidate who goes undefeated. This is a really cool way to break ties. <strong>Try it out below.</strong></p>
 
 <p>There’s an excellent website that Rob LeGrand created that counts ballots using many more Condorcet methods than I have programmed so far on this site, so I have included his code directly into this site. You can see the explanations are a little bit different in formatting.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Schulze</h2>
-        <p class="ballot_caption"></p>
+        <p class="ballot_caption">
+        
+        </p>
         
         
         <script id="schulze_sim">
@@ -472,7 +581,9 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Schulze Alternative</h2>
-        <p class="ballot_caption"></p>
+        <p class="ballot_caption">
+        
+        </p>
         
         
         <script id="schulze_alt_sim">
@@ -490,7 +601,9 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Ranked Pairs</h2>
-        <p class="ballot_caption"></p>
+        <p class="ballot_caption">
+        
+        </p>
         
         
         <script id="ranked_pairs_sim">
@@ -503,16 +616,18 @@
 
 <h3 id="even-more-condorcet-methods">Even More Condorcet Methods</h3>
 
-<p>Rob LeGrand’s site has a lot more voting methods, so try them out in the simulation below.  The explanations in the sidebar are very thorough and explain the way in which the winner was selected. One detail is that he uses a tie-breaking ballot whenever he runs into a regular tie (not a cycle)</p>
+<p>Rob LeGrand’s site has a lot more voting methods, so try them out in the simulation below. The explanations in the sidebar are very thorough and explain the way in which the winner was selected. One detail is that he uses a tie-breaking ballot whenever he runs into a regular tie (not a cycle)</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">More Methods</h2>
-        <p class="ballot_caption">Rob LeGrand did a lot of work to include all these Condorcet methods, and some that aren't.</p>
+        <p class="ballot_caption">Rob LeGrand did a lot of work to include all these Condorcet methods, and some that aren't.
+        
+        </p>
         
         
         <script id="robla_sim">
-            sandbox({idScript:"robla_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSvU5DMQyF3yWzh9iOE-c-BmK76lBEJypgYEEInh3Hh0pVUXWHE__k5Itzv0ot275PoT4PtAtXGnUtmhG7xIrbJLGVi5SIHg5UeO3hytEys8Vp8lrMaKmyWrRslUorW_nRQsXKxlR67IvaCKn074uK363MuxWueRQvKF6xIAYBN4hBOiQIuIXGeRYS5kJFwiiSwskqAoGNNERhoyGwkYHIEc0UrUm6SBROCiCFk8JJbeHS37eae0IoPBX3ZRJSalFu9TKAFfB1INeBXmxX0NKr3R7VeiK0gTcCfpuZNEzTGCIJZQoBuuExDUOwgZrnWYYh9JrJjgF0DKBjAN2SVwOkw6KDoGPvAMHA3gGCoYjwmgOvOS7_00DRb2Y2cCWHoeNKDhgHjMPQYejgeTqez28fj5_vp_h9H46vL6fn8v0Lqgq8QSoDAAA)"})
+            sandbox({idScript:"robla_sim",link:"[link](https://paretoman.github.io/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSsU4EMQxE_yW1i9iOE2c_A9GtrjjEVZyAggYh-HYcDyedDp22mEycTF6c_Sq1bPs-hfo80C5cadQ1aEbsEiNuk8TWnGlM8eFAhdcerhx-5hKnyWswjaTKWqJlq1Ra2cqPFipWNqbSY1_URkilf19U_G5l3q1wzaN4QfHyAg8CbhCDdEgQcPBwnGchES5UJIJaCCerCAQx0uAiRkMQIwPO4WaK1iRdJIokBZAiSZGktnDp71uLe0IoMhX3ZRJSalFu9dKAZfjayLXRS-wyLbPa7VGtJ0IbeCPgt5mThm4aQyShTCFANzymoQk2UPM8y9CEXnOyowEdDehoQLfk1QDpiOgg6Ng7QDCwd4BgKBxec-A1x-V_Gij6Tc8GruQIdFzJAeOAcQQ6Ah08T8fz-e3j8fP9FL_vw_H15fRcvn8Bl3tygyoDAAA)"})
         </script>
         
     </div>
@@ -521,9 +636,9 @@
 
 <h2 id="strategy">Strategy</h2>
 
-<p>In each of these Condorcet methods, voters would have a hard time trying to use a strategy. What I mean by strategy is that you might say you like someone less than you actually do. Like you might put a viable competitor low on your ballot below people you actually don’t like as much in the hope that the tiebreaker would work in your favor. However, these strategies are hard to think about because they can backfire.</p>
+<p>In each of these Condorcet methods, voters would have a hard time trying to use a strategy. What I mean by strategy is that you might say you like someone less than you actually do. You might put a viable competitor low on your ballot below people you actually don’t like as much in the hope that the tiebreaker would work in your favor. However, these strategies are hard to think about because they can backfire.</p>
 
-<p><strong>Backfiring</strong> - Jameson Quinn’s study of how often strategies backfire versus work.  The Condorcet methods Schulze and Ranked Pairs (Rp) have a high likelihood of backfiring and a small likelihood of working.</p>
+<p><strong>Backfiring</strong> - Jameson Quinn’s study of how often strategies backfire versus work. The Condorcet methods Schulze and Ranked Pairs (Rp) have a high likelihood of backfiring and a small likelihood of working.</p>
 
 <p><img src="img/backfire.png" alt="backfire" class="picture100" /></p>
 
@@ -531,7 +646,7 @@
 
 <h2 id="afterward">Afterward</h2>
 
-<p>You may have noticed the above examples seem to all be ties, so what does it matter which condorcet method we choose?  They all seem to be about the same.  As long as we pick one, we’ll be okay.</p>
+<p>You may have noticed the above examples seem to all be ties, so what does it matter which condorcet method we choose? They all seem to be about the same. As long as we pick one, we’ll be okay.</p>
 
 <p>The benefit of Condorcet methods is that voters don’t split the vote and candidates don’t need to fight each other to avoid splitting the vote. By using a Condorcet method, we end up finding common ground.</p>
 

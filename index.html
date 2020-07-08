@@ -82,6 +82,8 @@
     <script src="play/js/gpu.js-develop/bin/gpu.js"></script>
     <script src="play/js/FastYee.js"></script>
 
+    <script src="play/js/javascript-lp-solver/prod/solver.js"></script>
+
     <script src="play/js/Model.js"></script>
     <script src="play/js/Yee.js"></script>
     <script src="play/js/Candidate.js"></script>
@@ -131,11 +133,7 @@
             
           
             
-            <a class="page-link" href="original">Original</a>
-            
-          
-            
-            <a class="page-link" href="newer">An Even Better Ballot</a>
+            <a class="page-link" href="condorcet">Condorcet Methods</a>
             
           
             
@@ -147,11 +145,15 @@
             
           
             
-            <a class="page-link" href="proportional">Proportional Representation</a>
+            <a class="page-link" href="proportional">Proportional Methods</a>
             
           
             
-            <a class="page-link" href="condorcet">Condorcet Methods</a>
+            <a class="page-link" href="original">Original</a>
+            
+          
+            
+            <a class="page-link" href="newer">An Even Better Ballot</a>
             
           
             
@@ -163,10 +165,14 @@
             
           
             
+            <a class="page-link" href="links">Links</a>
+            
+          
+            
             <a class="page-link" href="sandbox/">Sandbox</a>
             
           
-          <!--<a class="page-link" href="/ballot/approval.html">Approval Voting</a><a class="page-link" href="/ballot/bees.html">Bees</a><a class="page-link" href="/ballot/blog.html">Blog</a><a class="page-link" href="/ballot/commonground.html">Home</a><a class="page-link" href="/ballot/condorcet.html">Condorcet Methods</a><a class="page-link" href="/ballot/draft-common-ground.html">Home</a><a class="page-link" href="/ballot/sandbox/embedbox.html">Embed Box for Smart Voting Simulator</a><a class="page-link" href="/ballot/sandbox/">Sandbox</a><a class="page-link" href="/ballot/">Home</a><a class="page-link" href="/ballot/irv.html">Instant Runoff Voting</a><a class="page-link" href="/ballot/modify.html">Modify the Simulator</a><a class="page-link" href="/ballot/newer.html">An Even Better Ballot</a><a class="page-link" href="/ballot/oncemore.html">Draft for An Even Better Ballot</a><a class="page-link" href="/ballot/sandbox/original.html">Sandbox for To Build a Better Ballot</a><a class="page-link" href="/ballot/original.html">Original</a><a class="page-link" href="/ballot/primaries.html">Primaries</a><a class="page-link" href="/ballot/proportional.html">Proportional Methods</a><a class="page-link" href="/ballot/quotaApproval.html">Quota Methods</a><a class="page-link" href="/ballot/stv.html">The Single Transferable Vote</a><a class="page-link" href="/ballot/testAttach.html">Test Attach</a><a class="page-link" href="/ballot/testBallot.html">Test Ballot</a><a class="page-link" href="/ballot/testPreset.html">Test Preset</a><a class="page-link" href="/ballot/testRuns.html">Test Runs</a><a class="page-link" href="/ballot/testSwitcher.html">Test Switcher</a><a class="page-link" href="/ballot/try.html">To Build a Better Ballot - QAPR</a>-->
+          <!--<a class="page-link" href="/ballot/approval.html">Approval Voting</a><a class="page-link" href="/ballot/bees.html">Bees</a><a class="page-link" href="/ballot/blog.html">Blog</a><a class="page-link" href="/ballot/commonground.html">Home</a><a class="page-link" href="/ballot/condorcet.html">Condorcet Methods</a><a class="page-link" href="/ballot/draft-common-ground.html">Home</a><a class="page-link" href="/ballot/draft-gerrymander.html">Condorcet Methods</a><a class="page-link" href="/ballot/sandbox/embedbox.html">Embed Box for Smart Voting Simulator</a><a class="page-link" href="/ballot/sandbox/">Sandbox</a><a class="page-link" href="/ballot/">Home</a><a class="page-link" href="/ballot/irv.html">Instant Runoff Voting</a><a class="page-link" href="/ballot/links.html">Links</a><a class="page-link" href="/ballot/modify.html">Modify the Simulator</a><a class="page-link" href="/ballot/newer.html">An Even Better Ballot</a><a class="page-link" href="/ballot/oncemore.html">Draft for An Even Better Ballot</a><a class="page-link" href="/ballot/sandbox/original.html">Sandbox for To Build a Better Ballot</a><a class="page-link" href="/ballot/original.html">Original</a><a class="page-link" href="/ballot/primaries.html">Primaries</a><a class="page-link" href="/ballot/proportional.html">Proportional Methods</a><a class="page-link" href="/ballot/quotaApproval.html">Quota Methods</a><a class="page-link" href="/ballot/stv.html">The Single Transferable Vote</a><a class="page-link" href="/ballot/testAttach.html">Test Attach</a><a class="page-link" href="/ballot/testBallot.html">Test Ballot</a><a class="page-link" href="/ballot/testPreset.html">Test Preset</a><a class="page-link" href="/ballot/testRuns.html">Test Runs</a><a class="page-link" href="/ballot/testSwitcher.html">Test Switcher</a><a class="page-link" href="/ballot/try.html">To Build a Better Ballot - QAPR</a><a class="page-link" href="/ballot/draft-digression-median-systems.html">Digression: median systems</a>-->
         </div>
       </nav></div>
 </header>
@@ -207,7 +213,7 @@
         <div>
             Primaries
             <span>
-                 - #2 we don't need them
+                 - #2 We don't need them.
             </span>
         </div>
     </div>
@@ -221,7 +227,7 @@
         <div>
             Approval Voting
             <span>
-                 - #3 a practical improvement - and it works with strategy
+                 - #3 a practical improvement - And it works with strategy.
             </span>
         </div>
     </div>
@@ -229,27 +235,13 @@
 </div>
 
 <div class="card">
-<a href="original">
+<a href="condorcet">
     <div>
-        <img src="img/split-vote.png" />
+        <img src="img/condorcet.png" />
         <div>
-            To Build a Better Ballot
+            Condorcet Methods
             <span>
-                 - Nicky Case's original sim
-            </span>
-        </div>
-    </div>
-</a>
-</div>
-
-<div class="card">
-<a href="newer">
-    <div>
-        <img src="img/chicken.png" />
-        <div>
-            An Even Better Ballot
-            <span>
-                 - Jameson Quinn's extension of Nicky's sim to show strategies for score voting, introduce STAR, and play the game of chicken
+                 - the best way to find common ground.
             </span>
         </div>
     </div>
@@ -285,13 +277,13 @@
 </div>
 
 <div class="card">
-<a href="proportional">
+<a href="original">
     <div>
-        <img src="img/proportional.png" />
+        <img src="img/split-vote.png" />
         <div>
-            Proportional Representation
+            To Build a Better Ballot
             <span>
-                 - continuing after STV, here are more kinds of proportional representation without parties, using scoring and paired methods
+                 - Nicky Case's original sim
             </span>
         </div>
     </div>
@@ -299,13 +291,27 @@
 </div>
 
 <div class="card">
-<a href="condorcet">
+<a href="newer">
     <div>
-        <img src="img/condorcet.png" />
+        <img src="img/chicken.png" />
         <div>
-            Condorcet Methods
+            An Even Better Ballot
             <span>
-                 - the best way to find common ground.
+                 - Jameson Quinn's extension of Nicky's sim to show strategies for score voting, introduce STAR, and play the game of chicken
+            </span>
+        </div>
+    </div>
+</a>
+</div>
+
+<div class="card">
+<a href="proportional">
+    <div>
+        <img src="img/proportional2.png" />
+        <div>
+            Proportional Representation
+            <span>
+                 - Bring the candidates closer to the voters. Continuing after STV, here are more kinds of proportional representation without parties, using scoring and paired methods.
             </span>
         </div>
     </div>
@@ -319,7 +325,7 @@
         <div>
             Sandbox
             <span>
-                 - try everything
+                 - Try everything.  Share your creations.
             </span>
         </div>
     </div>
@@ -361,19 +367,22 @@
 <p>In this kind of voting, you get a single choice for who you want to win. The ballot is pretty simple. This is the way the ballot is now.</p>
 
 <div class="sim-ballot">
-	<div class="sim-container">
-		<h2 class="ballot_title" style="margin-bottom: 0.15em;">SINGLE CHOICE VOTING</h2>
-		<p class="ballot_caption">Also called First Past the Post.</p>
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Single Choice Voting</h2>
+        <p class="ballot_caption">Also called First Past the Post.
+        
+        </p>
         
         
         <script id="ballotSingle">
             sandbox({idScript:"ballotSingle",link:"[link](http://127.0.0.1:8000/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VRQWrEMAz8i84-RLZkJzn3AT30FnLYdlMaCNllN0tZSvv2Sp4WCiUEIsmSxjPjD2qoH4aSA0sZw8DKlollkT3TcQzEPsKlDdy2Xifqm0BS_0o9B8o20YR_n82W3U672-l2O9zUS9kZeRlRghCDEStCrszYCLBYtOuSha42o-HYYeQ6EyMCYKKg0roQMw4LqhaVoUTzoalE2S0BUgJSAlICUjKkwczEYMYq8BKkcojWEofzGXF5Llfib2KAQ_JE6p78hRQolYJnAUXp6qHCMGUE0FPQ058XxBMqhGqp_BR2KYTmBgEiM1zPQMlaJTi5DIgMBhlWFzAo2C2xIj0fluW0Pd3PE_X0uNwuh2Xe7hTo-nZ6f5iuL5f5vM2n1bpft_U4vc7rdKTPbxSiHLmuAgAA)"})
         </script>
         
-	</div>
+    </div>
+
 </div>
 
-<p>What could we do differently?  That’s what this site’s all about.  <a href="index#content">Go up to the top menu to start exploring.</a></p>
+<p>What could we do differently? That’s what this site’s all about. <a href="index#content">Go up to the top menu to start exploring.</a></p>
 
         </div>
     </div><footer class="site-footer h-card">

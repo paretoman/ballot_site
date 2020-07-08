@@ -13,7 +13,7 @@ function VoterModel(model,type) {
 	type = type || 'Plurality'
 	self.type = type
 
-	GeneralVoterModel(self)
+	GeneralVoterModel(model,self)
 	InitVoterModel[type](model,self)
 
 	self.castBallot = (voterPerson) => CastBallot[type](model, self, voterPerson)
@@ -85,7 +85,7 @@ InitVoterModel.Approval = function (model,voterModel) {
 }
 
 InitVoterModel.Ranked = function (model,voterModel) {
-	// nothing to do
+	voterModel.maxscore = 1; // borda may be different
 }
 
 InitVoterModel.Plurality = function (model,voterModel) {
@@ -116,10 +116,14 @@ CastBallot.Score = function (model,voterModel,voterPerson) {
 			if (tally[can] > max1) max1 = tally[can]
 		}
 		var threshold = max1 * factor
+		var voterAtStage = voterPerson.stages[model.stage]
+		voterAtStage.maxPoll = max1
+		voterAtStage.threshold = threshold // record keeping for later display
 		var viable = []
 		for (var can in tally) {
 			if (tally[can] > threshold) viable.push(can)
 		}
+		voterAtStage.viable = _jcopy(viable) // record keeping for later display
 	} else {
 		viable = model.district[iDistrict].preFrontrunnerIds
 	}
@@ -202,6 +206,8 @@ CastBallot.Ranked = function (model,voterModel,voterPerson) {
 	if (considerFrontrunners && model.election == Election.irv && model.autoPoll == "Auto" && district.pollResults) {
 		// we can do an irv strategy here
 
+		voterPerson.truePreferences = _jcopy(rank)
+
 		// so first figure out if our candidate is winning
 		// should figure out how close we are to winning
 		
@@ -214,7 +220,7 @@ CastBallot.Ranked = function (model,voterModel,voterPerson) {
 		var weLostElectability = ! _electable_all(ourFirst,tally.head2head,voterPerson)
 
 		// are they viable?
-		var viable = _findViable(tally.firstpicks,voterPerson)
+		var viable = _findViable(model,tally.firstpicks,voterPerson)
 		var weLostFirstChoices = ! viable.includes(ourFirst)
 
 		// who was first?
@@ -223,7 +229,7 @@ CastBallot.Ranked = function (model,voterModel,voterPerson) {
 
 		// var weLost = weLostElectability || weLostFirstChoices
 
-		var weLost = weLostActually
+		var weLost = weLostFirstChoices
 
 		if ( weLost ) {
 			// find out if our second choice could win head to head
@@ -319,7 +325,7 @@ CastBallot.Plurality = function (model,voterModel,voterPerson) {
 
 		//   consider only viable candidates (if there are polls, 
 		if (district.pollResults && model.autoPoll == "Auto") { // Auto is here for safety
-			var viable = _findViableFromSet(goodCans, district, voterPerson)
+			var viable = _findViableFromSet(model, goodCans, district, voterPerson)
 
 		} else if (model.autoPoll == "Manual") {  // manually set viable candidates, if we want to
 			var viable = district.preFrontrunnerIds
@@ -355,19 +361,25 @@ function _bestElectable(model, voterPerson) {
 	var parties = district.parties
 
 	// Which candidates not defeated badly?
-	var electset = _electable(iMyParty,parties,hh)
+	var electset = _electable(model,iMyParty,parties,hh)
+
+	var voterAtStage = voterPerson.stages[model.stage]
+	voterAtStage.electable = electset
 
 	// if no candidates are electable
 	if (electset.length == 0) {
 		// find the most electable candidate
 		// the one with the best "worst defeat"
 		var electset = _mostElectable(iMyParty,parties,hh)
+		
+		voterAtStage.mostElectable = electset
 	}
+
 	return electset
 }
 
 
-function _electable(iMyParty,parties,hh) {
+function _electable(model,iMyParty,parties,hh) {
 	// Which candidates are not defeated badly?
 	var myParty = parties[iMyParty]
 	var electset = []
@@ -380,7 +392,7 @@ function _electable(iMyParty,parties,hh) {
 					// check how badly we are defeated
 					let howbad = hh[b.id][a.id] / hh[a.id][b.id]
 
-					if (howbad > 1.1) {
+					if (howbad > model.howBadlyDefeatedThreshold) { // 1.1 is default
 						// this parameter can be changed.
 						electable = false
 					}
@@ -439,10 +451,10 @@ function _findClosest(model,electset,x,y) {
 	return closest
 }
 
-function _findViableFromSet(cans, district, voterPerson) {
+function _findViableFromSet(model,cans, district, voterPerson) {
 	let tally = district.pollResults
 	tally = _tallyFromSet(cans, tally)
-	var viable = _findViable(tally,voterPerson)
+	var viable = _findViable(model,tally,voterPerson)
 	return viable
 }
 
@@ -456,17 +468,22 @@ function _tallyFromSet(electset, tally) {
 }
 
 
-function _findViable(tally,voterPerson) {
+function _findViable(model,tally,voterPerson) {
 	var factor = voterPerson.poll_threshold_factor
 	var max1 = 0
 	for (var can in tally) {
 		if (tally[can] > max1) max1 = tally[can]
 	}
 	var threshold = max1 * factor
+	
+	var voterAtStage = voterPerson.stages[model.stage]
+	voterAtStage.maxPoll = max1
+	voterAtStage.threshold = threshold // record keeping for later display
 	var viable = []
 	for (var can in tally) {
 		if (tally[can] > threshold) viable.push(can)
 	}
+	voterAtStage.viable = _jcopy(viable) // record keeping for later display
 	return viable
 }
 
@@ -927,6 +944,8 @@ DrawMap.Ranked = function (ctx, model,voterModel,voterPerson) {
 			}
 			ctx.setLineDash([]);				
 		}	
+	} else if (model.useBeatMapForRankedBallotViz && model.system != "Borda") {
+		// do nothing .. kind of a temporary bandage while I work out the visualization
 	} else if (1) {
 		
 		if (model.system == "Borda") {
@@ -1478,7 +1497,7 @@ DrawMe.Ranked = function (ctx, model,voterModel,voterPerson) {
 	}
 	if (model.drawSliceMethod == "barChart") {
 		if (model.system == "Borda") {
-			_drawVoterBarChart(model, ctx, x, y, size, slices, totalSlices,n);
+			_drawVoterBarChart(model, ctx, x, y, size, slices, totalSlices, slices.length);
 		} else if (model.system == "IRV" || model.system == "STV") {
 			if (model.squareFirstChoice) {
 				_drawIRVStack(model, ctx, x, y, size, slices, totalSlices * 1/Math.max(weight,.000001));
@@ -1533,7 +1552,7 @@ DrawMe.Plurality = function (ctx, model,voterModel,voterPerson) {
 	ctx.beginPath();
 	ctx.arc(x, y, size, 0, Math.TAU, true);
 	ctx.fill();
-	if (model.yeeon) {ctx.stroke();}
+	if (model.checkDrawCircle()) {ctx.stroke();}
 
 
 }
@@ -1592,11 +1611,11 @@ function _drawIRVStack(model, ctx, x, y, size, slices, totalSlices) {
 	x = x * 2
 	y = y * 2
 	size = size * 2
-	var maxscore = model.candidates.length
+	var maxscore = slices.length
 	var extraspace = .5 // how much extra space the stack at the bottom should use.  - as a fraction.
 
 	let noLastRank = true
-	if (noLastRank) {
+	if (noLastRank && slices.length !== 1) {
 		slices.pop()
 		maxscore --
 	}
@@ -1604,6 +1623,9 @@ function _drawIRVStack(model, ctx, x, y, size, slices, totalSlices) {
 	// special case looks weird
 	if (maxscore == 2) {
 		extraspace = .25
+	}
+	if (maxscore == 1) {
+		extraspace = 0
 	}
 
 	// draw top slice
@@ -1694,9 +1716,9 @@ function _drawVoterBarChart(model, ctx, x, y, size, slices, totalSlices, maxscor
 
 		var xaxis = _lineHorizontal(slices.length, size) // points of main spiral
 	} else {
-		var xaxis = _lineHorizontal(model.candidates.length, size) // points of main spiral
+		var xaxis = _lineHorizontal(slices.length, size) // points of main spiral
 	}
-	var sizex = size / model.candidates.length
+	var sizex = size / slices.length
 	var sizey = size / maxscore
 	var subRects = false
 	_centeredRectStroke(ctx,x,y,size,size)
@@ -1880,7 +1902,7 @@ function _drawSlices(model, ctx, x, y, size, slices, totalSlices){
 
 	}
 	
-	if (model.yeeon) {
+	if (model.checkDrawCircle()) {
 		// Just draw a circle.	
 		_drawRing(ctx,x/2,y/2,size)	
 	}
@@ -1929,18 +1951,20 @@ var DrawBallot = {}
 
 DrawBallot.Score = function (model,voterModel,voterPerson) {
 	var ballot = voterPerson.stages[model.stage].ballot
+	var district = model.district[voterPerson.iDistrict]
+	var cans = district.stages[model.stage].candidates
 
 	var text = ""
 	var scoreByCandidate = []
-	for(var i = 0; i < model.candidates.length; i++) {
-		scoreByCandidate[i] = ballot[model.candidates[i].id]
+	for(var i = 0; i < cans.length; i++) {
+		scoreByCandidate[i] = ballot[cans[i].id]
 	}
 
 	var rTitle = `
 	Give EACH candidate a score<br>
 	<em><span class="small">from 0 (hate 'em) to 5 (love 'em)</span></em>
 	`
-	text += htmlBallot(model,rTitle,scoreByCandidate)
+	text += htmlBallot(model,rTitle,scoreByCandidate,cans)
 	return text
 
 
@@ -1955,24 +1979,32 @@ DrawBallot.Three = function (model,voterModel,voterPerson) {
 
 DrawBallot.Approval = function (model,voterModel,voterPerson) {
 	var ballot = voterPerson.stages[model.stage].ballot
+	var district = model.district[voterPerson.iDistrict]
+	var cans = district.stages[model.stage].candidates
 	
-	var text = ""
+	var spotsById = []
+	for ( var i = 0; i < cans.length; i++) {
+		var cid = cans[i].id
+		spotsById[cid] = i
+	}
+	
 
 	var approvedByCandidate = []
-	for(var i = 0; i < model.candidates.length; i++) {
+	for(var i = 0; i < cans.length; i++) {
 		approvedByCandidate.push("&#x2800;")
 	}
 	for(var i=0; i<ballot.approved.length; i++){
 		var approved = ballot.approved[i];
-		var c = model.candidatesById[approved];
-		approvedByCandidate[c.i] = "&#x2714;"
+		var spot = spotsById[approved]
+		approvedByCandidate[spot] = "&#x2714;"
 	}
 
+	var text = ""
 	var rTitle = `
 	Who do you approve of?<br>
 	<em><span class="small">(pick as MANY as you like)</span></em>
 	`
-	text += htmlBallot(model,rTitle,approvedByCandidate)
+	text += htmlBallot(model,rTitle,approvedByCandidate,cans)
 	return text
 	
 
@@ -1980,41 +2012,58 @@ DrawBallot.Approval = function (model,voterModel,voterPerson) {
 
 DrawBallot.Ranked = function (model,voterModel,voterPerson) {
 	var ballot = voterPerson.stages[model.stage].ballot
+	var district = model.district[voterPerson.iDistrict]
+	var cans = district.stages[model.stage].candidates
 
 	var text = ""
+
+	var spotsById = []
+	for ( var i = 0; i < cans.length; i++) {
+		var cid = cans[i].id
+		spotsById[cid] = i
+	}
 
 	var rankByCandidate = []
 	for(var i=0; i<ballot.rank.length; i++){
 		var rank = ballot.rank[i];
-		var c = model.candidatesById[rank];
-		rankByCandidate[c.i] = i + 1
+		var spot = spotsById[rank]
+		rankByCandidate[spot] = i + 1
 	}
 
 	var rTitle = `
 	Rank in order of your choice:<br>
 	<em><span class="small">(1=1st choice, 2=2nd choice, etc...)</span></em>
 	`
-	text += htmlBallot(model,rTitle,rankByCandidate)
+	text += htmlBallot(model,rTitle,rankByCandidate,cans)
 	return text
 
 }
 
 DrawBallot.Plurality = function (model,voterModel,voterPerson) {
 	var ballot = voterPerson.stages[model.stage].ballot
+	var district = model.district[voterPerson.iDistrict]
+	var cans = district.stages[model.stage].candidates
+
+	if (model.stage == "primary") {
+		cans = district.parties[voterPerson.iParty].candidates
+	}
 
 	var text = ""
 	var onePickByCandidate = []
-	for(var i = 0; i < model.candidates.length; i++) {
-		onePickByCandidate.push("&#x2800;")
+	for(var i = 0; i < cans.length; i++) {
+		var cid = cans[i].id
+		if (cid == ballot.vote) {
+			onePickByCandidate.push("&#x2714;")
+		} else {
+			onePickByCandidate.push("&#x2800;")
+		}
 	}
-	var c = model.candidatesById[ballot.vote];
-	onePickByCandidate[c.i] = "&#x2714;"
 
 	var rTitle = `
 	Who's your favorite candidate?<br>
 	<em><span class="small">(pick ONLY one)</span></em>
 	`
-	text += htmlBallot(model,rTitle,onePickByCandidate)
+	text += htmlBallot(model,rTitle,onePickByCandidate,cans)
 	return text
 
 }
@@ -2023,11 +2072,15 @@ var DrawTally = {}
 
 DrawTally.Score = function (model,voterModel,voterPerson) {
 	var ballot = voterPerson.stages[model.stage].ballot
+	var district = model.district[voterPerson.iDistrict]
+	var cans = district.stages[model.stage].candidates
 	
 	var system = model.system
 	
 	// todo: star preferences
 	var text = ""
+
+	if(cans.length == 0) return text
 
 	if (voterModel.say) text += "<span class='small' style> Vote: </span> <br />" 
 	cIDs = Object.keys(ballot).sort(function(a,b){return -(ballot[a]-ballot[b])}) // sort descending
@@ -2040,7 +2093,7 @@ DrawTally.Score = function (model,voterModel,voterPerson) {
 			text += "<br />"
 		}
 	}
-	if (1){
+	if (0){
 		for(var i=0; i < cIDs.length; i++){
 			cID = cIDs[i]
 			var score = ballot[cID]
@@ -2049,6 +2102,12 @@ DrawTally.Score = function (model,voterModel,voterPerson) {
 			}
 			text += "<br />"
 		}
+	}
+	if (1) {
+		var distList = voterPerson.distList
+		text += dotPlot("score",distList,model,{differentDisplay: true})
+		text += `<br>`
+		
 	}
 	if (system == "STAR") {
 		
@@ -2092,6 +2151,12 @@ DrawTally.Three = function (model,voterModel,voterPerson) {
 			text += model.icon(cID) + ":" + score
 			text += "<br />"
 		}
+	}
+	if (1) {
+		var distList = voterPerson.distList
+		text += dotPlot("score",distList,model,{differentDisplay: true})
+		text += `<br>`
+		
 	}
 	groups = [[],[],[]]
 	for (cID in ballot) {
@@ -2156,11 +2221,19 @@ DrawTally.Approval = function (model,voterModel,voterPerson) {
 	var text = ""
 	if (voterModel.say) text += "<span class='small' style> Approved </span> <br />" 
 	
-	for(var i=0; i<ballot.approved.length; i++){
-		// if (i>0) text += ">"
-		var candidate = ballot.approved[i];
-		text += model.icon(candidate)
-		text += "<br />"
+	if (0) {
+		for(var i=0; i<ballot.approved.length; i++){
+			// if (i>0) text += ">"
+			var candidate = ballot.approved[i];
+			text += model.icon(candidate)
+			text += "<br />"
+		}
+	}
+	if (1) {
+		var distList = voterPerson.distList
+		text += dotPlot("score",distList,model,{differentDisplay: true})
+		text += `</span><br>`
+		
 	}
 	return text
 	
@@ -2207,7 +2280,7 @@ DrawTally.Ranked = function (model,voterModel,voterPerson) {
 	if (pick.doChain || pick.doPairs) {
 		text += "<span class='small' style> Preferences: </span> <br />" 
 		for(var i=0; i<ballot.rank.length; i++){
-			if (i>0) text += ">"
+			if (i>0) text += " > "
 			var candidate = ballot.rank[i];
 			text += model.icon(candidate)
 		}
@@ -2371,14 +2444,14 @@ function _pickRankedDescription(model) {
 
 DrawTally.Plurality = function (model,voterModel,voterPerson) {
 	var ballot = voterPerson.stages[model.stage].ballot
-	{
-		var text = ""
-		if (voterModel.say) text += "<span class='small' style> One vote for </span> " 
-		return text + model.icon(ballot.vote)
-	}
+
+	var text = ""
+	if (voterModel.say) text += "<span class='small' style> One vote for </span> " 
+	if (ballot.vote) text += model.icon(ballot.vote)
+	return text
 }
 
-function GeneralVoterModel(voterModel) {
+function GeneralVoterModel(model,voterModel) {
 	voterModel.say = false
 	voterModel.toTextV = function(voterPerson) {
 		if (0) {
@@ -2392,21 +2465,249 @@ function GeneralVoterModel(voterModel) {
 		return voterModel.toText(voterPerson,"H")
 	}
 	voterModel.toText = function(voterPerson,direction) {
+
+
+		// setup //
+
+		var makeIcons = x => x ? x.map(a => model.icon(a)) : ""
+		var makeIconsCan = x => x ? x.map(a => model.icon(a.id)) : ""
+
+		// voters
+		var voterAtStage = voterPerson.stages[model.stage]
+
+		// candidates
+		var cans = model.district[voterPerson.iDistrict].stages[model.stage].candidates
+		if (model.stage == "primary") {
+			var district = model.district[voterPerson.iDistrict]
+			cans = district.parties[voterPerson.iParty].candidates
+		}
+
+		// distances
+		var distList = makeDistList(model,voterPerson,voterAtStage,cans)
+		voterPerson.distList = distList // just pass it along.. maybe do this part better
+
+		var tableHead = `
+			<table class="main2" border="1">
+			<tbody>
+			<tr>
+			<td class="tallyText">
+			`
+		var tableFoot = `
+			</td>
+			</tr>
+			</tbody>
+			</table>
+			`
+		// writing //
+		
 		var tablewrap = false
 		var text = ''
 		var part1 = voterModel.drawBallot(voterPerson)
+
+
 		var part2 = `
 		<table class="main2" border="1">
 		<tbody>
 		<tr>
-		<th>Tally<br>
-		<em><span class="small">(how your vote counts)</span></em></th>
-		</tr>
-		<tr>
-		<td class="tallyText">#2</td>
+		<td class="tallyText">
+		<span class="small">
+		This is how your vote counts:
+		</span>
+		<br> <br>
+		#2
+		</td>
 		</tr>
 		</tbody>
 		</table>`.replace("#2",voterModel.drawTally(voterPerson))
+
+		var text3 = `
+		Why did you vote this way? <br>
+		<br>
+		`
+
+		text3 += `
+		Your strategy was: <br>
+		<b>${voterPerson.realNameStrategy}</b> <br>
+		<br>
+		`
+		
+		var consideredElectability = model.stage == "primary" && model.doElectabilityPolls
+		if (consideredElectability) {
+			text3 += `
+			You also considered <b>electability</b>. <br>
+			<br>
+			`
+		}
+
+
+
+		// if (model.ballotType == "Score" || model.ballotType == "Approval") {
+		// 	text3 += `
+		// 	You gave the following scores: <br>
+		// 	`
+		// 	text3 += dotPlot("score",distList,model,{differentDisplay: true})
+		// 	text3 += `<br>`
+		// }
+
+		if (model.utility_shape !== "linear") {
+			text3 += `
+			This is your perceived distance from each candidate using a <b>${model.utility_shape}</b> utility function: <span class="percent">(as % of your perceived distance of the arena width)</span><br>
+			`
+			text3 += dotPlot("nUNorm",distList,model,{distLine:true})
+			// for (var d of distList) {
+			// 	text3 += `
+			// 	${makeIconsCan([d.c])}: <b>${Math.round(d.uNorm*100)}</b> <br>
+			// 	`
+			// }
+			text3 += `<br>`
+		}
+
+		text3 += `
+		This is your percieved utility for each candidate: <span class="percent">(100% minus perceived distance)</span> <br>`
+		text3 += dotPlot("uNorm",distList,model)
+		text3 += `
+		<br>`
+
+		text3 += `
+		This is your distance from each candidate: <span class="percent">(as % of arena width)</span> <br>
+		`
+		text3 += dotPlot("dNorm",distList,model,{distLine:true})
+		// for (var d of distList) {
+		// 	text3 += `
+		// 	${makeIconsCan([d.c])}: <b>${Math.round(d.dist/model.size*100)}</b> <br>
+		// 	`
+		// }
+		text3 += `<br>`
+		
+        var not_f = ["zero strategy. judge on an absolute scale.","normalize"]
+		var f_strategy = ! not_f.includes(voterPerson.strategy)
+		var showPollExplanation = f_strategy
+
+		if (consideredElectability) {
+			if (voterAtStage.electable && voterAtStage.electable.length > 0) {
+				text3 += `
+				In the primary, you picked from the candidates that you considered electable: <br>
+				${makeIconsCan(voterAtStage.electable)} <br>
+				<br>
+				`
+				showPollExplanation = false
+				if (voterAtStage.electable.length > 2) {
+					if ( voterAtStage.viable) {
+						text3 += `
+						Also, you considered who among these electable candidates was viable. <br>
+						<br>
+						`
+						// text3 += `
+						// Also, you considered who among these electable candidates was viable: <br>
+						// ${makeIcons(voterAtStage.viable)} <br>
+						// <br>
+						// `
+						showPollExplanation = true
+					}
+				}
+			} else {
+				text3 += `
+				In the primary, no candidates seemed electable, so you picked the one that was most electable: <br>
+				${makeIconsCan(voterAtStage.mostElectable)} <br>
+				<br>
+				`
+				showPollExplanation = false
+			}
+			text3 += `
+			(Candidates were considered electable in head-to-head polls if they won or if the other candidate didn't get 
+			<b>${_textPercent(model.howBadlyDefeatedThreshold - 1)}</b>
+			more votes.) <br>
+			<br>
+			`
+		}
+
+		
+		var district = model.district[voterPerson.iDistrict]
+		var maxscore = model.voterGroups[0].voterModel.maxscore
+
+		if ( showPollExplanation ) {
+			if (model.autoPoll == "Manual") {
+				text3 += `
+				and these candidates were manually selected as frontrunners: <br>
+				${makeIcons(model.preFrontrunnerIds)} <br>
+				<br>
+				`
+			} else {
+				text3 += `
+				and you saw these candidates as frontrunners: <br>
+				${makeIcons(voterAtStage.viable)} <br>
+				<br>
+				`
+				if (model.system == "IRV") {
+					var tp = voterPerson.truePreferences 
+					var rank = voterAtStage.ballot.rank
+					var didCompromise = rank[0] != tp[0]
+					if (didCompromise) {
+						text3 += `
+						Your didn't feel your favorite was viable, so you looked at head-to-head polls and picked someone who could beat the winner.  Your true preferences were:  <br>
+						${makeIcons(tp).join(' > ')} <br>
+						<br>
+						so you compromised and went with: <br>
+						${makeIcons(rank).join(' > ')} <br>
+						<br>
+						`
+					}
+				}
+				text3 += `
+				You based your list of viable candidates on your personal feeling that a candidate needed this fraction of the leading frontrunner's votes to be viable: <br>
+				<b>${_textPercent(voterPerson.poll_threshold_factor)}</b> <br>
+				<br>
+				and you saw that the leading frontrunner had <br>
+				<b>${_percentFormat(district,voterAtStage.maxPoll / maxscore)}</b> <br>
+				<br>
+				so, you only saw candidates with votes above this threshold as viable: <br>
+				<b>${_percentFormat(district,voterAtStage.threshold / maxscore)}</b> <br>
+				<br>
+				`
+			}
+		}
+		
+		var part3 = `
+		<table class="main2" border="1">
+		<tbody>
+		<tr>
+		<td class="tallyText">
+		<span class="small">
+		#3
+		</span>
+		</td>
+		</tr>
+		</tbody>
+		</table>`.replace("#3",text3)
+
+		
+		var part4 = ''
+		
+	// alternative form of ballot
+
+		if (model.ballotType == "Ranked" || model.ballotType == "Score" || model.ballotType == "Approval" || model.ballotType == "Three") {
+			part4 += tableHead
+			part4 += `
+			<span class="small">
+			Alternative form of ballot:
+			</span>
+			`
+			part4 += dotPlot("score",distList,model,{differentDisplay: true,bubbles:true})
+			part4 += `<br>`
+			part4 += tableFoot
+		}
+		if (model.ballotType == "Ranked") {
+			part4 += tableHead
+			part4 += `
+			<span class="small">
+			Visualization of ballot:
+			</span>
+			`
+			part4 += dotPlot("score",distList,model,{differentDisplay: true,distLine:true})
+			part4 += `<br>`
+			part4 += tableFoot
+		}
+
 
 		if (tablewrap) {
 			text += `<table id="paper">
@@ -2435,13 +2736,152 @@ function GeneralVoterModel(voterModel) {
 			<div>
 			` + part2 + `
 			</div>
+			<div>
+			` + part3 + `
+			</div>
+			<div>
+			` + part4 + `
+			</div>
 			</div>`
 		}
 		return text
 	}
 }
 
-function htmlBallot(model,rTitle,textByCandidate) {
+
+function makeDistList(model,voterPerson,voterAtStage,cans) {
+	var distList = []
+	var uf = utility_function(model.utility_shape)
+	for (var i = 0; i < cans.length; i++) {
+		var c = cans[i]
+		var dist = distF(model,{x:voterPerson.x, y:voterPerson.y}, c)
+		var distSet =  {
+			i:i,
+			c:c,
+			dist: dist,
+			dNorm: dist / model.size,
+			nUtility: uf(dist),
+			nUNorm: uf(dist) / uf(model.size),
+			uNorm: 1-uf(dist) / uf(model.size),
+		}
+		if (model.ballotType == "Score" || model.ballotType == "Three") {
+			var maxscore = model.voterGroups[0].voterModel.maxscore
+			distSet.maxscore = maxscore
+			distSet.score = voterAtStage.ballot[c.id] / maxscore
+			distSet.scoreDisplay = voterAtStage.ballot[c.id]
+		}
+		if (model.ballotType == "Approval") {
+			distSet.maxscore = 1
+			distSet.score = voterAtStage.ballot.approved.includes(c.id) ? 1 : 0
+			distSet.scoreDisplay = distSet.score
+		}
+		if (model.ballotType == "Ranked") {
+			distSet.scoreDisplay = (voterAtStage.ballot.rank.indexOf(c.id) + 1)
+			distSet.score = distSet.scoreDisplay / voterAtStage.ballot.rank.length
+		}
+		distList.push(distSet)
+	
+	}
+	
+	distList.sort(function(a,b) {return a.dist - b.dist})
+	for (var i = 0; i < distList.length; i++) {
+		distList[i].iSort = i // we might want to show these by the sorted order
+	}
+
+	return distList
+}
+
+function dotPlot(measure,distList,model,opt) {
+	opt = opt || {}
+	opt.differentDisplay = opt.differentDisplay || false
+	opt.sortOrder = opt.sortOrder || false
+	opt.distLine = opt.distLine || false
+	opt.bubbles = opt.bubbles || false
+
+	var text = ""
+
+	// helper
+	var makeIconsCan = x => x ? x.map(a => model.icon(a.id)) : ""
+
+	// sortOrder = true
+	if (opt.differentDisplay) {
+		var mult = 1
+		var display = measure + "Display"
+	} else {
+		var mult = 100
+		var display = measure // default display to measurement
+	}
+	
+	// option for vertical dimenison.. 0 to turn off.
+	vertdim = 1;
+
+	// dot plot from 0 to 150
+	// border at 100 * 220 / 141 = 156 
+	// also the .5 em margins and padding help center the icons.
+	var w1 = 156
+	var w2 = 200
+	var ncans = distList.length
+	text += `
+	<div style=' position: relative; width: ${w2-4}px; height: ${Math.max( 1 , vertdim * ncans )}em; border: 2px solid #ccc; padding: .25em .75em;'>
+	<div style=' position: relative; width: ${w1-4}px; height: ${Math.max( 1 , vertdim * ncans )}em; border: 0px solid #ccc; border-right: ${(opt.bubbles) ? 0 : 1}px dashed #ccc; padding: 0 .5em;'>
+	`
+	distList.reverse()
+	for (var d of distList) {
+		var iV = (opt.sortOrder) ? d.iSort : d.i
+		var y = iV*vertdim
+		var x = Math.round(d[measure]*w1)
+		if (opt.distLine) {
+			text += `
+			<div style=' position: absolute; top: ${y + .5}em; width: ${x}px; left: -.5em; background-color: #ccc; height: 2px; '>
+			</div>
+			<img src="play/img/voter.png" style=' position: absolute; top: ${y}em; left:-.5em; '/>
+			`
+		} else if (opt.bubbles) {
+			text += `
+			<div style=' position: absolute; top: ${y}em; left: ${0+2}px; margin-left: -.5em; white-space: nowrap;'>
+			${makeIconsCan([d.c])} <br>
+			</div>
+			`
+			var nbubbles = (model.ballotType == "Ranked") ? ncans : d.maxscore+1
+			for (var k=0; k < nbubbles; k++) {
+				var km = k
+				if (model.ballotType == "Ranked") {
+					km ++
+				}
+				var kx = (k+1) * Math.min( (w2-4-13)/ncans, 20 ) - 5
+				var back = (d[display] == km) ? "#555" : "white"
+				text += `<div class="circle" style=' position: absolute; top: ${y}em; left: ${kx}px; background-color:${back};'>
+				</div>
+				<div style=' position: absolute; top: ${y-.05}em; left: ${kx+3}px; color: #ccc; '>
+				<span style=' font-size:${(km > 9 ) ? 50 : 80}%; vertical-align: middle;' >
+				${km}
+				</span>
+				</div>
+				`
+			}
+			continue
+		} else {
+			text += `
+			<div style=' position: absolute; top: ${y}em; width: ${x}px; left: -.5em; background-color: ${d.c.fill}; height: 1em; '>
+			</div>
+			`
+		}
+		text += `
+		<div style=' position: absolute; top: ${y}em; left: ${x+2}px; margin-left: -.5em; white-space: nowrap;'>
+		${makeIconsCan([d.c])}: <b>${Math.round(d[display] * mult)}</b> <br>
+		</div>
+		`
+	}
+	distList.reverse()
+	text += `
+	</div>
+	</div>
+	`
+	return text
+}
+
+
+function htmlBallot(model,rTitle,textByCandidate,cans) {
 	var text = ""
 	var tTitle = `
 	<table class="main" border="1">
@@ -2453,7 +2893,7 @@ function htmlBallot(model,rTitle,textByCandidate) {
 	</tr>
 	<tr>
 	<td class="main">
-	<table border="0">
+	<table class="canList" border="0">
 	<tbody>
 	`
 	text += tTitle.replace("#title",rTitle)
@@ -2472,8 +2912,8 @@ function htmlBallot(model,rTitle,textByCandidate) {
 	<td class="nameLabel">#name</td>
 	</tr>
 	`		
-	for(var i=0; i < model.candidates.length; i++) {
-		var c = model.candidates[i]
+	for(var i=0; i < cans.length; i++) {
+		var c = cans[i]
 		var num = textByCandidate[i]
 		if (model.theme == "Letters") {
 			// icon is same as name
@@ -2505,6 +2945,7 @@ function VoterPerson(model,voterModel) {
 
 	var self = this
 	_addAttributes(self,{
+		isVoterPerson: true,
 		x: undefined,
 		y: undefined,
 		xArena: undefined,
@@ -2515,7 +2956,6 @@ function VoterPerson(model,voterModel) {
 		iAll: undefined,
 		iDistrict: undefined,
 		iParty: undefined,
-		ballot: undefined,
 		weight: undefined,
 		// ballotType: voterModel.type,
 		// voterModel: voterModel,
@@ -2621,7 +3061,9 @@ function VoterSet(model) {
 		return vs
 	}
 	
-	self.getVoterArray = function() {
+	self.getDistrictVoterArray = function(district) {
+		// only for voters of a district
+
 		// returns an array of all the voters and their distinguishing info
 	
 		var vs = []
@@ -2641,7 +3083,12 @@ function VoterSet(model) {
 				for (var m = 0; m < model.candidates.length; m++) {
 					v.b[m] = 0 // zero out all the counts
 				}
-				
+
+				if (v.iDistrict !== district.i) { // the only difference from the regular function
+					// vs.push(v)
+					continue
+				}
+
 				if (model.ballotType == "Approval") { // not yet fully functional TODO
 					
 					var ballot = ballots[k].approved
@@ -2674,6 +3121,17 @@ function VoterSet(model) {
 			}
 		}
 		return vs
+	}
+
+	self.getVoterArray = function() {
+		// returns an array of all the voters and their distinguishing info
+		
+		var all = []
+		for (var district of model.district) {
+			var some = self.getDistrictVoterArray(district)
+			all = all.concat(some)
+		}
+		return all
 	}
 
 	self.getArrayAttr = function(a) {
@@ -2711,6 +3169,7 @@ function VoterSet(model) {
 	}
 	self.updatePersonBallot = function(voterPerson) {
 		var voterModel = model.voterGroups[voterPerson.iGroup].voterModel
+		voterPerson.stages[model.stage] = {}
 		var ballot = voterModel.castBallot(voterPerson)
 		// store ballot for current stage
 		self.loadPersonBallot(voterPerson, ballot)
@@ -2727,9 +3186,14 @@ function VoterSet(model) {
 		}
 	}
 	self.loadPersonBallot = function(voterPerson, ballot) {
-		var stageInfo = {}
-		stageInfo[model.stage] = {ballot:ballot}
-		_addAttributes(voterPerson.stages, stageInfo)
+
+		if (voterPerson.stages[model.stage] == undefined) {
+			var stageInfo = {}
+			stageInfo[model.stage] = {ballot:ballot}
+			_addAttributes(voterPerson.stages, stageInfo)
+		} else {
+			_addAttributes(voterPerson.stages[model.stage], {ballot:ballot})
+		}
 	}
 
 }
@@ -3020,16 +3484,21 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 			}	
 			if (r1 < self.percentSecondStrategy && self.doTwoStrategies) { 
 				var strategy = model.secondStrategy // yes
+				var realNameStrategy = model.realNameSecondStrategy
 			} else {
 				var strategy = model.firstStrategy; // no e.g. 
+				var realNameStrategy = model.realNameFirstStrategy
 			}
 			
 			// choose the threshold of voters for polls
 			var r_11 = Math.random() * 2 - 1 
 			
-			self.voterPeople[i].poll_threshold_factor = _erfinv(r_11) * .2 + .5
+			var voterPerson = self.voterPeople[i]
+			var gauss = _erfinv(r_11) * .2 + model.centerPollThreshold // was .5
+			voterPerson.poll_threshold_factor = Math.min(1, gauss)
 
-			self.voterPeople[i].strategy = strategy
+			voterPerson.strategy = strategy
+			voterPerson.realNameStrategy = realNameStrategy
 		}
 	}
 
@@ -3056,7 +3525,7 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 		}
 	}
 	self.draw2 = function(ctx){
-		if ( model.theme != "Nicky") {
+		if ( model.voterCenterIcons == "on") {
 			_drawCenter(ctx)
 		}
 	}
@@ -3248,6 +3717,7 @@ function SingleVoter(model){
 		voterPerson.poll_threshold_factor = .6
 
 		voterPerson.strategy = model.firstStrategy
+		voterPerson.realNameStrategy = model.realNameFirstStrategy
 
 	}
 
@@ -3375,7 +3845,7 @@ function _drawCircleFill(x,y,size,fill,ctx,model) {
 	ctx.beginPath()
 	ctx.arc(x, y, size, 0, Math.TAU, true)
 	ctx.fill()
-	if (model.yeeon) ctx.stroke()
+	if (model.checkDrawCircle()) ctx.stroke()
 }
 
 function VoterCenter(model){
@@ -3397,19 +3867,7 @@ function VoterCenter(model){
 	}
 	self.findVoterCenter = function(){ // calculate the center of the voter groups
 		// UPDATE
-		var x = 0
-		var y = 0
-		var totalnumbervoters = 0
-		for(var i=0; i<model.voterGroups.length; i++){
-			var voter = model.voterGroups[i]
-			var numbervoters = voter.points.length
-			x += voter.x * numbervoters
-			y += voter.y * numbervoters
-			totalnumbervoters += numbervoters
-		}
-		x/=totalnumbervoters
-		y/=totalnumbervoters
-		
+		var mean = findMean()
 
 		var method = model.median_mean // 1,2,3
 		// 1 is the mean
@@ -3418,34 +3876,13 @@ function VoterCenter(model){
 		// 4 is a 1-d median along 2 projections
 		// 5 is 2 medians using the usual median method
 
-		if (method == 5) {
-			var median = function(values) {
-
-				values.sort( function(a,b) {return a - b;} );
-			
-				var half = Math.floor(values.length/2);
-			
-				if(values.length % 2)
-					return values[half];
-				else
-					return (values[half-1] + values[half]) / 2.0;
-			}
-			xvals = []
-			yvals = []
-			for(i=0; i<model.voterGroups.length; i++){
-				voter = model.voterGroups[i]
-				for(m=0; m<voter.points.length; m++) {
-					point = voter.points[m]
-					xvals.push(point[0]+voter.x)
-					yvals.push(point[1]+voter.y)
-				}
-			}
-			x = median(xvals)
-			y = median(yvals)
-		} else if (method != 1) { // try to find geometric median ... still thinking about whether this is a good idea.
-			// first for centers
-			var d, voter, yv,xv,xd,yd,itnv,moved,xt,yt,j,i,dg,m,point
-			
+		if (method == 1) {
+			return mean
+		} else if (method == 5) {
+			var median = findMedianOrthogonal()
+			return median
+		} else { // try to find geometric median ... still thinking about whether this is a good idea.
+				
 			if (method == 2) {
 				var distancemeasure = function(xd,yd) {
 					return Math.sqrt(xd*xd+yd*yd)
@@ -3460,58 +3897,73 @@ function VoterCenter(model){
 				}
 			}
 
-			d = 0
-			for(i=0; i<model.voterGroups.length; i++){
-				voter = model.voterGroups[i]
-				xv = voter.x
-				yv = voter.y
-				xd = xv - x
-				yd = yv - y
-				d += distancemeasure(xd,yd) * voter.voterPeople.length // d is total distance, not average
+			var median = geometricMedian(mean,distancemeasure)
+			return median
+
+		} 
+	}
+	function findMean() {
+		var x = 0
+		var y = 0
+		var totalnumbervoters = 0
+		for(var i=0; i<model.voterGroups.length; i++){
+			var voterGroup = model.voterGroups[i]
+			var numbervoters = voterGroup.points.length
+			x += voterGroup.x * numbervoters
+			y += voterGroup.y * numbervoters
+			totalnumbervoters += numbervoters
+		}
+		x/=totalnumbervoters
+		y/=totalnumbervoters
+		return {x:x, y:y}
+	}
+	
+	function findMedianOrthogonal() {
+		xvals = []
+		yvals = []
+		for(i=0; i<model.voterGroups.length; i++){
+			voterGroup = model.voterGroups[i]
+			for(m=0; m<voterGroup.points.length; m++) {
+				point = voterGroup.points[m]
+				xvals.push(point[0]+voterGroup.x)
+				yvals.push(point[1]+voterGroup.y)
 			}
-			if (1) {
-				for (var a = 200; a > .1; ) {
-					xt = [x-a,x+a,x-a,x+a] // try these points
-					yt = [y-a,y-a,y+a,y+a]
-					moved = false
-					for (j in xt) {
-						xg = xt[j] // the guess
-						yg = yt[j]
-						// calculate distance
-						dg=0
-						for(i=0; i<model.voterGroups.length; i++){
-							voter = model.voterGroups[i]
-							xv = voter.x
-							yv = voter.y
-							xd = xv - xg
-							yd = yv - yg
-							dg += distancemeasure(xd,yd) * voter.voterPeople.length
-						}
-						if (dg < d) { // we found a better point
-							d=dg * 1
-							x=xg * 1
-							y=yg * 1
-							moved = true
-						}
-					}
-					if(!moved) a*=.5
-				}
-			}
-			// now we do it again for all the individual points within the voter group
-			
-			d=0
-			for(i=0; i<model.voterGroups.length; i++){
-				
-				voter = model.voterGroups[i]
-				for(m=0; m<voter.points.length; m++) {
-					point = voter.points[m]
-					xv = point[0]+voter.x
-					yv = point[1]+voter.y
-					xd = xv - x
-					yd = yv - y
-					d += distancemeasure(xd,yd)
-				}
-			}
+		}
+		x = median(xvals)
+		y = median(yvals)
+		return {x:x, y:y}
+	}
+
+	var median = function(values) {
+
+		values.sort( function(a,b) {return a - b;} );
+
+		var half = Math.floor(values.length/2);
+
+		if(values.length % 2)
+			return values[half];
+		else
+			return (values[half-1] + values[half]) / 2.0;
+	}
+
+	function geometricMedian(mean, distancemeasure) {
+
+		var x = mean.x
+		var y = mean.y
+
+		// first for centers
+		var d, voterGroup, yv,xv,xd,yd,itnv,moved,xt,yt,j,i,dg,m,point
+		
+		d = 0
+		for(i=0; i<model.voterGroups.length; i++){
+			voterGroup = model.voterGroups[i]
+			xv = voterGroup.x
+			yv = voterGroup.y
+			xd = xv - x
+			yd = yv - y
+			d += distancemeasure(xd,yd) * voterGroup.voterPeople.length // d is total distance, not average
+		}
+		if (0) {
 			for (var a = 200; a > .1; ) {
 				xt = [x-a,x+a,x-a,x+a] // try these points
 				yt = [y-a,y-a,y+a,y+a]
@@ -3522,15 +3974,12 @@ function VoterCenter(model){
 					// calculate distance
 					dg=0
 					for(i=0; i<model.voterGroups.length; i++){
-						voter = model.voterGroups[i]
-						for(m=0; m<voter.points.length; m++) {
-							point = voter.points[m]
-							xv = point[0]+voter.x
-							yv = point[1]+voter.y
-							xd = xv - xg
-							yd = yv - yg
-							dg += distancemeasure(xd,yd)
-						}
+						voterGroup = model.voterGroups[i]
+						xv = voterGroup.x
+						yv = voterGroup.y
+						xd = xv - xg
+						yd = yv - yg
+						dg += distancemeasure(xd,yd) * voterGroup.voterPeople.length
 					}
 					if (dg < d) { // we found a better point
 						d=dg * 1
@@ -3541,9 +3990,15 @@ function VoterCenter(model){
 				}
 				if(!moved) a*=.5
 			}
-		} 
-		return {x:x,y:y}
+		}
+		// now we do it again for all the individual points within the voter group
+		
+		var voterPeople = model.voterSet.allVoters
+		var guess = {x:x, y:y}
+		return numericApproxGeometricMedian(voterPeople, guess, distancemeasure)
 	}
+
+
 	self.update = function() {// do the center voter thing
 		// UPDATE
 		var recenter = self.findVoterCenter()
@@ -3602,3 +4057,44 @@ function VoterCenter(model){
 
 }
 
+function numericApproxGeometricMedian(voterPeople, guess, distancemeasure) {
+	var x = guess.x
+	var y = guess.y
+
+	d=0
+
+	for (var voterPerson of voterPeople) {
+		xv = voterPerson.x
+		yv = voterPerson.y
+		xd = xv - x
+		yd = yv - y
+		d += distancemeasure(xd,yd)
+	}
+
+	for (var a = 200; a > .1; ) {
+		xt = [x-a,x+a,x-a,x+a] // try these points
+		yt = [y-a,y-a,y+a,y+a]
+		moved = false
+		for (j in xt) {
+			xg = xt[j] // the guess
+			yg = yt[j]
+			// calculate distance
+			dg=0
+			for (var voterPerson of voterPeople) {
+				xv = voterPerson.x
+				yv = voterPerson.y
+				xd = xv - xg
+				yd = yv - yg
+				dg += distancemeasure(xd,yd)
+			}
+			if (dg < d) { // we found a better point
+				d=dg * 1
+				x=xg * 1
+				y=yg * 1
+				moved = true
+			}
+		}
+		if(!moved) a*=.5
+	}
+	return {x:x, y:y}
+}
