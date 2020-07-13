@@ -83,6 +83,12 @@
     <script src="play/js/FastYee.js"></script>
 
     <script src="play/js/javascript-lp-solver/prod/solver.js"></script>
+    
+    
+    
+    <script src="play/js/d3/d3.js"></script>
+    <script src="play/js/sankey.js"></script>
+
 
     <script src="play/js/Model.js"></script>
     <script src="play/js/Yee.js"></script>
@@ -245,7 +251,7 @@
 
 <p>This is pretty similar to what we do now, eliminating candidates in the run up to the election. Except now that voters put all the information on their ballot, the process of elimination is transparent.</p>
 
-<p>Here’s a sketch that shows everyone connected to their first pick. Colored flow lines show some voters moving to their next choice after their top pick is eliminated.</p>
+<p>Here’s a sketch that shows everyone connected to their first pick. Colored flow lines show some voters moving to their next choice after their top pick is eliminated. The flow diagram shown on the right is called a Sankey diagram, after it’s inventor.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
@@ -355,12 +361,12 @@
 
 <p>For new candidates who don’t have many supporters yet, the barrier to entry would be lowered. Hopefully, this would create competitive pressure to bring out the best candidates.</p>
 
-<p>(The technical definition of a spoiler is a candidate with a small enough level of support that they cannot win themselves, but that can change who wins merely by being in the election. You would think that the only way to change who wins is to be the winner, and that can be true for some really great voting systems. For instant runoff voting, it’s true if the candidate is small enough to be called a spoiler. )</p>
+<p>The technical definition of a spoiler is a candidate with a small enough level of support that they cannot win themselves, but that can change who wins merely by being in the election. You would think that the only way to change who wins is to be the winner.  For instant runoff voting, it’s true if the candidate is small enough to be called a spoiler.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Accusation of Spoiler</h2>
-        <p class="ballot_caption"><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> accuses <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> of spoiling the election, hoping he’ll get C’s supporters
+        <p class="ballot_caption"><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> accuses <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> of spoiling the election, hoping he’ll get <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span>’s supporters
         
         </p>
         
@@ -376,7 +382,7 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">No More Accusations</h2>
-        <p class="ballot_caption"><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> is okay with <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> running because C’s supporters will support <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> against <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span>.
+        <p class="ballot_caption"><span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> is okay with <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> running because <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span>’s supporters will support <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> against <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span>.
         
         </p>
         
@@ -389,11 +395,11 @@
 
 </div>
 
-<p>Resistance to spoilers cannot be overstated. If you decide to become engaged in your community and run for office, the other candidates can’t call you a spoiler any more. They might even see you as an ally who can help bring in supporters. Running for office is a great avenue for people to become involved in politics, and it would be nice if they are welcomed.</p>
+<p>Resistance to spoilers cannot be overstated. If you decide to become engaged in your community and run for office, the other candidates can’t call you a spoiler anymore. They might even see you as an ally who can help bring in supporters. Running for office is a great avenue for people to become involved in politics, and it would be nice if they are welcomed.</p>
 
 <h2 id="afterward">Afterward</h2>
 
-<p>In summary we have illustrated the problem that the fundamental way in which we cast our votes pits every candidate against each other. We can address the problem by allowing voters to support more than one choice. That means candidates can join each other as teams and work together on campaigns, at least until they become large enough to become each others’ best competition. We also showed that voters are able to support candidates that they feel best represent themselves, and even in more complex situations where they need to strategize, voters will be able to rely on more informative head-to-head polls.</p>
+<p>In summary we have illustrated the problem that the fundamental way in which we cast our votes pits every candidate against each other. We can address the problem by allowing voters to support more than one choice. That means candidates can join each other as teams and work together on campaigns, at least until they become large enough to become each other’s best competition. We also showed that voters are able to support candidates that they feel best represent themselves, and even in more complex situations where they need to strategize, voters will be able to rely on more informative head-to-head polls.</p>
 
 <p><!--Footnote: This is a Sankey diagram, which can be used to report poll results. It doesn't report all the results because it doesn't show a head-to-head chart. It only explains how the tallying was done and how the winner was chosen.--></p>
 

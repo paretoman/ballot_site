@@ -63,7 +63,8 @@ Election/Sandbox design:
     }
 }
 
-.div-election #caption{
+.div-election #caption,
+.div-election #chart{
     margin: 0px auto;
 	text-align: left;
     line-height: 1.0em;
@@ -74,9 +75,15 @@ Election/Sandbox design:
     border: 2px solid #ccc;
     width: 220px;
 }
-.div-election #caption .small{
+.div-election #caption .small,
+.div-election #chart .small{
 	font-size: 15px;
 	line-height: 1.0em;
+}
+
+.div-election #chart {
+	margin: 10px auto;
+    margin-top: 0px;
 }
 
 .div-election .buttonshape img{
@@ -305,6 +312,40 @@ svg {
     height: 1em;
 }
 
+#chart svg {
+    width: unset;
+    height: unset;
+}
+
+#chart {
+	border: 2px solid #ccc;
+}
+
+#chart {
+    background-color: white;
+}
+
+.node rect {
+  cursor: move;
+  fill-opacity: .9;
+  shape-rendering: crispEdges;
+}
+
+.node text {
+  pointer-events: none;
+  text-shadow: 0 1px 0 #fff;
+}
+
+.link {
+  fill: none;
+  /*stroke: #000;*/
+  stroke-opacity: .5;
+}
+
+.link:hover {
+  stroke-opacity: .8;
+}
+
 .displayNoneClass {
     display:none !important;
 }
@@ -314,11 +355,21 @@ svg {
 }
 
 .strategyTable {
-    background-color: #222;
+    background-color: white;
 }
 .strategyTable th {
     text-align: center;
 }
 .strategyTable td {
     text-align: right;
+    background-color: white;
+
+}
+/* .nameLabelName {
+    opacity: 1;
+} */
+
+#pollChart{
+    width: unset;
+    height: unset;
 }

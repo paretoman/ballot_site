@@ -83,6 +83,12 @@
     <script src="play/js/FastYee.js"></script>
 
     <script src="play/js/javascript-lp-solver/prod/solver.js"></script>
+    
+    
+    
+    <script src="play/js/d3/d3.js"></script>
+    <script src="play/js/sankey.js"></script>
+
 
     <script src="play/js/Model.js"></script>
     <script src="play/js/Yee.js"></script>
@@ -202,24 +208,24 @@
 
 <p>Proportional representation is similar to a well-known problem called the facility location problem. Say you’re in the grocery supply business. You want to save on gas, so you want to minimize the distance between the distribution facility and the grocery stores. So you want to minimize the sum of the distances between each store and its assigned facility.</p>
 
-<p><strong>Facility Location Problem</strong> - Colors indicate facility-store assignments.  Blank facilities were proposed and rejected.  Northern England is pictured.</p>
+<p><strong>Facility Location Problem</strong> - Colors indicate facility-store assignments. Blank facilities were proposed and rejected. Northern England is pictured.</p>
 
 <p><img src="img/facility location.png" alt="facility location" class="picture100" /></p>
 
-<p>Let’s apply this idea to voting.  Above, we’re selecting multiple facilities to serve a larger set of stores.  Now we’re thinking of electing multiple candidates to multiple seats in a legislature for the same voter population.</p>
+<p>Let’s apply this idea to voting. Above, we’re selecting multiple facilities to serve a larger set of stores. Now we’re thinking of electing multiple candidates to multiple seats in a legislature for the same voter population.</p>
 
 <p>We already used the idea of minimizing distance to find a candidate that is in the middle of the voters (on the common ground page). This is what the median does.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Median in 1D</h2>
-        <p class="ballot_caption">Recall this example of finding the median.  <b>Try moving some voters.  Add a candidate (+). </b> The total area of the bars below is the sum of all the distances between the voters and the candidate or median.  The median minimizes this sum.  A winning candidate should also minimize this sum.
+        <p class="ballot_caption">Recall this example of finding the median. <b>Try moving some voters. Add a candidate (+). </b> The total area of the bars below is the sum of all the distances between the voters and the candidate or median. The median minimizes this sum. A winning candidate should also minimize this sum.
         
         </p>
         
         
         <script id="median_1d_sim">
-            sandbox({idScript:"median_1d_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA4VTu04EMQz8l9QRih9JvPsVFHSnKw6JAmklEDoKhLhvx-tJruHQaYtxHHsynk2-U0nr4ZgTORyoUmYrx3xYZkBLHRFzmTnqM9JrrsmMuo6ot9kqNiKdqbbMvQYK1yBp5Zw0relSUk41rSWnBn3doeQ_n--Y76QL7R0X5nSjYokK5holUm7VeP9-GtGwg7EUgAKgiBrAJZE6GpZ-CuXEzuNJppjF9QSAhhUlTiMOoOGOFVh4iQYZf0UosgI1AoMEaqSOmoYseGRBVncGyv98ewHddvTqiPK9Arl3hIYkHUK1xfjaQ75iYIVtFfZXzFthW5Xor7CtVgBsqx0lhpIFd6VEsoGlwbUG81uNccSFNFA0KGjo7VDQKU7pDBAAHO_4_31eyY5NC2J_MHsO4xjIDGQGIQYhpiHSKgBaDFxmgF3SQ_ebW2L9fNq2t_PT1_uLv43H7fPjtL2ev9LPL23Jkue-AwAA)"})
+            sandbox({idScript:"median_1d_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA4VTu04EMQz8l9QRih9xsvsVFHSnKw6JAmklEDoKhLhvx-tJruHQaYuxHWc8mU2-U0nr4ZgTORyoUuZejvmwzICWOiLmMmvUZqTXmsmMmo6o2dwqfUQ6S7bMNQOFa5C0ck6a1nQpKaea1pKTQV9zKPnP5yvdV9KF9h0X5nSjY4kO5hotUm71-P59GtGwg5EKQAFQRAZwSaSOHalPoZzYebzIFGdxPQGgYUXmNOIAGm7IwMJLtMj4K0JRFagRGCRQI3X0GKrgkQVV3Rko__PtDXTb0asjyvca5N4IDUk6hKqFQ9pCvuLACtsq7K84b4VtFbZVRUsFwLba0NJjRF1wV0oUDSwG1wwsVuM44kIMFAYFhr0NChrFlMYAAcDxhv_f5pVsWOxB7A9mr-E4HWQdZB1COoR03IJeAdDSwdU7YJf00PzmlsifT9v2dn76en_xt_G4fX6cttfzV_r5BWjH9i2-AwAA)"})
         </script>
         
     </div>
@@ -231,7 +237,7 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Median in 2D</h2>
-        <p class="ballot_caption"><b>Move some voters.  Add a candidate (+). </b> Just like for the 1D case, the total area or length of the lines below is the sum of all the distances between the voters and the candidate or median.  The median we chose here minimizes this sum.  A winning candidate should also minimize this sum.
+        <p class="ballot_caption"><b>Move some voters. Add a candidate (+). </b> Just like for the 1D case, the total area or length of the lines below is the sum of all the distances between the voters and the candidate or median. The median we chose here minimizes this sum. A winning candidate should also minimize this sum.
         
         </p>
         
@@ -244,7 +250,7 @@
 
 </div>
 
-<p>We can get distances from score voting, or approval voting, or star voting. We can just use the ballot scores and try to find the candidates with the highest scores. This is the same as finding the candidates with the shortest distance to the voters.  You’ve seen this before on the common ground page.</p>
+<p>We can get distances from score voting, or approval voting, or star voting. We can just use the ballot scores and try to find the candidates with the highest scores. This is the same as finding the candidates with the shortest distance to the voters. You’ve seen this before on the common ground page.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
@@ -280,11 +286,11 @@
 
 </div>
 
-<p>That was actually a lot of computation, but the good thing is that this problem is already solved. There are techniques called the branch and bound method and the Simplex method that are used together to solve this problem. Basically, branch and bound means you can look at all the possibilities without calculating every one. You put them into groups called branches, and the best case scenario for that branch is bound by some value. Then you can cut branches off and simplify the problem.</p>
+<p>That was actually a lot of computation, but the good thing is that this problem is already solved. There are techniques called the branch and bound method and the Simplex method that are used together to solve this problem. Basically, branch and bound means you can look at all the possibilities without calculating every one. You put them into groups called branches, and the best-case scenario for that branch is bound by some value. Then you can cut branches off and simplify the problem.</p>
 
-<p>If you would like to know more about branch and bound and Simplex, they are part of a more general set of algorithms called mixed integer linear programming. These tools are used in the business world in what is known as the field of operations research. They deal with logistics - physically moving around things, like groceries.  They also apply to our case of electing representatives to serve voters.</p>
+<p>If you would like to know more about branch and bound and Simplex, they are part of a more general set of algorithms called mixed integer linear programming. These tools are used in the business world in what is known as the field of operations research. They deal with logistics - physically moving around things, like groceries. They also apply to our case of electing representatives to serve voters.</p>
 
-<p>This is a good method to inspire other methods like the Single Transferable Vote, STV.  Voters might be more willing to accept STV because they can see the calculations being done.  Also, STV gets pretty close to the motivating idea of the facility location problem, and if you compare their visualizations they look very similar. There are more methods like the Monroe method that are also very close to this motivating idea of optimizing assignments of voters to the candidates they scored highest.</p>
+<p>This is a good method to inspire other methods like the Single Transferable Vote, STV. Voters might be more willing to accept STV because they can see the calculations being done. Also, STV gets pretty close to the motivating idea of the facility location problem, and if you compare their visualizations, they look very similar. There are more methods like the Monroe method that are also very close to this motivating idea of optimizing assignments of voters to the candidates they scored highest.</p>
 
 <h2 id="stvs-quota">STV’s Quota</h2>
 
@@ -325,11 +331,12 @@
 <p>The concept of a quota extends to multiple ballot counting methods:</p>
 
 <ol>
-  <li>Single-Top Ranking Methods: the Single Transferable Vote (STV), also known as multi-winner Ranked Choice Voting RCV</li>
-  <li>Scoring methods (including Approval Voting and STAR voting): Monroe voting</li>
-  <li>Pairwise ballot methods (I’m working on the version of minimax below)</li>
-  <li>Choose only one methods: Single Non-Transferable Vote (SNTV). An obvious Improvement would be to have a Single Transferable Vote.</li>
+  <li>Top-choice-counts Ranking Methods: the Single Transferable Vote (STV), also known as multi-winner Ranked Choice Voting RCV</li>
+  <li>Scoring methods (including Approval Voting and STAR voting): the facility location problem, Monroe voting, and a few methods the election method community has developed.</li>
+  <li>Pairwise ballot methods (I’m working on a version of minimax)</li>
 </ol>
+
+<!-- SNTV? SNTV kind of is proportional-->
 
 <p>The power chart is more useful for scoring methods because the voter can support multiple candidates at the same time. That means the voter is able to say that their vote counted for a candidate so that candidate owes them some share of representation. Also, the votes by round has an additional data dimension for the same reason, and it’s hard to visualize, so you need to mouse over the rounds to see how the election was counted.</p>
 
@@ -393,8 +400,8 @@
         </p>
         
         
-        <script id="proportional_two_to_one_sim">
-            sandbox({idScript:"proportional_two_to_one_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA31TTY8TMQz9LzlbKHbsJNMbF05wgF1xGfUwlB6qHTpl1UWsEPx27DzQIsGikfr8Ffv5Jf2WctrNs2Ziy3uamd3S6pYqSZ4ilCsJF7d6Jhm5NhELuyHSiGtUSVO3JKwa2Txi5ictrMJu9V8WS93vKXFMbj6vjhIz4tYiUdIuU9K0Sz-4Jko2_OrlnmwOmf76PNOfzUzPZjiP3hxcCjXSSATRxIIMyLACQMVZDXAurI4-mcXR5zAl8Z4eFe_pQREA-oiixPsUB_SRBq_Dm8aBkgdpDj14JAoYlYI8GBXvNLuk__riaEUxJhQI4XdBhZSMqq_cye_Lg1GuGBrKKD-Z8mT68FlGa9XRU_9PQOtYWBvuFCsqhDKIb1jPIJRhPYNQZgAIZQ25PiYbhKoZwKOyQqQKuasN5v54U0WLCgZ1GtDAoOFsE0ABQOAGBi2eX3r7sF2Xm8N2f_RnOZyXl8v99mVZf_tvTufTp-Wruze37_33-PlhWV8th9N6uj6-3g7L9bSdU7zjhr79zyuJOLTpGQBtOrbq2Krr2LgbAIt19OvYr8d-L8yfPjb8sKzrdr19vBz9X_VuOd8dP6bvPwEoyRya_QMAAA)"})
+        <script id="again_proportional_two_to_one_sim">
+            sandbox({idScript:"again_proportional_two_to_one_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA31TTY8TMQz9LzlbKHbsJNMbF05wgF1xGfUwlB6qHTpl1UWsEPx27DzQIsGikfr8Ffv5Jf2WctrNs2Ziy3uamd3S6pYqSZ4ilCsJF7d6Jhm5NhELuyHSiGtUSVO3JKwa2Txi5ictrMJu9V8WS93vKXFMbj6vjhIz4tYiUdIuU9K0Sz-4Jko2_OrlnmwOmf76PNOfzUzPZjiP3hxcCjXSSATRxIIMyLACQMVZDXAurI4-mcXR5zAl8Z4eFe_pQREA-oiixPsUB_SRBq_Dm8aBkgdpDj14JAoYlYI8GBXvNLuk__riaEUxJhQI4XdBhZSMqq_cye_Lg1GuGBrKKD-Z8mT68FlGa9XRU_9PQOtYWBvuFCsqhDKIb1jPIJRhPYNQZgAIZQ25PiYbhKoZwKOyQqQKuasN5v54U0WLCgZ1GtDAoOFsE0ABQOAGBi2eX3r7sF2Xm8N2f_RnOZyXl8v99mVZf_tvTufTp-Wruze37_33-PlhWV8th9N6uj6-3g7L9bSdU7zjhr79zyuJOLTpGQBtOrbq2Krr2LgbAIt19OvYr8d-L8yfPjb8sKzrdr19vBz9X_VuOd8dP6bvPwEoyRya_QMAAA)"})
         </script>
         
     </div>
@@ -421,7 +428,7 @@
 
 <h3 id="semi-proportional-multi-winner-methods">Semi-Proportional Multi-Winner Methods</h3>
 
-<p>There are more methods that only provide proportionality to distinct groups, and don’t provide the kind of distribution matching that STV does to cover an area of voters with evenly-spaced candidates. They are mechanically-different. They apply a method of counting votes that is used for apportionment. Apportionment means you have separate groups like different states, and you want to find out how many representatives to give to each state. Two examples are given below: reweighted range voting and reweighted approval voting.</p>
+<p>There are more methods that only provide proportionality to distinct groups, and don’t provide the kind of distribution matching that STV does to cover an area of voters with evenly spaced candidates. They are mechanically different. They apply a method of counting votes that is used for apportionment. Apportionment means you have separate groups like different states, and you want to find out how many representatives to give to each state. Two examples are given below: reweighted range voting and reweighted approval voting.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
@@ -449,7 +456,7 @@
 
 <h2 id="afterward">Afterward</h2>
 
-<p>I hope that by seeing how proportional methods work you’re inspired to improve our ability to represent all members of society.  Basically, proportional methods allow candidates to better serve a segment of society by being closer to them.</p>
+<p>I hope that by seeing how proportional methods work you’re inspired to improve our ability to represent all members of society. Basically, proportional methods allow candidates to better serve a segment of society by being closer to them.</p>
 
 
     </div>

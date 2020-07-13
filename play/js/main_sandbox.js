@@ -391,6 +391,13 @@ function bindModel(ui,model,config) {
         
         ui.redrawButtons() // make sure the icons show up
         
+        sankeyDraw()
+
+        ballotDraw()
+    }
+
+    function ballotDraw() {
+
         // CREATE A BALLOT
         if (ui.dom.rightBallot) ui.dom.rightBallot.remove() // remove old one, if there was one
 
@@ -464,7 +471,243 @@ function bindModel(ui,model,config) {
             }
             ui.dom.right.prepend(ui.dom.rightBallot)
         }
-           
+    }
+
+    function sankeyDraw() {
+        var sankeyOn = ["IRV","STV"].includes(model.system)        
+        
+        // do sankey if any districts have more than 1 person
+        var sankeyOn = sankeyOn && model.district.map(x => x.voterPeople.length).some( x => x > 1) 
+
+        if (! sankeyOn) {
+            if (ui.dom.sankey) ui.dom.sankey.remove() 
+            return
+        }
+
+        if (ui.sankey == undefined) {
+            ui.sankey = d3.sankey()  
+        }
+        if (ui.dom.sankey) {
+            ui.dom.sankey.remove() 
+        }
+        ui.dom.sankey = document.createElement("div")
+        ui.dom.right.prepend(ui.dom.sankey)
+
+        ui.dom.sankey.id = "chart"
+        ui.dom.sankey.innerHTML = '<div style="text-align:center;"><span class="small" > Sankey Diagram </span></div>'
+
+
+        for (var district of model.district) {
+
+            if (model.district.length > 1) {
+                ui.dom.sankey.innerHTML += `<div style="text-align:center;"><span class="small" > District ${district.i+1} </span></div>`
+            }
+
+            if (district.voterPeople.length <= 1) continue
+
+            // option
+            var doSpecialWinColor = true
+            
+            var sankey = ui.sankey
+
+
+            var numcans = district.candidates.length
+            var nodewidth = Math.max(10, Math.min(25, 100 / numcans)) // really this is node height, but the original code was horizontal, not vertical
+
+            var outHeight = numcans * 50
+
+            var margin = {top: 10, right: 10, bottom: 10, left: 10}
+            var width = 220 - margin.left - margin.right // was 960
+            var height = outHeight - margin.top - margin.bottom // was 500
+
+            sankey
+            .nodeWidth(nodewidth) // was 15
+            .nodePadding(0) // was 10
+            .size([width, height]);
+
+            var svg = d3.select(ui.dom.sankey).append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+            var formatNumber = d3.format(",.0f"),
+                format = function(d) { return formatNumber(d); },
+                color = (cid) => model.candidatesById[cid].fill
+
+
+
+            var path = sankey.link();
+
+            var dataSankey = getDataSankey(district)
+            // var dataSankey = getEnergyData()
+
+            sankey
+                .nodes(dataSankey.nodes)
+                .links(dataSankey.links)
+                .layout(32); // what is this? iterations
+
+            var link = svg.append("g").selectAll(".link")
+                .data(dataSankey.links)
+                .enter().append("path")
+                .attr("class", "link")
+                .attr("d", path)
+                .style("stroke-width", function(d) { return Math.max(1, d.dy); })
+                .style("stroke", function(d) { return d.source.color = (d.winner && doSpecialWinColor) ? "#fff" : color(d.source.name.replace(/^[0-9]*_/, "")); })
+                .sort(function(a, b) { return b.dy - a.dy; });
+
+            link.append("title")
+                .text(function(d) { return d.source.name + " → " + d.target.name + "\n" + format(d.value); });
+                // title is an SVG standard way of providing tooltips, up to the browser how to render this, so changing the style is tricky
+                
+            var node = svg.append("g").selectAll(".node")
+                .data(dataSankey.nodes)
+                .enter().append("g")
+                .attr("class", "node")
+                .attr("transform", function(d) {
+                    return "translate(" + d.x + "," + d.y + ")"; 
+                })
+                .call(d3.behavior.drag()
+                .origin(function(d) { return d; })
+                .on("dragstart", function() { this.parentNode.appendChild(this); })
+                .on("drag", dragmove));
+
+            node.append("rect")
+                .attr("height", sankey.nodeWidth())
+                .attr("width", function(d) { return d.dy; })
+                .style("fill", function(d) { return d.color = color(d.name.replace(/^[0-9]*_/, "")); })
+                .style("stroke", function(d) { return d3.rgb(d.color).darker(2); })
+                .append("title")
+                .text(function(d) { return d.name + "\n" + format(d.value); });
+                
+            /*
+            node.append("text")
+                .attr("text-anchor", "middle")
+                //.attr("transform", "rotate(-20)")
+                .attr("x", function (d) { return d.dy / 2 })
+                .attr("y", sankey.nodeWidth() / 2)
+                .attr("dy", ".35em")
+                .text(function(d) { return d.name; })
+                //.text(function(d) { if(d.name.length > 8) { return d.name.substring(0, 5) + "..."; } else return d.name; })
+                .filter(function(d) { return d.x < width / 2; });
+            */
+                            
+            function dragmove(d) {
+                //d3.select(this).attr("transform", "translate(" + d.x + "," + (d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))) + ")");
+                d3.select(this).attr("transform", "translate(" + (d.x = Math.max(0, Math.min(width - d.dy, d3.event.x))) + "," + d.y + ")");
+                sankey.relayout();
+                link.attr("d", path);
+            }
+
+            function getDataSankey(district) {
+                var nodes = []
+                var links = []
+
+                // each transfer is referred to by transfers [ round ] [ transfer index ] 
+                // we use ids
+                // transfer.from 
+                // transfer.flows [ to ] 
+                // transfer.flows [ to ] [ first ]    -- also shows who was the first choice
+
+                var coalitions = district.result.coalitions
+                var tallies = district.result.tallies
+                var continuing = district.result.continuing
+                var transfers = district.result.transfers
+                var numRounds = transfers.length
+                
+                var winnersContinue = model.system == "STV" && 1
+                if (winnersContinue)var won = district.result.won
+                if (winnersContinue) var quotaAmount = district.voterPeople.length / (model.seats + 1)
+                
+
+                // function to find the sorted position of the candidate
+                var xpos =  cid => model.tarena.modelToArena(model.candidatesById[cid]).x
+                // var listOfCandidates = Object.keys(transfers[0][0].flows)
+                // listOfCandidates.push(transfers[0][0].from)
+                var listOfCandidates = district.candidates.map(c => c.id)
+                // listOfCandidates.sort((a,b) => a.length - b.length)
+                var xc = {}
+                for (var cid of listOfCandidates) {
+                    xc[cid] = xpos(cid)
+                }
+                
+
+                // make ids and lookup tool
+                var idx = 0
+                var lookup = {}
+                for (var rid = 0; rid <= numRounds; rid ++) {
+                    lookup[rid] = {}
+                    if (rid == 0) {
+                        var useList = _jcopy(listOfCandidates)
+                    } else {
+                        var useList = _jcopy(continuing[rid-1]) // continuing from last round
+                        if (winnersContinue) useList = useList.concat(won[rid-1])
+                    }
+                    useList.sort( (a,b) => xc[a] - xc[b] )
+                    for( var k = 0; k < useList.length; k++) {
+                        var cid = useList[k]
+                        lookup[rid][cid] = idx
+                        var node = {name:rid + "_" + cid}
+                        nodes.push(node)
+                        idx ++
+                    }
+                }
+
+
+                for (var rid = 0; rid < numRounds; rid ++) {
+                    var round = transfers[rid]
+                    // var unTransferred = _jcopy(listOfCandidates)
+                    for (var transfer of round) {
+                        var from = transfer.from
+                        // delete unTransferred[from]
+                        for (var to in transfer.flows) {
+                            var lfrom = lookup[rid][from]
+                            var lto = lookup[rid+1][to]
+                            var v = 0
+                            var allfirst = transfer.flows[to]
+                            for (var first of Object.keys(allfirst) ) {
+                                v += allfirst[first]
+                            }
+                            if (v > 0) {
+                                var link = {"source":lfrom,"target":lto,"value":v}
+                                links.push(link)
+                            }
+                            
+                        }
+                    }
+                    for (var cid of continuing[rid]) {
+                        var lfrom = lookup[rid][cid]
+                        var lto = lookup[rid+1][cid]
+                        var v = tallies[rid][cid]
+                        if (v > 0) {
+                            var link = {"source":lfrom,"target":lto,"value":v}
+                            links.push(link)
+                        }
+
+                    }
+                    if (winnersContinue) {
+                        for (var cid of won[rid]) {
+                            var lfrom = lookup[rid][cid]
+                            var lto = lookup[rid+1][cid]
+                            var v = quotaAmount
+                            var link = {"source":lfrom,"target":lto,"value":v,"winner":true}
+                            links.push(link)
+                        }
+                    }
+                    // if (v == 0 && stv && rid > 0 && won[rid-1].includes(from) ) { // you won, and you're not on the tally
+                    //     v = quotaAmount
+                    // }
+                }
+
+
+                var data = {nodes:nodes,links:links}
+                return data
+            }
+
+            
+        }
+
     };
 
     model.updateFromModel = function() {

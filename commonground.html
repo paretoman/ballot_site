@@ -83,6 +83,12 @@
     <script src="play/js/FastYee.js"></script>
 
     <script src="play/js/javascript-lp-solver/prod/solver.js"></script>
+    
+    
+    
+    <script src="play/js/d3/d3.js"></script>
+    <script src="play/js/sankey.js"></script>
+
 
     <script src="play/js/Model.js"></script>
     <script src="play/js/Yee.js"></script>
@@ -193,13 +199,13 @@
 
     <div class="words">
         
-<p>Hello, I’m going to show you how to find common ground as a group . We’ll go over the following:</p>
+<p>Hello, I’m going to show you how to find common ground as a group. We’ll go over the following:</p>
 
 <ul>
-  <li>what we mean by the middle,</li>
-  <li>how we can use votes to find the middle by simple comparisons,</li>
+  <li>what we mean by common ground and the middle,</li>
+  <li>how we can find the middle by using votes and simple comparisons,</li>
   <li>the simplest voting method that finds the middle,</li>
-  <li>what a median really is, and</li>
+  <li>what a median is, and</li>
   <li>how to bring groups together.</li>
 </ul>
 
@@ -207,7 +213,7 @@
 
 <h2 id="the-middle">The Middle</h2>
 
-<p>Now in a group you may have to come to a decision, and there’s going to be a lot of different people in this group. So each one is going to have a different opinion, and they’re going to be spaced out in different dimensions of how they feel about a topic: maybe what pizza to get as a group order for pizza,  or where you are going to go out to eat, or something like that.   So some people would be vegetarian or like meat.   And some people like to spend a lot of money and some a little money. So whatever dimensions there are, you’re going to have differing opinions on dining or whatever. </p>
+<p>Let’s start simple for this first example. Let’s say we have to decide as a group what to have for dinner. Each person is going to have their own opinion. For example, some people are vegetarian and some people eat meat. Also some people like to spend a lot of money and some would rather spend a little. Let’s make a diagram to show their opinions. In the diagram below, we show these types of opinion on different axes.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
@@ -225,7 +231,7 @@
 
 </div>
 
-<p>Really, this is about politics, and as a group you want to make a decision for everyone in the group. You’d like to make a decision that other people will accept and won’t regret.  One way you will find out if people regret this decision is if most people say they would rather do something else. That’s why you might want to pick something in the middle.  No matter what you pick in the middle, if you compare the middle option to something else, then more people are going to prefer that middle option. It’s really the common ground that you’re looking for. </p>
+<p>Really, this is about politics, and you want to make a decision for everyone in the group. You’d like to make a decision that other people will accept and won’t regret. In other words, you don’t want to find out that most people would rather do something else. That’s why you might want to pick something in the middle. No matter what you pick in the middle, if you compare the middle option to something else, then more people are going to prefer that middle option. It’s really the common ground that you’re looking for. </p>
 
 <div class="sim-ballot">
     <div class="sim-container">
@@ -317,7 +323,7 @@
 
 </div>
 
-<p>So what would that look like in an actual election?. That would basically be counting the votes for every possible pair of options.  Say there’s options <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> <span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span>, and you like them in that order.  That means you like <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> over <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span>, and <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> over <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span>, and <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> over <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span>, and so on. You have a choice for every pair.  And you could write that on a ballot. But really, you have a single ranking, which is easier to write. </p>
+<p>So what would that look like in an actual election? That would basically be counting the votes for every possible pair of options.  Say there’s options <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> <span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span>, and you like them in that order.  That means you like <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> over <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span>, and <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> over <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span>, and <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> over <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span>, and so on. You have a choice for every pair.  And you could write that on a ballot. But really, you have a single ranking, which is easier to write. </p>
 
 <p>You would get a ballot with the names <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> <span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span> written on it. And because you like them in that order, you’d write 1 2 3 4 5 on the ballot.</p>
 
@@ -339,14 +345,14 @@
 
 </div>
 
-<p>You can also use a tier list, because ties are okay, too.  You can have multiple top-tier candidates if you really can’t decide.  Voters who aren’t sure can use tiers and still say something about top-tier versus bottom-tier, and every tier in between.</p>
+<p>You can also use a tier list, because ties are okay, too. You can have multiple top-tier candidates if you really can’t decide. Voters who aren’t sure can use tiers and still say something about top-tier versus bottom-tier, and every tier in between.</p>
 
 <p style="text-align: center;"><strong>Tier List for Candy</strong></p>
 <div class="picture-container">
  <img src="https://cdn.kapwing.com/final_5dc9d759968f590014bbe8ce_848166.jpg" alt="tier list for candy" class="picture" />
 </div>
 
-<p>Pairwise rankings really give you a lot of power.</p>
+<p>Pairwise rankings really give you a lot of power.  They are used in a family of voting systems called Condorcet methods, and we’ll talk about those later on their own page.</p>
 
 <p>Next, let’s talk about an even simpler way to find the middle.</p>
 
@@ -424,7 +430,7 @@
 
 </div>
 
-<p>Approval voting is simple to use.  It’s also a huge improvement in finding the middle.</p>
+<p>Approval voting is simple to use. It’s also a huge improvement in finding the middle.</p>
 
 <h2 id="the-median">The Median</h2>
 
@@ -439,13 +445,13 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Median in 1D</h2>
-        <p class="ballot_caption"><b>Try moving some voters.  Add a candidate. </b> The total area of the bars below is the sum of all the distances.  Notice that moving the median left or right would not decrease this sum because the same number of people are on each side (same number of bars are growing/shrinking).
+        <p class="ballot_caption"><b>Try moving some voters. Add a candidate. </b> The total area of the bars below is the sum of all the distances. Notice that moving the median left or right would not decrease this sum because the same number of people are on each side (same number of bars are growing/shrinking).
         
         </p>
         
         
         <script id="median_1d_sim">
-            sandbox({idScript:"median_1d_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA4VTu04EMQz8l9QRih9JvPsVFHSnKw6JAmklEDoKhLhvx-tJruHQaYtxHHsynk2-U0nr4ZgTORyoUmYrx3xYZkBLHRFzmTnqM9JrrsmMuo6ot9kqNiKdqbbMvQYK1yBp5Zw0relSUk41rSWnBn3doeQ_n--Y76QL7R0X5nSjYokK5holUm7VeP9-GtGwg7EUgAKgiBrAJZE6GpZ-CuXEzuNJppjF9QSAhhUlTiMOoOGOFVh4iQYZf0UosgI1AoMEaqSOmoYseGRBVncGyv98ewHddvTqiPK9Arl3hIYkHUK1xfjaQ75iYIVtFfZXzFthW5Xor7CtVgBsqx0lhpIFd6VEsoGlwbUG81uNccSFNFA0KGjo7VDQKU7pDBAAHO_4_31eyY5NC2J_MHsO4xjIDGQGIQYhpiHSKgBaDFxmgF3SQ_ebW2L9fNq2t_PT1_uLv43H7fPjtL2ev9LPL23Jkue-AwAA)"})
+            sandbox({idScript:"median_1d_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA4VTu04EMQz8l9QRih9xsvsVFHSnKw6JAmklEDoKhLhvx-tJruHQaYuxHWc8mU2-U0nr4ZgTORyoUuZejvmwzICWOiLmMmvUZqTXmsmMmo6o2dwqfUQ6S7bMNQOFa5C0ck6a1nQpKaea1pKTQV9zKPnP5yvdV9KF9h0X5nSjY4kO5hotUm71-P59GtGwg5EKQAFQRAZwSaSOHalPoZzYebzIFGdxPQGgYUXmNOIAGm7IwMJLtMj4K0JRFagRGCRQI3X0GKrgkQVV3Rko__PtDXTb0asjyvca5N4IDUk6hKqFQ9pCvuLACtsq7K84b4VtFbZVRUsFwLba0NJjRF1wV0oUDSwG1wwsVuM44kIMFAYFhr0NChrFlMYAAcDxhv_f5pVsWOxB7A9mr-E4HWQdZB1COoR03IJeAdDSwdU7YJf00PzmlsifT9v2dn76en_xt_G4fX6cttfzV_r5BWjH9i2-AwAA)"})
         </script>
         
     </div>
@@ -457,7 +463,7 @@
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Median in 2D</h2>
-        <p class="ballot_caption"><b>Move some voters.  Add a candidate (+). </b> Just like for the 1D case, the total area or length of the lines below is the sum of all the distances between the voters and the candidate or median.  The median we chose here minimizes this sum.  A winning candidate should also minimize this sum.
+        <p class="ballot_caption"><b>Move some voters. Add a candidate (+). </b> Just like for the 1D case, the total area or length of the lines below is the sum of all the distances between the voters and the candidate or median. The median we chose here minimizes this sum. A winning candidate should also minimize this sum.
         
         </p>
         
@@ -474,11 +480,11 @@
 
 <p>In a way, approval voting is asking you whether each candidate is close to you or far from you, so you’re measuring distance and writing it on your ballot.</p>
 
-<!--This is different than finding the median of the distances.  We're finding the median position.-->
+<!--This is different than finding the median of the distances. We're finding the median position.-->
 
-<p>Score voting can give a more precise measurement of this distance.  In score voting, you give every candidate a score from 0 to 5.  Add up the scores, and the winner has the highest score, just like usual.  You could even say that approval voting is score voting with only two levels of support.</p>
+<p>Score voting can give a more precise measurement of this distance. In score voting, you give every candidate a score from 0 to 5. Add up the scores, and the winner has the highest score, just like usual. You could even say that approval voting is score voting with only two levels of support.</p>
 
-<p>Distance is measured on your ballot.  When you find the highest score, you’re also finding the smallest distance.  So you’re finding the median.</p>
+<p>Distance is measured on your ballot. When you find the highest score, you’re also finding the smallest distance. So you’re finding the median.</p>
 
 <p>That’s the motivation for score voting.</p>
 
@@ -498,14 +504,14 @@
 
 </div>
 
-<p>In practice, voters can adjust their self-reported distances, which is called using a strategy.  Jameson Quinn has a good discussion of strategies in the links at the end of this page.  Basically, using strategies means score voting looks a lot like approval voting.</p>
+<p>In practice, voters can adjust their self-reported distances, which is called using a strategy. Jameson Quinn has a good discussion of strategies in a page linked at the bottom, and I have a page that discusses how strategies play out in approval voting.  Basically, using strategies means score voting changes and takes on qualities of approval voting and pairwise voting.  Also, in the approval voting page, I show that when you combine approval voting with polls, you get almost the same winners as pairwise voting, which is nice.</p>
 
-<p>In the example below,</p>
+<p>These are the strategies un the example below:</p>
 
 <ul>
-  <li>the J=Judge strategy measures distance well and would best find the median,</li>
-  <li>the N=Normalize strategy is basically using the full power of your vote, and</li>
-  <li>the F=Frontrunner strategy considers polling data and makes score voting very similar to approval voting.</li>
+  <li>The J = Judge strategy measures distance well and would best find the median.</li>
+  <li>The N = Normalize strategy is basically stretching your vote to the max score. Any voter would rather do N than J.</li>
+  <li>the F = Frontrunner strategy considers polling data and stretches your vote to the max score only for the frontrunners. Other candidates can get pushed to max or 0 or in between.</li>
 </ul>
 
 <div class="sim-ballot">
@@ -524,24 +530,20 @@
 
 </div>
 
-<p>STAR voting was created to counteract this strategizing.</p>
+<p>STAR voting was created to counteract scoring strategies.  It uses a final runoff where stretching your scores doesn’t matter.</p>
 
-<p>STAR combines the two ways of finding the middle, scoring and counting by pairs.  It’s name is an acronym, STAR, Score Then Automatic Runoff.  First we score. Then we find the top two and send them to a runoff. The runoff uses the same scores but counts them by pairs, like we did before.</p>
-
-<p>Voters will use a less aggressive strategy than the Frontrunner strategy because they’ll want to put all the frontrunners at different levels for the runoff.</p>
-
-<p>STAR also counteracts any distortion caused by a strategy by using a final runoff where strategy has no influence.</p>
+<p>STAR combines the two ways of finding the middle, scoring and counting by pairs. Its name is an acronym, STAR, Score Then Automatic Runoff.  First we score. Then we find the top two and send them to a runoff. The runoff uses the same scores but counts them by pairs for whoever has the higher score.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">STAR Voting</h2>
-        <p class="ballot_caption">Same ballot as above for score. Score from 0-5, and add up scores. BUT THEN take the top two and count by pairs
+        <p class="ballot_caption">Same ballot as above for score. Score from 0-5, and add up the scores. BUT THEN take the top two and count by pairs. <b>Use the voter dude <img src="play/img/viewMan2.png" /></b>. He's in the bottom left corner. Drag him around to see what each voter was thinking.
         
         </p>
         
         
         <script id="star_sim">
-            sandbox({idScript:"star_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VSsU5DMQz8l8wWih3b8etvwPbUAVC3SiDEghB8O46PMhRVGc7J2Zezk8_W22HfzYn7ONLO3InntiILCstA_o5ENdP68UiNVxXbINax9qMdOjVth_bN0qhZ7T2zkpwJnf6tZOIms91kuJc2Lwvu60BwAA-sADhgB6QF1sS80BJSnalJKuWhpJIkCAAyokhJmZEAGZnYBXZbFYxeVnlNgYsYUrVjgIehkUo70-9ayQ4amgMNMwkN0qS1ZFfAl0AuQQrvsgKtWr2WVi8DOvEqsKto2jA-g1VD0warhqbNAGjaJriouwxNewdwZTpewDE6t2olv1NzSDgc-FYw4WCidmJYcwAwrInXm5cPNEHG1YwmWooOgGDATMBMaBkNA8BPQC9gK5atu_wWG4w9PZ7PL-8PH6-n_M73zy9vp_b1A0ecBUwoAwAA)"})
+            sandbox({idScript:"star_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSsU4DMQyG38WzhWLHdnLdeAXa7XQDoG6VihALQuXZcfJThqLqht-xk_8-J_6iQrt19WApdeNVpLC0ZUQu3D0D_UupWW4r28Yk45R4ZbE61pV2hcloR9-ixORzHbkriy2l8L8vK_1uZblbkTK9ZSBEIKVIgUIMAgYJSEKIpeYvPSX9hUnTK5OaXpqiENioYUva1BTYaMOqY7XMA7VMWBn3ILNQ4VQrBEA1nVbh329sDpThWdGysHJly7JN2xHINdBrkMarjsDmWbu1tpjw1vAuwDU07bhAB6oD1YHqaNodgqa9odbnvxxNR4HI3Bl4gcDVhc9WcqAoYBEgiGVKA0HD2aaQCsFlNRC0MUK0Pzw-5VDtX8_vRxoD1VDsNzfW0GAvELxqB1oHWjckHQK6Dr8OyD4gH3JIFmC-PJ9O54_D59sxxxsMlx9StnChOAMAAA)"})
         </script>
         
     </div>
@@ -550,9 +552,9 @@
 
 <h2 id="bringing-groups-together">Bringing Groups Together</h2>
 
-<p>Part of finding common ground is finding allies.  Any voting system that avoids vote-splitting will also allow allies to come together as a team.  The scoring and pairwise systems mentioned above do this, and so do the methods in this section.</p>
+<p>Part of finding common ground is finding allies. Any voting system that avoids vote-splitting will also allow allies to come together as a team. The scoring and pairwise systems mentioned above do this, and so do the methods in this section.</p>
 
-<p>To avoid vote-splitting, you could eliminate candidates that aren’t doing well. That way they don’t interfere with the main candidates.  The main candidates won’t see the smaller candidates and spoilers and can ally with them.  This method is called RCV and is getting more popular in the US.</p>
+<p>To avoid vote-splitting, you could eliminate candidates that aren’t doing well. That way they don’t interfere with the main candidates.  The main candidates won’t see the smaller candidates as spoilers and can ally with them. This method is called RCV and is getting more popular in the US.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
@@ -588,7 +590,7 @@
 
 </div>
 
-<p>And of course, there’s primaries, which is the way we do things now. Basically, a whole party gets behind one candidate. This can work in the best case scenario.  But primaries can malfunction when there’s a crowded field, or when one party has many more voters than the other party, or when there’s more than two parties.</p>
+<p>And of course, there’s primaries, which is the way we do things now. Basically, a whole party gets behind one candidate. This can work in the best-case scenario. But primaries can malfunction when there’s a crowded field, or when one party has many more voters than the other party, or when there’s more than two parties.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
@@ -612,7 +614,7 @@
 
 <p>Still want more? Try the sandbox below, where I’ve added a ton more voting methods and configuration options.  </p>
 
-<p>Want more of a narrative?  Then choose your path.  I go into depth on all the voting methods above.  This page was just an overview.</p>
+<p>Want more of a narrative?  Then choose your path.  I go into depth on all the voting methods above. This page was just an overview.</p>
 
 <p>Either read about primaries and polls, more details about approval voting and strategy based on polling, or an essay by Jameson Quinn on types of strategy with score voting and some resistance to it with STAR voting.  Find out more about IRV (the single-winner RCV) and STV (the multi-winner RCV). I also have a draft of a page about proportional representation using more methods than just STV. It’s a work in progress. Just be sure you get to read more about Condorcet methods. I like them best.</p>
 

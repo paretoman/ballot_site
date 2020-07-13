@@ -626,7 +626,192 @@ function dostrategy(model,x,y,minscore,maxscore,strategy,preFrontrunnerIds,candi
 
 	// star exception
 	//if (strategy == "starnormfrontrunners") {
-	if(doStar) {
+	if (doStar) {
+		scores = starStrategy(scores, shortlist, dista, canAid, maxscore, lc, utility_shape)
+	}
+
+
+	return {scores:scores, radiusFirst:n , radiusLast:m, dottedCircle:dottedCircle}
+}
+
+
+function starStrategy(scores, shortlist, dista, canAid, maxscore, lc, utility_shape) {
+	// put shortlist in order
+	sortedShortlist = _jcopy(shortlist).sort( (i,k) => dista[i] - dista[k] ) // shortest distance first
+	// use the shortlist to make a piece-wise linear function
+	var ubScore = []
+	var lbScore = []
+	var tryScore = []
+	var ns = sortedShortlist.length
+
+	if (ns > maxscore + 1) {
+		// start with normalized scores
+		
+		// make groups
+		var groups = [] // list of list of indexes for candidates
+		for (var i = 0; i <= maxscore ; i ++) {
+			groups[i] = []
+		}
+		// add indexes to groups
+		for ( var i = 0; i < ns ; i ++) {
+			var score = scores[canAid[shortlist[i]]]
+			groups[score].push(shortlist[i]) // candidate indices
+		}
+		// remove empty groups
+		for (var i = maxscore; i >= 0 ; i --) {
+			if (groups[i].length == 0) {
+				groups.splice(i,1)
+			}
+		}
+
+		// start loop of adding groups
+		while (groups.length < maxscore + 1) {
+			var spreadByGroup = []
+			// find distance differences within groups
+			for (var i = 0; i < groups.length ; i ++) {
+				var gScores = groups[i].map( a => dista[a] )
+				var maxa = gScores.reduce( (a, b) => Math.max(a, b) )
+				var mina = gScores.reduce( (a, b) => Math.min(a, b) )
+				spreadByGroup[i] = maxa - mina
+			}
+			// find the group with the biggest spread
+			var imax = null
+			var max = -1
+			for (var i = 0; i < spreadByGroup.length ; i ++) {
+				if (max < spreadByGroup[i]) {
+					max = spreadByGroup[i]
+					imax = i
+				}
+			}
+			// find the middle of the group
+			var maxGroup = groups[imax]
+			var gScores = maxGroup.map( a => dista[a] )
+			var maxa = gScores.reduce( (a, b) => Math.max(a, b) )
+			var mina = gScores.reduce( (a, b) => Math.min(a, b) )
+			var middle = ( maxa + mina ) * .5
+			// split the group down the middle
+			var upgroup = maxGroup.filter( a => dista[a] <= middle)
+			var downgroup = maxGroup.filter( a => dista[a] > middle)
+			// insert new groups
+			var newGroups = []
+			for (var i = 0; i < groups.length; i++) {
+				if (i == imax) {
+					newGroups.push(downgroup)
+					newGroups.push(upgroup)
+				} else {
+					newGroups.push(groups[i])
+				}
+			}
+			groups = newGroups
+			// one cycle complete
+			// check if there are enough groups
+		}
+
+		// we're done
+		
+		// assign scores to shortlist
+		var canListTryScore = []
+		for ( var i = 0 ; i < groups.length ; i ++) {
+			var group = groups[i]
+			for (var k of group) {
+				canListTryScore[k] = i
+			}
+		}
+		// group is a list of indices of candidates
+		// tryScore is indexed by indices of the sortedList of candidates
+		for (var k in sortedShortlist) {
+			var cani = sortedShortlist[k] // candidate index
+			tryScore[k] = canListTryScore[cani]
+		}
+
+		// summary of above
+		// see if we can split up some groups
+		// check the spread of each group
+		// find the group with the biggest spread of distance
+		// split the biggest group in two
+
+	} else { // if (ns <= maxscore + 1) {
+
+		// start at top
+		var k = maxscore
+		for ( var i = 0 ; i < ns ; i ++) {
+			ubScore[i] = k
+			k--
+		}
+
+		// start at bottom
+		var k = 0 
+		for ( var i = ns - 1 ; i >= 0 ; i --) {
+			lbScore[i] = k
+			k++
+		}
+
+		// try to space candidates
+		var k = maxscore
+		for ( var i = 0 ; i < ns ; i ++) {
+			var desiredScore = scores[canAid[sortedShortlist[i]]]
+			if (ubScore[i] > desiredScore && lbScore[i] <= desiredScore) {
+				// we gave too good a score and we can lower the score
+				k = desiredScore
+			}
+			tryScore[i] = k
+			k--
+		}
+
+	}
+
+	// assign scores to shortlist
+	for ( var i = 0 ; i < ns ; i ++) {
+		scores[canAid[sortedShortlist[i]]] = tryScore[i]
+	}
+
+	// still need to assign scores to candidates outside the shortlist
+	// so we've got a list of distances and scores.  let's just use linear interpolation.
+
+	var fillScore = []
+	var intervals = sortedShortlist.map( i => dista[i] )
+	for(var i=0; i<lc; i++){
+		
+		// first, find the interval this distance fits into
+		var d1 = dista[i]
+		var valEnd = intervals.find( x => x >= d1)
+		var end = intervals.indexOf(valEnd)
+
+		if (end == -1) {
+			// too big distance, assign min score
+			fillScore[i] = 0
+		} else if (end == 0) {
+			fillScore[i] = maxscore // easy
+		} else {
+			var start = Math.max(0,end-1)
+			var s = intervals[start]
+			var e = intervals[end]
+			if (e === s) {
+				// avoid dividing by zero
+				var frac = 0
+			} else {
+				if (utility_shape == "linear") {
+					frac = ( d1 - s ) / ( e - s )
+				} else {
+					var u = utility_function(utility_shape)
+					frac = ( u(d1) - u(s) ) / ( u(e) - u(s) )
+				}
+			}
+			// apply fraction 
+			var ss = tryScore[start]
+			var es = tryScore[end]
+			fillScore[i] = Math.round( ss + (es-ss)*frac )
+		}	
+	}
+	
+	// assign scores to all candidates
+	for ( var i = 0 ; i < lc ; i ++) {
+		scores[canAid[i]] = fillScore[i]
+	}
+
+		
+	if(0) { // old way
+
 		// find best candidate and make sure that only he gets the best score
 		var n1 = n
 		var n1i = ni
@@ -645,8 +830,9 @@ function dostrategy(model,x,y,minscore,maxscore,strategy,preFrontrunnerIds,candi
 		}
 	}
 
-	return {scores:scores, radiusFirst:n , radiusLast:m, dottedCircle:dottedCircle}
+	return scores
 }
+
 
 function utility_function(utility_shape) {
 	if (utility_shape == "quadratic") {
@@ -2105,7 +2291,7 @@ DrawTally.Score = function (model,voterModel,voterPerson) {
 	}
 	if (1) {
 		var distList = voterPerson.distList
-		text += dotPlot("score",distList,model,{differentDisplay: true})
+		text += tBarChart("score",distList,model,{differentDisplay: true})
 		text += `<br>`
 		
 	}
@@ -2154,7 +2340,7 @@ DrawTally.Three = function (model,voterModel,voterPerson) {
 	}
 	if (1) {
 		var distList = voterPerson.distList
-		text += dotPlot("score",distList,model,{differentDisplay: true})
+		text += tBarChart("score",distList,model,{differentDisplay: true})
 		text += `<br>`
 		
 	}
@@ -2231,7 +2417,7 @@ DrawTally.Approval = function (model,voterModel,voterPerson) {
 	}
 	if (1) {
 		var distList = voterPerson.distList
-		text += dotPlot("score",distList,model,{differentDisplay: true})
+		text += tBarChart("score",distList,model,{differentDisplay: true})
 		text += `</span><br>`
 		
 	}
@@ -2241,7 +2427,9 @@ DrawTally.Approval = function (model,voterModel,voterPerson) {
 }
 
 DrawTally.Ranked = function (model,voterModel,voterPerson) {
-	var ballot = voterPerson.stages[model.stage].ballot
+	var voterAtStage = voterPerson.stages[model.stage]
+	var ballot = voterAtStage.ballot
+	var district = model.district[voterPerson.iDistrict]
 
 	var system = model.system
 	var rbsystem = model.rbsystem
@@ -2335,8 +2523,6 @@ DrawTally.Ranked = function (model,voterModel,voterPerson) {
 			text += "</pre></span>"
 		}
 		if(1){
-
-			let district = model.district[voterPerson.iDistrict]
 			
 			text += "<span class='small'>"
 			// text += " Pair Preferences:  <br />"
@@ -2371,18 +2557,26 @@ DrawTally.Ranked = function (model,voterModel,voterPerson) {
 			text += "</span>"
 			text += "</pre>"
 		}
+		if(1) {
+			text += pairChart([ballot], district, model)
+			text += squarePairChart([ballot], district, model)
+		}
 	}
 
 	if (pick.doPoints) {
 		if (voterModel.say) text += "<span class='small' style> Points: </span><br />" 
-		var numCandidates = ballot.rank.length
-		for(var i=0; i<ballot.rank.length; i++){
-			var candidate = ballot.rank[i];
-			var score = numCandidates - i
-			for (var j=0; j < score; j++) {
-				text += model.icon(candidate) 
+		if (1) {
+			text += tBarChart("score", voterPerson.distList ,model,{differentDisplay:true})
+		} else {
+			var numCandidates = ballot.rank.length
+			for(var i=0; i<ballot.rank.length; i++){
+				var candidate = ballot.rank[i];
+				var score = numCandidates - i
+				for (var j=0; j < score; j++) {
+					text += model.icon(candidate) 
+				}
+				text += "<br />"
 			}
-			text += "<br />"
 		}
 	}
 
@@ -2530,6 +2724,15 @@ function GeneralVoterModel(model,voterModel) {
 		<b>${voterPerson.realNameStrategy}</b> <br>
 		<br>
 		`
+
+		var didStarStrategy = model.system == "STAR" && voterPerson.strategy != "zero strategy. judge on an absolute scale."
+		var doNormalize = voterPerson.strategy == "normalize"
+		if (didStarStrategy) {
+			text3 += `
+			And because we're using <b>STAR</b>, you tried to distinguish between ${ (doNormalize) ? "candidates" : "frontrunners" } for the final round ${ (doNormalize) ? "" : "and then fill in everybody else in between those scores" }. <br>
+			<br>
+			`
+		}
 		
 		var consideredElectability = model.stage == "primary" && model.doElectabilityPolls
 		if (consideredElectability) {
@@ -2545,7 +2748,7 @@ function GeneralVoterModel(model,voterModel) {
 		// 	text3 += `
 		// 	You gave the following scores: <br>
 		// 	`
-		// 	text3 += dotPlot("score",distList,model,{differentDisplay: true})
+		// 	text3 += tBarChart("score",distList,model,{differentDisplay: true})
 		// 	text3 += `<br>`
 		// }
 
@@ -2553,7 +2756,7 @@ function GeneralVoterModel(model,voterModel) {
 			text3 += `
 			This is your perceived distance from each candidate using a <b>${model.utility_shape}</b> utility function: <span class="percent">(as % of your perceived distance of the arena width)</span><br>
 			`
-			text3 += dotPlot("nUNorm",distList,model,{distLine:true})
+			text3 += tBarChart("nUNorm",distList,model,{distLine:true})
 			// for (var d of distList) {
 			// 	text3 += `
 			// 	${makeIconsCan([d.c])}: <b>${Math.round(d.uNorm*100)}</b> <br>
@@ -2564,14 +2767,14 @@ function GeneralVoterModel(model,voterModel) {
 
 		text3 += `
 		This is your percieved utility for each candidate: <span class="percent">(100% minus perceived distance)</span> <br>`
-		text3 += dotPlot("uNorm",distList,model)
+		text3 += tBarChart("uNorm",distList,model)
 		text3 += `
 		<br>`
 
 		text3 += `
 		This is your distance from each candidate: <span class="percent">(as % of arena width)</span> <br>
 		`
-		text3 += dotPlot("dNorm",distList,model,{distLine:true})
+		text3 += tBarChart("dNorm",distList,model,{distLine:true})
 		// for (var d of distList) {
 		// 	text3 += `
 		// 	${makeIconsCan([d.c])}: <b>${Math.round(d.dist/model.size*100)}</b> <br>
@@ -2692,7 +2895,7 @@ function GeneralVoterModel(model,voterModel) {
 			Alternative form of ballot:
 			</span>
 			`
-			part4 += dotPlot("score",distList,model,{differentDisplay: true,bubbles:true})
+			part4 += tBarChart("score",distList,model,{differentDisplay: true,bubbles:true})
 			part4 += `<br>`
 			part4 += tableFoot
 		}
@@ -2703,7 +2906,7 @@ function GeneralVoterModel(model,voterModel) {
 			Visualization of ballot:
 			</span>
 			`
-			part4 += dotPlot("score",distList,model,{differentDisplay: true,distLine:true})
+			part4 += tBarChart("score",distList,model,{differentDisplay: true,distLine:true})
 			part4 += `<br>`
 			part4 += tableFoot
 		}
@@ -2749,7 +2952,10 @@ function GeneralVoterModel(model,voterModel) {
 }
 
 
-function makeDistList(model,voterPerson,voterAtStage,cans) {
+function makeDistList(model,voterPerson,voterAtStage,cans,opt) {
+	opt = opt || {}
+	opt.dontSort = opt.dontSort || false
+
 	var distList = []
 	var uf = utility_function(model.utility_shape)
 	for (var i = 0; i < cans.length; i++) {
@@ -2776,27 +2982,73 @@ function makeDistList(model,voterPerson,voterAtStage,cans) {
 			distSet.scoreDisplay = distSet.score
 		}
 		if (model.ballotType == "Ranked") {
-			distSet.scoreDisplay = (voterAtStage.ballot.rank.indexOf(c.id) + 1)
-			distSet.score = distSet.scoreDisplay / voterAtStage.ballot.rank.length
+			if (model.system == "Borda") {
+				var rank = voterAtStage.ballot.rank.indexOf(c.id) + 1
+				var maxpoints = voterAtStage.ballot.rank.length
+				var points = maxpoints - rank
+				distSet.scoreDisplay = points
+				distSet.score = points / maxpoints
+			} else {
+				distSet.scoreDisplay = (voterAtStage.ballot.rank.indexOf(c.id) + 1)
+				distSet.score = distSet.scoreDisplay / voterAtStage.ballot.rank.length
+			}
 		}
 		distList.push(distSet)
 	
 	}
 	
-	distList.sort(function(a,b) {return a.dist - b.dist})
-	for (var i = 0; i < distList.length; i++) {
-		distList[i].iSort = i // we might want to show these by the sorted order
+	var doSort = ! opt.dontSort
+	if (doSort) {
+		distList.sort(function(a,b) {return a.dist - b.dist})
+		for (var i = 0; i < distList.length; i++) {
+			distList[i].iSort = i // we might want to show these by the sorted order
+		}
 	}
 
 	return distList
 }
 
-function dotPlot(measure,distList,model,opt) {
+function makeDistListFromTally(tally, cans, maxscore, nballots,opt) {
+	opt = opt || {}
+	opt.dontSort = opt.dontSort || false
+
+	var distList = []
+	
+	var k = 0
+	for (var i = 0; i < cans.length; i++) {
+		var c = cans[i]
+		if (tally[c.id] !== undefined) {
+			var distSet =  {
+				i:k,
+				c:c,
+				cid:c.id,
+				score: tally[c.id] / maxscore / nballots,
+				scoreDisplay: tally[c.id] / maxscore,
+				maxscore: maxscore,
+			}
+			distList.push(distSet)
+			k++
+		}
+	}
+	
+	var doSort = ! opt.dontSort
+	if (doSort) {
+		distList.sort(function(a,b) {return a.score - b.score})
+		for (var i = 0; i < distList.length; i++) {
+			distList[i].iSort = i // we might want to show these by the sorted order
+		}
+	}
+
+	return distList
+}
+
+function tBarChart(measure,distList,model,opt) {
 	opt = opt || {}
 	opt.differentDisplay = opt.differentDisplay || false
 	opt.sortOrder = opt.sortOrder || false
 	opt.distLine = opt.distLine || false
 	opt.bubbles = opt.bubbles || false
+	opt.percent = opt.percent || false
 
 	var text = ""
 
@@ -2821,10 +3073,8 @@ function dotPlot(measure,distList,model,opt) {
 	var w1 = 156
 	var w2 = 200
 	var ncans = distList.length
-	text += `
-	<div style=' position: relative; width: ${w2-4}px; height: ${Math.max( 1 , vertdim * ncans )}em; border: 2px solid #ccc; padding: .25em .75em;'>
-	<div style=' position: relative; width: ${w1-4}px; height: ${Math.max( 1 , vertdim * ncans )}em; border: 0px solid #ccc; border-right: ${(opt.bubbles) ? 0 : 1}px dashed #ccc; padding: 0 .5em;'>
-	`
+	text += `<div style=' position: relative; width: ${ (1) ? w2 : w2-4}px; height: ${Math.max( 1 , vertdim * ncans )}em; border: ${ (1) ? 0 : 2}px solid #ccc; padding: .25em 0;'>`
+	text += `<div style=' position: relative; width: ${ (1) ? w1 : w1-4}px; height: ${Math.max( 1 , vertdim * ncans )}em; border: 0px solid #ccc; border-right: ${(opt.bubbles) ? 0 : 1}px dashed #ccc; padding: 0 ${ (1) ? 0 : .5}em;'>`
 	distList.reverse()
 	for (var d of distList) {
 		var iV = (opt.sortOrder) ? d.iSort : d.i
@@ -2832,13 +3082,13 @@ function dotPlot(measure,distList,model,opt) {
 		var x = Math.round(d[measure]*w1)
 		if (opt.distLine) {
 			text += `
-			<div style=' position: absolute; top: ${y + .5}em; width: ${x}px; left: -.5em; background-color: #ccc; height: 2px; '>
+			<div style=' position: absolute; top: ${y + .5}em; width: ${x}px; background-color: #ccc; height: 2px; opacity: .8; '>
 			</div>
-			<img src="play/img/voter.png" style=' position: absolute; top: ${y}em; left:-.5em; '/>
+			<img src="play/img/voter.png" style=' position: absolute; top: ${y}em; left:0; '/>
 			`
 		} else if (opt.bubbles) {
 			text += `
-			<div style=' position: absolute; top: ${y}em; left: ${0+2}px; margin-left: -.5em; white-space: nowrap;'>
+			<div style=' position: absolute; top: ${y}em; left: ${0+2}px; white-space: nowrap;'>
 			${makeIconsCan([d.c])} <br>
 			</div>
 			`
@@ -2862,17 +3112,61 @@ function dotPlot(measure,distList,model,opt) {
 			continue
 		} else {
 			text += `
-			<div style=' position: absolute; top: ${y}em; width: ${x}px; left: -.5em; background-color: ${d.c.fill}; height: 1em; '>
+			<div style=' position: absolute; top: ${y}em; width: ${x}px; left: 0; background-color: ${d.c.fill}; height: 1em; opacity: .8;'>
 			</div>
 			`
 		}
+		var f = x => x
+		if (opt.percent) f = x => _textPercent(x/100)
 		text += `
-		<div style=' position: absolute; top: ${y}em; left: ${x+2}px; margin-left: -.5em; white-space: nowrap;'>
-		${makeIconsCan([d.c])}: <b>${Math.round(d[display] * mult)}</b> <br>
+		<div style=' position: absolute; top: ${y}em; left: ${x+2}px; white-space: nowrap;'>
+		${makeIconsCan([d.c])}: <b>${f(Math.round(d[display] * mult))}</b> <br>
 		</div>
 		`
 	}
 	distList.reverse()
+	text += `
+	</div>
+	</div>
+	`
+	return text
+}
+
+function dLineChart(measure,dls,model,opt) {
+	opt = opt || {}
+
+	var text = ""
+
+	// helper
+	var makeIconsCan = x => x ? x.map(a => model.icon(a.id)) : ""
+
+	// dot plot from 0 to 150
+	// border at 100 * 220 / 141 = 156 
+	// also the .5 em margins and padding help center the icons.
+	var w1 = 156
+	var w2 = 200
+	var npolls = dls.length
+	var yscale = 20
+	var h1 = Math.max( 1 , npolls-1 ) * yscale // pixels
+	var ncans = dls[0].length
+	text += `<div style=' position: relative; width: ${w1}px; height: ${h1}px; padding: .25em 0;'>`
+	text += `<div style=' position: relative; width: ${w1}px; height: ${h1}px; border: 1px dashed #ccc; border-left: 0px dashed #ccc; padding: 0 0em;'>`
+	text += `<svg id="pollChart" viewBox="0 0 ${w1} ${h1}" xmlns="http://www.w3.org/2000/svg">`
+	for (var k = 0; k < ncans; k++) {
+		for (var i = 0; i < dls.length; i++) {
+			var dl = dls[i]
+			var d = dl[k]
+			var color = d.c.fill
+			var y2 = i * yscale
+			var x2 = d[measure]*w1
+			if (i > 0) {
+				text += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="5" opacity=".8" />`
+			}
+			var y1 = y2
+			var x1 = x2
+		}
+	}
+	text += `</svg>`
 	text += `
 	</div>
 	</div>

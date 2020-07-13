@@ -29,22 +29,18 @@ a:hover{ color: hsl(240,80%,80%); }
 
 #sandbox-section,
 #sandbox-index-section,
-#sandbox-embed-section{
-	/* background: #EFE9D5; */
-	background-color: #bed7dbd2;
-}
-.banner{
-	/* background: #EFE9D5; */
-	background-color: #bed7dbd2;
-}
+#sandbox-embed-section,
+.banner,
 .sim-ballot,
 .sim-test {
+	/* background: #EFE9D5; */
 	/* background-color: #e6e6e6; */
-	background-color: #bed7dbd2;
+	/* background-color: #bed7dbd2; */
+	background-color: #dfebec;
 }
 
 #content{
-	font-size: 22px;
+	font-size: 20px;
 }
 .words{
 	max-width: 900px;
@@ -84,7 +80,7 @@ a:hover{ color: hsl(240,80%,80%); }
 
 #content p{
 	text-align: left;
-	line-height: 1.7em;
+	line-height: 1.5em;
 	color: #333;
 }
 #content p.caption{
@@ -183,13 +179,22 @@ li{
 }
 
 .banner{
-	font-size: 33px;
+	font-size: 22px;
+	color: #222;
 	border-bottom: 5px solid rgba(0,0,0,0.2);
 	text-align: center;
 	padding: 10px;
 	margin-bottom: 30px;
 }
+
+.banner h1,
 .banner p{
+	margin: .3em 0em;
+}
+.banner p{
+	font-size: .7em;
+}
+/* .banner p{
 	font-size: .7em;
 	margin: .3em 0em;
 }
@@ -204,7 +209,7 @@ li{
       -webkit-text-stroke: 2px #555;
       -webkit-text-fill-color: white;
     }
-  }
+  } */
 
 
 #splash{

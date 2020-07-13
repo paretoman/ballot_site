@@ -83,6 +83,12 @@
     <script src="play/js/FastYee.js"></script>
 
     <script src="play/js/javascript-lp-solver/prod/solver.js"></script>
+    
+    
+    
+    <script src="play/js/d3/d3.js"></script>
+    <script src="play/js/sankey.js"></script>
+
 
     <script src="play/js/Model.js"></script>
     <script src="play/js/Yee.js"></script>
@@ -207,7 +213,7 @@
   <li>candidates are antagonistic towards each other during campaigns.</li>
 </ul>
 
-<p>I’m also going to describe other mechanically-similar voting methods that achieve the same goals.</p>
+<p>I’m also going to describe other mechanically similar voting methods that achieve the same goals.</p>
 
 <h2 id="representative-politics">Representative Politics</h2>
 
@@ -269,7 +275,7 @@
 
 <h2 id="kinder-political-culture">Kinder Political Culture</h2>
 
-<p>STV allows multiple factions within a party to be represented, so these factions don’t have to feel threatened by each other, which would allow them to work better together. Small groups can form to support an idea, and supporters don’t have to face a dilemma of whether they’re going to support an idea that they like best or support an idea that is more likely to be accepted by many other people. This is easier for the voters because the voters can use the voting method to find common ground rather than trying to use polls to figure out which candidate to unite behind. The voters can be more honest and the campaigns can be more honest.</p>
+<p>STV allows multiple factions within a party to be represented, so these factions don’t have to feel threatened by each other, which would allow them to work better together. Small groups can form to support an idea, and supporters don’t have to face a dilemma of whether they’re going to support an idea that they like best or support an idea that is more likely to be accepted by many other people. This is easier for the voters because the voters can use the voting method to find common ground rather than trying to use polls to figure out which candidate to unite behind. The voters can be more honest, and the campaigns can be more honest.</p>
 
 <p>Still, some things won’t change. There will still be disagreements in the legislature once candidates are seated. I think it’s more acceptable to expect compromises and cooperative trading of policy favors in a legislature rather than at the time of an election where voters would have to sift through any misinformative campaign techniques. Legislators are more able to form cooperative relationships than groups of voters, so we are designing a system that works better for representing people, and it should lift a lot of burden off the voters’ shoulders.</p>
 
@@ -299,7 +305,7 @@
 
 <p>If you use single-winner Ranked Choice Voting, then the quota is 50%. The ballot counts for the top choice, so there is no way that there is another candidate with more than 50% of ballots who could win. So, more than 50% of people are represented. More than 50% had their votes matter in the election (unless they didn’t use all their rankings).</p>
 
-<p><strong>Refresher on RCV:</strong> Ranked choice voting asks voters to rank the candidates in order from best to worst. During counting, your vote counts for your top candidate. One-by-one, the candidate with the least number of votes is eliminated and taken out of the running. <strong>Check out the sketch below</strong> that shows everyone connected to their first pick. Colored flow lines show some voters moving to their next choice after their top pick is eliminated.</p>
+<p><strong>Refresher on RCV:</strong> Ranked choice voting asks voters to rank the candidates in order from best to worst. During counting, your vote counts for your top candidate. One-by-one, the candidate with the least number of votes is eliminated and taken out of the running. <strong>Check out the sketch below</strong> that shows everyone connected to their first pick. Colored flow lines show some voters moving to their next choice after their top pick is eliminated.  The flow diagram shown on the right is called a Sankey diagram.</p>
 
 <p>(That’s enough of a refresher on RCV to get you through this page, but after you’re done on this page, <a href="irv">read this other page on single-winner RCV</a>. )</p>
 
@@ -381,7 +387,7 @@
 
 </div>
 
-<p>Ranked-Choice Voting is better (more representative) when it allows smaller groups be represented. Five would be a great number. More would be even more representative but could be overwhelming. Voters don’t have to rank all the candidates. They just need to rank enough to get one candidate elected, or maybe two.</p>
+<p>Ranked-Choice Voting is better (more representative) when it allows smaller groups to be represented. Five would be a great number. More would be even more representative but could be overwhelming. Voters don’t have to rank all the candidates. They just need to rank enough to get one candidate elected, or maybe two.</p>
 
 <h2 id="counting-ballots">Counting Ballots</h2>
 
@@ -439,19 +445,6 @@
 
 <p>What happens if a candidate gets more votes than just a quota? The rule is that exactly a quota of votes is used up by the winner, which means the excess number of votes above the quota remains in the count. These votes will count in proportion to that excess amount. It’s a calculation of dividing the excess by the quota to find the new weight for the vote. This bookkeeping makes sure that the power each voter gets from their vote is the same. It makes sure that all voters are as equal as possible.</p>
 
-<h3 id="quota-with-other-ballots">Quota with Other Ballots</h3>
-
-<p>The concept of a quota extends to multiple ballot counting methods:</p>
-
-<ol>
-  <li>Top-choice-counts Ranking Methods: the Single Transferable Vote (STV), also known as multi-winner Ranked Choice Voting RCV</li>
-  <li>Scoring methods (including Approval Voting and STAR voting): Monroe voting and a few methods I’m working on</li>
-  <li>Pairwise ballot methods (I’m working on a version of minimax)</li>
-  <li>Choose-only-one methods: Single Non-Transferable Vote (SNTV). An obvious Improvement would be to have a Single Transferable Vote.</li>
-</ol>
-
-<p>After you’re done with this page, <a href="proportional">read this page (currently a draft) about all the different kinds of proportional voting methods.</a></p>
-
 <h2 id="proportionality">Proportionality</h2>
 
 <p>Let’s get back to the idea of proportionality. You can see that in STV, a voter group with two times as many voters gets two times as many representatives.</p>
@@ -472,7 +465,7 @@
 
 </div>
 
-<p>This proportionality applies even when there aren’t distinct groups. Let’s look again at the example we saw ealier, but now using the additional charts.</p>
+<p>This proportionality applies even when there aren’t distinct groups. Let’s look again at the example we saw earlier, but now using the additional charts.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
@@ -491,6 +484,14 @@
 </div>
 
 <!--Add a section on gerrymandering-->
+
+<h3 id="proportional-methods-without-parties">Proportional Methods without Parties</h3>
+
+<p>There are more voting methods that use a similar way of assigning voters to STV to achieve proportionality.  After you’re done with this page, read more about all the different kinds of proportional voting methods:</p>
+
+<ul>
+  <li><a href="proportional">Proportional Voting Methods</a></li>
+</ul>
 
 <h2 id="footnotes">Footnotes</h2>
 

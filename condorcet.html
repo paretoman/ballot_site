@@ -83,6 +83,12 @@
     <script src="play/js/FastYee.js"></script>
 
     <script src="play/js/javascript-lp-solver/prod/solver.js"></script>
+    
+    
+    
+    <script src="play/js/d3/d3.js"></script>
+    <script src="play/js/sankey.js"></script>
+
 
     <script src="play/js/Model.js"></script>
     <script src="play/js/Yee.js"></script>
@@ -288,12 +294,12 @@
 
 <p>This visualization <strong>above</strong> is a little crowded. The colors here are the same is in the case of the single ballot. The three voter’s ballot diagrams are overlapping in this combined diagram.</p>
 
-<p>Lets clean up the visual by showing a map of where a candidate can beat an opponent.</p>
+<p>Let’s clean up the visual by showing a map of where a candidate can beat an opponent.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
         <h2 class="ballot_title" style="margin-bottom: 0.15em;">Beat Map of Rock Paper Scissors</h2>
-        <p class="ballot_caption">This map shows that scissors is in rock's territory, but paper is outside, so paper beats rock. Wiggle rock to see it's territory move.
+        <p class="ballot_caption">This map shows that scissors is in rock's territory, but paper is outside, so paper beats rock. Wiggle rock to see its territory move.
         
         </p>
         
@@ -456,7 +462,7 @@
 
 <p>To get a more fundamental understanding of Condorcet cycles, let’s talk about how this beat map is related to the median. In this section, I’ll show that the reason we have Condorcet cycles is because there’s no one single position in two dimensions that would beat all the other positions head-to-head.</p>
 
-<p>The median works in one dimension just like the Condorcet winner. If you compare the median to any other position, then, in a vote, it would beat the other position .</p>
+<p>The median works in one dimension just like the Condorcet winner. If you compare the median to any other position, then, in a vote, it would beat the other position.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
@@ -520,7 +526,7 @@
 
 <p>I used these projected medians to make the beat maps. The median isn’t a single position. There’s a projection for every angle, so you have a median associated with each angle. Just choose an origin, and you can make a plot. So I used each candidate as an origin and found where the median voter was. Then I doubled that distance to see a position that would tie with the candidate. That made the beat map.</p>
 
-<p>By the way, there’s also something called a windmill problem that 3Blue1Brown made a video about, and this is actually a really good visual for a two-dimensional median.  Another interesting way to find a median is Tukey’s half-space depth.</p>
+<p>By the way, there’s also something called a windmill problem that 3Blue1Brown made a video about, and this is actually a really good visual for a two-dimensional median. Another interesting way to find a median is Tukey’s half-space depth.</p>
 
 <p>To restate the main point of this section, the reason we have Condorcet cycles is because there’s no one single position in two dimensions that would beat all the other positions head-to-head.</p>
 
