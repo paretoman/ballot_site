@@ -10,21 +10,21 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
-<title>Quota Methods | Smart Voting Simulator</title>
+<title>3-2-1 | Smart Voting Simulator</title>
 <meta name="generator" content="Jekyll v3.8.7" />
-<meta property="og:title" content="Quota Methods" />
+<meta property="og:title" content="3-2-1" />
 <meta name="author" content="Paretoman" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="An Interactive Guide to Quota Approval Voting and Maybe More" />
-<meta property="og:description" content="An Interactive Guide to Quota Approval Voting and Maybe More" />
-<link rel="canonical" href="https://paretoman.github.io/ballot/quotaApproval.html" />
-<meta property="og:url" content="https://paretoman.github.io/ballot/quotaApproval.html" />
+<meta name="description" content="draft" />
+<meta property="og:description" content="draft" />
+<link rel="canonical" href="https://paretoman.github.io/ballot/draft-321.html" />
+<meta property="og:url" content="https://paretoman.github.io/ballot/draft-321.html" />
 <meta property="og:site_name" content="Smart Voting Simulator" />
 <script type="application/ld+json">
-{"headline":"Quota Methods","@type":"WebPage","url":"https://paretoman.github.io/ballot/quotaApproval.html","author":{"@type":"Person","name":"Paretoman"},"description":"An Interactive Guide to Quota Approval Voting and Maybe More","@context":"https://schema.org"}</script>
+{"headline":"3-2-1","@type":"WebPage","url":"https://paretoman.github.io/ballot/draft-321.html","author":{"@type":"Person","name":"Paretoman"},"description":"draft","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <!-- <link rel="stylesheet" href="/ballot/assets/css/style.css"> --><link type="application/atom+xml" rel="alternate" href="https://paretoman.github.io/ballot/feed.xml" title="Smart Voting Simulator" />
-    <title>Quota Methods</title>
+    <title>3-2-1</title>
     
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
@@ -34,16 +34,16 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, min-width=380">
     
     <!-- Schema.org markup for Google+ -->
-    <meta itemprop="name" content="Quota Methods">
-    <meta itemprop="description" content="An Interactive Guide to Quota Approval Voting and Maybe More">
+    <meta itemprop="name" content="3-2-1">
+    <meta itemprop="description" content="draft">
     <meta itemprop="image" content="https://paretoman.github.io/ballot/social/thumbnail.png">
 
     <!-- Twitter Card data -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@paretoman1">
-    <meta name="twitter:title" content="Quota Methods">
-    <meta name="twitter:description" content="An Interactive Guide to Quota Approval Voting and Maybe More">
-    <meta name="twitter:creator" content="@paretoman1">
+    <meta name="twitter:site" content="@bettercount_us">
+    <meta name="twitter:title" content="3-2-1">
+    <meta name="twitter:description" content="draft">
+    <meta name="twitter:creator" content="@bettercount_us">
     <meta name="twitter:image" content="https://paretoman.github.io/ballot/social/thumbnail.png">
 
     <!-- Open Graph data -->
@@ -216,95 +216,68 @@
         </div>
       </nav></div>
 </header>
-
+    
 	
 	
 	
 
 	<div class="banner">
-		<h1>Multiseat Methods with Quotas</h1>
-		<p>An Interactive Guide to Quota Approval Voting and Maybe More</p><p>
+		<h1>3-2-1</h1>
+		<p>draft</p><p>
 		
-			By Paretoman, May 2019
+			by Jameson Quinn and Paretoman
 		
 	</p>
 		<p>Based off Work by Nicky Case</p></div>
-<div id="content">
+    <div id="content">
+        <div class="words">
+            
+<h2 id="3-2-1-voting">3-2-1 voting</h2>
 
-    		<div class="words">
+<p>In 3-2-1 voting, voters rate each candidate “Good”, “OK”, or “Bad”. To find the winner, you first narrow it down to three semifinalists, the candidates with the most “good” ratings. Then, narrow it further to two finalists, the candidates with the fewest “bad” ratings. Finally, the winner is the one preferred on more ballots.</p>
 
-			<p>
-				Quota-Approval mode
-			</p>
+<p>3-2-1 voting is another method that avoids the chicken dilemma by addressing scoring strategies.</p>
 
-			<h2>
-				Quotas!
-			</h2>
+<p>3-2-1 voting is doing something similar to STAR by adding a second additional round of counting votes. It’s kind of like there are two rounds of counting approval ballots and one round of counting preference ballots. The first round of approval just counts “good”. The second round counts “good” and “okay”.</p>
 
-			<p>
-				In Quota-Approval mode, you position voters in only one dimension and you use the second dimension to control how broad the candidates are.  Up is broader.
-			</p>
+<p>Important todo: I haven’t put good strategies into 3-2-1 yet. Right now, these strategies are okay for this example, but other examples might not be correct.</p>
 
-		</div>
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">3-2-1 Strategy</h2>
+        <p class="ballot_caption">These strategies try to give frontrunners their own score with three levels of support.
+        
+        </p>
+        
+        
+        <script id="ballot10">
+            sandbox({idScript:"ballot10",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VSy2oDMQz8F59NsWTZ1u65n5Dbsoe22ZJASEIelFLab6_kIS2lhD2M9djxjKyPkMI4TXWIpGWOE5VqJ7YTF_45SWSheY6BvJmSRsrJ4xzGFIOEMXxRDjGUMFIM1bqs2AxS_PdZRe9WhrsVSv0ucgnVRGbPMXKQQQIogNq1kKkgMbQ7HYZe5NQjpt7DDAANCyKjyQYVyYZIERkLm3ufHZs-8lGAKzNK4MrgysY1Ueyft1b0gDPDM0WO7kmc1LvEnbpz4dvBSKfeI_1P-UsrcCwNjwKpMvRkwfQKASCyZABEFjxegeHSUNN-U4HhmgCwWjH9Cqu1dBsur4KiQkHFyBsUNPzboKBlRHi5hpdrt_1pKOrvfKJ4HpY0AagzKcQoxCgIFYQKPQo-hSx1WQ_FVg7Cnp92u8Nl9X5cbJtXm9Oy2D6fN4e3x-X8ctoeL9vD3vf8ul8vr9v9sg6f3_tmOp49AwAA)"})
+        </script>
+        
+    </div>
 
-		<div class="sim-test">
-			<div class="sim-container">
-				<p class="caption-test">
-					Move the candidates and get equal representation for voters.
-				</p>
-				<div id="elect_quotaApproval" class="div-election div-ballot-in-sandbox div-model" scrolling="no">
-				</div>
-				<script>
-					sandbox({quick:"elect_quotaApproval"})
-				</script>
-			</div>
-		</div>
-		<div class="words">
-			<p>
-				The dark bar shows where voters are unrepresented... it's bad.  We want candidates to cover each voter's quota of representation, AKA the dark bar.  The quota is an amount of representation that everyone could have ideally if every voter were represented equally.  I used a gradient-colored bar to show that it is more important to elect a candidate that represents the underrepresented.  The goal is to cover all of the bar, starting with the darker parts of the bar.
-			</p>
-			<p>
-				The quota approval method elects the candidate that reduces the quota the most.  To do this, we use the remaining quota as a weight.  A voter who is already represented has less quota left to count towards the next candidate to elect.  Their vote was already counted.  A candidate they liked was already seated.
-			</p>
-			<p>
-				The light bars that cover each candidate's bars show votes that were already counted.  We don't want to count these votes twice.  So we wash out the color from that part.  Then we count the votes that are still unrepresented.  Most votes wins.
-			</p>
-			<p>
-				
-			</p>
-			<p>Putting it all together, here's a sandbox for you to try out all the different systems and to make your own scenarios:</p>
-		</div>
+</div>
 
+<p>Here again, the game of chicken is not being played anymore. The Frontrunner strategy doesn’t change the result from Normalize strategy. Candidates wouldn’t have to go negative against their nearby rivals in order to ensure that their voters would at least be moderately strategic and wouldn’t just normalize.</p>
 
-    
-        <div id="sandbox-section">
-            <div class="sim-sandbox">
-                <div class="sim-container">
-                    <h1 class="caption-test" style="margin: 30px 0 15px 0;">SANDBOX MODE! <a href="sandbox">(link to <em>just</em> this)</a></h1>
-		                
-		<div id="sandbox" class="div-sandbox div-election div-ballot-in-sandbox div-model" scrolling="no">
-		</div>
-		<script>
-			sandbox({quick:"sandbox"})
-		</script>
-                </div>
-            </div>
-            <div class="words">
-                
-			<p>
-				<b>From Nicky Case:</b> One hope for Sandbox Mode is that readers can debate with me and each other
-				<em>using</em> this tool! Not just telling me I'm wrong, but
-				<em>showing</em> me I'm wrong.  Granted, this tool is very limited – it doesn't handle strategic voting
-				or imperfect information – but I think it's a start, and may help improve our Democratic Discourse&trade;
-			</p>
-			<p>
-				<b> From Paretoman: </b>if you'd like your own models included here, 
-				save it, copy the saved link, and tweet it with the <a href="https://twitter.com/hashtag/smartvotesim">hashtag #smartvotesim.</a>
-			</p>
-            </div>
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Not Playing Chicken with 3-2-1 Voting</h2>
+        <p class="ballot_caption">
+        
+        </p>
+        
+        
+        <script id="election14">
+            sandbox({idScript:"election14",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSQWoDMQxF7-K1KJZkyXbOkV2SRQsJXQRSSjelNGevrE9gSimz-CNL_n6S_VVq2R0OLEzc5okOzIO41_U3G7HN04kKZw07RV3WxN9oWWNRY6tGy65SaWVX7qyFimXssTOSPSSMRWgK1e0XyRHJSn--yMx_M1zTnhcZM7mTz7UsWNaFcSy3y-VYgoUDi0PAxA4JKG6hcb6GxGFCRcI4FoVzhwgEzQlsxHKDwEY6ooEILlqTnEnWZOCl8FLNeoWX2mogCnkVOjbDUefGo9XHKFbA20A2Dk23QUuftj2ieR7bOm4L0G3momGmxhBJGFMIcM0gaN06cuP3tA0z8ApB946bcUzSLTvQIHJ4OVB8pnSgdOztQOmKqCGHy-yPF9aRHI-hkVJb6-htVAgMB2AGYAbmNCxPGeAZ8BvAGgvryeJFAuzl-Xq9few_387R-v71_Xwu3z-WC-vnSwMAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
         </div>
-
-</div><footer class="site-footer h-card">
+    </div><footer class="site-footer h-card">
   <data class="u-url" href="/ballot/"></data>
 
   <div class="wrapper">
@@ -334,27 +307,27 @@
 				Share this:
 				<ul class="share-buttons">
                     <li class="reddit">
-                        <a href="http://www.reddit.com/submit?url=https://paretoman.github.io/ballot/quotaApproval.html&title=Multiseat%20Methods%20with%20Quotas" target="_blank">
+                        <a href="http://www.reddit.com/submit?url=https://paretoman.github.io/ballot/draft-321.html&title=3-2-1" target="_blank">
                             <img height="32" width="32" alt="Post on Reddit" src="/ballot/social/reddit.png">
                         </a>
                     </li>
                     <li class="hn">
-                        <a href="http://news.ycombinator.com/submitlink?u=https://paretoman.github.io/ballot/quotaApproval.html&t=Multiseat%20Methods%20with%20Quotas" target="_blank">
+                        <a href="http://news.ycombinator.com/submitlink?u=https://paretoman.github.io/ballot/draft-321.html&t=3-2-1" target="_blank">
                             <img height="32" width="32" alt="Share on Hacker News" src="/ballot/social/ycombinator.png">
                         </a>
                     </li>
                     <li class="twitter">
-                        <a href="https://twitter.com/intent/tweet?via=paretoman1&url=https://paretoman.github.io/ballot/quotaApproval.html&text=Multiseat%20Methods%20with%20Quotas" target="_blank">
+                        <a href="https://twitter.com/intent/tweet?via=paretoman1&url=https://paretoman.github.io/ballot/draft-321.html&text=3-2-1" target="_blank">
                             <img alt="Tweet" src="/ballot/social/Twitter.png">
                         </a>
                     </li>
                     <li class="email">
-                        <a href="mailto:?subject=Multiseat%20Methods%20with%20Quotas&body=Multiseat%20Methods%20with%20Quotas:https://paretoman.github.io/ballot/quotaApproval.html" target="_blank" title="Send email">
+                        <a href="mailto:?subject=3-2-1&body=3-2-1:https://paretoman.github.io/ballot/draft-321.html" target="_blank" title="Send email">
                             <img alt="Send email" src="/ballot/social/Email.png">
                         </a>
                     </li>
                     <li>
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://paretoman.github.io/ballot/quotaApproval.html&t=Multiseat%20Methods%20with%20Quotas" title="Share on Facebook" target="_blank">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://paretoman.github.io/ballot/draft-321.html&t=3-2-1" title="Share on Facebook" target="_blank">
                             <img alt="Share on Facebook" src="/ballot/social/Facebook.png">
                         </a>
                     </li>
