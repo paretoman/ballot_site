@@ -532,10 +532,11 @@ function bindModel(ui,model,config) {
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
-            var formatNumber = d3.format(",.0f"),
-                format = function(d) { return formatNumber(d); },
-                color = (cid) => model.candidatesById[cid].fill
-
+            var formatNumber = d3.format(",.0f")
+            var format = function(d) { return formatNumber(d); }
+            var color = (cid) => model.candidatesById[cid].fill
+            var getName = (cid) => model.candidatesById[cid].name
+            var fPercent = (frac) => Math.round(100 * frac) + "%"
 
 
             var path = sankey.link();
@@ -554,11 +555,11 @@ function bindModel(ui,model,config) {
                 .attr("class", "link")
                 .attr("d", path)
                 .style("stroke-width", function(d) { return Math.max(1, d.dy); })
-                .style("stroke", function(d) { return d.source.color = (d.winner && doSpecialWinColor) ? "#fff" : color(d.source.name.replace(/^[0-9]*_/, "")); })
+                .style("stroke", function(d) { return d.source.color = (d.winner && doSpecialWinColor) ? "#fff" : color(d.source.cid); })
                 .sort(function(a, b) { return b.dy - a.dy; });
 
             link.append("title")
-                .text(function(d) { return d.source.name + " → " + d.target.name + "\n" + format(d.value); });
+                .text(function(d) { return getName(d.source.cid) + " → " + getName(d.target.cid) + "\n" + fPercent(d.value/d.numBallots); });
                 // title is an SVG standard way of providing tooltips, up to the browser how to render this, so changing the style is tricky
                 
             var node = svg.append("g").selectAll(".node")
@@ -573,14 +574,25 @@ function bindModel(ui,model,config) {
                 .on("dragstart", function() { this.parentNode.appendChild(this); })
                 .on("drag", dragmove));
 
-            node.append("rect")
+            var rectNode = node.append("rect")
                 .attr("height", sankey.nodeWidth())
                 .attr("width", function(d) { return d.dy; })
-                .style("fill", function(d) { return d.color = color(d.name.replace(/^[0-9]*_/, "")); })
-                .style("stroke", function(d) { return d3.rgb(d.color).darker(2); })
-                .append("title")
-                .text(function(d) { return d.name + "\n" + format(d.value); });
+                .style("fill", function(d) { return d.color = color(d.cid); })
+                .style("stroke", function(d) { return d3.rgb(d.color).darker(2); });
+            
+            rectNode.append("title")
+                .text(function(d) { return getName(d.cid) + "\n" + fPercent(d.value/d.numBallots); });
                 
+            node.append("text")
+                .attr("transform", function(d) {
+                    return "translate(" + d.dy/2 + "," + nodewidth/2 + ")"; 
+                })
+                .attr("dominant-baseline","middle")
+                .attr("text-anchor","middle")
+                .text(function(d) { return (d.winner) ? "win" : ""; })
+                // .style("fill", "#555")
+                .style("opacity", "50%")
+                .style("font-size", nodewidth*.9);
             /*
             node.append("text")
                 .attr("text-anchor", "middle")
@@ -615,10 +627,11 @@ function bindModel(ui,model,config) {
                 var continuing = district.result.continuing
                 var transfers = district.result.transfers
                 var numRounds = transfers.length
+                var numBallots = district.voterPeople.length
                 
                 var winnersContinue = model.system == "STV" && 1
                 if (winnersContinue)var won = district.result.won
-                if (winnersContinue) var quotaAmount = district.voterPeople.length / (model.seats + 1)
+                if (winnersContinue) var quotaAmount = numBallots / (model.seats + 1)
                 
 
                 // function to find the sorted position of the candidate
@@ -648,7 +661,14 @@ function bindModel(ui,model,config) {
                     for( var k = 0; k < useList.length; k++) {
                         var cid = useList[k]
                         lookup[rid][cid] = idx
-                        var node = {name:rid + "_" + cid}
+                        var node = {name:rid + "_" + cid,round:rid,cid:cid,numBallots:numBallots}
+                        if (winnersContinue) {
+                            if (won[rid].includes(cid)) node.winner = true
+                        } else {
+                            if (rid == numRounds) { //last round
+                                if (result.winners.includes(cid)) node.winner = true
+                            }
+                        }
                         nodes.push(node)
                         idx ++
                     }
@@ -670,7 +690,7 @@ function bindModel(ui,model,config) {
                                 v += allfirst[first]
                             }
                             if (v > 0) {
-                                var link = {"source":lfrom,"target":lto,"value":v}
+                                var link = {"source":lfrom,"target":lto,"value":v,numBallots:numBallots}
                                 links.push(link)
                             }
                             
@@ -681,7 +701,7 @@ function bindModel(ui,model,config) {
                         var lto = lookup[rid+1][cid]
                         var v = tallies[rid][cid]
                         if (v > 0) {
-                            var link = {"source":lfrom,"target":lto,"value":v}
+                            var link = {"source":lfrom,"target":lto,"value":v,numBallots:numBallots}
                             links.push(link)
                         }
 
@@ -691,7 +711,7 @@ function bindModel(ui,model,config) {
                             var lfrom = lookup[rid][cid]
                             var lto = lookup[rid+1][cid]
                             var v = quotaAmount
-                            var link = {"source":lfrom,"target":lto,"value":v,"winner":true}
+                            var link = {"source":lfrom,"target":lto,"value":v,"winner":true,numBallots:numBallots}
                             links.push(link)
                         }
                     }

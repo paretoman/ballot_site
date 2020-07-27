@@ -89,14 +89,15 @@ a:hover { text-decoration: underline; }
 .site-nav input ~ .trigger { clear: both; display: none; }
 .site-nav input:checked ~ .trigger { display: block; padding-bottom: 5px; }
 .site-nav .page-link { color: var(--text-2); line-height: 1.2; display: block; padding: 5px 10px; margin-left: 20px; }
-.site-nav .page-link:not(:last-child) { margin-right: 0; }
+.site-nav .page-link { white-space: nowrap; }
+.site-nav .page-link { margin-right: 0; }
 .site-nav .current {color: white; }
 @media screen and (min-width: 600px) { .site-nav { position: static; float: right; border: none; background-color: inherit; }
   .site-nav label[for="nav-trigger"] { display: none; }
   .site-nav .menu-icon { display: none; }
   .site-nav input ~ .trigger { display: block; }
   .site-nav .page-link { display: inline; padding: 0; margin-left: auto; }
-  .site-nav .page-link:not(:last-child) { margin-right: 20px; } }
+  .site-nav .page-link { margin-left: 20px; } }
 
 
 /** Site footer */

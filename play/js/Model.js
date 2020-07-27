@@ -714,6 +714,12 @@ function Model(idModel){
 		return go
 	}
 
+	self.checkDoStarStrategy = function(strategy) {
+		var starOr321 = ["STAR","3-2-1"].includes(self.system)
+		var doStar =  ( starOr321  &&  strategy != "zero strategy. judge on an absolute scale.") || self.doStarStrategy
+		return doStar
+	}
+
 	self.checkRunTextBallots = function() {
 		return self.system == "RBVote" && self.doTextBallots
 	}

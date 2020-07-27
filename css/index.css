@@ -405,9 +405,12 @@ ul.share-buttons .sr-only {
 	opacity: 0.5;
 }
 #content div.card > a > div > img{
-	width: 288px;
-	border: 1px solid #eee;
+	width: 290px;
 	margin-bottom: 5px; 
+}
+#content div.card > a > div > img.drawBorder{
+	width: 286px;
+	border: 2px solid #ccc;
 }
 #content div.card > a > div > div{
 

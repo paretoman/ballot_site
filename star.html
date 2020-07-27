@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    
+    <!-- Meta -->
+    
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>STAR Voting | Smart Voting Simulator</title>
+<meta name="generator" content="Jekyll v3.8.7" />
+<meta property="og:title" content="STAR Voting" />
+<meta name="author" content="Paretoman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="An Explorable Guide" />
+<meta property="og:description" content="An Explorable Guide" />
+<link rel="canonical" href="https://paretoman.github.io/ballot/star.html" />
+<meta property="og:url" content="https://paretoman.github.io/ballot/star.html" />
+<meta property="og:site_name" content="Smart Voting Simulator" />
+<script type="application/ld+json">
+{"headline":"STAR Voting","@type":"WebPage","url":"https://paretoman.github.io/ballot/star.html","author":{"@type":"Person","name":"Paretoman"},"description":"An Explorable Guide","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<!-- <link rel="stylesheet" href="/ballot/assets/css/style.css"> --><link type="application/atom+xml" rel="alternate" href="https://paretoman.github.io/ballot/feed.xml" title="Smart Voting Simulator" />
+    <title>STAR Voting</title>
+    
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <meta charset="utf-8">
+    <link rel="icon" type="image/png" href="favicon.png">
+    
+	<meta name="viewport" content="width=device-width, initial-scale=1, min-width=380">
+    
+    <!-- Schema.org markup for Google+ -->
+    <meta itemprop="name" content="STAR Voting">
+    <meta itemprop="description" content="An Explorable Guide">
+    <meta itemprop="image" content="https://paretoman.github.io/ballot/social/thumbnail.png">
+
+    <!-- Twitter Card data -->
+    <meta name="twitter:card" content="summary_large_image">
+    
+    <meta name="twitter:title" content="STAR Voting">
+    <meta name="twitter:description" content="An Explorable Guide">
+    
+    <meta name="twitter:image" content="https://paretoman.github.io/ballot/social/thumbnail.png">
+
+    <!-- Open Graph data -->
+    <!-- most of this is included in the seo include -->
+    <meta property="og:image" content="https://paretoman.github.io/ballot/social/thumbnail.png">
+
+    <base href="/ballot/">
+    <!-- <base target="_blank"> -->
+    
+    
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" type="text/css" href="css/some-minima.css">
+    
+    <link rel="stylesheet" type="text/css" href="play/css/model.css">
+    <link rel="stylesheet" type="text/css" href="play/css/ballot.css">
+    <link rel="stylesheet" type="text/css" href="play/css/election.css">
+    <link rel="stylesheet" type="text/css" href="play/css/sandbox.css">
+    <link rel="stylesheet" type="text/css" href="play/css/ballotInSandbox.css">
+
+    
+    <script src="js/viewport-min-width.js"></script>
+	<!-- <script src="../dev/js/gpu.js/gpu-browser.js"></script> -->
+    
+    <script src="play/js/helpers.js"></script>
+    <script src="play/js/minpubsub.js"></script>
+    <script src="play/js/hsluv-0.0.3.min.js"></script>
+    <script src="play/js/pako.min.js"></script>
+    <script src="play/js/Loader.js"></script>
+    <script src="play/js/Mouse.js"></script>
+    <script src="play/js/Draggable.js"></script>
+
+    <script src="play/js/gpu.js-develop/bin/gpu-core.js"></script>
+    <script src="play/js/gpu.js-develop/bin/gpu.js"></script>
+    <script src="play/js/FastYee.js"></script>
+
+    <script src="play/js/javascript-lp-solver/prod/solver.js"></script>
+    
+    
+    
+    <script src="play/js/d3/d3.js"></script>
+    <script src="play/js/sankey.js"></script>
+
+
+    <script src="play/js/Model.js"></script>
+    <script src="play/js/Yee.js"></script>
+    <script src="play/js/Candidate.js"></script>
+    <script src="play/js/Color.js"></script>
+    <script src="play/js/Voters.js"></script>
+    <script src="play/js/Election.js"></script>
+    <script src="play/js/Buttons.js"></script>
+    <script src="play/js/Ballot.js"></script>
+    <script src="rbvote/rbvote.js"></script>
+    <script src="play/tsp/salesman.js"></script>
+    <script src="play/js/seedrandom.min.js"></script>
+
+    <script src="play/js/main_ballot.js"></script>
+    <script src="play/js/main_sandbox.js"></script>
+    <script src="play/js/Presets.js"></script>
+    
+    
+  
+
+</head>
+
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/ballot/">Smart Voting Simulator</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          
+            
+              
+                <a class="page-link" href=".">Home</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="basics">Basics</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="commonground">Common Ground</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="condorcet">Condorcet</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="approval">Approval</a>
+              
+            
+          
+            
+              
+                <a class="page-link current" href="star">STAR</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="irv">Instant Runoff</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="stv">Single Transferable Vote</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="proportional">Proportional Methods</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="primaries">Primaries</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="original">Original</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="testRuns">Test Runs</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="blog">Blog</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="links">Links</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="sandbox/">Sandbox</a>
+              
+            
+          
+          <!--<a class="page-link" href="/ballot/approval.html">Approval Voting</a><a class="page-link" href="/ballot/basics.html">The Basics</a><a class="page-link" href="/ballot/bees.html">Bees</a><a class="page-link" href="/ballot/blog.html">Blog</a><a class="page-link" href="/ballot/commonground.html">Finding Common Ground</a><a class="page-link" href="/ballot/condorcet.html">Condorcet Methods</a><a class="page-link" href="/ballot/draft-common-ground.html">Home</a><a class="page-link" href="/ballot/draft-gerrymander.html">Condorcet Methods</a><a class="page-link" href="/ballot/sandbox/embedbox.html">Embed Box for Smart Voting Simulator</a><a class="page-link" href="/ballot/sandbox/">Sandbox</a><a class="page-link" href="/ballot/">Home</a><a class="page-link" href="/ballot/irv.html">Instant Runoff Voting</a><a class="page-link" href="/ballot/links.html">Links</a><a class="page-link" href="/ballot/modify.html">Modify the Simulator</a><a class="page-link" href="/ballot/newer.html">An Even Better Ballot</a><a class="page-link" href="/ballot/oncemore.html">Draft for An Even Better Ballot</a><a class="page-link" href="/ballot/sandbox/original.html">Sandbox for To Build a Better Ballot</a><a class="page-link" href="/ballot/original.html">Original</a><a class="page-link" href="/ballot/primaries.html">Primaries</a><a class="page-link" href="/ballot/proportional.html">Proportional Methods</a><a class="page-link" href="/ballot/quotaApproval.html">Quota Methods</a><a class="page-link" href="/ballot/scorefamily.html">The Approval Score STAR and 3-2-1 Family</a><a class="page-link" href="/ballot/star.html">STAR Voting</a><a class="page-link" href="/ballot/stv.html">The Single Transferable Vote</a><a class="page-link" href="/ballot/testAttach.html">Test Attach</a><a class="page-link" href="/ballot/testBallot.html">Test Ballot</a><a class="page-link" href="/ballot/testPreset.html">Test Preset</a><a class="page-link" href="/ballot/testRuns.html">Test Runs</a><a class="page-link" href="/ballot/testSwitcher.html">Test Switcher</a><a class="page-link" href="/ballot/try.html">To Build a Better Ballot - QAPR</a><a class="page-link" href="/ballot/321-draft.html">3-2-1 voting</a><a class="page-link" href="/ballot/draft-digression-median-systems.html">Digression: median systems</a>-->
+        </div>
+      </nav></div>
+</header>
+
+	
+	
+	
+
+	<div class="banner">
+		<h1>STAR Voting</h1>
+		<p>An Explorable Guide</p><p>
+		
+			By Paretoman and Jameson Quinn, July 2020
+		
+	</p>
+		<p>Based off Work by Nicky Case</p></div>
+<div id="content">
+
+    <div class="words">
+        
+<p><strong>STAR Voting</strong> allows voters to find common ground as a group. In STAR voting,</p>
+
+<ul>
+  <li>voters can give their favorite a top score, and</li>
+  <li>candidates on the same side might offer support to each other.</li>
+</ul>
+
+<p><strong>Compare that to choosing only one candidate (FPTP)</strong>, where</p>
+
+<ul>
+  <li>voters can face a dilemma of whether to vote for their favorite or someone who is more electable, and</li>
+  <li>candidates are always pitted against each other to get your one vote.</li>
+</ul>
+
+<p>(First time on this site? <a href="basics">Review the basics.</a>)</p>
+
+<h2 id="common-ground">Common Ground</h2>
+
+<p>STAR combines the two ways of finding the middle, scoring and counting by pairs. Its name is an acronym, STAR, Score Then Automatic Runoff. First voters give scores to the candidates. Then we find the top two candidates and send them to a runoff. The runoff uses the same scores but counts them by pairs for whoever each voter prefers.</p>
+
+<p>Let’s see how this works in an actual election. Let’s use a range of scores from 0 to 5. Let’s also model voter behavior. We’ll get to how voters behave using strategies by the end of the page.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">STAR Voting</h2>
+        <p class="ballot_caption">Score from 0 to 5 and add up the scores. AND THEN take the top two and count by pairs. <b>Use the voter dude <img src="play/img/viewMan2.png" /></b>. He's in the bottom left corner. Drag him around to see what each voter was thinking.
+        
+        </p>
+        
+        
+        <script id="scores_sim">
+            sandbox({idScript:"scores_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSsU4DMQyG38VzhGLHdnLdeAXa7XQDoG6VihALQuXZcfxThqLqht-xk_8-J_6iSrt1NS9c21ZW5lq4LzOyFjmJSP5yohq5um2FeB7LPdrmutGuFlLa0TcLFbJce-yKYg-p5d8XlXG3stytcE1vngjuSAlSoGCFgIEdEhCsofFLCwl_LiThFUkJLwkRCGxEsSVsWghspGM1sFryQKsJy_MeOAsNTq1BANTCaeXy-83NjjI8G1rmIqUVjbKm7Qz4Gsg1CONVZqB5Vm-t1RNeO94FuIqmDRdoQDWgGlANTZtB0LR11Eb-y9C0VwjnTscLOK7OLVuJiSKHhYPAl5QOgo6zXSANgsvqIOhzhGh_eHyKodq_nt-PNAeqozhubqyjwVEheNUBtAG0oUgaBHQDfgOQY0I-xJAswHx5Pp3OH4fPt2OMNxguP5L3f-I5AwAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>Why does STAR voting work?</p>
+
+<p>The easiest way to see how STAR allows voters to find common ground is with a Venn diagram. This isn’t just a Venn diagram, though. This is a visual representation of how voters can vote using scores. In this case, we’re just keeping it simple and using scores of 1 or 0. This simple voting method is called approval voting.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Approval Voting Venn Diagram</h2>
+        <p class="ballot_caption">The voters vote for everyone close to them.  Both like <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span>.
+        
+        </p>
+        
+        
+        <script id="venn_diagram_sim">
+            sandbox({idScript:"venn_diagram_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VSu24CMRD8lZNrF16_jqMLRbpICSAaoHCiE5BcOHRAJBQl356xp0AKQlfMrmc93p29b2XUeLmMUYt1a70UMVrqmCNf46xEowZnHpF1gjOzXmsl-Zo1qAkCpgERXCacGhutvBpDSYWSRNRaffOhuAZj9M0HZnSXae4yYspzknvLqWXKjsQT2JJEAhoQD8RzAQBt0cpCB4cWOhZgCZSxniWQcQDK2JrZiFlTLjhTGpXsiRTC2XLXOfJsyEFpCff45eJImpqO4woMcxo7UN6wPodCK3Jor6G7Fvii4f8_4WNpxNfcFdv2HD7QxABt9btS0_6Sumqa3ler_eQ8bNqhmqRhj-ypTadqtk1vH0gW7Waza6vFrusS0udh99lXk8kL4vm2rR7781DN2nTs98eVUpCnqcEVpwNNDYFAUwO7C6MyQ6Cp0RCkVEZuOHI1MRQP8BurSInIyWJToOZkNe_WXMZr6rr-NL8cWsz7cDgM_Vfq1M8fSXNUexgDAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>It’s important that voters can support more than one candidate because that means two candidates can share support and could possibly work together. It also means you can always give your favorite a top score. The same is true in STAR voting.</p>
+
+<p>Also, STAR works because it uses a median. A median is basically just the middle. Technically it’s the point that minimizes the total distance to all the other points. Imagine you have to pick a point for you and your friends to meet. You might like to choose the median because you’ll use less gas to get there. Check out the 2D median example below.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Median in 2D</h2>
+        <p class="ballot_caption"><b>Move some voters. Add a candidate (+). </b> The total length of all the lines below is the sum of all the distances between the voters and the candidate or median. The median we chose here minimizes this sum. A winning candidate should also minimize this sum.
+        
+        </p>
+        
+        
+        <script id="median_2d_sim">
+            sandbox({idScript:"median_2d_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA4VTwUpEMQz8l56DNGmS5u1XePC27GEFD8KCInoQcb_dpLOC4Iq8wzTJdDpN8z5ab7v9gRon7FmERMeB9hHEvOWCw4i9V0ppFk4mtuIMTQ4Xp3fizWuluS9qZZIpq5QbudaiNnLUSiatmrCTcGmJZFH5kE5G23Vq2nbt3Bs1W6HD5Uzo9OvLSmSlnbl2nEXaFca2GCK2KKNf4-T-Oo350hRBCEusADhiB6Ql1sRAmKcwNUmdTErqSIIAICOKKGVGAmRkIoKKbIsyLm8zeGUH3IyBItwMu3AcWeiMDVkthezsX19R-HpPf3RF5X_K-P8gXdb0Ylh9dUonnhsXV7TP8AyGexvaZ2P11BQUA6B9NkGJdYRtmJm-kg4VR_ccj-C2rpSj1xwSDgeOvRMOJq9TpgAGAJ2fmIP5PZoTxVjCTFI5XCcgFhALGAkYCUxDGABeAloRgLJ0M3OC-4rvj6fT0-vd-_ND_iO3p7eX4-nx9b19fgGnVnGdzAMAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p><a href="commonground">See the page on finding common ground for more examples of finding the median.</a></p>
+
+<p>How does STAR voting use a median? STAR voting is asking you whether each candidate is close to you or far from you, so you’re measuring distance and writing it on your ballot. Higher score means shorter distance.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">STAR Ballots</h2>
+        <p class="ballot_caption">See what the voter is thinking.
+        
+        </p>
+        
+        
+        <script id="score_family_ballot_sim">
+            sandbox({idScript:"score_family_ballot_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSQU4DMQxF7-J1hMaJE2dmh8QJaHejLqAdRKWqU7VFCCE4O3Y-ZVFUZeHYTn6eHX9SR8M4KgcuvAoj5_K7i9L9xWqIST1W2HZ5tQrEfq1PgVncTTR0gYQG-uZIgTINHKjYIUuqmS78W5apNzP9zQx37S12guZH-EBggckwpXGwEbCYtfeymb4lowlZMHI7EyMMZKLAM5lkpiCo8Co8U4lWuTcwGht7G6CVoJUSTkArmdZofcbywwVpqCZUbA0OKYilxYX9nFwqlXjZmPCYfCPtrlxLC-oWxbcAWPoWzOhfZpjYIDJQM1Azvi-j7KzI1fZWRtmlg0HBBX9Q0LySWykOWCBRQFDQeAWB4q6CQBM8_J-CQH2CaLGej5MN1WJ5_0g-T4pkveqYosDawUC-Aq0CrUp7rGI8Kugq9Cogq0PeqY0gMJ-fdrv5vPw4TDbdF5TT6_z-MJ3Wx-3hvJ33Pvdv-830st1PG_r6AcTSEXZWAwAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>STAR also works by counting by pairs. In the runoff, your support goes 100% to the candidate you like better. That means whichever candidate is closer to the middle will win. This also encourages voters to give different scores to each candidate.</p>
+
+<p>Here are a few more examples of how STAR finds the middle. Also, let’s see how other voting methods that use scores find the middle, too. The only method that isn’t finding the middle is FPTP, First Past the Post, which is what we do now.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Finding the Middle</h2>
+        <p class="ballot_caption">The voting methods in this family find the middle and FPTP does not. We're using a frontrunner-based strategy and getting frontrunners from polls. We'll get to this next.
+        
+        </p>
+        
+        
+        <script id="score_family_election_sim">
+            sandbox({idScript:"score_family_election_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VSTUtDMRD8LzkHyW6ym7zevHgu2tujhyq9FVqKCCL6253sUBBF3mH2czK7bz9SSZt1XUYWXfZ5FStZap3WIrBsv89JZom0Cl-nX9Om5NTSJn2JppwsfEcVkh0A0lx-f8gN5P7EI7P8m5ES7DJFjOwdYfcZV8YpRhqBUsQJ0CINiHcrAI9ITgpCBBWEClACabSxxKJBSaOd3qC3REMtoVjmOiQSlUy1EiiogmnFIlnoTJGvcmbJilQLumnIzdCbAcI1alr0tZ-UzUNw6_wllNg4qHFzRnlGeUZ5xkHNCBzUOnNcl3FQLwSJSufWnetyixFwLslJ4VTgS0Cngs7eroRK4II6FfR5Pen-crme3w4n3NTTy_l6nLi7fwQ8bHfbNK-rs3zcdpdrbjPOkUch8N8OjjwodjR6RqDeQb5B2WPKvjOcI4U_H06n8-vu_XLErVPR5zfWMTXRMgMAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Finding the Middle in a Tough Situation</h2>
+        <p class="ballot_caption">Again, like the above, FPTP doesn't find the middle. The voting methods in this family do find the middle. Also, voters are strategizing based on polls.
+        
+        </p>
+        
+        
+        <script id="score_family_election_tougher_sim">
+            sandbox({idScript:"score_family_election_tougher_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VST0vDMQz9Lj0HadombXfbxfPQ3-3HDlN2G2wMEUT0s5vkMURFenj519eXNO8pp826zkFc5p5Wln6zhtDsbkwL9brfU2Kv5VaJa3G_pk2m1NImfXJJlCR8tSpLdgNjp_z7WG5Y7k88MvPfDOdgZxcxSLuFVT1eEIcYbgBIYQWYFm6G9q6DPcKUSg6vGGExKADQlIYSo6kGoCkd3oA340LNoZh9HByJCqZaARBUjWlliuOliiQYK7pmKlQt2YLSDb4Z5WYY6VrcaHGz_aRtGrJbx8dAaEO7gvkJRApECkQK2hUBoF3pyI14SdCuZgBHpWL2iqGpRBvegoJCoUBnQIeCjru9ACoAY-pQ0H2H0vZyuZ5fDyfbrMfn8_XouGwfDO53yy75jnWUj-_5UfM4Wh4ZgB8eaHlA7GjwBAC9A3wDsofLvhNbSgh_OpxO55fl7XK0jYeijy-Hm9dbQQMAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<h2 id="strategy">Strategy</h2>
+
+<p>We need to now fill in a little more detail about these strategies that we’ve been using. These strategies get very detailed. Still, STAR voting is able to find the middle. The only really complicated situations involve factions playing a game of chicken. To explain the game of chicken, we have to first explain strategy.</p>
+
+<p>Strategy is when voters adjust their self-reported distances. This makes finding the median more complicated. Part of the reason STAR voting exists is to deal with strategy.</p>
+
+<p>We’ll show you five strategies, and how they work in score voting and the STAR voting.  Strategy with STAR voting is slightly different because STAR also uses a runoff.</p>
+
+<p>First, let’s look at an example where voters don’t use strategy. The voter judges the candidates based on distance. This measures distance well and finds the median.</p>
+
+<p>See if you notice something odd about the ballot below.</p>
+
+<p>No candidates got a 5 and no candidates got a 0. This voter is giving up some of their voting power. If <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> loses, then they’ll wish they gave <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> a bigger score.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Judge Strategy</h2>
+        <p class="ballot_caption">Give a score based on distance. Drag the voter and see that the circles stay the same size.
+        
+        </p>
+        
+        
+        <script id="ballot4">
+            sandbox({idScript:"ballot4",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSwU7DMAyG38XnCNWJ46S9Ie0J2G7VDrAVMWlap20IIQTPjp0fOAxNPTixkz_f7_qDOhrGsXBg5XUYOevPKkr3l6shpuI5ZVvl9ToQ-7U-BWbxbaKhCyQ00BdHCpRp4EBqh6xYLHTh32eVerPS36xw195iJ1CjTchGZAHCgpARtNGwcbBYtFezhb4Vo8lZMnI7EyMCZKJgZzLJgiJZsKvYmUo0_97GaITszYBWAlKCVoJWMq3Ruo3PDysEoJrg29ocUhAriwv7OXG_7lTi78KEx-QLaXflWlrgWwp-DoClb8mMLmZGiA0iJwSgZvzEDNu5oFbbWxm2tUOAYYVhhWHNzYoDKiQUBIrGFxAU3C0gKAk7_L8CguJzRMvV_YNN1nIznybyqSoo1quOFRisHQIMVqBVoFXIV4xHBV2FXgVkdcg7G5MemE-P-_18Wb0fJ5txMAQ6v8xvi-m8Oe2Ol9188Ol_PWyn591h2tLnN-FJWrFcAwAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>Most voters will want to make sure that their ballot contains at least one candidate at the top rating and one candidate at the bottom rating. The simplest way to do that is “normalization”. That means that you give your favorite a 5, you give your least favorite a 0, and you judge the rest on that scale between 0 and 5.</p>
+
+<p>One more consideration is made in STAR voting, and this makes it different than score voting. The ratings are changed to avoid giving the same score to two candidates. That is an important change that can matter in the runoff.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Normalizing Strategy</h2>
+        <p class="ballot_caption">Stretch your vote to the max score, 5, and the min score, 0.
+        
+        </p>
+        
+        
+        <script id="ballot5">
+            sandbox({idScript:"ballot5",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSwU7DMAyG38XnCNWJ46S9Ie0J2G7VDrAVMWlap20IIQTPjp0fOAxNPfyJnfz97PiDOhrGsXBg5XUYOevPKkr3F6shpuIxZVvl9ToQ-7U-BWbxbaKhCyQ00BdHCpRp4EBqhyxZTLrw77NMvZnpb2a4a_9iJ1CjTYhGRAHCAskQbTRsHCym9tds0rdkNDsLRm5nYoTAJgp2ZpNMFMGCXcXOXKLV722MRsjeDHgleKUEgVcyr9G6jc8PKwzgmlC3tTmkIJYWN_Zz4vV6pRJ_F2Y8Jl9IuyvX1oK6peBxACx9C2Z0MTMkNoicIEDNeMSMsnNBrrZ_ZZStHQQFK95A0TzNrRQHVFgoCBSNLyAouFtAUNCsgvcrICg-R7Rc3T_YZC0382kin6qCZL3qWEGBtYPAvgKtAq2iwIrxqKCr8KuArA55Z2PSA_Ppcb-fL6v342QzDoZA55f5bTGdN6fd8bKbDz79r4ft9Lw7TFv6_AY8yRtZXAMAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>Normalizing as above is a pretty weak strategy. To strategize even more strongly, voters could look at polls to see which candidates are the frontrunners and use them as the endpoints for normalization. Any candidate better would get a 5, and any candidate worse would get a 0. In other words, the scores are clipped.</p>
+
+<p>Again, one more consideration is made for STAR voting as opposed to score voting. The voter strategically gives different scores to each frontrunner.</p>
+
+<p>It makes more sense to use a frontrunner strategy than a normalized strategy because the voter is showing more distinction between frontrunners, where it matters.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Frontrunner Strategy</h2>
+        <p class="ballot_caption">Consider polling data and stretch your vote to the max score only for the frontrunners. Push other candidates to 5 if closer, 0 if farther, and normalize in between.
+        
+        </p>
+        
+        
+        <script id="ballot8">
+            sandbox({idScript:"ballot8",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VSQU4DMQz8S84RWieO490bEi-gva16gHYRlapu1RYhhODt2BnKoajKYWI7mcw4_gxdGMaxUiShVRypyO8ucfeX05hy9ZyQ7cpqFQP5tT5HIvYwh6GLgcMQvimFGEoYKAaxQ1asBl38t6yiNyv9zQp17S1yBWJqM7IJWQghBhSANDVkOogN7dVi0LdiMjpLJmpnUgKAJjEio8kGgmRFpIiMJZl_b2MyheTNAFdOKIErQ1I2rtG6jeWHBafAmuHb2hxzZCuzE_s5dr_ulNNlY8Rj9g23u3xNzfDNFZ8Dwdy3ZEEXCwEgtWQAbBd8YoHtUlHT9laBbekAMCz4A4FhKc2KCxRQCBQIGl-hoOJuhYKaEaFZFQqqz1FYrOfjZKO1WN4_Bp-qiqJedazCoHYAarwKaQppCnrFeCjUKfgUItVF3tmY9JD5_LTbzeflx2GyGb9IOb3O7w_TaX3cHs7bee_T_7bfTC_b_bQJXz-WHRZ9XAMAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>Risk-takers may want to only support their favorite frontrunner (and anyone better). In this way, they can show more distinction between their favorite frontrunner and the rest. This comes at a cost because they don’t distinguish between the other frontrunners, and that might matter.</p>
+
+<p>STAR encourages these risk-takers to distinguish between the frontrunners so that their vote will matter in the final round.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Best Frontrunner - Optimist Strategy</h2>
+        <p class="ballot_caption">Vote for the best of the frontrunners and everybody you like better.
+        
+        </p>
+        
+        
+        <script id="ballot11">
+            sandbox({idScript:"ballot11",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSwU7DMAyG3yXnCNWx46S9IfEEbLdqB9iKmDSt0zaEEIJnx87POAxNPTixkz_f7_ozdGEYx0KRlFZxpKy_qyTdX67GxMVzSrbKq1UM5Nd6jkTiWw5DF4OEIXxTCjHkMFAMaoesWCx08d9nlXqz0t-sUNfeIidQo2VkE7IAIUHICNpoyDhILNqr2ULfisnkLJmonUkJATJJsDMZtqBIFuwqdqaSzL-3MRkheTOgxakdZGgxkNi0Rus2Pj-sEIAqw7e1OXIUK4sL-zlxv-5U0mVhwiP7QtpduZYW-JaCnwNg6Vsyo4uZEFKDyIwA2xk_McN2LqjV9laGbe0QYFjxDxSGNTcrDqiQUBAoGl9AUHC3gKAwdmhWAUHxOQqL9XycbLQWy_vH4FNVUKxXHSswWDsEarwVaBVoFfIV41FBV6FXAVkd8s7GpAfm89NuN5-XH4fJZvyCcnqd3x-m0_q4PZy3896n_22_mV62-2kTvn4AeQ8Y0FwDAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>A more risk-averse voter could try to avoid the worst frontrunner by voting 100% for everyone else they feel is better.</p>
+
+<p>STAR encourages these risk-averse voters to distinguish between the frontrunners without much risk.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Not the Worst Frontrunner - Pessimist Strategy</h2>
+        <p class="ballot_caption">Vote at max for anybody better than the worst frontrunner.
+        
+        </p>
+        
+        
+        <script id="ballot12">
+            sandbox({idScript:"ballot12",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VSQU4DMQz8S84RWseOk90bEi-gva16gHYRlapu1RYhhODt2BnKoajKYWI7mcw4_gxdGMaxUCSlVRwp6-8uSfeXqzFx8ZyS7fJqFQP5tZ4jkXjIYehikDCEb0ohhhwGikHtkBWLQRf_LavUm5X-ZoW69ha5AjW1jGxCFkJIABmgTQ2ZDhJDezUb9K2YjM6SidqZlACgSYLIaNhAkSyIKiJjSebf25hMIXkzwMWpMTO4GJLYuEbrNpYfVhCAleHb2hw5ipXFif2cuF93KumyMeKRfSPtrlxTC3xLwedAsPQtmdHFTIDURGQGwHbGJ2bYzgW12t7KsK0dAIYVf6AwrLlZcYEKCoUCReMLFBTcLVBQGBGaVaCg-ByFxXo-TjZai-X9Y_CpKijWq44VGKwdgNonVEirkFZBXzEeFeoq-CpEVhd5Z2PSQ-bz0243n5cfh8lm_CLl9Dq_P0yn9XF7OG_nvU__234zvWz30yZ8_QB2f9AlXAMAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>There is a whole range of strategies in between these two extremes.</p>
+
+<p>We can now look back at the example of finding common ground with a little more understanding of strategies and polling. The perception of frontrunners changes a little with each poll. Even though strategies make elections more complicated, voters are still able to find common ground.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Repeat: Finding the Middle</h2>
+        <p class="ballot_caption">This is the same example as before. The voting methods in this family find the middle and FPTP does not.
+        
+        </p>
+        
+        
+        <script id="score_family_election_copy_sim">
+            sandbox({idScript:"score_family_election_copy_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VSTUtDMRD8LzkHyW6ym7zevHgu2tujhyq9FVqKCCL6253sUBBF3mH2czK7bz9SSZt1XUYWXfZ5FStZap3WIrBsv89JZom0Cl-nX9Om5NTSJn2JppwsfEcVkh0A0lx-f8gN5P7EI7P8m5ES7DJFjOwdYfcZV8YpRhqBUsQJ0CINiHcrAI9ITgpCBBWEClACabSxxKJBSaOd3qC3REMtoVjmOiQSlUy1EiiogmnFIlnoTJGvcmbJilQLumnIzdCbAcI1alr0tZ-UzUNw6_wllNg4qHFzRnlGeUZ5xkHNCBzUOnNcl3FQLwSJSufWnetyixFwLslJ4VTgS0Cngs7eroRK4II6FfR5Pen-crme3w4n3NTTy_l6nLi7fwQ8bHfbNK-rs3zcdpdrbjPOkUch8N8OjjwodjR6RqDeQb5B2WPKvjOcI4U_H06n8-vu_XLErVPR5zfWMTXRMgMAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<h2 id="playing-chicken">Playing Chicken</h2>
+
+<p>Let’s look at a more difficult to resolve election where the voter’s choice of strategy gets more interesting.</p>
+
+<p>In the example below, there are three groups of voters. Two are on one side and can win with candidate <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> or <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> if they cooperate. To make things interesting, each group has its own favorite candidate. If group <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> betrays group <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span>, then <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> can win alone, and vice versa.</p>
+
+<p>Groups <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> and <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> are playing a game of chicken. They can “swerve” and let their second-favorite win, or they can “drive straight” and either win (if the other side swerves) or crash (if the other side doesn’t).</p>
+
+<p>This makes sense. If voters are willing to take a risk, then they are willing to accept the loss. Also, voters that don’t take the risk will accept a second-best outcome; at least it wasn’t the worst outcome.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Playing Chicken with Approval and Score Voting</h2>
+        <p class="ballot_caption">
+        
+        </p>
+        
+        
+        <script id="election11">
+            sandbox({idScript:"election11",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSwUoEMQyG36XnIk3Spu3cfAa97e5hld3TwiyLCCL67Cb5UUZECpOmSf98yfQ9lbTsdiScqfEh265lGuS7We1sHg45kefMkYmnBXwzZ2TYTotnSFpKTjUt6ZMo5dTCV7tnwW4m0bTjn0_ZLksZllLyn2WR-W-EShQhpyOyQ9WsM2vPOnIvuZMnMZLE0fZpPZ_3yRkMlcyAkxTGQKmaNRoJzoVzYitjh0xxgxkGDTNkuMUFhgx3eAMeVKREH5TZpwUtgZZI5Au0pHk7luj0orgMRZkbjVq-B-MObR3eKFTZOjV06rZE1ShbO_4goOuMw4YJN4LhgGkCA9zWYNB664iN39NumIEWGHSv-DOKSWqLDsSIFFoKFJ1hOlA67nagdIFXEQNK91eX7q_X2_p6vFj1h-f1dkr-DjsS_LH5CDu6HAUG0gNYA1gDExst6g2QDegMAA4HvGv2UoH4dLxc1pfHt-vJhoDaH1-UCak9ZwMAAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>If voters play chicken and crash, they might wish they had played it safe. It’s impossible to have the foresight to know the election result ahead of time. All they can do is rely on polling to make their decision. It is their judgement of risk that leads to their decision. In a way, this perception of risk is more information that gets fed into the voting method.</p>
+
+<p>STAR voting was created to address scoring strategies. It uses a final runoff where stretching your scores doesn’t matter. Voters aren’t playing the game of chicken anymore because STAR’s extra round can resolve the contention between factions.</p>
+
+<p>In STAR voting, the runoff resolves the game of chicken. There is actually very little downside to giving a <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> a 5 and <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> a 1. <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> still gets a 0, so he’ll still lose in the final round runoff.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Not Playing Chicken with Star Voting</h2>
+        <p class="ballot_caption">
+        
+        </p>
+        
+        
+        <script id="election13">
+            sandbox({idScript:"election13",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WS0UpDMQyG36XXQZqkTdO9ht5tu1DZrgYT8UZEn900P5MjIgdOmib5-yXtR6llt9-zCnGXI8WqEzuv1WyxN49HKrxyphPLjMBazJkZsbK6MrTsKpVWduWLpVDp6VvURXCEKTxj--dXt1-keKRU-vNFZP4b4ZqH8KJjJjOySTbInEalwStFkKIL7FCu5_OhLIIA5TCgZIMJTG5hg0WTcidUJA6JTeGsEIFBuwIZ6VkgkJEBz-FBRWt2wSRrVtBSaKlmvkJL-2omEhe9GoqhqHOj0eptLMvhrSMbhaZbp6VO2x7RLI9tA_cH6DZzs2O-nWEkYbrCALd3GLTeB2L-e9odM7AKg-4NN2OYpPXsQIPIoGVAsZlmAGWgdgBlKLyGGC5z3N7cQHA9rDWwgZ68wkDIAeGAcMzHe6o7OBw6DhxfOHc9XiWAnh4vl-vbw_vLKVq-f76-nsrnN_qa03FTAwAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<h2 id="afterward">Afterward</h2>
+
+<p>The major point we’ve been supporting on this page has been that STAR voting allows voters to find common ground.</p>
+
+<p>We described some of the mechanics of how STAR voting works.  Voters are reporting their score. Finding the candidate with highest score is equivalent to finding the candidate closest to the median.</p>
+
+<p>We also described what the runoff accomplishes in STAR voting. Score voting works on the principle that the voter is assessing the risk of using a strategy. STAR voting uses additional rounds to get more information from the ballot. That encourages the voter to put more information on the ballot. The additional round also reduces the influence of polling on voter strategy and reduces the dilemmas voters face.</p>
+
+<p>It’s just a smarter way to vote.</p>
+
+    </div>
+    
+        <div id="sandbox-section">
+            <div class="sim-sandbox">
+                <div class="sim-container">
+                    <h1 class="caption-test" style="margin: 30px 0 15px 0;">SANDBOX MODE! <a href="sandbox">(link to <em>just</em> this)</a></h1>
+		                
+		<div id="sandbox" class="div-sandbox div-election div-ballot-in-sandbox div-model" scrolling="no">
+		</div>
+		<script>
+			sandbox({quick:"sandbox"})
+		</script>
+                </div>
+            </div>
+            <div class="words">
+                
+			<p>
+				<b>From Nicky Case:</b> One hope for Sandbox Mode is that readers can debate with me and each other
+				<em>using</em> this tool! Not just telling me I'm wrong, but
+				<em>showing</em> me I'm wrong.  Granted, this tool is very limited – it doesn't handle strategic voting
+				or imperfect information – but I think it's a start, and may help improve our Democratic Discourse&trade;
+			</p>
+			<p>
+				<b> From Paretoman: </b>if you'd like your own models included here, 
+				save it, copy the saved link, and tweet it with the <a href="https://twitter.com/hashtag/smartvotesim">hashtag #smartvotesim.</a>
+			</p>
+            </div>
+        </div>
+
+</div><footer class="site-footer h-card">
+  <data class="u-url" href="/ballot/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/ballot/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/ballot/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+        <ul class="contact-list">
+          <li class="p-name">Paretoman</li>
+          <li><a class="u-email" href="mailto:smartvotingsimulator1@gmail.com">smartvotingsimulator1@gmail.com</a></li>
+        </ul>
+        <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/Paretoman" title="Paretoman"><svg class="svg-icon grey"><use xlink:href="/ballot/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/Paretoman1" title="Paretoman1"><svg class="svg-icon grey"><use xlink:href="/ballot/assets/minima-social-icons.svg#twitter"></use></svg></a></li><li><a rel="me" href="https://www.youtube.com/channel/UCrwpT8YjxePjH0RxSCwbTlQ" title="Paretoman"><svg class="svg-icon grey"><use xlink:href="/ballot/assets/minima-social-icons.svg#youtube"></use></svg></a></li></ul>
+</div>
+      </div>
+      <div class="footer-col">
+        <p>A simulator for voting methods - so you can understand how voting methods work for making group decisions. The best voting methods are responsive to all parts of the group and can even work when voters use strategies.</p>
+      </div>
+    </div>
+            
+            <div style="text-align:center; color:#fff; background-color: #222;margin-bottom:0px;">
+				Share this:
+				<ul class="share-buttons">
+                    <li class="reddit">
+                        <a href="http://www.reddit.com/submit?url=https://paretoman.github.io/ballot/star.html&title=STAR%20Voting" target="_blank">
+                            <img height="32" width="32" alt="Post on Reddit" src="/ballot/social/reddit.png">
+                        </a>
+                    </li>
+                    <li class="hn">
+                        <a href="http://news.ycombinator.com/submitlink?u=https://paretoman.github.io/ballot/star.html&t=STAR%20Voting" target="_blank">
+                            <img height="32" width="32" alt="Share on Hacker News" src="/ballot/social/ycombinator.png">
+                        </a>
+                    </li>
+                    <li class="twitter">
+                        <a href="https://twitter.com/intent/tweet?via=paretoman1&url=https://paretoman.github.io/ballot/star.html&text=STAR%20Voting" target="_blank">
+                            <img alt="Tweet" src="/ballot/social/Twitter.png">
+                        </a>
+                    </li>
+                    <li class="email">
+                        <a href="mailto:?subject=STAR%20Voting&body=STAR%20Voting:https://paretoman.github.io/ballot/star.html" target="_blank" title="Send email">
+                            <img alt="Send email" src="/ballot/social/Email.png">
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://paretoman.github.io/ballot/star.html&t=STAR%20Voting" title="Share on Facebook" target="_blank">
+                            <img alt="Share on Facebook" src="/ballot/social/Facebook.png">
+                        </a>
+                    </li>
+				</ul>
+			</div></div>
+
+</footer>
+</body>
+
+</html>

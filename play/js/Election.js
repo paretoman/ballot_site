@@ -198,7 +198,7 @@ Election.star = function(district, model, options){
 Election.three21 = function(district, model, options){
 
 	options = _electionDefaults(options)
-	var polltext = _beginElection(district,model,options,"score")	
+	var polltext = _beginElection(district,model,options,"3-2-1")	
 	let cans = district.stages[model.stage].candidates	
 	
 	var ballots = model.voterSet.getBallotsDistrict(district)
@@ -551,21 +551,33 @@ Election.condorcet = function(district, model, options){
 	return result;
 };
 
-function pairChart(ballots,district,model) {
+function pairChart(ballots,district,model,hh) {
 	var text = ""
 	text += "<span class='small'>"
 	let opt = {entity:"winner",doSort:true,triangle:true,light:true}
-	let hh = head2HeadTally(model, district,ballots)
+	if (hh == undefined) {
+		if (model.ballotType == "Ranked") {
+			var hh = head2HeadTally(model, district,ballots)
+		} else {
+			var hh = head2HeadScoreTally(model, district,ballots)
+		}
+	}
 	text += pairwiseTable(hh,district,model,opt)
 	text += "</span><br>"
 	return text
 }
 
-function squarePairChart(ballots,district,model) {
+function squarePairChart(ballots,district,model,hh) {
 	var text = ""
 	text += "<span class='small'>"
 	let opt = {entity:"winner",light:true,diagonal:true}
-	let hh = head2HeadTally(model, district,ballots)
+	if (hh == undefined) {
+		if (model.ballotType == "Ranked") {
+			var hh = head2HeadTally(model, district,ballots)
+		} else {
+			var hh = head2HeadScoreTally(model, district,ballots)
+		}
+	}
 	text += pairwiseTable(hh,district,model,opt)
 	text += "</span><br>"
 	return text
@@ -2556,6 +2568,8 @@ Election.stv = function(district, model, options){
 			roundHistory.winners = []
 		}
 		history.rounds.push(roundHistory)
+		
+		won.push(_jcopy(winnerslist))
 
 		text += "<br>"
 		text += '</div>'
@@ -4137,6 +4151,35 @@ function head2HeadTally(model,district,ballots) {
 	return head2head
 }
 
+function head2HeadScoreTally(model,district,ballots) {
+	
+	var cans = district.stages[model.stage].candidates
+
+	head2head = {}
+	// For each combination... who's the better ranking?
+	for(var i=0; i<cans.length; i++){
+		var a = cans[i];
+		head2head[a.id] = {}
+		for(var j=0; j<cans.length; j++){
+			var b = cans[j];
+			// How many votes did A get?
+			var aWins = 0;
+			for(var m=0; m<ballots.length; m++){
+				var ballot = ballots[m]
+				var ba = ballot[a.id]
+				var bb = ballot[b.id]
+				if (ba > bb) {
+					aWins++; // a wins!
+				} else if (ba == bb) {
+					aWins += .5 // ties count as half .. not sure if this is the best way to do this
+				}
+			}
+			head2head[a.id][b.id] = aWins
+		}
+	}
+	return head2head
+}
+
 function runPoll(district,model,options,electiontype){
 
 	// check to see if there is a need for polling
@@ -4182,6 +4225,26 @@ function runPoll(district,model,options,electiontype){
 					tally[candidate] += ballot[candidate];
 				}
 			}
+		} else if (electiontype == "3-2-1") {
+			// Create the tally
+			// not bad
+			var nb = _zeroTally(cans)
+			var tallies = [];
+			for (var level=0; level < 3; level++) {
+				tallies.push(_zeroTally(cans))
+			}
+			// Count 'em up
+			for(var i=0; i<ballots.length; i++){
+				var ballot = ballots[i]
+				for(var candidate in ballot){
+					tallies[ballot[candidate]][candidate] += 2; // 2 because we normalize later
+					if (ballot[candidate]) {
+						nb[candidate] += 2
+					}
+				}
+			}
+			var tally = tallies[2]
+			// var tally = nb
 		} else if (electiontype=="approval"){ 
 			// Tally the approvals & get winner!
 			var tally = _zeroTally(cans)
@@ -4291,6 +4354,7 @@ function runPoll(district,model,options,electiontype){
 						partyCollect.push(tally1)
 					}
 					text += lineChart(partyCollect,cans,model,maxscore,totalPeopleInPrimary)
+					// TODO: add primary head2head polling for irv
 					text += "<br>"
 				} else {
 					for (var ptallies of collectTallies) {
@@ -4313,6 +4377,12 @@ function runPoll(district,model,options,electiontype){
 			polltext += `${collectTallies.length} rounds of polling<br>`
 			var nballots = district.voterPeople.length
 			polltext += lineChart(collectTallies,cans,model,maxscore,nballots)
+			if (electiontype == 'irv') {
+				var hh = district.pollResults.head2head
+				polltext += "<br>"
+				polltext += "<b>Head-to-head polls:</b><br>"
+				polltext += pairChart(ballots,district,model,hh)
+			}
 		}
 	}
 

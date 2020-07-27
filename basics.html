@@ -10,21 +10,21 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
-<title>Test Runs | Smart Voting Simulator</title>
+<title>The Basics | Smart Voting Simulator</title>
 <meta name="generator" content="Jekyll v3.8.7" />
-<meta property="og:title" content="Test Runs" />
+<meta property="og:title" content="The Basics" />
 <meta name="author" content="Paretoman" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="A simulator for voting methods - so you can understand how voting methods work for making group decisions. The best voting methods are responsive to all parts of the group and can even work when voters use strategies." />
-<meta property="og:description" content="A simulator for voting methods - so you can understand how voting methods work for making group decisions. The best voting methods are responsive to all parts of the group and can even work when voters use strategies." />
-<link rel="canonical" href="https://paretoman.github.io/ballot/testRuns.html" />
-<meta property="og:url" content="https://paretoman.github.io/ballot/testRuns.html" />
+<meta name="description" content="An Explorable Guide to Group Decision Making" />
+<meta property="og:description" content="An Explorable Guide to Group Decision Making" />
+<link rel="canonical" href="https://paretoman.github.io/ballot/basics.html" />
+<meta property="og:url" content="https://paretoman.github.io/ballot/basics.html" />
 <meta property="og:site_name" content="Smart Voting Simulator" />
 <script type="application/ld+json">
-{"headline":"Test Runs","@type":"WebPage","url":"https://paretoman.github.io/ballot/testRuns.html","author":{"@type":"Person","name":"Paretoman"},"description":"A simulator for voting methods - so you can understand how voting methods work for making group decisions. The best voting methods are responsive to all parts of the group and can even work when voters use strategies.","@context":"https://schema.org"}</script>
+{"headline":"The Basics","@type":"WebPage","url":"https://paretoman.github.io/ballot/basics.html","author":{"@type":"Person","name":"Paretoman"},"description":"An Explorable Guide to Group Decision Making","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <!-- <link rel="stylesheet" href="/ballot/assets/css/style.css"> --><link type="application/atom+xml" rel="alternate" href="https://paretoman.github.io/ballot/feed.xml" title="Smart Voting Simulator" />
-    <title>Test Runs</title>
+    <title>The Basics</title>
     
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
@@ -34,16 +34,16 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, min-width=380">
     
     <!-- Schema.org markup for Google+ -->
-    <meta itemprop="name" content="Test Runs">
-    <meta itemprop="description" content="">
+    <meta itemprop="name" content="The Basics">
+    <meta itemprop="description" content="An Explorable Guide to Group Decision Making">
     <meta itemprop="image" content="https://paretoman.github.io/ballot/social/thumbnail.png">
 
     <!-- Twitter Card data -->
     <meta name="twitter:card" content="summary_large_image">
-    
-    <meta name="twitter:title" content="Test Runs">
-    <meta name="twitter:description" content="">
-    
+    <meta name="twitter:site" content="@paretoman1">
+    <meta name="twitter:title" content="The Basics">
+    <meta name="twitter:description" content="An Explorable Guide to Group Decision Making">
+    <meta name="twitter:creator" content="@paretoman1">
     <meta name="twitter:image" content="https://paretoman.github.io/ballot/social/thumbnail.png">
 
     <!-- Open Graph data -->
@@ -130,7 +130,7 @@
           
             
               
-                <a class="page-link" href="basics">Basics</a>
+                <a class="page-link current" href="basics">Basics</a>
               
             
           
@@ -190,7 +190,7 @@
           
             
               
-                <a class="page-link current" href="testRuns">Test Runs</a>
+                <a class="page-link" href="testRuns">Test Runs</a>
               
             
           
@@ -222,11 +222,81 @@
 	
 
 	<div class="banner">
-		<h1>Test Runs</h1>
-		<p></p></div>
+		<h1>The Basics</h1>
+		<p>An Explorable Guide to Group Decision Making</p><p>
+		
+			By Paretoman and Contributors, May 2020
+		
+	</p>
+		<p>Based off Work by Nicky Case</p></div>
     <div id="content">
         <div class="words">
-            <script type ="text/javascript" src = "testRuns.js"> </script>
+            
+<p>Take a look at this great interactive sketch that Nicky Case made. You have two candidates <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> and you have a voter <img src="play/img/voter.png" /> . Just move the voter and you’ll see that he is just gonna vote for whoever he’s closest to.</p>
+
+<div class="sim-intro">
+	<div class="sim-container">
+		<p class="caption" style="margin-top:30px">
+			<b><span style="font-size:2.5em;">click &amp; drag</span><br />the candidates and the voter:</b>
+		</p>
+		<div id="model1" class="div-model">
+		</div>
+		<script src="play/js/model1.js">
+		</script>
+	</div>
+
+</div>
+
+<p>You can add more voters and see that you kinda get a sense of how voters are gonna vote as they move around and how an election with those voters would go. Most votes wins.</p>
+
+<div class="sim-intro">
+	<div class="sim-container">
+		<p class="caption" style="margin-top:30px">
+			<b>drag the candidates &amp; voter<span class="underline">s</span> around.<br />(to move voters, drag the <em>middle</em> of the crowd)<br />watch how that changes the election:</b>
+		</p>
+		<div id="model2" class="div-model">
+		</div>
+		<script src="play/js/model2.js">
+		</script>
+	</div>
+
+</div>
+
+<p>In this kind of voting, you get a single choice for who you want to win. The ballot is pretty simple. This is the way the ballot is now.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Single Choice Voting</h2>
+        <p class="ballot_caption">Also called First Past the Post.
+        
+        </p>
+        
+        
+        <script id="ballotSingle">
+            sandbox({idScript:"ballotSingle",link:"[link](http://127.0.0.1:8000/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VRQWrEMAz8i84-RLZkJzn3AT30FnLYdlMaCNllN0tZSvv2Sp4WCiUEIsmSxjPjD2qoH4aSA0sZw8DKlollkT3TcQzEPsKlDdy2Xifqm0BS_0o9B8o20YR_n82W3U672-l2O9zUS9kZeRlRghCDEStCrszYCLBYtOuSha42o-HYYeQ6EyMCYKKg0roQMw4LqhaVoUTzoalE2S0BUgJSAlICUjKkwczEYMYq8BKkcojWEofzGXF5Llfib2KAQ_JE6p78hRQolYJnAUXp6qHCMGUE0FPQ058XxBMqhGqp_BR2KYTmBgEiM1zPQMlaJTi5DIgMBhlWFzAo2C2xIj0fluW0Pd3PE_X0uNwuh2Xe7hTo-nZ6f5iuL5f5vM2n1bpft_U4vc7rdKTPbxSiHLmuAgAA)"})
+        </script>
+        
+    </div>
+
+</div>
+
+<p>That’s the end of <strong>The Basics</strong>.</p>
+
+<p>Why do we vote this way? Why do we even vote? In the next part, I’m going to explain voting as a way to find common ground as a group.</p>
+
+<div class="card">
+<a href="commonground">
+    <div>
+        <img class="" src="img/venn-diagram.png" />
+        <div>
+            Finding Common Ground
+            <span>
+                 - Click here next.
+            </span>
+        </div>
+    </div>
+</a>
+</div>
 
         </div>
     </div><footer class="site-footer h-card">
@@ -259,27 +329,27 @@
 				Share this:
 				<ul class="share-buttons">
                     <li class="reddit">
-                        <a href="http://www.reddit.com/submit?url=https://paretoman.github.io/ballot/testRuns.html&title=Test%20Runs" target="_blank">
+                        <a href="http://www.reddit.com/submit?url=https://paretoman.github.io/ballot/basics.html&title=The%20Basics" target="_blank">
                             <img height="32" width="32" alt="Post on Reddit" src="/ballot/social/reddit.png">
                         </a>
                     </li>
                     <li class="hn">
-                        <a href="http://news.ycombinator.com/submitlink?u=https://paretoman.github.io/ballot/testRuns.html&t=Test%20Runs" target="_blank">
+                        <a href="http://news.ycombinator.com/submitlink?u=https://paretoman.github.io/ballot/basics.html&t=The%20Basics" target="_blank">
                             <img height="32" width="32" alt="Share on Hacker News" src="/ballot/social/ycombinator.png">
                         </a>
                     </li>
                     <li class="twitter">
-                        <a href="https://twitter.com/intent/tweet?via=paretoman1&url=https://paretoman.github.io/ballot/testRuns.html&text=Test%20Runs" target="_blank">
+                        <a href="https://twitter.com/intent/tweet?via=paretoman1&url=https://paretoman.github.io/ballot/basics.html&text=The%20Basics" target="_blank">
                             <img alt="Tweet" src="/ballot/social/Twitter.png">
                         </a>
                     </li>
                     <li class="email">
-                        <a href="mailto:?subject=Test%20Runs&body=Test%20Runs:https://paretoman.github.io/ballot/testRuns.html" target="_blank" title="Send email">
+                        <a href="mailto:?subject=The%20Basics&body=The%20Basics:https://paretoman.github.io/ballot/basics.html" target="_blank" title="Send email">
                             <img alt="Send email" src="/ballot/social/Email.png">
                         </a>
                     </li>
                     <li>
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://paretoman.github.io/ballot/testRuns.html&t=Test%20Runs" title="Share on Facebook" target="_blank">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://paretoman.github.io/ballot/basics.html&t=The%20Basics" title="Share on Facebook" target="_blank">
                             <img alt="Share on Facebook" src="/ballot/social/Facebook.png">
                         </a>
                     </li>

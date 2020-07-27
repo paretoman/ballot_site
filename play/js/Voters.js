@@ -105,8 +105,7 @@ CastBallot.Score = function (model,voterModel,voterPerson) {
 
 
 // return function(x, y, strategy, iDistrict, i){
-
-	doStar =  (model.election == Election.star  &&  strategy != "zero strategy. judge on an absolute scale.") || model.doStarStrategy
+	var doStar =  model.checkDoStarStrategy(strategy)
 	if (model.autoPoll == "Auto" && district.pollResults) {
 		tally = district.pollResults
 
@@ -130,14 +129,13 @@ CastBallot.Score = function (model,voterModel,voterPerson) {
 	var cans = model.district[iDistrict].stages[model.stage].candidates
 	var scoresfirstlast = dostrategy(model,x,y,voterModel.minscore,voterModel.maxscore,strategy,viable,cans,voterModel.defaultMax,doStar,model.utility_shape)
 	
-	voterModel.radiusFirst[i] = scoresfirstlast.radiusFirst // this is okay for now but could mess up if one voterModel is shared by more than one voterCrowd
-	voterModel.radiusLast[i] = scoresfirstlast.radiusLast
-	voterModel.dottedCircle = scoresfirstlast.dottedCircle
+	voterPerson.dottedCircle = scoresfirstlast.dottedCircle
 	var scores = scoresfirstlast.scores
 
 	// store info on voterPerson
 	voterPerson.radiusFirst = scoresfirstlast.radiusFirst
 	voterPerson.radiusLast = scoresfirstlast.radiusLast
+	voterPerson.maphelp = scoresfirstlast.maphelp
 
 	return scores
 
@@ -598,6 +596,16 @@ function dostrategy(model,x,y,minscore,maxscore,strategy,preFrontrunnerIds,candi
 	}
 	
 
+
+	// star exception
+	//if (strategy == "starnormfrontrunners") {
+	if (doStar) {
+		decision = starStrategy(scores, shortlist, dista, canAid, maxscore, lc, utility_shape, strategy)
+		scores = decision.scores
+		var maphelp = decision.maphelp
+	}
+
+
 	// boundary condition correction
 	// scores[canAid[mi]] = minscore
 	scores[canAid[ni]] = maxscore
@@ -623,19 +631,11 @@ function dostrategy(model,x,y,minscore,maxscore,strategy,preFrontrunnerIds,candi
 		}
 	}
 
-
-	// star exception
-	//if (strategy == "starnormfrontrunners") {
-	if (doStar) {
-		scores = starStrategy(scores, shortlist, dista, canAid, maxscore, lc, utility_shape)
-	}
-
-
-	return {scores:scores, radiusFirst:n , radiusLast:m, dottedCircle:dottedCircle}
+	return {scores:scores, radiusFirst:n , radiusLast:m, dottedCircle:dottedCircle, maphelp:maphelp}
 }
 
 
-function starStrategy(scores, shortlist, dista, canAid, maxscore, lc, utility_shape) {
+function starStrategy(scores, shortlist, dista, canAid, maxscore, lc, utility_shape, strategy) {
 	// put shortlist in order
 	sortedShortlist = _jcopy(shortlist).sort( (i,k) => dista[i] - dista[k] ) // shortest distance first
 	// use the shortlist to make a piece-wise linear function
@@ -746,16 +746,30 @@ function starStrategy(scores, shortlist, dista, canAid, maxscore, lc, utility_sh
 			k++
 		}
 
-		// try to space candidates
-		var k = maxscore
-		for ( var i = 0 ; i < ns ; i ++) {
-			var desiredScore = scores[canAid[sortedShortlist[i]]]
-			if (ubScore[i] > desiredScore && lbScore[i] <= desiredScore) {
-				// we gave too good a score and we can lower the score
-				k = desiredScore
+		if (strategy == "best frontrunner") { // give lower bound scores
+			for ( var i = 0 ; i < ns ; i ++) {
+				tryScore[i] = lbScore[i]
+			}			
+		} else if (strategy == "not the worst frontrunner") { // give upper bound scores
+			for ( var i = 0 ; i < ns ; i ++) {
+				tryScore[i] = ubScore[i]
 			}
-			tryScore[i] = k
-			k--
+			tryScore[ns-1] = 0 // zero score for worst frontrunner
+		} else {
+			// try to space candidates
+			var k = maxscore
+			for ( var i = 0 ; i < ns ; i ++) {
+				var desiredScore = scores[canAid[sortedShortlist[i]]]
+				if (ubScore[i] > desiredScore) {
+					// we gave too good a score and we can lower the score
+					k = desiredScore
+				}
+				if (lbScore[i] > k) { // did we go too low?
+					k = lbScore[i] // use lower bound
+				}
+				tryScore[i] = k
+				k--
+			}
 		}
 
 	}
@@ -766,10 +780,78 @@ function starStrategy(scores, shortlist, dista, canAid, maxscore, lc, utility_sh
 	}
 
 	// still need to assign scores to candidates outside the shortlist
-	// so we've got a list of distances and scores.  let's just use linear interpolation.
+	// so we've got a list of distances and scores. let's set up linear interpolation intervals.
+
+	// first we set up breaks between scores
+
+	var breaks = []
+
+	var iclosest = sortedShortlist[0]
+	var ifurthest = sortedShortlist[sortedShortlist.length-1]
+	var dclosest = dista[iclosest]
+	var dfurthest = dista[ifurthest]
+		
+	if (strategy == "best frontrunner") { 
+		var d = dclosest * 1.001
+		for (var i = 0; i < maxscore; i++ ) {
+			breaks.push(d)
+		}
+	} else if (strategy == "not the worst frontrunner") { 
+		var d = dfurthest * .999
+		for (var i = 0; i < maxscore; i++ ) {
+			breaks.push(d)
+		}
+	} else {
+		for (var i = 0; i < maxscore; i++ ) {
+			// assign default breaks
+			var frac = (i+.5) / maxscore
+			var d = dfurthest + frac * (dclosest - dfurthest) 
+			breaks.push(d)
+		}
+	}
+
+	// adjust breaks to match shortlist
+	for (var i = 0; i < maxscore; i++ ) {
+		// look at boundary between a score of i and i+1
+		var db = breaks[i]
+		var shi = i+1 // score on high side of break
+		var slo = i
+
+		// does the interval need to be adjusted?
+		for ( var k = 0 ; k < ns ; k ++) { // check the shortlist
+			var d = dista[sortedShortlist[k]]
+			var s = tryScore[k]
+			// check for push lower
+			// if distance is further than break and score is higher than break would suggest, then push break closer
+			// and opposite, too
+			var dfurther = d > db
+			var shigher = s >= shi
+			var dcloser = d < db
+			var slower = s <= slo
+			if ( dfurther && shigher ) {
+				db = d * 1.001 // put boundary just outside of this candidate
+			} else if ( dcloser && slower ) {
+				db = d * .999 // put boundary just in front of this candidate
+			}
+		}
+		breaks[i] = db // store any adjustments
+	}
+
+	// remake beginning and ending intervals
+	var intervals = []
+	ivScore = []
+	intervals.push(0)
+	ivScore.push(maxscore)
+	for (var i=breaks.length-1; i >= 0; i--) {
+		intervals.push(breaks[i])
+		ivScore.push(i+.5)
+	}
+	iLast = intervals[intervals.length-1]
+	intervals.push(iLast*2)
+	ivScore.push(0)
 
 	var fillScore = []
-	var intervals = sortedShortlist.map( i => dista[i] )
+	// var intervals = sortedShortlist.map( i => dista[i] ) // old way, kind of jerky
 	for(var i=0; i<lc; i++){
 		
 		// first, find the interval this distance fits into
@@ -798,8 +880,8 @@ function starStrategy(scores, shortlist, dista, canAid, maxscore, lc, utility_sh
 				}
 			}
 			// apply fraction 
-			var ss = tryScore[start]
-			var es = tryScore[end]
+			var ss = ivScore[start]
+			var es = ivScore[end]
 			fillScore[i] = Math.round( ss + (es-ss)*frac )
 		}	
 	}
@@ -830,7 +912,7 @@ function starStrategy(scores, shortlist, dista, canAid, maxscore, lc, utility_sh
 		}
 	}
 
-	return scores
+	return {scores:scores, maphelp:{intervals:intervals,scores:ivScore}}
 }
 
 
@@ -930,7 +1012,6 @@ DrawMap.Score = function (ctx, model,voterModel,voterPerson) {
 	var y = voterPerson.yArena
 	var strategy = voterPerson.strategy
 	var iDistrict = voterPerson.iDistrict
-	var k = voterPerson.iPoint
 	var ballot = voterPerson.stages[model.stage].ballot
 
 
@@ -964,15 +1045,46 @@ DrawMap.Score = function (ctx, model,voterModel,voterPerson) {
 		// ctx.globalCompositeOperation = "darken" // not uniform 1,2,3
 	}
 
+	var doStar =  model.checkDoStarStrategy(strategy)
+
 	for(var i=0;i<scorange;i++){
 		//var dist = step*(i+.5) + voterModel.radiusFirst
 
 		var frac = (1-(i+.5)/scorange)
 		var worst = f(1)
-		var best = f(voterModel.radiusFirst[k]/voterModel.radiusLast[k])
+		var best = f(voterPerson.radiusFirst/voterPerson.radiusLast)
 		var x1 = finv(frac*(worst-best)+best)
-		var dist = x1 * voterModel.radiusLast[k]
-		
+		var dist = x1 * voterPerson.radiusLast
+
+		if (doStar) {
+			// use maphelp
+			var m = voterPerson.maphelp
+			var iv = m.intervals
+			var sc = m.scores
+			
+			// we want to use our guiding scores to make maps
+			var slo = sc.find( x => x <= i)
+			var ilo = sc.indexOf( slo )
+			var ihi = Math.max(ilo - 1,0)
+			// hi and lo distances
+			var dhi = iv[ihi]
+			var dlo = iv[ilo]
+			// hi and lo scores
+			var shi = sc[ihi]
+			var slo = sc[ilo]
+			// interpolate to find boundary (and handle dividing by zero)
+			var frac = (slo == shi) ? 0 : ( (i+.5) - slo) / (shi - slo)
+			if (model.utility_shape == "linear") {
+				dist = dlo + (dhi - dlo) * frac 
+			} else {
+				var f = utility_function(model.utility_shape)
+				var finv = inverse_utility_function(model.utility_shape)
+				var fdist = f(dlo) + (f(dhi) - f(dlo)) * frac
+				dist = finv(fdist)
+			}
+			
+		}
+			
 		if (model.doVoterMapGPU) {
 			voterPerson.rad.push(dist)
 			voterPerson.idxCan.push(0)
@@ -1005,7 +1117,7 @@ DrawMap.Score = function (ctx, model,voterModel,voterPerson) {
 		}
 		ctx.closePath()
 		ctx.setLineDash([]);
-		if (voterModel.dottedCircle) ctx.setLineDash([5, 15]);
+		if (voterPerson.dottedCircle) ctx.setLineDash([5, 15]);
 		if (voterModel.filledCircles) {
 			var temp = ctx.globalAlpha
 			// ctx.globalAlpha = .01
@@ -1023,7 +1135,7 @@ DrawMap.Score = function (ctx, model,voterModel,voterPerson) {
 		} else {
 			ctx.stroke()
 		}
-		if (voterModel.dottedCircle) ctx.setLineDash([]);
+		if (voterPerson.dottedCircle) ctx.setLineDash([]);
 	}
 	ctx.globalCompositeOperation = tempComposite
 	
@@ -2318,6 +2430,8 @@ DrawTally.Score = function (model,voterModel,voterPerson) {
 			text += "<br />"
 		}
 		text += "</pre>"
+		text += pairChart([ballot], district, model)
+		text += squarePairChart([ballot], district, model)
 	}
 	return text
 	
@@ -2365,6 +2479,7 @@ DrawTally.Three = function (model,voterModel,voterPerson) {
 		text += model.icon(okay[i])
 	}
 	text += "</pre>"
+	text += "<br>"
 	if(0) {
 		text += "<br /> preferences:<br />"
 		for(var i = 2; i > -1; i--){
@@ -2766,7 +2881,7 @@ function GeneralVoterModel(model,voterModel) {
 		}
 
 		text3 += `
-		This is your percieved utility for each candidate: <span class="percent">(100% minus perceived distance)</span> <br>`
+		This is your perceived utility for each candidate: <span class="percent">(100% minus perceived distance)</span> <br>`
 		text3 += tBarChart("uNorm",distList,model)
 		text3 += `
 		<br>`
