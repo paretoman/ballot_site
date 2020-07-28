@@ -85,7 +85,7 @@ function DraggableManager(arena,model){
 			if(d.hitTest(arena.mouse.x, arena.mouse.y,arena)){
 				if (d.isVoterCenter && arena.mouse.dragging && arena.mouse.dragging.isModify) continue // skip the voterCenter if we are the mod gear.
 				// low priority
-				if ( (d.isModify && d.active) || d.isright || d.isUp || ( model.yeeon && d == model.yeeobject ) ) {
+				if ( (d.isModify && d.active) || d.isright || d.isUp || d.isDown || ( model.yeeon && d == model.yeeobject ) ) {
 					highTie.push(d)
 					checkmiddle = false
 					checklow = false

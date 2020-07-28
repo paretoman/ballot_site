@@ -794,10 +794,12 @@ function Arena(arenaName, model) {
 		self.plusOneVoter = new Plus(model)
 		self.plusVoterGroup = new Plus(model)
 		self.plusXVoterGroup = new Plus(model)
+		self.plusRectangle = new Plus(model)
 		self.plusCandidate.isPlusCandidate = true
 		self.plusOneVoter.isPlusOneVoter = true
 		self.plusVoterGroup.isPlusVoterGroup = true
 		self.plusXVoterGroup.isPlusXVoterGroup = true
+		self.plusRectangle.isPlusRectangle = true
 		self.trashes = new Trashes(model)
 		self.modify = new Modify(model)
 		self.viewMan = new ViewMan(model)
@@ -813,6 +815,7 @@ function Arena(arenaName, model) {
 		self.plusOneVoter.init()
 		self.plusVoterGroup.init()
 		self.plusXVoterGroup.init()
+		self.plusRectangle.init()
 		self.trashes.init()
 		self.modify.init()
 		self.viewMan.init()
@@ -831,22 +834,26 @@ function Arena(arenaName, model) {
 		self.isPlusOneVoter = false
 		self.isPlusVoterGroup = false
 		self.isPlusXVoterGroup = false
+		self.isPlusRectangle = false
 		
 		self.init = function() {
 			self.y = model.size - 20
-			var between = 40
+			var between = 35
 			if (self.isPlusCandidate) {
-				self.x = model.size - between * 4.5
+				self.x = model.size - between * 5.5
 				var srcPlus = "play/img/plusCandidate.png"
 			} else if (self.isPlusOneVoter) {
-				self.x = model.size - between * 3.5
+				self.x = model.size - between * 4.5
 				var srcPlus = "play/img/plusOneVoter.png"
 			} else if (self.isPlusVoterGroup) {
-				self.x = model.size - between * 2.5
+				self.x = model.size - between * 3.5
 				var srcPlus = "play/img/plusVoterGroup.png"
 			} else if (self.isPlusXVoterGroup) {
 				self.x = model.size - between * 1.5
-				var srcPlus = "play/img/plus_sunflower.png"
+				var srcPlus = "play/img/plus_bell.png"
+			} else if (self.isPlusRectangle) {
+				self.x = model.size - between * 2.5
+				var srcPlus = "play/img/plus_rectangle.png"
 			}
 			// if (Loader) {
 			// 	if (Loader.assets[srcPlus]) {
@@ -920,18 +927,21 @@ function Arena(arenaName, model) {
 				// model.update will happen later
 
 				return n			
-			} else if (self.isPlusOneVoter || self.isPlusVoterGroup || self.isPlusXVoterGroup) {
+			} else if (self.isPlusOneVoter || self.isPlusVoterGroup || self.isPlusXVoterGroup || self.isPlusRectangle) {
 				if (self.isPlusOneVoter) {
 					var n = new SingleVoter(model)
-				} else if (self.isPlusVoterGroup || self.isPlusXVoterGroup) {
+				} else if (self.isPlusVoterGroup || self.isPlusXVoterGroup || self.isPlusRectangle) {
 					var n = new GaussianVoters(model)
 				}
 				n.x = self.x
 				n.y = self.y
 				if (self.isPlusXVoterGroup) {
 					n.x_voters = true
+					n.crowdShape = "gaussian sunflower"
+				} else if (self.isPlusRectangle) {
+					n.crowdShape = "rectangles"
 				} else {
-					n.disk = 1
+					n.crowdShape = "circles"
 				}
 				var max = 0
 				for (var i = 0; i < model.voterGroups.length; i++) {
@@ -1128,8 +1138,8 @@ function Arena(arenaName, model) {
 				self.y = f.y
 			} else {
 				self.y = model.size - 20
-				var between = 40
-				self.x = model.size - between * 5.5
+				var between = 35
+				self.x = model.size - between * 6.5
 			}
 		}
 		self.draw = function(ctx,arena){
@@ -1167,7 +1177,13 @@ function Arena(arenaName, model) {
 				self.configure()
 				if (flashydude.isGaussianVoters) {
 					model.arena.up = new Up(model,flashydude) // create controls
+					if (flashydude.crowdShape == "rectangles") {
+						model.arena.down = new Down(model,flashydude)
+					}
 					model.arena.up.init()
+					if (model.arena.down) {
+						model.arena.down.init()
+					}
 				}
 				model.arena.right = new Right(model,flashydude)
 				model.arena.right.init()
@@ -1184,6 +1200,7 @@ function Arena(arenaName, model) {
 			self.focus = null
 			model.arena.up = null
 			model.arena.right = null
+			model.arena.down = null
 		}
 	}
 	function ViewMan(model) {
@@ -1217,8 +1234,8 @@ function Arena(arenaName, model) {
 				self.y = f.y
 			} else {
 				self.y = model.size - 20
-				var between = 40
-				self.x = model.size - between * 6.5
+				var between = 35
+				self.x = model.size - between * 7.5
 			}
 		}
 		self.draw = function(ctx,arena){
@@ -1304,6 +1321,7 @@ function Arena(arenaName, model) {
 		self.dontchangex = true
 		self.o = o
 		self.scale = 4
+		self.shapeScale = 5/20
 		
 		// CONFIGURE DEFAULTS
 		self.size = 20;
@@ -1323,16 +1341,54 @@ function Arena(arenaName, model) {
 		}
 		self.configure = function() {
 			var oa = model.arena.modelToArena(o)
-			if (typeof o.group_count !== "undefined") {
-				var length = o.group_count / self.scale
-				self.y = oa.y - length
-			} else {
-				self.y = oa.y - 60
-			}
+			var length = self.getLengthFromProp()
+			self.y = oa.y - length
 			self.x = oa.x
 			self.xC = oa.x
 			self.yC = oa.y
 		}
+		self.getLengthFromProp = function() {
+			if (o.crowdShape == "rectangles" || o.crowdShape == "circles") {
+				if (typeof o.group_count_h !== "undefined") {
+					var length = self.propToLength(o.group_count_h)
+				} else {
+					var length = 60
+				}
+			} else {
+				if (typeof o.group_count !== "undefined") {
+					var length = self.propToLength(o.group_count)
+				} else {
+					var length = 60
+				}
+			}
+			return length
+		}
+		self.propToLength = function(p) {
+			if (o.crowdShape == "rectangles" || o.crowdShape == "circles") {
+				return Math.round(p / self.shapeScale)
+			} else {
+				return Math.round(p / self.scale)
+			}
+			 
+		}
+		self.updatePropFromLength = function(length) {
+			var prop = self.lengthToProp(length)
+			if (o.crowdShape == "rectangles" || o.crowdShape == "circles") {
+				o.group_count_h = prop
+			} else {
+				o.group_count = prop
+			}
+
+		}
+		self.lengthToProp = function(length) {
+			if (o.crowdShape == "rectangles" || o.crowdShape == "circles") {
+				return Math.round(length * self.shapeScale)
+			} else {
+				return Math.round(length * self.scale)
+			}
+			 
+		}
+
 		self.draw = function(ctx,arena){
 			// RETINA
 			var p = self
@@ -1446,6 +1502,82 @@ function Arena(arenaName, model) {
 		};
 
 	}
+	function Down(model,o) {  // o is the object that is being modified
+		var self = this;
+		Draggable.call(self);
+		self.isDown = true // might help later
+		self.isArenaObject = true
+		self.dontchangex = true
+		self.o = o
+		self.scale = 5/20
+		self.sizeScale = 2/3
+		
+		// CONFIGURE DEFAULTS
+		self.size = 20;
+		
+		self.init = function() {
+			var srcMod = "play/img/gear.png"
+			// if (Loader) {
+			// 	if (Loader.assets[srcMod]) {
+			// 		self.img = Loader.assets[srcMod]
+			// 	}
+			// }
+			self.img = new Image();
+			self.img.src = srcMod
+			model.nLoading++
+			self.img.onload = onLoadTool
+			self.configure()
+		}
+		self.configure = function() {
+			var oa = model.arena.modelToArena(o)
+			if (typeof o.group_count_vert !== "undefined") {
+				var length = self.propToLength(o.group_count_vert)
+				self.y = oa.y + length
+			} else {
+				self.y = oa.y + 60
+			}
+			self.x = oa.x
+			self.xC = oa.x
+			self.yC = oa.y
+		}
+		self.lengthToProp = p => Math.round(p * self.scale)
+		self.propToLength = p => p / self.scale
+		self.draw = function(ctx,arena){
+			// RETINA
+			var p = self
+			var x = p.x*2;
+			var y = p.y*2;
+			var size = self.size*2;
+	
+			if(self.highlight) {
+				var temp = ctx.globalAlpha
+				ctx.globalAlpha = 0.8
+				size *= 2
+				// y -= size/4
+			}
+			
+			ctx.drawImage(self.img, x-size/2, y-size/2, size, size);
+
+			var arrow_size = 20
+			var offset_y = 0
+
+			ctx.beginPath();
+			ctx.moveTo(x,y-offset_y)
+			ctx.lineTo(self.xC*2,self.yC*2)
+			ctx.moveTo(x,y-offset_y)
+			ctx.lineTo(x+arrow_size, y - offset_y - arrow_size)
+			ctx.moveTo(x,y-offset_y)
+			ctx.lineTo(x-arrow_size, y - offset_y - arrow_size)
+			ctx.lineWidth = 10
+			ctx.strokeStyle = "#333";
+			ctx.stroke();
+			
+			if(self.highlight) {
+				ctx.globalAlpha = temp
+			}
+		};
+
+	}
 	function onLoadTool() {
 		model.nLoading--
 		if (model.nLoading == 0) {
@@ -1483,6 +1615,7 @@ function Arena(arenaName, model) {
 			self.draggables.push(self.plusOneVoter)
 			self.draggables.push(self.plusVoterGroup)
 			self.draggables.push(self.plusXVoterGroup)
+			self.draggables.push(self.plusRectangle)
 			for (var i=0; i<self.trashes.t.length; i++) {
 				self.draggables.push(self.trashes.t[i])
 			}
@@ -1501,6 +1634,9 @@ function Arena(arenaName, model) {
 			if (self.modify.active) {
 				if (self.up) {
 					self.draggables.push(self.up)
+				}
+				if (self.down) {
+					self.draggables.push(self.down)
 				}
 				self.draggables.push(self.right)
 			}
@@ -1657,7 +1793,18 @@ function Arena(arenaName, model) {
 				d.y = Math.min(d.yC,d.y)
 				if (d.o.voterGroupType && d.o.voterGroupType=="GaussianVoters") {
 					var length = -(d.y - d.yC)
-					d.o.group_count = length * d.scale
+					d.updatePropFromLength(length)
+					d.o.init()
+					_pileVoters(model)
+					model.dm.redistrict()
+					model.updateFromModel()
+				}
+			} else if (d.isDown) {
+				d.x = d.xC
+				d.y = Math.max(d.yC,d.y)
+				if (d.o.voterGroupType && d.o.voterGroupType=="GaussianVoters" && d.o.crowdShape == "rectangles") {
+					var length = d.y - d.yC
+					d.o.group_count_vert = d.lengthToProp(length)
 					d.o.init()
 					_pileVoters(model)
 					model.dm.redistrict()
@@ -1684,8 +1831,11 @@ function Arena(arenaName, model) {
 		if (self.modify && self.modify.active) { // update the modify value
 			self.modify.configure()
 			self.right.configure()  // so re-configure the lengths of these controls
-			if (self.modify.focus.group_spread) { // this value might have changed
+			if (self.up) { // this value might have changed
 				self.up.configure()	
+			} 
+			if (self.down) { // this value might have changed
+				self.down.configure() 
 			} 
 		}
 		if (self.viewMan && self.viewMan.active) { // update the viewMan value
@@ -1842,6 +1992,7 @@ function Arena(arenaName, model) {
 				self.plusOneVoter.draw(self.ctx,self)
 				self.plusVoterGroup.draw(self.ctx,self)
 				self.plusXVoterGroup.draw(self.ctx,self)
+				self.plusRectangle.draw(self.ctx,self)
 				self.trashes.t[0].draw(self.ctx,self)
 			}
 		}
@@ -2259,6 +2410,9 @@ function Arena(arenaName, model) {
 					if (self.up) {
 						self.up.draw(self.ctx,self)
 					}
+					if (self.down) {
+						self.down.draw(self.ctx,self)
+					}
 					self.right.draw(self.ctx,self)
 				}
 
@@ -2552,6 +2706,8 @@ _pileVoters = function(model) {
 			var stdev = []
 			var amplitude = []
 			var radius = []
+			var halfwidth = []
+			var halfheight = []
 			for (var m = 0; m < model.voterGroups.length; m++) {
 				var v = model.voterGroups[m]
 				var points = v.points
@@ -2559,8 +2715,13 @@ _pileVoters = function(model) {
 				var u = 1.5
 				if (!v.isGaussianVoters) {
 					stdev[m] = 5
-				} else if (v.x_voters) {
+				} else if (v.crowdShape == "gaussian sunflower") {
 					stdev[m] = v.stdev
+				} else if (v.crowdShape == "circles") {
+					radius[m] = v.radius
+				} else if (v.crowdShape == "rectangles") {
+					halfwidth[m] = v.halfwidth
+					halfheight[m] = v.halfheight
 				} else if (v.snowman) {
 					if (v.disk == 3) {
 						stdev[m] = u * 42 // 60
@@ -2585,10 +2746,12 @@ _pileVoters = function(model) {
 				} 
 				stdev[m] = stdev[m] * model.spread_factor_voters * .5
 				radius[m] = radius[m] * model.spread_factor_voters * .5
-				if (v.x_voters) {
+				if (v.crowdShape == "gaussian sunflower") {
 					amplitude[m] = v.points.length/stdev[m] * amp_factor
+				} else if (v.crowdShape == "rectangles") {
+						amplitude[m] = v.points.length/halfwidth[m] * amp_factor * .75
 				} else if (v.disk) {
-					if (!v.snowman && v.disk==3) {
+					if (!v.snowman && v.disk==3 && v.crowdShape != "circles") {
 						amplitude[m] = v.points.length/stdev[m] * amp_factor
 					} else {
 						amplitude[m] = v.points.length/radius[m] * amp_factor
@@ -2612,10 +2775,12 @@ _pileVoters = function(model) {
 					for (var k = 0; k < m; k++) {
 						var o = model.voterGroups[k]
 						// add background
-						if (o.x_voters) {
+						if (o.crowdShape == "gaussian sunflower") {
 							back -= gaussian( x , o.x-v.x , stdev[k] ) * amplitude[k]
+						} else if (o.crowdShape == "rectangles") {
+							back -= step( x , o.x-v.x , halfwidth[k] ) * amplitude[k]
 						} else if (o.disk) {
-							if (!o.snowman && o.disk==3) {
+							if (!o.snowman && o.disk==3 && o.crowdShape != "circles") {
 								back -= gaussian( x , o.x-v.x , stdev[k] ) * amplitude[k]
 							} else {
 								back -= disk( x , o.x-v.x , radius[k]+5) * .5 * (amplitude[k] + 15)
@@ -2623,10 +2788,12 @@ _pileVoters = function(model) {
 						} 
 					}
 					// add voters
-					if (v.x_voters) {
+					if (v.crowdShape == "gaussian sunflower") {
 						v.points[i][2] = back + (_erf(y/stdev[m])-1) * .5 * gaussian(x,0,stdev[m]) * amplitude[m]
+					} else if (v.crowdShape == "rectangles") {
+						v.points[i][2] = back +  (y / halfheight[m] - 1) * .5 * amplitude[k]
 					} else if (v.disk) {
-						if (!v.snowman && v.disk==3) {
+						if (!v.snowman && v.disk==3 && v.crowdShape != "circles") {
 							v.points[i][2] = back + (_erf(y/stdev[m])-1) * .5 * gaussian(x,0,stdev[m]) * amplitude[m]
 						} else {
 							if (1) {
@@ -2654,6 +2821,10 @@ _pileVoters = function(model) {
 				if (x < -1) return 0
 				if (x > 1) return 1
 				return ((.5 * Math.asin(x) + .25 * Math.sin(2 * Math.asin(x)))) / (3.14 * .5) + .5
+			}
+			function step(x,mean,halfwidth) {
+				var inside = halfwidth - Math.abs(x-mean)
+				return (inside > 0) ? 1 : 0
 			}
 			
 		}

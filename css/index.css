@@ -446,3 +446,10 @@ ul.share-buttons .sr-only {
 	height: unset;
 	vertical-align: top;
 }
+
+p#editnote {
+	font-size: 0.8em;
+}
+p#editnote {
+	text-align: center;
+}

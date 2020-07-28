@@ -1192,6 +1192,16 @@ function Config(ui, config, initialConfig) {
 
             // end strategies section //
 
+            if (config.crowdShape == undefined) {
+                config.crowdShape = config.voterGroupX.map( x => (x) ? "gaussian sunflower" : "Nicky circles" ) 
+            }
+
+            if (config.group_count_vert == undefined) {
+                config.group_count_vert = config.voterGroupX.map( x =>  5) 
+            }
+            if (config.group_count_h == undefined) {
+                config.group_count_h = config.voterGroupX.map( x =>  5) 
+            }
 
             // there's no incompatibility problems yet, so no need to increment
             // code below this if {} statement are still needed in future versions
@@ -1401,6 +1411,9 @@ function Cypher(ui) {
         88:"useBeatMapForRankedBallotViz",
         89:"centerPollThreshold",
         90:"doMedianDistViz",
+        91:"crowdShape",
+        92:"group_count_vert",
+        93:"group_count_h",
     } 
     // HOWTO
     // add more on to the end ONLY
@@ -2325,7 +2338,15 @@ function menu(ui,model,config,initialConfig, cConfig) {
                     0:false,
                     1:true,
                 }
-            }
+            },
+            {
+                field: "crowdShape",
+                decode: {
+                    0:"Nicky circles",
+                    1:"gaussian sunflower",
+                    2:"circles",
+                }
+            },
         ]
         self.listByName = function() { // when we load from a config
             if (config.x_voters) {
@@ -2401,7 +2422,10 @@ function menu(ui,model,config,initialConfig, cConfig) {
                         y:pos[1],
                         snowman: config.voterGroupSnowman[i],
                         x_voters: config.voterGroupX[i],
-                        disk: config.voterGroupDisk[i]
+                        disk: config.voterGroupDisk[i],
+                        crowdShape: config.crowdShape[i],
+                        group_count_vert: config.group_count_vert[i],
+                        group_count_h: config.group_count_h[i],
                     })
                     model.voterGroups[i].typeVoterModel = model.ballotType // needs init	
                 }
@@ -6628,6 +6652,9 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
         x = []
         snowman = []
         disk = []
+        crowdShape = []
+        group_count_vert = []
+        group_count_h = []
         // voter types are varied in style
         for(var i=0; i<model.voterGroups.length; i++){
             var voter = model.voterGroups[i];
@@ -6639,6 +6666,9 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
             x.push(voter.x_voters)
             snowman.push(voter.snowman)
             disk.push(voter.disk)
+            crowdShape.push(voter.crowdShape)
+            group_count_vert.push(voter.group_count_vert)
+            group_count_h.push(voter.group_count_h)
         }
         if(log) console.log("voterPositions: "+JSON.stringify(positions));
         var voterPositions = positions;
@@ -6652,7 +6682,10 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
             voterGroupTypes: vTypes,
             voterGroupX: x,
             voterGroupSnowman: snowman,
-            voterGroupDisk: disk
+            voterGroupDisk: disk,
+            crowdShape: crowdShape,
+            group_count_vert:group_count_vert,
+            group_count_h:group_count_h,
         };
 
     };

@@ -371,11 +371,11 @@
 
 <p>We need to now fill in a little more detail about these strategies that we’ve been using. These strategies get very detailed. Still, STAR voting is able to find the middle. The only really complicated situations involve factions playing a game of chicken. To explain the game of chicken, we have to first explain strategy.</p>
 
-<p>Strategy is when voters adjust their self-reported distances. This makes finding the median more complicated. Part of the reason STAR voting exists is to deal with strategy.</p>
+<p>Strategy is just how a voter decides what scores to give.</p>
 
-<p>We’ll show you five strategies, and how they work in score voting and the STAR voting.  Strategy with STAR voting is slightly different because STAR also uses a runoff.</p>
+<p>We’ll show you five strategies, and how they work in score voting and in STAR voting.  Strategies are slightly different with STAR voting because STAR also uses a runoff.</p>
 
-<p>First, let’s look at an example where voters don’t use strategy. The voter judges the candidates based on distance. This measures distance well and finds the median.</p>
+<p>First, let’s look at an example where voters try to judge candidates. This makes more sense for something like a pie-baking contest where the point is to recognize excellence. Each voter has their own taste. In our model, we visually represent taste as distance. So, basically, the voter judges the candidates based on distance, and this is really good for finding the median.</p>
 
 <p>See if you notice something odd about the ballot below.</p>
 
@@ -399,7 +399,9 @@
 
 <p>Most voters will want to make sure that their ballot contains at least one candidate at the top rating and one candidate at the bottom rating. The simplest way to do that is “normalization”. That means that you give your favorite a 5, you give your least favorite a 0, and you judge the rest on that scale between 0 and 5.</p>
 
-<p>One more consideration is made in STAR voting, and this makes it different than score voting. The ratings are changed to avoid giving the same score to two candidates. That is an important change that can matter in the runoff.</p>
+<p>This is probably the first instinct for a voter. Also, it’s the instructions for STAR voting. The ballot is labeled 0 worst - 5 best so it’s relative, not a fixed scale.</p>
+
+<p>One more consideration is made in STAR voting, and this makes it different than score voting. The voter will want to avoid giving the same score to two candidates. That is an important change that can matter in the runoff.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
@@ -417,7 +419,7 @@
 
 </div>
 
-<p>Normalizing as above is a pretty weak strategy. To strategize even more strongly, voters could look at polls to see which candidates are the frontrunners and use them as the endpoints for normalization. Any candidate better would get a 5, and any candidate worse would get a 0. In other words, the scores are clipped.</p>
+<p>Voters can further maximize their vote’s effect. Voters could look at polls to see which candidates are the frontrunners and use them as the endpoints for normalization. Any candidate better would get a 5, and any candidate worse would get a 0. In other words, the scores are clipped.</p>
 
 <p>Again, one more consideration is made for STAR voting as opposed to score voting. The voter strategically gives different scores to each frontrunner.</p>
 
@@ -558,6 +560,9 @@
 <p>It’s just a smarter way to vote.</p>
 
     </div>
+       
+    <p id="editnote"><a href="https://github.com/paretoman/ballot/blob/gh-pages/star.md">Edit this page</a>.</p>
+    
     
         <div id="sandbox-section">
             <div class="sim-sandbox">

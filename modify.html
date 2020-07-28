@@ -230,7 +230,22 @@
 
 <p>Why? Because I’m using a build tool, Jekyll. The reason I’m using Jekyll is I want to modularize my html, and jekyll seems to be popular and minimal, and github does it.</p>
 
-<p>If you really don’t want to run jekyll, I also have a repository for the <a href="https://github.com/paretoman/ballot_site/">build</a>. So you can start from there. But really, you’re making it harder on yourself to do things like add new pages.</p>
+<p>If you really don’t want to run jekyll, I also have a repository for the <a href="https://github.com/paretoman/ballot_site/">build</a>. So you can start from there. But really, you’re making it harder on yourself to do things like add new pages.  To get started from this build, do the following:</p>
+
+<ol>
+  <li>
+    <p>open a terminal get in an empty folder</p>
+  </li>
+  <li>
+    <p>git clone https://github.com/paretoman/ballot_site.git</p>
+  </li>
+  <li>
+    <p>rename “ballot_site/” to “ballot/”: mv ballot_site ballot</p>
+  </li>
+  <li>
+    <p>python -m http.server or some other way to serve the files.  Serve from the folder that contains “ballot/”.</p>
+  </li>
+</ol>
 
 <p>Here are instructions for building this site on your local machine.</p>
 
@@ -260,6 +275,9 @@ bundle exec jekyll serve
 </ul>
 
         </div>
+           
+    <p id="editnote"><a href="https://github.com/paretoman/ballot/blob/gh-pages/modify.md">Edit this page</a>.</p>
+    
     </div><footer class="site-footer h-card">
   <data class="u-url" href="/ballot/"></data>
 

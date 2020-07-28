@@ -82,8 +82,8 @@ function _lookupPreset(ui) {
 				hidegearconfig: false,
 				secondStrategies: [],
 				percentSecondStrategy: [0,0,0,0,0,0,0,0,0,0],
-				voter_group_count: [50,50,50,50,50,50,50,50,50,50],
-				voter_group_spread: [190,190,190,190,190,190,190,190,190,190],
+				voter_group_count: [91,50,50,50,50,50,50,50,50,50],
+				voter_group_spread: [230,190,190,190,190,190,190,190,190,190],
 				sandboxsave: true,
 				featurelist: ["systems","nVoterGroups","nCandidates"],
 				description: "",
@@ -116,7 +116,8 @@ function _lookupPreset(ui) {
 				voterGroupTypes: ["GaussianVoters"],
 				voterGroupX: [false],
 				voterGroupSnowman: [false],
-				voterGroupDisk: [2],
+				voterGroupDisk: [3],
+				crowdShape: ["circles"],
 				seats: 3,
 				candidateB: [1,1,1,1,1],
 				nDistricts: 1,
@@ -159,7 +160,11 @@ function _lookupPreset(ui) {
 				choiceSecondStrategy: "normalize frontrunners only",
 				pairSecondStrategy: "zero strategy. judge on an absolute scale.",
 				useBeatMapForRankedBallotViz: true,
-				centerPollThreshold: .7,
+				centerPollThreshold: 0.7,
+				group_count_vert: [null],
+				group_count_h: [10],
+				voterCenterIcons: "on",
+				doMedianDistViz: false,
 			}
 		} else {
 			config = {

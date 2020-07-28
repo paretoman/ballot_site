@@ -3674,6 +3674,7 @@ function _fillVoterDefaults(self) {
 		vid: 0,
 		snowman: false,
 		x_voters: false,
+		crowdShape: "Nicky circles",
 		// SECOND group in "exp_addVoters"
 		// same for all voter groups in model
 		preFrontrunnerIds:["square","triangle"],
@@ -3715,7 +3716,7 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 				
 		// HACK: larger grab area
 		// self.radius = 50;
-		if (!self.x_voters) {
+		if (self.crowdShape == "Nicky circles") {
 			// SPACINGS, dependent on NUM
 			var spacings = [0, 12, 12, 12, 12, 20, 30, 50, 100];
 			if (self.snowman) {
@@ -3762,7 +3763,78 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 				}
 
 			}
-		} else {
+		} else if (self.crowdShape == "circles") {
+
+			var _spread_factor = 2 * Math.exp(.01*self.group_spread) / 20
+			var space = 12 * self.spread_factor_voters * _spread_factor
+
+			self.group_count_h = self.group_count_h || 5
+			var numRings = self.group_count_h / 2
+			var odd = self.group_count_h % 2
+
+			var points = [[0,0]]
+			if (odd) points = []
+
+			for(var i=(odd)?0:1; i<=numRings; i++){
+
+				var radius = i * space
+				if (odd) radius += .5 * space
+				
+				var symmetry = true
+				if (symmetry) {
+					var num = (i + odd*.5) * 6
+					var dAngle = Math.TAU/num
+	
+					for(var k = 0; k < num; k++){
+						var angle = k * dAngle
+						var x = Math.sin(angle)*radius 
+						var y = -Math.cos(angle)*radius
+						points.push([x,y])
+					}
+				} else { // the old way
+					var circum = Math.TAU*radius
+					var num = Math.floor(circum/(space-1))
+						
+					var dAngle = Math.TAU/num
+
+					for(var k = 0; k < num; k++){
+						var angle = k * dAngle
+						var x = Math.cos(angle)*radius 
+						var y = Math.sin(angle)*radius
+						points.push([x,y])
+					}
+				}
+			}
+			self.group_count = points.length
+			self.radius = radius // last radius
+			self.points = points
+			
+		} else if (self.crowdShape == "rectangles") {
+
+			var _spread_factor = 2 * Math.exp(.01*self.group_spread) / 20
+			var space = 12 * self.spread_factor_voters * _spread_factor
+
+			self.group_count_vert = self.group_count_vert || 5
+			self.group_count_h = self.group_count_h || 5
+			
+			var numRings = self.group_count_h / 2
+			var vNumRings = self.group_count_vert / 2
+			var points = []
+
+
+			for (var i=-numRings+.5; i<numRings; i++) {
+				for (var k=-vNumRings+.5; k<vNumRings; k++) {
+					var x = space * i
+					var y = space * k
+					points.push([x,y])
+				}
+			}
+			self.group_count = points.length
+			self.halfwidth = (numRings+.5) * space
+			self.halfheight = (vNumRings+.5) * space
+			self.points = points
+			
+		} else if (self.crowdShape == "gaussian sunflower" ) {
 			var points = [];
 			self.points = points;
 			var angle = 0;
@@ -3780,6 +3852,7 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 				} else {
 					_radius_norm = 1-(count+.5)/self.group_count
 					_radius = Math.sqrt(-2*Math.log(1-_radius_norm)) * self.stdev * .482
+					// _radius = Math.sqrt(_radius_norm) * self.stdev * .482
 				}
 				var x = Math.cos(angle)*_radius  * self.spread_factor_voters;
 				var y = Math.sin(angle)*_radius  * self.spread_factor_voters;
