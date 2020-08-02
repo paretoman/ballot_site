@@ -82,7 +82,7 @@ function _lookupPreset(ui) {
 				hidegearconfig: false,
 				secondStrategies: [],
 				percentSecondStrategy: [0,0,0,0,0,0,0,0,0,0],
-				voter_group_count: [91,50,50,50,50,50,50,50,50,50],
+				voter_group_count: [61,50,50,50,50,50,50,50,50,50],
 				voter_group_spread: [230,190,190,190,190,190,190,190,190,190],
 				sandboxsave: true,
 				featurelist: ["systems","nVoterGroups","nCandidates"],
@@ -162,7 +162,7 @@ function _lookupPreset(ui) {
 				useBeatMapForRankedBallotViz: true,
 				centerPollThreshold: 0.7,
 				group_count_vert: [null],
-				group_count_h: [10],
+				group_count_h: [8],
 				voterCenterIcons: "on",
 				doMedianDistViz: false,
 			}

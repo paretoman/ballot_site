@@ -663,7 +663,7 @@ function bindModel(ui,model,config) {
                         lookup[rid][cid] = idx
                         var node = {name:rid + "_" + cid,round:rid,cid:cid,numBallots:numBallots}
                         if (winnersContinue) {
-                            if (won[rid].includes(cid)) node.winner = true
+                            if (won[rid] && won[rid].includes(cid)) node.winner = true
                         } else {
                             if (rid == numRounds) { //last round
                                 if (result.winners.includes(cid)) node.winner = true
