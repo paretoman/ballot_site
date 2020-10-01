@@ -81,6 +81,7 @@ DAT RESET BUTTON
 **********************/
 
 #reset,
+.demonstrate,
 #save{
 	display: inline-block;
 	cursor: pointer;
@@ -89,7 +90,6 @@ DAT RESET BUTTON
     font-size: 25px;
     font-weight: 300;
     text-align: center;
-    width: 100px;
     height: 30px;
     letter-spacing: 2px;
     padding: 2px 0;
@@ -104,13 +104,25 @@ DAT RESET BUTTON
     -o-transition: all 0.1s;
     transition: all 0.1s;
 }
+
+#reset,
+#save{
+	width: 100px;
+}
+.demonstrate{
+	width: 240px;
+	margin-bottom: 20px;
+}
+
 #reset:hover,
+.demonstrate:hover,
  #save:hover{
 	margin-top:-2px;
 	background: #bbb;
 	border-bottom-color: #999;
 }
 #reset:active,
+.demonstrate:active,
 #save:active{
 	margin-top:2px;
 	background: #999;

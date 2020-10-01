@@ -453,3 +453,8 @@ p#editnote {
 p#editnote {
 	text-align: center;
 }
+
+img.gif_show {
+	max-width: calc(100vw - 60px);
+	margin-bottom: 20px;
+}
