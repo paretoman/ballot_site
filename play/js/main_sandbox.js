@@ -378,6 +378,7 @@ function bindModel(ui,model,config) {
 		ui.menu.presetconfig.init_sandbox()
 		// ui.menu.gearicon.init_sandbox()
 		ui.arena.desc.init_sandbox()
+		ui.arena.codeEditor.init_sandbox()
         ui.menu.theme.init_sandbox();
         // UPDATE
         ui.menu_update()
@@ -449,6 +450,7 @@ function bindModel(ui,model,config) {
 
                 var currentStage = model.stage
                 for (var stage of Object.keys(voterPerson.stages)) {
+                    if (stage == "backup") continue // just show the real stages, not this one that I made as a temporary holding place
                     model.stage = stage
 
                     var text = ""                    
@@ -853,6 +855,9 @@ function Config(ui, config, initialConfig) {
         scoreSecondStrategy: "zero strategy. judge on an absolute scale.",
         choiceSecondStrategy: "zero strategy. judge on an absolute scale.",
         pairSecondStrategy: "zero strategy. judge on an absolute scale.",
+        codeEditorText: Election.defaultCodeScore,
+        createStrategyType: "score",
+        createBallotType: "Score",
     }
     // HOWTO: add to the end here (or anywhere inside)
 
@@ -1414,6 +1419,8 @@ function Cypher(ui) {
         91:"crowdShape",
         92:"group_count_vert",
         93:"group_count_h",
+        94:"createStrategyType",
+        95:"createBallotType",
     } 
     // HOWTO
     // add more on to the end ONLY
@@ -1912,6 +1919,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             {name:"QuotaMinimax", value:"QuotaMinimax", realname:"Using a quota with Minimax Condorcet voting to make proportional representation.",ballotType:"Ranked", election:Election.quotaMinimax},
             {name:"Test LP", value:"PhragmenMax", realname:"Phragmen's method of minimizing the maximum representation with assignments.",ballotType:"Score", election:Election.phragmenMax},
             {name:_smaller("Equal Facility"), value:"equalFacilityLocation", realname:"Facility location problem with equal assignments.",ballotType:"Score", election:Election.equalFacilityLocation},
+            {name:"Create One", value:"Create",realname:"Write your own javascript code for a voting method.",ballotType:undefined, election:Election.create},
             
         ];
         self.systemsCodebook = [
@@ -1940,6 +1948,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
                     19:"QuotaScore",
                     20:"PhragmenMax",
                     21:"equalFacilityLocation",
+                    22:"Create",
                 }
             }
         ]
@@ -1954,6 +1963,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             // LOAD INPUT
             config.system = data.value;
             config.ballotType = data.ballotType
+            if (data.value == "Create") config.ballotType = config.createBallotType
             // CONFIGURE
             self.configure()
             ui.strategyOrganizer.configure()
@@ -1984,7 +1994,16 @@ function menu(ui,model,config,initialConfig, cConfig) {
             showMenuItemsIf("divLastTransfer", config.system === "IRV" || config.system === "STV")
             showMenuItemsIf("divDoElectabilityPolls", config.system == "+Primary")
             showMenuItemsIf("divSeats", model.checkMultiWinner(config.system))
+            
+            
+            var hideCodeEditor = ! (config.system == "Create")
+            
+            showMenuItemsIf("divCreate", ! hideCodeEditor)
+            setTimeout( () => ui.dom.codeMirror.refresh() , 30);
 
+            displayNoneIf(ui.arena.codeSave.dom, hideCodeEditor)
+            ui.arena.codeEditor.dom.hidden = hideCodeEditor
+            // ui.arena.codeSave.dom.hidden = hideCodeEditor
             
             model.system = config.system;
 
@@ -2841,7 +2860,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         var scoreType = "score"
         var pairType = "pair"
         self.types = [choiceType,pairType,scoreType]
-        self.stratBySys = {
+        var lookupStratBySys = {
             "FPTP": choiceType,
             "+Primary": choiceType,
             "Top Two": choiceType,
@@ -2864,6 +2883,13 @@ function menu(ui,model,config,initialConfig, cConfig) {
             "QuotaScore": scoreType,
             "PhragmenMax": scoreType,
             "equalFacilityLocation": scoreType,
+        }
+        self.stratBySys = function(sys) { 
+            if (sys == "Create") {
+                return model.createStrategyType
+            } else {
+                return lookupStratBySys[sys]
+            }
         }
         self.menuNameFirst = {
             "choice":"choiceFirstStrategy",
@@ -2898,7 +2924,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             // choice	O	O	F	F	F
             // pair	    O	O	O	O	O
             var zero = "zero strategy. judge on an absolute scale."
-            var theType = self.stratBySys[sys]
+            var theType = self.stratBySys(sys)
             if (theType == "choice") {
                 var not_f = [zero,"normalize"]
                 if (not_f.includes(strat)) {
@@ -2923,7 +2949,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         };
         self.configure = function() {
             // take on the strategy of the relevant system type
-            var theType = self.stratBySys[config.system]
+            var theType = self.stratBySys(config.system)
             var theConfigFirst = self.menuNameFirst[theType]
             config.firstStrategy = config[theConfigFirst]
             var theConfigSecond = self.menuNameSecond[theType]
@@ -2943,7 +2969,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
 
         self.showOnlyStrategyForTypeOfSystem = function() {
 
-            var theType = self.stratBySys[model.system]
+            var theType = self.stratBySys(model.system)
             var types = self.types
     
             // show only the one that applies
@@ -2956,7 +2982,180 @@ function menu(ui,model,config,initialConfig, cConfig) {
     
         }
     }
+
     
+    ui.menu.loadCode = new function() { // set the type of strategy for the new method we're writing
+        var self = this
+        self.list = [
+            {name:"Load Code", value:"Load Code", realname:"Load Code from an Existing Voting Method into the Code Editor"},
+        ]; 
+        self.onChoose = function(data){
+
+            // popup : 
+            var msg = "Are you sure? Loading will overwrite any work you've done in the code editor."
+            var goahead = window.confirm(msg)
+            if (goahead) {
+                var whichmsg = "Which Voting Method Would You Like to Load? Type the name."
+                var nameMethod = prompt(whichmsg, "Score")
+                var methodList = ui.menu.systems.list.filter(x => x.name==nameMethod)[0]
+                if (methodList !== undefined) {
+                    var methodFunction = methodList.election
+                    // copy text into box
+                    var stringFunction = methodFunction.toString()
+                    ui.dom.codeMirror.setValue(stringFunction)
+                    setTimeout( () => ui.dom.codeMirror.refresh() , 30);
+
+                    config.codeEditorText = stringFunction
+                    model.codeEditorText = stringFunction
+
+                    // make sure the strategy and ballot types are updated
+                    var bType = methodList.ballotType
+                    var system = methodList.value
+                    var sType = ui.strategyOrganizer.stratBySys(system)
+
+                    
+                    config.createStrategyType = sType
+                    ui.menu.createStrategyType.configure()
+                    for (var voter of model.voterGroups) {
+                        voter.initVoterModel()
+                    }
+
+                    ui.menu.createStrategyType.select(sType)
+
+                    config.createBallotType = bType
+                    ui.menu.createBallotType.configure()
+                    ui.menu.createBallotType.select(bType)
+                    
+                    for (var voter of model.voterGroups) {
+                        voter.initVoterModel()
+                    }
+
+                    showMenuItemsIf("divLastTransfer", system === "IRV" || system === "STV")
+                    showMenuItemsIf("divDoElectabilityPolls", system == "+Primary")
+                    showMenuItemsIf("divSeats", model.checkMultiWinner(system))
+                    
+                    // ui.menu.systems.onChoose(methodList.value) // run the election // but this might not work
+                            
+                    ui.strategyOrganizer.configure()
+                    model.update();
+                    ui.menu_update()
+                    ui.strategyOrganizer.showOnlyStrategyForTypeOfSystem()
+                } else {
+                    window.alert("Typo")
+                }
+            }
+        };
+        self.configure = function() {
+        }
+        self.choose = new ButtonGroup({
+            label: "Load Code from Existing Method?",
+            width: bw(2),
+            data: self.list,
+            onChoose: self.onChoose,
+            justButton: true,
+        });
+    }
+
+    ui.menu.createStrategyType = new function() { // set the type of strategy for the new method we're writing
+        var self = this
+        self.list = [
+            {name:_smaller("Choice"), value:"choice", realname:"Do choice-type strategy", margin:4},
+            {name:"Pair", value:"pair", realname:"Do pair-type strategy", margin:4},
+            {name:"Score", value:"score", realname:"Do score-type strategy"},
+        ]; 
+        self.codebook = [ {
+            field: "createStrategyType",
+            decode: {
+                0:"choice",
+                1:"pair",
+                2:"score",
+            }
+        } ]
+        self.onChoose = function(data){
+            config.createStrategyType = data.value;
+            self.configure()
+
+            for (var voter of model.voterGroups) {
+                voter.initVoterModel()
+            }
+            ui.strategyOrganizer.configure()
+            model.update();
+            ui.menu_update()
+            ui.strategyOrganizer.showOnlyStrategyForTypeOfSystem()
+        };
+        self.configure = function() {
+            model.createStrategyType = config.createStrategyType
+        }
+        self.choose = new ButtonGroup({
+            label: "Strategy Type for New Method",
+            width: bw(5),
+            data: self.list,
+            onChoose: self.onChoose,
+        });
+        self.select = function() {
+            self.choose.highlight("value", config.createStrategyType);
+        }
+    }
+
+
+    ui.menu.createBallotType = new function() { // set the ballot type for the new method we're making
+        var self = this
+        self.list = [
+            {name:_smaller("Ranked"), value:"Ranked", realname:"Ranked", margin:4},
+            {name:_smaller("Score"), value:"Score", realname:"Score", margin:4},
+            {name:_smaller("Approval"), value:"Approval", realname:"Approval", margin:4},
+            {name:_smaller("Plurality"), value:"Plurality", realname:"Plurality"},
+            {name:_smaller("Three"), value:"Three", realname:"Three"},
+        ]; 
+        self.codebook = [ {
+            field: "createBallotType",
+            decode: {
+                0:"Ranked",
+                1:"Score",
+                2:"Approval",
+                3:"Plurality",
+                4:"Three",
+            }
+        } ]
+        self.onChoose = function(data){
+            config.createBallotType = data.value;
+            self.configure()
+        };
+        self.configure = function() {
+            model.createBallotType = config.createBallotType
+            if (model.system == "Create") {
+                config.ballotType = config.createBallotType
+                model.ballotType = config.createBallotType
+                model.BallotType = window[config.ballotType+"Ballot"];
+    
+                for (var voter of model.voterGroups) {
+                    voter.typeVoterModel = config.ballotType // needs init
+                }
+                for (let district of model.district) {
+                    district.pollResults = undefined
+                }
+    
+                
+                if (model.ballotType == "Ranked") {
+                    var goPairwise = _pickRankedDescription(model).doPairs
+                } else {
+                    var goPairwise = false
+                }
+                showMenuItemsIf("divPairwiseMinimaps",  goPairwise)
+            }
+        }
+        self.choose = new ButtonGroup({
+            label: "Ballot Type for New Method",
+            width: bw(4),
+            data: self.list,
+            onChoose: self.onChoose,
+        });
+        self.select = function() {
+            self.choose.highlight("value", config.createBallotType);
+        }
+    }
+
+
     ui.menu.scoreFirstStrategy = new function() { // just filling in firstStrategy with a limited set
         var self = this
         self.list = [
@@ -3713,6 +3912,8 @@ function menu(ui,model,config,initialConfig, cConfig) {
                     74: "useBeatMapForRankedBallotViz",
                     75: "centerPollThreshold",
                     76: "doMedianDistViz",
+                    77: "createStrategyType",
+                    78: "createBallotType",
                 },
             }
         ]
@@ -5788,6 +5989,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
                 "Top Two",
                 "IRV",
                 "STV",
+                "Create",
             ],
             pair: [
                 "Minimax",
@@ -5798,6 +6000,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
                 "3-2-1",
                 "RBVote",
                 "QuotaMinimax",
+                "Create",
             ],
             score: [
                 "Approval",
@@ -5811,6 +6014,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
                 "QuotaScore",
                 "PhragmenMax",
                 "equalFacilityLocation",
+                "Create",
             ]
         }
         includeOnlyIf = {
@@ -5830,6 +6034,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
                 "QuotaScore",
                 "PhragmenMax",
                 "equalFacilityLocation",
+                "Create",
             ]
         }
 
@@ -5859,6 +6064,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             "QuotaScore",
             "PhragmenMax",
             "equalFacilityLocation",
+            "Create",
         ]
         
         // helper
@@ -6036,6 +6242,14 @@ function menu(ui,model,config,initialConfig, cConfig) {
             }
         }
     }
+
+    function displayNoneIf(dom,condition) {
+        if (condition) {
+            _addClass(dom,"displayNoneClass")
+        } else {
+            _removeClass(dom,"displayNoneClass")
+        }
+    }
 }
 
 function createMenu(ui) {
@@ -6122,6 +6336,11 @@ function createMenu(ui) {
             "systems", // start of normal list
             [ "divRBVote", [
                 "rbSystems",
+            ]],
+            [ "divCreate", [
+                "loadCode",
+                "createStrategyType",
+                "createBallotType",
             ]],
             "dimensions",
             "nDistricts",
@@ -6256,6 +6475,11 @@ function createMenu(ui) {
                     "systems",
                     [ "divRBVote", [
                         "rbSystems",
+                    ]],
+                    [ "divCreate", [
+                        "loadCode",
+                        "createStrategyType",
+                        "createBallotType",
                     ]],
                     ["divSeats", [
                         "seats",
@@ -6497,7 +6721,7 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
         var descText = ui.dom.descText
         descText.id = "description_text";
 
-        containText = document.createElement("div");
+        var containText = document.createElement("div");
         containText.id = "double_description_container";
         descDOM.appendChild(containText);
         containText.appendChild(descText);
@@ -6526,14 +6750,65 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
         self.text.dom = descText
     }
 
+    ui.arena.codeEditor = new function() { // Create a description up top
+        var self = this
+        var codeEditorDOM = document.createElement("div");
+        codeEditorDOM.id = "codeEditorText_container";
+        ui.dom.basediv.appendChild(codeEditorDOM);
+        ui.dom.codeEditorText = document.createElement("textarea");
+        var codeEditorText = ui.dom.codeEditorText
+        codeEditorText.id = "codeEditorText";
+
+        var containText = document.createElement("div");
+        containText.id = "double_codeEditorText_container";
+        codeEditorDOM.appendChild(containText);
+        containText.appendChild(codeEditorText);
+        ui.dom.codeMirror = CodeMirror.fromTextArea(ui.dom.codeEditorText, {lineNumbers: true, mode: "javascript", autorefresh: true}) // https://stackoverflow.com/a/42619796
+		// yay.
+		self.init_sandbox = function() {
+            ui.dom.codeMirror.setValue(initialConfig.codeEditorText)
+            setTimeout( () => ui.dom.codeMirror.refresh() , 30);
+
+            model.codeEditorText = initialConfig.codeEditorText
+		}
+        self.configure = function () {
+            
+            codeEditorText.placeholder = Election.defaultCodeScore
+        }
+        self.dom = codeEditorDOM
+        self.text = {}
+        self.text.dom = codeEditorText
+    }
+
+    ui.arena.codeSave = new function() { // Create a "save" button for code
+        var self = this
+        var codeSaveDOM = document.createElement("div");
+        codeSaveDOM.className = "codeSave";
+        codeSaveDOM.innerHTML = "Save Code";
+        codeSaveDOM.onclick = function(){
+
+            ui.arena.save.dom.onclick()
+
+            // Open a new page in the background with the saved code and configuration            
+            // window.open(ui.arena.save.link, '_blank');
+            // window.focus();
+
+            // rerun the election
+            model.codeEditorText = config.codeEditorText
+            model.update()
+            
+        };
+        ui.dom.basediv.appendChild(codeSaveDOM);
+        self.dom = codeSaveDOM
+    }
 
     ui.updateConfig = function() {
         // UPDATE CONFIG //
         var pos = savePositions()  // saves the candidate and voter positions in the config.
         for (i in pos) config[i] = pos[i]  // for some weird reason config doesn't have the correct positions, hope i'm not introducing a bug
         // Description
-        var description = ui.dom.descText || {value:""};
-        config.description = description.value;
+        config.description = ui.dom.descText.value || "";
+        config.codeEditorText = ui.dom.codeMirror.getValue() || "";
     }
 
     ui.arena.save = new function() { // Create a "save" button
@@ -6556,12 +6831,12 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
                 embedLink.innerHTML = "&lt;embed&gt;";
             }
             
-            var linkText = ui.dom.linkText
-            linkText.value = "saving...";
+            self.link = newURLs.link
+
+            ui.dom.linkText.value = "saving...";
             setTimeout(function(){
-                linkText.value = newURLs.linkText;
+                ui.dom.linkText.value = newURLs.linkText;
             },750);
-            
 
         };
         ui.dom.center.appendChild(saveDOM);
@@ -6605,6 +6880,13 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
                 1:"[type a description for your model here. for example...]\n\nLook, it's the whole shape gang! Steven Square, Tracy Triangle, Henry Hexagon, Percival Pentagon, and last but not least, Bob.",
             },
             field: "description"
+        },
+        {
+            decode:{
+                0:"",
+                1:Election.defaultCodeScore,
+            },
+            field: "codeEditorText"
         },
         {
             field: "hidegearconfig",

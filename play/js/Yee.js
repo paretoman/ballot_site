@@ -22,7 +22,11 @@ function Viz(model) {
 		
 		// calculate yee if its turned on and we haven't already calculated it ( we aren't dragging the yee object)
 		 if (model.yeeon) {
-			 if (model.yeeobject != undefined && (model.arena.mouse.dragging === model.yeeobject || model.tarena.mouse.dragging === model.yeeobject)) {
+			 var draggingYeeObject = model.yeeobject != undefined && (model.arena.mouse.dragging === model.yeeobject || model.tarena.mouse.dragging === model.yeeobject)
+			 var voterCenterIsYeeObject = model.yeeobject != undefined && model.voterCenter === model.yeeobject
+			 var onlyOneVoterGroup = model.voterGroups.length == 1
+			 var draggingVoterGroup = (model.arena.mouse.dragging && model.arena.mouse.dragging.isVoter) || (model.tarena.mouse.dragging && model.tarena.mouse.dragging.isVoter)
+			 if (draggingYeeObject || (voterCenterIsYeeObject && onlyOneVoterGroup && draggingVoterGroup)) {
 				 // dragging the yee object, so no need to recalculate, we can save time...
 				 // unless we wanted to calculate one of these:
 				 if (model.kindayee == 'newcan') {

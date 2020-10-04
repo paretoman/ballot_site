@@ -111,6 +111,9 @@ function Model(idModel){
 		centerPollThreshold: .5,
 		howBadlyDefeatedThreshold: 1.1,
 		doTallyChart: true,
+        codeEditorText: Election.defaultCodeScore,
+		createStrategyType: "score",
+		createBallotType: "Score",
 	})
 	
 	self.viz = new Viz(self);
@@ -2779,6 +2782,8 @@ _pileVoters = function(model) {
 							back -= gaussian( x , o.x-v.x , stdev[k] ) * amplitude[k]
 						} else if (o.crowdShape == "rectangles") {
 							back -= step( x , o.x-v.x , halfwidth[k] ) * amplitude[k]
+						} else if (o.isSingleVoter) {
+							// skip... ideally, single voters shouldn't have o.disk specified
 						} else if (o.disk) {
 							if (!o.snowman && o.disk==3 && o.crowdShape != "circles") {
 								back -= gaussian( x , o.x-v.x , stdev[k] ) * amplitude[k]

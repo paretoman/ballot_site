@@ -3670,7 +3670,6 @@ function _fillVoterDefaults(self) {
 
 	_fillInDefaults(self,{ 
 		// FIRST group in expVoterPositionsAndDistributions
-		disk: 3,
 		vid: 0,
 		snowman: false,
 		x_voters: false,
@@ -3695,6 +3694,7 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 	VoterCrowd.call(self,model)
 	self.isGaussianVoters = true
 	self.voterGroupType = "GaussianVoters"
+	self.disk = 3
 	self.size = 30
 	
 	self.init = function() {

@@ -69,6 +69,16 @@ Election.score = function(district, model, options){
 	return result;
 };
 
+Election.defaultCodeScore = Election.score.toString()
+
+Election.create = function(district, model, options){
+	var code = model.codeEditorText
+	var wrappedCode = "(function(district, model, options) { return (" + code + ")(district, model, options) })(district, model, options)"; // code that will return a reference to the function typed by the user
+	var wrappedCode = "(" + code + ")(district, model, options)"; // code that will return a reference to the function typed by the user
+  
+	return eval(wrappedCode); 
+};
+
 function tallyChart(tally,cans,model,maxscore,nballots,opt) {
 
 	opt = opt || {}

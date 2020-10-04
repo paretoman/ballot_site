@@ -82,6 +82,7 @@ DAT RESET BUTTON
 
 #reset,
 .demonstrate,
+.codeSave,
 #save{
 	display: inline-block;
 	cursor: pointer;
@@ -105,9 +106,16 @@ DAT RESET BUTTON
     transition: all 0.1s;
 }
 
+.codeSave{
+    margin-bottom: 10px;
+}
+
 #reset,
 #save{
 	width: 100px;
+}
+.codeSave{
+	width: 200px;
 }
 .demonstrate{
 	width: 240px;
@@ -116,6 +124,7 @@ DAT RESET BUTTON
 
 #reset:hover,
 .demonstrate:hover,
+.codeSave:hover,
  #save:hover{
 	margin-top:-2px;
 	background: #bbb;
@@ -123,6 +132,7 @@ DAT RESET BUTTON
 }
 #reset:active,
 .demonstrate:active,
+.codeSave:active,
 #save:active{
 	margin-top:2px;
 	background: #999;
