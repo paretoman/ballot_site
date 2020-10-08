@@ -144,23 +144,29 @@ function sandbox(ui) {
         
         // INIT
         // Read in the config file.
-        cConfig.setConfig()
-        
-        // UPDATE SANDBOX
-        ui.menu.theme.init_sandbox();
-        _objF(ui.arena,"update")
-        model.initPlugin();  // this wants to set ui.menu.item.dom.hidden
+        cConfig.loadUrl(afterLoadUrl)
 
-        ui.initButtons() // for those buttons that depend on the model, like the yeefilter buttons
-        _objF(ui.menu,"select");
-        
-        // run some extra stuff specified by the preset
-        if (ui.preset.update) {
-            ui.preset.update()
+        function afterLoadUrl(urlData) {
+
+            cConfig.setConfig(urlData)
+
+            // UPDATE SANDBOX
+            ui.menu.theme.init_sandbox();
+            _objF(ui.arena,"update")
+            model.initPlugin();  // this wants to set ui.menu.item.dom.hidden
+    
+            ui.initButtons() // for those buttons that depend on the model, like the yeefilter buttons
+            _objF(ui.menu,"select");
+            
+            // run some extra stuff specified by the preset
+            if (ui.preset.update) {
+                ui.preset.update()
+            }
+    
+    
+            model.update()
+
         }
-
-
-        model.update()
     }; 
     l.load(sandbox.assets)
     // use loader to save on bandwidth
@@ -498,6 +504,7 @@ function bindModel(ui,model,config) {
         ui.dom.sankey.id = "chart"
         ui.dom.sankey.innerHTML = '<div style="text-align:center;"><span class="small" > Sankey Diagram </span></div>'
 
+        var noSankeys = true
 
         for (var district of model.district) {
 
@@ -545,6 +552,10 @@ function bindModel(ui,model,config) {
 
             var dataSankey = getDataSankey(district)
             // var dataSankey = getEnergyData()
+
+            var noLinks = dataSankey.links.length == 0
+            if (noLinks) continue
+            noSankeys = false
 
             sankey
                 .nodes(dataSankey.nodes)
@@ -727,8 +738,9 @@ function bindModel(ui,model,config) {
                 return data
             }
 
-            
         }
+        
+        if (noSankeys) ui.dom.sankey.remove()
 
     };
 
@@ -862,15 +874,52 @@ function Config(ui, config, initialConfig) {
     // HOWTO: add to the end here (or anywhere inside)
 
 
-    self.setConfig = function() {
-        var c = ui.preset.config
-        // INIT - initialize all data structures
-        // the data structure for a sandbox is the configuration of the model.  Init completes this data structures.
-        // backwards compatibility
-        // the data structure for a model is model.<property>
+    self.loadUrl = function(afterLoadUrl) {
+
         if (ui.url != undefined) {
             var modelData = _getParameterByName("m",ui.url);
             if (ui.tryNewURL) var version = _getParameterByName("v",ui.url);
+            if (modelData === null) {
+                var shortCode = _getParameterByName("u",ui.url)
+                if (shortCode !== null) {
+                    // get request
+                    // var listShortLinkUrl = "https://spreadsheets.google.com/tq?&tq=&key=12TYpTVx6WgyNzUTBvXUPLBdplk9Hi1MJVMkGskyh5cs"
+                    // var listShortLinkUrl = "https://spreadsheets.google.com/feeds/list/12TYpTVx6WgyNzUTBvXUPLBdplk9Hi1MJVMkGskyh5cs/1/public/values?alt=json"
+                    var listShortLinkUrl = "https://spreadsheets.google.com/feeds/list/12TYpTVx6WgyNzUTBvXUPLBdplk9Hi1MJVMkGskyh5cs/1/public/values?alt=json&sq=shortcode=" + shortCode
+                    // _ajax.get(listShortLinkUrl, {}, function(res) {
+                    _getRequest(listShortLinkUrl, function(res) {
+                        // do the load config again, basically
+                        var resObj = JSON.parse(res)
+
+                        // example, the third shortcode: resObj.feed.entry[2].gsx$shortcode.$t
+
+                        var rows = resObj.feed.entry
+                        // search rows for shortcode
+                        var row = rows.filter( r => r.gsx$shortcode.$t === shortCode)
+                        // get the url
+                        var codedUrl = row[0].gsx$link.$t
+
+
+                        // first try
+                        // var rows = resObj.table.rows
+                        // // search rows for shortcode
+                        // var row = rows.filter( r => r.c[0].v === shortCode)
+                        // // get the url
+                        // var codedUrl = row[0].c[1].v
+
+                        ui.url = codedUrl
+
+                        var modelData = _getParameterByName("m",ui.url);
+                        if (ui.tryNewURL) var version = _getParameterByName("v",ui.url);
+
+                        var urlData = {modelData:modelData, version:version}
+                        afterLoadUrl(urlData)
+
+                    })
+                    return
+
+                }
+            }
         }
         function _getParameterByName(name,url){
             name = name.replace(/[\[\]]/g, "\\$&");
@@ -880,6 +929,23 @@ function Config(ui, config, initialConfig) {
             if (!results[2]) return '';
             return decodeURIComponent(results[2].replace(/\+/g, " ")).replace("}/","}"); //not sure how that / got there.
         };
+        
+        var urlData = {modelData:modelData, version:version}
+        afterLoadUrl(urlData)
+        return
+    }
+    
+    self.setConfig = function(urlData) {
+
+        var modelData = urlData.modelData
+        var version = urlData.version
+
+        var c = ui.preset.config
+        // INIT - initialize all data structures
+        // the data structure for a sandbox is the configuration of the model.  Init completes this data structures.
+        // backwards compatibility
+        // the data structure for a model is model.<property>
+
         if(modelData){
             if (ui.tryNewURL) {
                 if (version) { 
@@ -1288,10 +1354,14 @@ function Config(ui, config, initialConfig) {
         } else {
             var linkText = link
         }
+
+        // var shortCode = _randAlphaNum(7)
+        var shortCode = _hashCode(link)
+        var shortLink = baseUrl + "/sandbox/?v=" + config.configversion + "&u=" + shortCode
         
         console.log("(Link length is ",linkText.length,")")
         console.log("")
-        return {link:link, linkText:linkText}
+        return {link:link, linkText:linkText, shortCode:shortCode, shortLink:shortLink}
     };
 
     var console_out = function (log){
@@ -2001,7 +2071,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             showMenuItemsIf("divCreate", ! hideCodeEditor)
             setTimeout( () => ui.dom.codeMirror.refresh() , 30);
 
-            displayNoneIf(ui.arena.codeSave.dom, hideCodeEditor)
+            _displayNoneIf(ui.arena.codeSave.dom, hideCodeEditor)
             ui.arena.codeEditor.dom.hidden = hideCodeEditor
             // ui.arena.codeSave.dom.hidden = hideCodeEditor
             
@@ -6243,13 +6313,6 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
     }
 
-    function displayNoneIf(dom,condition) {
-        if (condition) {
-            _addClass(dom,"displayNoneClass")
-        } else {
-            _removeClass(dom,"displayNoneClass")
-        }
-    }
 }
 
 function createMenu(ui) {
@@ -6813,10 +6876,10 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
 
     ui.arena.save = new function() { // Create a "save" button
         var self = this
-        var saveDOM = document.createElement("div");
-        saveDOM.id = "save";
-        saveDOM.innerHTML = "save:";
-        saveDOM.onclick = function(){
+        self.dom = document.createElement("div");
+        self.dom.id = "save";
+        self.dom.innerHTML = "save:";
+        self.dom.onclick = function(){
             // UPDATE CONFIG //
             // config.sandboxsave = true // this seems to fix a bug
             ui.updateConfig()
@@ -6832,15 +6895,25 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
             }
             
             self.link = newURLs.link
+            self.shortCode = newURLs.shortCode
+            self.shortLink = newURLs.shortLink
 
             ui.dom.linkText.value = "saving...";
             setTimeout(function(){
                 ui.dom.linkText.value = newURLs.linkText;
             },750);
 
+            ui.arena.shortLink.dom.hidden = true
+            // ui.arena.saveShortLink.dom.hidden = false
+            _displayNoneIf(ui.arena.saveShortLink.dom,false)
+
+            ui.arena.shortLink.dom.value = "saving...";
+            setTimeout(function(){
+                ui.arena.shortLink.dom.value = newURLs.shortLink;
+            },750);
+
         };
-        ui.dom.center.appendChild(saveDOM);
-        self.dom = saveDOM
+        ui.dom.center.appendChild(self.dom);
     }
 
 
@@ -6870,6 +6943,53 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
     embedLink.onclick = function(){
         ui.embed = ! ui.embed
         ui.arena.save.dom.onclick()
+    }
+
+    var shortLinkDatabaseUrl = 'https://script.google.com/macros/s/AKfycbzMf0eb8jFTPnM7X83RIZwYN783E-xKt0M6RmgI-0AO2yf8BKb3/exec'
+    ui.arena.saveShortLink = new function() { // Create a "save" button
+        var self = this
+        self.dom = document.createElement("div");
+        self.dom.id = "save"; // todo: make into className
+        self.dom.innerHTML = "publish:";
+        // self.dom.hidden = true
+        _displayNoneIf(self.dom,true)
+        self.dom.onclick = function(e){
+
+            ui.arena.save.dom.onclick()
+
+            ui.arena.shortLink.dom.hidden = false
+
+            e.preventDefault();
+    
+            _ajax.get(shortLinkDatabaseUrl, {shortcode: ui.arena.save.shortCode, link: ui.arena.save.link}, function(res) {
+                
+                // extra stuff to handle errors
+
+                if (res != '') {
+                    var resObj = JSON.parse(res)    
+                    if (resObj.result == "success") {
+                        return // silent
+                    }
+                }
+                window.alert("Bad. The link didn't publish. The short link won't work.")
+                ui.arena.shortLink.dom.hidden = true
+                return // alert
+            })
+        }
+        ui.dom.center.appendChild(self.dom);
+    }
+
+    ui.arena.shortLink = new function() { // The share link textbox
+        var self = this
+        self.dom = document.createElement("input");
+        self.dom.hidden = true
+        self.dom.id = "savelink"; // todo: change to className
+        self.dom.placeholder = "[when you save your model, a link you can copy will show up here]";
+        self.dom.setAttribute("readonly", true);
+        self.dom.onclick = function(){
+            self.dom.select();
+        };
+        ui.dom.center.appendChild(self.dom);
     }
 
     // additional codebooks

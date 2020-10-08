@@ -511,7 +511,13 @@ function sandbox(ui){
 			// Put it in the save link box!
 			var getUrl = window.location;
 			var baseUrl = getUrl.protocol + "//" + getUrl.host; //http://ncase.me/ballot
-			var link = baseUrl + "/sandbox/?m="+uri;
+			var restofurl = getUrl.pathname.split('/')
+			for (var i=1; i < restofurl.length - 1; i++) { //  /ballot/
+				if (restofurl[i] != "sandbox") {
+					baseUrl += "/" + restofurl[i];
+				}
+			}
+			var link = baseUrl + "/sandbox/original?m="+uri;
 			var savelink = basediv.querySelector("#savelink");
 			savelink.value = "saving...";
 			setTimeout(function(){

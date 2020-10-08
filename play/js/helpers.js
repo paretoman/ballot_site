@@ -156,6 +156,30 @@ function _rand5() {
 	return Math.round(100000 * Math.random())
 }
 
+function _randomString(length, chars) { // https://stackoverflow.com/a/10727155
+    var result = '';
+    for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
+    return result;
+}
+
+function _randAlphaNum(n) {
+	return _randomString(n, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+}
+
+function _hashCode(s) { // https://stackoverflow.com/a/7616484
+	var hash = 0, i, chr;
+	for (i = 0; i < s.length; i++) {
+		chr   = s.charCodeAt(i);
+		hash  = ((hash << 5) - hash) + chr;
+		hash |= 0; // Convert to 32bit integer
+	}
+
+	// I will only use non-negative integers because it might be easier. 
+	// So basically, I'm setting the first bit to 0.
+	var half = 2147483648 
+	return (hash + half) % half;
+}
+
 
 function _convertImageToDataURLviaCanvas(img, outputFormat){
 	var canvas = document.createElement('CANVAS');
@@ -234,6 +258,14 @@ function _addClass(element,name) {
 	element.className = element.className + " " + name
 }
 
+function _displayNoneIf(dom,condition) {
+    if (condition) {
+        _addClass(dom,"displayNoneClass")
+    } else {
+        _removeClass(dom,"displayNoneClass")
+    }
+}
+
 function _isEquivalent(a, b) {
     // Create arrays of property names
     var aProps = Object.getOwnPropertyNames(a);
@@ -258,4 +290,68 @@ function _isEquivalent(a, b) {
     // If we made it this far, objects
     // are considered equivalent
     return true;
+}
+
+
+var _ajax = {};  // https://stackoverflow.com/a/18078705
+
+_ajax.x = function () {
+	if (typeof XMLHttpRequest !== 'undefined') {
+		return new XMLHttpRequest();
+	}
+	var versions = [
+		"MSXML2.XmlHttp.6.0",
+		"MSXML2.XmlHttp.5.0",
+		"MSXML2.XmlHttp.4.0",
+		"MSXML2.XmlHttp.3.0",
+		"MSXML2.XmlHttp.2.0",
+		"Microsoft.XmlHttp"
+	];
+
+	var xhr;
+	for (var i = 0; i < versions.length; i++) {
+		try {
+			xhr = new ActiveXObject(versions[i]);
+			break;
+		} catch (e) {
+		}
+	}
+	return xhr;
+};
+
+_ajax.send = function (url, callback, method, data, async) {
+	if (async === undefined) {
+		async = true;
+	}
+	var x = _ajax.x();
+	x.open(method, url, async);
+	x.onreadystatechange = function () {
+		if (x.readyState == 4) {
+			callback(x.responseText)
+		}
+	};
+	if (method == 'POST') {
+		x.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+	}
+	x.send(data)
+};
+
+_ajax.get = function (url, data, callback, async) {
+	var query = [];
+	for (var key in data) {
+		query.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
+	}
+	_ajax.send(url + (query.length ? '?' + query.join('&') : ''), callback, 'GET', null, async)
+};
+
+function _getRequest(url, callback) {
+	const Http = new XMLHttpRequest();
+	Http.open("GET", url);
+	Http.send();
+	
+	Http.onreadystatechange = function(e) {
+		if (Http.readyState == 4) {
+			callback(Http.responseText)
+		}
+	}
 }
