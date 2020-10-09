@@ -3514,7 +3514,7 @@ function VoterSet(model) {
 						v.b[n] = ballot[id] || 0
 					}
 					vs.push(v)
-				} else if (model.ballotType == "Ranked" && model.system == "STV") {
+				} else if (model.ballotType == "Ranked") {
 					var ballot = ballots[k]
 					for (var n=0; n<ballot.rank.length; n++) {
 						var cid = ballot.rank[n]

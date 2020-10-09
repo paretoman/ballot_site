@@ -327,14 +327,45 @@ function Model(idModel){
 		if (self.checkDoSort()) // find order of voters
 		{
 			var v = self.voterSet.getVoterArray()
-			if (self.system == "STV") {
-				for (var voter of v) {
-					var newb = []
-					for (var [r,c] of Object.entries(voter.b)) {
-						newb[c] = r
-					}
-					voter.b = newb
+			for (var i = 0; i < v.length; i++) {
+				v[i].i = i
+			}
+			// if (self.system == "STV") {
+			// 	for (var voter of v) {
+			// 		var newb = []
+			// 		for (var [r,c] of Object.entries(voter.b)) {
+			// 			newb[c] = r
+			// 		}
+			// 		voter.b = newb
+			// 	}
+			// }
+			for (var i = 0; i < v.length; i++) {
+				if (self.ballotType == "Ranked") {
+					v[i].b = pairList(v[i].b)
 				}
+			}
+			function pairList(b) {
+				var p = []
+				for (var i = 0; i < b.length; i++ ) {
+					p[b[i]] = []
+					for (var j = 0; j < i; j ++) {
+						var weight = b.length - j // set to 1 maybe
+						var weight = 1
+						p[b[i]][b[j]] = weight // set all beats to 1
+					}
+				}
+				var pairs = []
+				for (var i = 0; i < b.length; i++ ) {
+					for (var j = 0; j < b.length; j ++) {
+						if (p[i][j]) {
+							pairs.push(p[i][j])
+						} else {
+							pairs.push(0)
+						}
+					}
+				}
+				return pairs
+				
 			}
 			if (v.length > 0) {
 				if (self.dimensions == "1D+B" || self.dimensions == "1D") {
@@ -347,9 +378,21 @@ function Model(idModel){
 					var draggingSomething = (self.arena.mouse.dragging || self.tarena.mouse.dragging)
 					var changedNumVoters = (self.orderOfVoters != undefined) && (self.orderOfVoters.length != v.length)
 					if (changedNumVoters || !draggingSomething ) {
-						var tsp = new TravelingSalesman(); 
-						tsp.runOnSet(v)
-						var order = tsp.getOrder()
+						var algorithmForTSP = 2
+						if (algorithmForTSP == 2) {
+							var bWeight = 739
+							var nodeDist2 = (m,n) => (m.x - n.x) ** 2 + (m.y - n.y) ** 2 + euclidian2(m.b, n.b) * bWeight * bWeight
+							function euclidian2(a, b) {
+							  return a.map((_, i) => (a[i] - b[i]) ** 2).reduce((a, b) => a + b); // sum of squares of differences
+							}
+							var out = order_by_distance(v,nodeDist2, {crossover: true, points: true})
+							// var branches = makeBranches(out)
+							var order = out.map(x => x.i)
+						} else {
+							var tsp = new TravelingSalesman(); 
+							tsp.runOnSet(v)
+							var order = tsp.getOrder()
+						}
 						self.orderOfVoters  = order
 	
 					}
