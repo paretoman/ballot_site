@@ -385,8 +385,11 @@ function Model(idModel){
 							function euclidian2(a, b) {
 							  return a.map((_, i) => (a[i] - b[i]) ** 2).reduce((a, b) => a + b); // sum of squares of differences
 							}
-							var out = order_by_distance(v,nodeDist2, {crossover: true, points: true})
-							// var branches = makeBranches(out)
+							if (v.length > 2) {
+								var out = order_by_distance(v,nodeDist2, {crossover: true, points: true})
+							} else {
+								var out = v
+							}
 							var order = out.map(x => x.i)
 						} else {
 							var tsp = new TravelingSalesman(); 
