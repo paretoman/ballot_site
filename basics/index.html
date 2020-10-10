@@ -9,21 +9,21 @@
     
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge"><!-- Begin Jekyll SEO tag v2.6.1 -->
-<title>Home | Smart Voting Simulator</title>
+<title>The Basics | Smart Voting Simulator</title>
 <meta name="generator" content="Jekyll v3.8.7" />
-<meta property="og:title" content="Home" />
+<meta property="og:title" content="The Basics" />
 <meta name="author" content="Paretoman" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="An Explorable Guide to Group Decision Making" />
 <meta property="og:description" content="An Explorable Guide to Group Decision Making" />
-<link rel="canonical" href="https://paretoman.github.io/" />
-<meta property="og:url" content="https://paretoman.github.io/" />
+<link rel="canonical" href="https://paretoman.github.io/basics/" />
+<meta property="og:url" content="https://paretoman.github.io/basics/" />
 <meta property="og:site_name" content="Smart Voting Simulator" />
 <script type="application/ld+json">
-{"headline":"Home","@type":"WebSite","url":"https://paretoman.github.io/","name":"Smart Voting Simulator","author":{"@type":"Person","name":"Paretoman"},"description":"An Explorable Guide to Group Decision Making","@context":"https://schema.org"}</script>
+{"headline":"The Basics","@type":"WebPage","url":"https://paretoman.github.io/basics/","author":{"@type":"Person","name":"Paretoman"},"description":"An Explorable Guide to Group Decision Making","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <!-- <link rel="stylesheet" href="/assets/css/style.css"> --><link type="application/atom+xml" rel="alternate" href="https://paretoman.github.io/feed.xml" title="Smart Voting Simulator" />
-    <title>Home</title>
+    <title>The Basics</title>
     
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
@@ -33,14 +33,14 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, min-width=380">
     
     <!-- Schema.org markup for Google+ -->
-    <meta itemprop="name" content="Home">
+    <meta itemprop="name" content="The Basics">
     <meta itemprop="description" content="An Explorable Guide to Group Decision Making">
     <meta itemprop="image" content="https://paretoman.github.io//social/thumbnail.png">
 
     <!-- Twitter Card data -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@paretoman1">
-    <meta name="twitter:title" content="Home">
+    <meta name="twitter:title" content="The Basics">
     <meta name="twitter:description" content="An Explorable Guide to Group Decision Making">
     <meta name="twitter:creator" content="@paretoman1">
     <meta name="twitter:image" content="https://paretoman.github.io//social/thumbnail.png">
@@ -127,13 +127,13 @@
           
             
               
-                <a class="page-link current" href=".">Home</a>
+                <a class="page-link" href=".">Home</a>
               
             
           
             
               
-                <a class="page-link" href="basics">Basics</a>
+                <a class="page-link current" href="basics">Basics</a>
               
             
           
@@ -225,7 +225,7 @@
 	
 
 	<div class="banner">
-		<h1>Smart Voting Simulator</h1>
+		<h1>The Basics</h1>
 		<p>An Explorable Guide to Group Decision Making</p><p>
 		
 			By Paretoman and Contributors, May 2020
@@ -235,25 +235,81 @@
     <div id="content">
         <div class="words">
             
-<p>This is the home of the Smart Voting Simulator, a great resource to learn how voting methods work, visually and interactively.</p>
+<p>Take a look at this great interactive sketch that Nicky Case made. You have two candidates <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> and you have a voter <img src="play/img/voter.png" /> . Just move the voter and you’ll see that he is just gonna vote for whoever he’s closest to.</p>
 
-<p>You’ll really enjoy this site if you feel like there’s got to be a smarter way to vote than what we’re doing right now.</p>
+<div class="sim-intro">
+	<div class="sim-container">
+		<p class="caption" style="margin-top:30px">
+			<b><span style="font-size:2.5em;">click &amp; drag</span><br />the candidates and the voter:</b>
+		</p>
+		<div id="model1" class="div-model">
+		</div>
+		<script src="play/js/model1.js">
+		</script>
+		
+		<div>
+			<div class="demonstrate" onclick="var x = document.getElementById('img_model1'); x.hidden = ! x.hidden;">Demonstrate</div>
+		</div>
+		<div>
+			<img class="gif_show" src="gif/model1.gif" id="img_model1" hidden="true" />
+		</div>
+		
+	</div>
 
-<h2 id="intro">Intro</h2>
-
-<div class="card">
-<a href="basics">
-    <div>
-        <img class="drawBorder" src="img/basics.png" />
-        <div>
-            The Basics
-            <span>
-                 - #1 - Start here. See the 2D model we use for this site.
-            </span>
-        </div>
-    </div>
-</a>
 </div>
+
+<p>You can add more voters and see that you kinda get a sense of how voters are gonna vote as they move around and how an election with those voters would go. Most votes wins.</p>
+
+<div class="sim-intro">
+	<div class="sim-container">
+		<p class="caption" style="margin-top:30px">
+			<b>drag the candidates &amp; voter<span class="underline">s</span> around.<br />(to move voters, drag the <em>middle</em> of the crowd)<br />watch how that changes the election:</b>
+		</p>
+		<div id="model2" class="div-model">
+		</div>
+		<script src="play/js/model2.js">
+		</script>
+		
+		<div>
+			<div class="demonstrate" onclick="var x = document.getElementById('img_model2'); x.hidden = ! x.hidden;">Demonstrate</div>
+		</div>
+		<div>
+			<img class="gif_show" src="gif/model2.gif" id="img_model2" hidden="true" />
+		</div>
+		
+	</div>
+
+</div>
+
+<p>In this kind of voting, you get a single choice for who you want to win. The ballot is pretty simple. This is the way the ballot is now.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Single Choice Voting</h2>
+        <p class="ballot_caption">Also called First Past the Post.
+        
+        </p>
+        
+        
+        <script id="ballotSingle">
+            sandbox({idScript:"ballotSingle",link:"[link](http://127.0.0.1:8000/sandbox/?v=2.5&m=H4sIAAAAAAAAA3VRQWrEMAz8i84-RLZkJzn3AT30FnLYdlMaCNllN0tZSvv2Sp4WCiUEIsmSxjPjD2qoH4aSA0sZw8DKlollkT3TcQzEPsKlDdy2Xifqm0BS_0o9B8o20YR_n82W3U672-l2O9zUS9kZeRlRghCDEStCrszYCLBYtOuSha42o-HYYeQ6EyMCYKKg0roQMw4LqhaVoUTzoalE2S0BUgJSAlICUjKkwczEYMYq8BKkcojWEofzGXF5Llfib2KAQ_JE6p78hRQolYJnAUXp6qHCMGUE0FPQ058XxBMqhGqp_BR2KYTmBgEiM1zPQMlaJTi5DIgMBhlWFzAo2C2xIj0fluW0Pd3PE_X0uNwuh2Xe7hTo-nZ6f5iuL5f5vM2n1bpft_U4vc7rdKTPbxSiHLmuAgAA)"})
+        </script>
+        
+		
+		<div>
+			<div class="demonstrate" onclick="var x = document.getElementById('img_ballotSingle'); x.hidden = ! x.hidden;">Demonstrate</div>
+		</div>
+		<div>
+			<img class="gif_show" src="gif/ballotSingle.gif" id="img_ballotSingle" hidden="true" />
+		</div>
+		
+    </div>
+
+</div>
+
+<p>That’s the end of <strong>The Basics</strong>.</p>
+
+<p>Why do we vote this way? Why do we even vote? In the next part, I’m going to explain voting as a way to find common ground as a group.</p>
 
 <div class="card">
 <a href="commonground">
@@ -262,156 +318,16 @@
         <div>
             Finding Common Ground
             <span>
-                 - #2 - Why do we vote? To make smarter group decisions.
+                 - Click here next.
             </span>
         </div>
     </div>
 </a>
 </div>
-
-<h2 id="in-depth">In Depth</h2>
-
-<div class="card">
-<a href="condorcet">
-    <div>
-        <img class="" src="img/condorcet.png" />
-        <div>
-            Condorcet Methods
-            <span>
-                 - the best way to find common ground
-            </span>
-        </div>
-    </div>
-</a>
-</div>
-
-<div class="card">
-<a href="approval">
-    <div>
-        <img class="" src="img/winner-circle.png" />
-        <div>
-            Approval Voting
-            <span>
-                 - a practical improvement - And it works with strategy.
-            </span>
-        </div>
-    </div>
-</a>
-</div>
-
-<div class="card">
-<a href="star">
-    <div>
-        <img class="" src="img/chicken.png" />
-        <div>
-            STAR Voting
-            <span>
-                 - and a deeper dive into using strategy and the game of chicken.
-            </span>
-        </div>
-    </div>
-</a>
-</div>
-
-<div class="card">
-<a href="irv">
-    <div>
-        <img class="drawBorder" src="img/irv.png" />
-        <div>
-            Instant Runoff Voting
-            <span>
-                 - a kinder politics with a kind of Ranked Choice Voting (RCV) for single-winner elections
-            </span>
-        </div>
-    </div>
-</a>
-</div>
-
-<div class="card">
-<a href="stv">
-    <div>
-        <img class="drawBorder" src="img/stv.png" />
-        <div>
-            The Single Transferable Vote
-            <span>
-                 - an introduction to proportional representation with STV, the multi-winner form of Ranked Choice Voting RCV
-            </span>
-        </div>
-    </div>
-</a>
-</div>
-
-<div class="card">
-<a href="proportional">
-    <div>
-        <img class="" src="img/proportional2.png" />
-        <div>
-            Proportional Representation
-            <span>
-                 - Bring the candidates closer to the voters. Continuing after STV, here are more kinds of proportional representation without parties, using scoring and paired methods.
-            </span>
-        </div>
-    </div>
-</a>
-</div>
-
-<div class="card">
-<a href="primaries">
-    <div>
-        <img class="drawBorder" src="img/primary-strategy.png" />
-        <div>
-            Primaries
-            <span>
-                 - They don't always work.
-            </span>
-        </div>
-    </div>
-</a>
-</div>
-
-<h2 id="in-deep">In Deep</h2>
-
-<p>Where to find more information:</p>
-
-<ul>
-  <li><a href="links">Links</a> - I have a big list of links to communities, organizations, simulators, polling sites, courses, videos, essays, books, references, and bibliographies.</li>
-</ul>
-
-<p>Now that you have learned so much, you can try and share your ideas in the sandbox. Also, try the original simulation that this sim was based on.</p>
-
-<div class="card">
-<a href="sandbox/">
-    <div>
-        <img class="" src="img/sandbox.png" />
-        <div>
-            Sandbox
-            <span>
-                 - Try everything. Share your creations.
-            </span>
-        </div>
-    </div>
-</a>
-</div>
-
-<div class="card">
-<a href="original">
-    <div>
-        <img class="drawBorder" src="img/split-vote.png" />
-        <div>
-            To Build a Better Ballot
-            <span>
-                 - Nicky Case's original sim
-            </span>
-        </div>
-    </div>
-</a>
-</div>
-
-<p>Finally, for coders, <a href="modify">here’s technical instructions on how to modify this sim.</a></p>
 
         </div>
            
-    <p id="editnote"><a href="https://github.com/paretoman/ballot/blob/gh-pages/index.md">Edit this page</a>.</p>
+    <p id="editnote"><a href="https://github.com/paretoman/ballot/blob/gh-pages/basics.md">Edit this page</a>.</p>
     
     </div><footer class="site-footer h-card">
   <data class="u-url" href="/"></data>
@@ -443,27 +359,27 @@
 				Share this:
 				<ul class="share-buttons">
                     <li class="reddit">
-                        <a href="http://www.reddit.com/submit?url=https://paretoman.github.io//&title=Smart%20Voting%20Simulator" target="_blank">
+                        <a href="http://www.reddit.com/submit?url=https://paretoman.github.io//basics/&title=The%20Basics" target="_blank">
                             <img height="32" width="32" alt="Post on Reddit" src="/social/reddit.png">
                         </a>
                     </li>
                     <li class="hn">
-                        <a href="http://news.ycombinator.com/submitlink?u=https://paretoman.github.io//&t=Smart%20Voting%20Simulator" target="_blank">
+                        <a href="http://news.ycombinator.com/submitlink?u=https://paretoman.github.io//basics/&t=The%20Basics" target="_blank">
                             <img height="32" width="32" alt="Share on Hacker News" src="/social/ycombinator.png">
                         </a>
                     </li>
                     <li class="twitter">
-                        <a href="https://twitter.com/intent/tweet?via=paretoman1&url=https://paretoman.github.io//&text=Smart%20Voting%20Simulator" target="_blank">
+                        <a href="https://twitter.com/intent/tweet?via=paretoman1&url=https://paretoman.github.io//basics/&text=The%20Basics" target="_blank">
                             <img alt="Tweet" src="/social/Twitter.png">
                         </a>
                     </li>
                     <li class="email">
-                        <a href="mailto:?subject=Smart%20Voting%20Simulator&body=Smart%20Voting%20Simulator:https://paretoman.github.io//" target="_blank" title="Send email">
+                        <a href="mailto:?subject=The%20Basics&body=The%20Basics:https://paretoman.github.io//basics/" target="_blank" title="Send email">
                             <img alt="Send email" src="/social/Email.png">
                         </a>
                     </li>
                     <li>
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://paretoman.github.io//&t=Smart%20Voting%20Simulator" title="Share on Facebook" target="_blank">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://paretoman.github.io//basics/&t=The%20Basics" title="Share on Facebook" target="_blank">
                             <img alt="Share on Facebook" src="/social/Facebook.png">
                         </a>
                     </li>

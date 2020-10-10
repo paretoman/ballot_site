@@ -9,21 +9,21 @@
     
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge"><!-- Begin Jekyll SEO tag v2.6.1 -->
-<title>Home | Smart Voting Simulator</title>
+<title>Quota Methods | Smart Voting Simulator</title>
 <meta name="generator" content="Jekyll v3.8.7" />
-<meta property="og:title" content="Home" />
+<meta property="og:title" content="Quota Methods" />
 <meta name="author" content="Paretoman" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="An Explorable Guide to Group Decision Making" />
-<meta property="og:description" content="An Explorable Guide to Group Decision Making" />
-<link rel="canonical" href="https://paretoman.github.io/" />
-<meta property="og:url" content="https://paretoman.github.io/" />
+<meta name="description" content="An Interactive Guide to Quota Approval Voting and Maybe More" />
+<meta property="og:description" content="An Interactive Guide to Quota Approval Voting and Maybe More" />
+<link rel="canonical" href="https://paretoman.github.io/quotaApproval/" />
+<meta property="og:url" content="https://paretoman.github.io/quotaApproval/" />
 <meta property="og:site_name" content="Smart Voting Simulator" />
 <script type="application/ld+json">
-{"headline":"Home","@type":"WebSite","url":"https://paretoman.github.io/","name":"Smart Voting Simulator","author":{"@type":"Person","name":"Paretoman"},"description":"An Explorable Guide to Group Decision Making","@context":"https://schema.org"}</script>
+{"headline":"Quota Methods","@type":"WebPage","url":"https://paretoman.github.io/quotaApproval/","author":{"@type":"Person","name":"Paretoman"},"description":"An Interactive Guide to Quota Approval Voting and Maybe More","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <!-- <link rel="stylesheet" href="/assets/css/style.css"> --><link type="application/atom+xml" rel="alternate" href="https://paretoman.github.io/feed.xml" title="Smart Voting Simulator" />
-    <title>Home</title>
+    <title>Quota Methods</title>
     
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
@@ -33,15 +33,15 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, min-width=380">
     
     <!-- Schema.org markup for Google+ -->
-    <meta itemprop="name" content="Home">
-    <meta itemprop="description" content="An Explorable Guide to Group Decision Making">
+    <meta itemprop="name" content="Quota Methods">
+    <meta itemprop="description" content="An Interactive Guide to Quota Approval Voting and Maybe More">
     <meta itemprop="image" content="https://paretoman.github.io//social/thumbnail.png">
 
     <!-- Twitter Card data -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@paretoman1">
-    <meta name="twitter:title" content="Home">
-    <meta name="twitter:description" content="An Explorable Guide to Group Decision Making">
+    <meta name="twitter:title" content="Quota Methods">
+    <meta name="twitter:description" content="An Interactive Guide to Quota Approval Voting and Maybe More">
     <meta name="twitter:creator" content="@paretoman1">
     <meta name="twitter:image" content="https://paretoman.github.io//social/thumbnail.png">
 
@@ -127,7 +127,7 @@
           
             
               
-                <a class="page-link current" href=".">Home</a>
+                <a class="page-link" href=".">Home</a>
               
             
           
@@ -219,201 +219,102 @@
         </div>
       </nav></div>
 </header>
-    
+
 	
 	
 	
 
 	<div class="banner">
-		<h1>Smart Voting Simulator</h1>
-		<p>An Explorable Guide to Group Decision Making</p><p>
+		<h1>Multiseat Methods with Quotas</h1>
+		<p>An Interactive Guide to Quota Approval Voting and Maybe More</p><p>
 		
-			By Paretoman and Contributors, May 2020
+			By Paretoman, May 2019
 		
 	</p>
 		<p>Based off Work by Nicky Case</p></div>
-    <div id="content">
-        <div class="words">
-            
-<p>This is the home of the Smart Voting Simulator, a great resource to learn how voting methods work, visually and interactively.</p>
+<div id="content">
 
-<p>You’ll really enjoy this site if you feel like there’s got to be a smarter way to vote than what we’re doing right now.</p>
+    		<div class="words">
 
-<h2 id="intro">Intro</h2>
+			<p>
+				Quota-Approval mode
+			</p>
 
-<div class="card">
-<a href="basics">
-    <div>
-        <img class="drawBorder" src="img/basics.png" />
-        <div>
-            The Basics
-            <span>
-                 - #1 - Start here. See the 2D model we use for this site.
-            </span>
-        </div>
-    </div>
-</a>
-</div>
+			<h2>
+				Quotas!
+			</h2>
 
-<div class="card">
-<a href="commonground">
-    <div>
-        <img class="" src="img/venn-diagram.png" />
-        <div>
-            Finding Common Ground
-            <span>
-                 - #2 - Why do we vote? To make smarter group decisions.
-            </span>
-        </div>
-    </div>
-</a>
-</div>
+			<p>
+				In Quota-Approval mode, you position voters in only one dimension and you use the second dimension to control how broad the candidates are.  Up is broader.
+			</p>
 
-<h2 id="in-depth">In Depth</h2>
+		</div>
 
-<div class="card">
-<a href="condorcet">
-    <div>
-        <img class="" src="img/condorcet.png" />
-        <div>
-            Condorcet Methods
-            <span>
-                 - the best way to find common ground
-            </span>
-        </div>
-    </div>
-</a>
-</div>
+		<div class="sim-test">
+			<div class="sim-container">
+				<p class="caption-test">
+					Move the candidates and get equal representation for voters.
+				</p>
+				<div id="elect_quotaApproval" class="div-election div-ballot-in-sandbox div-model" scrolling="no">
+				</div>
+				<script>
+					sandbox({quick:"elect_quotaApproval"})
+				</script>
+			</div>
+		</div>
+		<div class="words">
+			<p>
+				The dark bar shows where voters are unrepresented... it's bad.  We want candidates to cover each voter's quota of representation, AKA the dark bar.  The quota is an amount of representation that everyone could have ideally if every voter were represented equally.  I used a gradient-colored bar to show that it is more important to elect a candidate that represents the underrepresented.  The goal is to cover all of the bar, starting with the darker parts of the bar.
+			</p>
+			<p>
+				The quota approval method elects the candidate that reduces the quota the most.  To do this, we use the remaining quota as a weight.  A voter who is already represented has less quota left to count towards the next candidate to elect.  Their vote was already counted.  A candidate they liked was already seated.
+			</p>
+			<p>
+				The light bars that cover each candidate's bars show votes that were already counted.  We don't want to count these votes twice.  So we wash out the color from that part.  Then we count the votes that are still unrepresented.  Most votes wins.
+			</p>
+			<p>
+				
+			</p>
+			<p>Putting it all together, here's a sandbox for you to try out all the different systems and to make your own scenarios:</p>
+		</div>
 
-<div class="card">
-<a href="approval">
-    <div>
-        <img class="" src="img/winner-circle.png" />
-        <div>
-            Approval Voting
-            <span>
-                 - a practical improvement - And it works with strategy.
-            </span>
-        </div>
-    </div>
-</a>
-</div>
 
-<div class="card">
-<a href="star">
-    <div>
-        <img class="" src="img/chicken.png" />
-        <div>
-            STAR Voting
-            <span>
-                 - and a deeper dive into using strategy and the game of chicken.
-            </span>
-        </div>
-    </div>
-</a>
-</div>
-
-<div class="card">
-<a href="irv">
-    <div>
-        <img class="drawBorder" src="img/irv.png" />
-        <div>
-            Instant Runoff Voting
-            <span>
-                 - a kinder politics with a kind of Ranked Choice Voting (RCV) for single-winner elections
-            </span>
-        </div>
-    </div>
-</a>
-</div>
-
-<div class="card">
-<a href="stv">
-    <div>
-        <img class="drawBorder" src="img/stv.png" />
-        <div>
-            The Single Transferable Vote
-            <span>
-                 - an introduction to proportional representation with STV, the multi-winner form of Ranked Choice Voting RCV
-            </span>
-        </div>
-    </div>
-</a>
-</div>
-
-<div class="card">
-<a href="proportional">
-    <div>
-        <img class="" src="img/proportional2.png" />
-        <div>
-            Proportional Representation
-            <span>
-                 - Bring the candidates closer to the voters. Continuing after STV, here are more kinds of proportional representation without parties, using scoring and paired methods.
-            </span>
-        </div>
-    </div>
-</a>
-</div>
-
-<div class="card">
-<a href="primaries">
-    <div>
-        <img class="drawBorder" src="img/primary-strategy.png" />
-        <div>
-            Primaries
-            <span>
-                 - They don't always work.
-            </span>
-        </div>
-    </div>
-</a>
-</div>
-
-<h2 id="in-deep">In Deep</h2>
-
-<p>Where to find more information:</p>
-
-<ul>
-  <li><a href="links">Links</a> - I have a big list of links to communities, organizations, simulators, polling sites, courses, videos, essays, books, references, and bibliographies.</li>
-</ul>
-
-<p>Now that you have learned so much, you can try and share your ideas in the sandbox. Also, try the original simulation that this sim was based on.</p>
-
-<div class="card">
-<a href="sandbox/">
-    <div>
-        <img class="" src="img/sandbox.png" />
-        <div>
-            Sandbox
-            <span>
-                 - Try everything. Share your creations.
-            </span>
-        </div>
-    </div>
-</a>
-</div>
-
-<div class="card">
-<a href="original">
-    <div>
-        <img class="drawBorder" src="img/split-vote.png" />
-        <div>
-            To Build a Better Ballot
-            <span>
-                 - Nicky Case's original sim
-            </span>
-        </div>
-    </div>
-</a>
-</div>
-
-<p>Finally, for coders, <a href="modify">here’s technical instructions on how to modify this sim.</a></p>
-
-        </div>
-           
-    <p id="editnote"><a href="https://github.com/paretoman/ballot/blob/gh-pages/index.md">Edit this page</a>.</p>
     
-    </div><footer class="site-footer h-card">
+        <div id="sandbox-section">
+            <div class="sim-sandbox">
+                <div class="sim-container">
+                    <h1 class="caption-test" style="margin: 30px 0 15px 0;">SANDBOX MODE! <a href="sandbox">(link to <em>just</em> this)</a></h1>
+		                
+		<div id="sandbox" class="div-sandbox div-election div-ballot-in-sandbox div-model" scrolling="no">
+		</div>
+		<script>
+			sandbox({quick:"sandbox"})
+		</script>
+                </div>
+            </div>
+            
+		<div style="text-align: center;">
+			<div class="demonstrate" onclick="var x = document.getElementById('img_sandbox'); x.hidden = ! x.hidden;">Demonstrate</div>
+		</div>
+		<div style="text-align: center;">
+			<img class="gif_show" src="gif/sandbox.gif" id="img_sandbox" hidden="true"/>
+		</div>
+            <div class="words">
+                
+			<p>
+				<b>From Nicky Case:</b> One hope for Sandbox Mode is that readers can debate with me and each other
+				<em>using</em> this tool! Not just telling me I'm wrong, but
+				<em>showing</em> me I'm wrong.  Granted, this tool is very limited – it doesn't handle strategic voting
+				or imperfect information – but I think it's a start, and may help improve our Democratic Discourse&trade;
+			</p>
+			<p>
+				<b> From Paretoman: </b>if you'd like your own models included here, 
+				save it, copy the saved link, and tweet it with the <a href="https://twitter.com/hashtag/smartvotesim">hashtag #smartvotesim.</a>
+			</p>
+            </div>
+        </div>
+
+</div><footer class="site-footer h-card">
   <data class="u-url" href="/"></data>
 
   <div class="wrapper">
@@ -443,27 +344,27 @@
 				Share this:
 				<ul class="share-buttons">
                     <li class="reddit">
-                        <a href="http://www.reddit.com/submit?url=https://paretoman.github.io//&title=Smart%20Voting%20Simulator" target="_blank">
+                        <a href="http://www.reddit.com/submit?url=https://paretoman.github.io//quotaApproval/&title=Multiseat%20Methods%20with%20Quotas" target="_blank">
                             <img height="32" width="32" alt="Post on Reddit" src="/social/reddit.png">
                         </a>
                     </li>
                     <li class="hn">
-                        <a href="http://news.ycombinator.com/submitlink?u=https://paretoman.github.io//&t=Smart%20Voting%20Simulator" target="_blank">
+                        <a href="http://news.ycombinator.com/submitlink?u=https://paretoman.github.io//quotaApproval/&t=Multiseat%20Methods%20with%20Quotas" target="_blank">
                             <img height="32" width="32" alt="Share on Hacker News" src="/social/ycombinator.png">
                         </a>
                     </li>
                     <li class="twitter">
-                        <a href="https://twitter.com/intent/tweet?via=paretoman1&url=https://paretoman.github.io//&text=Smart%20Voting%20Simulator" target="_blank">
+                        <a href="https://twitter.com/intent/tweet?via=paretoman1&url=https://paretoman.github.io//quotaApproval/&text=Multiseat%20Methods%20with%20Quotas" target="_blank">
                             <img alt="Tweet" src="/social/Twitter.png">
                         </a>
                     </li>
                     <li class="email">
-                        <a href="mailto:?subject=Smart%20Voting%20Simulator&body=Smart%20Voting%20Simulator:https://paretoman.github.io//" target="_blank" title="Send email">
+                        <a href="mailto:?subject=Multiseat%20Methods%20with%20Quotas&body=Multiseat%20Methods%20with%20Quotas:https://paretoman.github.io//quotaApproval/" target="_blank" title="Send email">
                             <img alt="Send email" src="/social/Email.png">
                         </a>
                     </li>
                     <li>
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://paretoman.github.io//&t=Smart%20Voting%20Simulator" title="Share on Facebook" target="_blank">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://paretoman.github.io//quotaApproval/&t=Multiseat%20Methods%20with%20Quotas" title="Share on Facebook" target="_blank">
                             <img alt="Share on Facebook" src="/social/Facebook.png">
                         </a>
                     </li>

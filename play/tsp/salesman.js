@@ -1,5 +1,7 @@
 // this handles moving a 2D set of points and ballots into a 1D list.  And it keeps similar voters together.
 
+var breakRingTSP = true
+
 /* Sample of a city */
 function Sample() {
   this.x = 0.0;
@@ -59,12 +61,32 @@ Node.prototype.distance = function(other, length) {
   var left = 0;
   var current = other;
 
-  while (current != this) {
-  	current = current.left;
-    left++;
+  if (breakRingTSP) {
+    var notleft = false
+    while (current != this) {
+      if (current.isStart) notleft = true
+      current = current.left;
+      left++;
+    }
+    if (notleft) {
+      current = other
+      while (current != this) {
+        current = current.right;
+        right++;
+      }  
+      return right
+    } else {
+      return left
+    }
+  } else {
+    while (current != this) {
+      current = current.left;
+      left++;
+    }
+    right = length - left;
+    return (left < right) ? left : right;
+  
   }
-  right = length - left;
-  return (left < right) ? left : right;
 };
 
 Node.prototype.draw = function(canvas) {
@@ -81,7 +103,8 @@ Node.prototype.draw = function(canvas) {
 /* the neural network as a ring of neurons */
 function Ring(start) {
 	this.start = start;
-	this.length = 1;
+  this.length = 1;
+  if (breakRingTSP) start.isStart = true;
 }
 
 /* moves all nodes to in direction of the sample */
@@ -129,6 +152,7 @@ Ring.prototype.deleteNode = function(node) {
   }
   if (this.start == node) {
     this.start = next;
+    if (breakRingTSP) this.start.isStart = true
   }
   this.length--;
 };
@@ -136,12 +160,12 @@ Ring.prototype.deleteNode = function(node) {
 /* a node is duplicated & inserted into the ring */
 Ring.prototype.duplicateNode = function(node) {
   var newNode = new Node(node.x, node.y, node.b);
-  var next = node.left;
-  next.right = newNode;
-  node.left = newNode;
+  var next = node.right;
+  next.left = newNode;
+  node.right = newNode;
   node.inhibitation = 1;  
-  newNode.left = next;
-  newNode.right = node;
+  newNode.right = next;
+  newNode.left = node;
   newNode.inhibitation = 1;
   this.length++;
 };

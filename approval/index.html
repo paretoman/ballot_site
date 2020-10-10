@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    
+    <!-- Meta -->
+    
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Approval Voting | Smart Voting Simulator</title>
+<meta name="generator" content="Jekyll v3.8.7" />
+<meta property="og:title" content="Approval Voting" />
+<meta name="author" content="Paretoman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="An Interactive Guide" />
+<meta property="og:description" content="An Interactive Guide" />
+<link rel="canonical" href="https://paretoman.github.io/approval/" />
+<meta property="og:url" content="https://paretoman.github.io/approval/" />
+<meta property="og:site_name" content="Smart Voting Simulator" />
+<script type="application/ld+json">
+{"headline":"Approval Voting","@type":"WebPage","url":"https://paretoman.github.io/approval/","author":{"@type":"Person","name":"Paretoman"},"description":"An Interactive Guide","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<!-- <link rel="stylesheet" href="/assets/css/style.css"> --><link type="application/atom+xml" rel="alternate" href="https://paretoman.github.io/feed.xml" title="Smart Voting Simulator" />
+    <title>Approval Voting</title>
+    
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <meta charset="utf-8">
+    <link rel="icon" type="image/png" href="favicon.png">
+    
+	<meta name="viewport" content="width=device-width, initial-scale=1, min-width=380">
+    
+    <!-- Schema.org markup for Google+ -->
+    <meta itemprop="name" content="Approval Voting">
+    <meta itemprop="description" content="An Interactive Guide">
+    <meta itemprop="image" content="https://paretoman.github.io//social/thumbnail.png">
+
+    <!-- Twitter Card data -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@paretoman1">
+    <meta name="twitter:title" content="Approval Voting">
+    <meta name="twitter:description" content="An Interactive Guide">
+    <meta name="twitter:creator" content="@paretoman1">
+    <meta name="twitter:image" content="https://paretoman.github.io//social/thumbnail.png">
+
+    <!-- Open Graph data -->
+    <!-- most of this is included in the seo include -->
+    <meta property="og:image" content="https://paretoman.github.io//social/thumbnail.png">
+
+    <base href='/'>
+    <!-- <base target="_blank"> -->
+    
+    
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" type="text/css" href="css/some-minima.css">
+    
+    <link rel="stylesheet" type="text/css" href="play/css/codemirror/codemirror.css">
+    <link rel="stylesheet" type="text/css" href="play/css/model.css">
+    <link rel="stylesheet" type="text/css" href="play/css/ballot.css">
+    <link rel="stylesheet" type="text/css" href="play/css/election.css">
+    <link rel="stylesheet" type="text/css" href="play/css/sandbox.css">
+    <link rel="stylesheet" type="text/css" href="play/css/ballotInSandbox.css">
+
+    
+    <script src="js/viewport-min-width.js"></script>
+	<!-- <script src="../dev/js/gpu.js/gpu-browser.js"></script> -->
+    
+    <script src="play/js/helpers.js"></script>
+    <script src="play/js/minpubsub.js"></script>
+    <script src="play/js/hsluv-0.0.3.min.js"></script>
+    <script src="play/js/pako.min.js"></script>
+    <script src="play/js/Loader.js"></script>
+    <script src="play/js/Mouse.js"></script>
+    <script src="play/js/Draggable.js"></script>
+
+    <script src="play/js/gpu.js-develop/bin/gpu-core.js"></script>
+    <script src="play/js/gpu.js-develop/bin/gpu.js"></script>
+    <script src="play/js/FastYee.js"></script>
+
+    <script src="play/js/javascript-lp-solver/prod/solver.js"></script>
+    
+    <script src="play/js/codemirror/codemirror.js"></script>
+    <script src="play/js/codemirror/mode/javascript/javascript.js"></script>
+    <script src="play/js/codemirror/addon/autorefresh.js"></script>
+    
+    <script src="play/js/d3/d3.js"></script>
+    <script src="play/js/sankey.js"></script>
+
+
+    <script src="play/js/Model.js"></script>
+    <script src="play/js/Yee.js"></script>
+    <script src="play/js/Candidate.js"></script>
+    <script src="play/js/Color.js"></script>
+    <script src="play/js/Voters.js"></script>
+    <script src="play/js/Election.js"></script>
+    <script src="play/js/Buttons.js"></script>
+    <script src="play/js/Ballot.js"></script>
+    <script src="rbvote/rbvote.js"></script>
+    <script src="play/tsp/salesman.js"></script>
+    <script src="play/tsp/salesman2.js"></script>
+    <script src="play/js/seedrandom.min.js"></script>
+
+    <script src="play/js/main_ballot.js"></script>
+    <script src="play/js/main_sandbox.js"></script>
+    <script src="play/js/Presets.js"></script>
+    
+    
+  
+
+</head>
+
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Smart Voting Simulator</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          
+            
+              
+                <a class="page-link" href=".">Home</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="basics">Basics</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="commonground">Common Ground</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="condorcet">Condorcet</a>
+              
+            
+          
+            
+              
+                <a class="page-link current" href="approval">Approval</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="star">STAR</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="irv">Instant Runoff</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="stv">Single Transferable Vote</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="proportional">Proportional Methods</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="primaries">Primaries</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="original">Original</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="testRuns">Test Runs</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="blog">Blog</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="links">Links</a>
+              
+            
+          
+            
+              
+                <a class="page-link" href="sandbox/">Sandbox</a>
+              
+            
+          
+          <!--<a class="page-link" href="/approval/">Approval Voting</a><a class="page-link" href="/basics/">The Basics</a><a class="page-link" href="/bees/">Bees</a><a class="page-link" href="/blog/">Blog</a><a class="page-link" href="/commonground/">Finding Common Ground</a><a class="page-link" href="/condorcet/">Condorcet Methods</a><a class="page-link" href="/draft-321/">3-2-1</a><a class="page-link" href="/draft-common-ground/">Home</a><a class="page-link" href="/draft-digression-median-systems/">3-2-1</a><a class="page-link" href="/draft-gerrymander/">Condorcet Methods</a><a class="page-link" href="/sandbox/embedbox.html">Embed Box for Smart Voting Simulator</a><a class="page-link" href="/sandbox/">Sandbox</a><a class="page-link" href="/">Home</a><a class="page-link" href="/irv/">Instant Runoff Voting</a><a class="page-link" href="/links/">Links</a><a class="page-link" href="/modify/">Modify the Simulator</a><a class="page-link" href="/newer/">An Even Better Ballot</a><a class="page-link" href="/oncemore/">Draft for An Even Better Ballot</a><a class="page-link" href="/sandbox/original.html">Sandbox for To Build a Better Ballot</a><a class="page-link" href="/original/">Original</a><a class="page-link" href="/primaries/">Primaries</a><a class="page-link" href="/proportional/">Proportional Methods</a><a class="page-link" href="/quotaApproval/">Quota Methods</a><a class="page-link" href="/scorefamily/">The Approval Score STAR and 3-2-1 Family</a><a class="page-link" href="/star/">STAR Voting</a><a class="page-link" href="/stv/">The Single Transferable Vote</a><a class="page-link" href="/testAttach/">Test Attach</a><a class="page-link" href="/testBallot/">Test Ballot</a><a class="page-link" href="/testPreset">Test Preset</a><a class="page-link" href="/testRuns/">Test Runs</a><a class="page-link" href="/testSwitcher/">Test Switcher</a><a class="page-link" href="/try/">To Build a Better Ballot - QAPR</a>-->
+        </div>
+      </nav></div>
+</header>
+
+	
+	
+	
+
+	<div class="banner">
+		<h1>Practical Approval Voting</h1>
+		<p>An Interactive Guide</p><p>
+		
+			By Paretoman, Feb 2018
+		
+	</p>
+		<p>Based off Work by Nicky Case</p></div>
+<div id="content">
+
+    <div class="words">
+        
+<p>Hi, did you vote? Do you think our elections choose the best leaders? Even if they’re not the best, the people chose them, right? It’s important that we have the power to choose our representatives. That’s why I’m writing to you about approval voting.</p>
+
+<p>Approval voting gives a better representative. When you compare approval to what we do now, approval gets better information from the voters, gets better candidates to run, and has less problems.</p>
+
+<h2 id="better-information-from-voters">Better Information from Voters</h2>
+
+<p>Approval gets better information from the voters because approval asks you to choose the better candidates. That can mean more than one. <strong>Try it out below.</strong> Move the voter around the arena. See what candidates he chooses. (There are 3 candidates: <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span>, <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span>, and <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span>.) See that he’s choosing the candidate he’s closest to. He’s also avoiding the candidate he’s furthest from. And for the in-between, he draws a line. Anybody inside is better than anybody outside. This is a relative judgement.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Approval Voting Basics</h2>
+        <p class="ballot_caption">Pick the Better Candidates
+        
+        </p>
+        
+        
+        <script id="election16">
+            sandbox({idScript:"election16",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSQW7EMAhF7-K1VQUbDJOrRDnJqD17wU-RKlWjLABjP_-P825HO6_LVxf1u19ikplmNqQyu-_epLZIeJeIqmc7j960ne1HjtabtVN6W7krm57h6P--7MTHzutjJ_l1lwhwGZQoECUYYW0ZkgJEM-Z1M8NrN0dycnHI3jMGAcxQKtsHxmLRqYIqKSONH1uo1AwgTUgT0oQ0k3Tl9Ni4OApvYlX6yJYWrvZo2Su7Op4kgdesRPc5_YtUnKrzDkjU1140BmZCQJ4hz5iX8V6GUfOtzxiXYXQdBEwupr6gLNsWStwCsVCwGLWjwDnrY5N8UqHAeTF_fhmnGc9s-uxa61gKgAEwEBOICYBh-5ZAT8ALZEXJ-rL8y4rz_QuHr_l18gIAAA)"})
+        </script>
+        
+		
+		<div>
+			<div class="demonstrate" onclick="var x = document.getElementById('img_election16'); x.hidden = ! x.hidden;">Demonstrate</div>
+		</div>
+		<div>
+			<img class="gif_show" src="gif/election16.gif" id="img_election16" hidden="true" />
+		</div>
+		
+    </div>
+
+</div>
+
+<p>In an election, the voter also needs to decide one more thing: what is he risking? Things do get a little more complicated whenever you add more people to a situation. The above was a simple model, and we just set it so that the line is drawn halfway between the best and worst candidates. In a real election, the voter will be checking the polls to see where he should draw the line. He’s going to see who has a shot to win, and he’s going to draw the line between those in particular because the difference the voter makes can decide who wins the election. <strong>Try it out below.</strong> See that when <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span> isn’t doing well, <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> voters don’t need to use <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> as a fallback.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Consider Risk</h2>
+        <p class="ballot_caption">Decide Which Frontrunner is Better.
+        
+        </p>
+        
+        
+        <script id="election17_frontrunner_status">
+            sandbox({idScript:"election17_frontrunner_status",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSXW7EIAyE78IzqjDYGHKVKCdZtWevzaeVKlWrPPiXYWbIq7Ry3bfPKupPvcUkMo2sS2b2PLVIrsj2KntnPcrVatFylR9ppRYrl9QyYyuGHqHVf19M1sfJ_jgJ_LxLkoKMbHQacBAlGGEeIhIURCPGhSPCPsMeSNHscnZ6JwDTlcrOgT5pOtWiCpQe0tMuqT1dAGl0BiANkIadtfhycbIB3kAsGHrgMkmBKVj7OwnAOxWrnnP6F1JRqs5LQFH3aRqWmRAQatAz_DJezBBqfvgZdhlCZyMgcuL6BGXakZDkJhATBhOrHQbOWccgH1QwcF7M3z-NM1xvb-qomn0krUaQg7QAXJBZAC6jCZ8F3oLWSlpfFv9ZEvv-BUf8SXr0AgAA)"})
+        </script>
+        
+		
+		<div>
+			<div class="demonstrate" onclick="var x = document.getElementById('img_election17_frontrunner_status'); x.hidden = ! x.hidden;">Demonstrate</div>
+		</div>
+		<div>
+			<img class="gif_show" src="gif/election17_frontrunner_status.gif" id="img_election17_frontrunner_status" hidden="true" />
+		</div>
+		
+    </div>
+
+</div>
+
+<p>Approval asks for this judgement from every voter. Then the votes are added and the most votes wins. That’s the group judgement. <strong>Try it out below.</strong> Move the voter group to see which candidate wins. See that when the center moves toward a candidate, that candidate wins.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Approval Election</h2>
+        <p class="ballot_caption">
+        
+        </p>
+        
+        
+        <script id="election18">
+            sandbox({idScript:"election18",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSW2rEMAxF9-JvUyJZD0-2ErKSoV17ZR8ChTLkQ5JlH19d592Odl5XRhfLu1_iUplVprIyv-_eZG0R966Sqx7tPHqzdrYfOVpv3k7pLWpXNbPC0f991ZkfO6-PneKvu0SAi1KiQIzghCCUALGKdd2o8NqrWpxaVNlSVQlg1Kh8H1AwmlSTqihagx9bqCwPZDeG0oA0II0iXeUeG4Md8AajStdq2catRJ5En6SA11iJ7XP2F2mxr7HkHZBor73oGObIcwZ15Dl-Oe_lDOq59Tl2OYPGQcCuwPWAEr5HWOICRKAgsDpRkJxNDMpBhYLkxfL5ZZLmfLzpo9taZ6QJcMomTYATMRPgdBbRM-FNZM0l68vrL1uc719_EIbQ8gIAAA)"})
+        </script>
+        
+		
+		<div>
+			<div class="demonstrate" onclick="var x = document.getElementById('img_election18'); x.hidden = ! x.hidden;">Demonstrate</div>
+		</div>
+		<div>
+			<img class="gif_show" src="gif/election18_approval_poll_frontrunner.gif" id="img_election18" hidden="true" />
+		</div>
+		
+    </div>
+
+</div>
+
+<p>Compare approval to the way we vote now. Right now, you can only choose one candidate when you go to vote, and that limits you. You can only say which candidate you like best. <strong>Try it out below.</strong> See that your opinion is limited to one candidate.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Choose One</h2>
+        <p class="ballot_caption">(the way we vote now)
+        
+        </p>
+        
+        
+        <script id="election19">
+            sandbox({idScript:"election19",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSUW4FIQhF9-K3aURBmNnK5K2kadde8OQlTZpmPhDB4704n220-3l8d1F_9UfUcjVzNUVyZa9Xb1ItUj3Xqny1e_Sm7W7fo_Vm7ZbedjZlzTOM_ufLSvxbuf6tyDhXiQCXSYoAUYIR9pEhKUA0Y163MlynOJOTm1NOz5wEMFPJ7ByYm00nC7KkzPQ9jlCpEUBaCFqLOqSVpCeHR-OmBG9hVXpOuGnhqkfLXtnV-V4k8Fm10HNOfyMVp-o8AxL1OpvGwEwIGDWMGvMy3sswan70GeMyjO5BwOTG5Iay7VgocRvERsFm1I4C56zPQ_JFhgLnxfz9yzjFeM-mr661j6UAGAADMYGYABh2bgn0BLxAVpSsD8u_rDhfPzoOPd_xAgAA)"})
+        </script>
+        
+		
+		<div>
+			<div class="demonstrate" onclick="var x = document.getElementById('img_election19'); x.hidden = ! x.hidden;">Demonstrate</div>
+		</div>
+		<div>
+			<img class="gif_show" src="gif/election19_pick_one.gif" id="img_election19" hidden="true" />
+		</div>
+		
+    </div>
+
+</div>
+
+<p>And you also need to decide one more thing: what are you risking? If your favorite doesn’t win, then the worst candidate might win. In a real election, you’re going to look at the two frontrunners and pick one. <strong>Try it out below.</strong> See that you only get two choices.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Risky Choose One</h2>
+        <p class="ballot_caption">(the Real way we vote now)
+        
+        </p>
+        
+        
+        <script id="election20">
+            sandbox({idScript:"election20",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSWWoEMQxE7-JvEyxZ8tJXaeYkQ3L2SH40BMLQH6XN5Sq536WV677nqGLzVW8xj0gjUpGI_PWqRXJE1qqyR-a9XK0WK1f5aaUWL5fUMmIoejOg1X9fdNbHzv7YkXauklQgPQtKAQligAPjCJGQIBYYF_aAfZoaTFFUOTOqADRqZH4O6KA4yRZZsGg4b0eq5hJg6kqjAzB1T701vhwctODrmJXDYUmXM5YG07DpEwThnY7Nzjn7S2k4tclDINH2KTorcwGQ58hz5Dkv5hj1SY91OUZHAzA52PpgXcOPhRQ3oBgoGKx6omBydqJgdjJebPJi8_lpJs317Kb2alnH0mqAHKYF4ULMgnA5RfQs-BayVsr68vjPELafZe9ctmfQT_D9C18ZfaYOAwAA)"})
+        </script>
+        
+		
+		<div>
+			<div class="demonstrate" onclick="var x = document.getElementById('img_election20'); x.hidden = ! x.hidden;">Demonstrate</div>
+		</div>
+		<div>
+			<img class="gif_show" src="gif/election20_risky_choose_one.gif" id="img_election20" hidden="true" />
+		</div>
+		
+    </div>
+
+</div>
+
+<p>In an election, every voter faces this risk. And the only thing they can do is pick from two. <strong>Try it out below.</strong> See that the winner isn’t always the candidate closest to center.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">A Risky Choose One Election</h2>
+        <p class="ballot_caption">(Our General Election)
+        
+        </p>
+        
+        
+        <script id="election21">
+            sandbox({idScript:"election21",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSUW4FIQhF9-K3aURAnNnKy1tJ0669yMkkTZpmPi6CHi84n220-_WK1cXi3V9impFlNEUy8ve7NzlbRHeXqLW2e_Rm7W7fo_Xm7ZbeVm7KWqSM_ufLyv63cv1bkVFXyXEgehKTBBbEEEcWkhbEUvNCTbkqO5OUySlldiZmpoCZRtLrwAQzg9VmddUBHWV1niFAUkiqCCT147fndzYuSvCUZqUYVrgTyBPMJ0jg63RsVufsN9JWXWPBQ2DRrko6I3NBJkkadeblvJjTqEf5c8blNLoGQpOLqS8oy6uFY26BWDhYjDpwEJwNBhTKCgfBi8Xz0wTF_cyma7eTp6U9ECnSBrgxswFuJ4mfDW9jax9bH57_2TH29QPStld28wIAAA)"})
+        </script>
+        
+		
+		<div>
+			<div class="demonstrate" onclick="var x = document.getElementById('img_election21'); x.hidden = ! x.hidden;">Demonstrate</div>
+		</div>
+		<div>
+			<img class="gif_show" src="gif/election21_risky_choose_one.gif" id="img_election21" hidden="true" />
+		</div>
+		
+    </div>
+
+</div>
+
+<p><strong>To recap:</strong></p>
+
+<ul>
+  <li>Approval chooses a better winner.
+    <ul>
+      <li>Better information is collected from the voters.
+        <ul>
+          <li>It asks for the better candidates (plural).</li>
+          <li>It asks for a risk assessment.</li>
+          <li>A group judgement is formed and the candidate nearest the center wins.</li>
+        </ul>
+      </li>
+      <li>Compare to the way we vote now:
+        <ul>
+          <li>It asks for one candidate.</li>
+          <li>It asks for a risk assessment which leads to a bad choice between two.</li>
+          <li>A group judgement is formed but the center doesn’t always win.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>Here’s a sandbox where you can try changing the number of candidates, the number of voters, and the election method.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Sandbox so far</h2>
+        <p class="ballot_caption">
+        
+        </p>
+        
+        
+        <script id="election22_sandbox">
+            sandbox({idScript:"election22_sandbox",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSQW7EIAwA_8IZVRhjTPYrUX6w6q2nqvv2Go8iVapWOdhgMxocvksrj_P0WWX4VU8ZGtmIrItEZtdVi-wW0VXFc63l0WoZ5VFe0kotlusZXVH0CK3--6Ky3laOt5Xgb7ZIdmgtr8-v57NU6VW26W7ptGAlg4CTTEJIyYgYCsGQI3d7sGOzB1siBKZHANMHm5YHOpjurBarIw9oS7W-5yJZUEgKSRHSIJ0x0Sq7cdIBT7m-JGMkbidyJ_1OAnjqTkaeG3-RY6bwcP4NiuPITWOIhp6hZ0pAz5iXcVFzaozLuOhsBMY1mfrkktP4PyEyQUwMJqN2DJyzjoErKwwcA7-fkVPcj6bHY9h3dK6zgC1JygK2EFnAlrGJy4K1UFpb6cPi1cE57kEfe9C2E83k5xfvl6cSHQMAAA)"})
+        </script>
+        
+		
+		<div>
+			<div class="demonstrate" onclick="var x = document.getElementById('img_election22_sandbox'); x.hidden = ! x.hidden;">Demonstrate</div>
+		</div>
+		<div>
+			<img class="gif_show" src="gif/election22_sandbox.gif" id="img_election22_sandbox" hidden="true" />
+		</div>
+		
+    </div>
+
+</div>
+
+<p>(By the way, there are a couple different names for our election method that we use now: first-past-the-post (FPTP), single-member plurality (SMP), or just plurality voting. First-past-the-post is a term that has been used for around 100 years. It comes from horseracing and it means the first horse to cross the finish line, even if the horse had been disqualified. It was a negative term used by people that wanted to improve the way we vote because they saw that the wrong winner was being selected. Single-member means you pick one winner as opposed to multiple representatives. Plurality means the highest count of first choices wins.)</p>
+
+<p>(Also, when we say election method what we mean is what information we write on our ballots about what we want and how we combine that information into what the group wants.)</p>
+
+<h2 id="map">Map</h2>
+
+<p>We’re now going to take a step up the ladder of abstraction from one election to many possible elections. If you’ve played around with the sandbox for a while, you might start putting together a map inside your head of where the voters have to go in order for a candidate to win. Each candidate has his own territory. I added this to the election by putting the voter center at every pixel on the map and seeing who wins. Then I colored the pixel with the winner’s color. <strong>Try it out.</strong> See that whenever you move the center voter to the <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> territory, the <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> candidate is the winner.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Map of Winner</h2>
+        <p class="ballot_caption">
+        
+        </p>
+        
+        
+        <script id="election23">
+            sandbox({idScript:"election23",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSW2rEMAxF9-JvUyJbspRsJcxKhnbtlXUIFMqQD72s4ys573a06759dVF_9Vt0pqfpDZH07PXqTfYRmdHFK57tOnrTdrUfOVpv1i7pbeWpLHqao__7shIfK-fHSvL3XSLAZRDOulGUyDALkwJE0-Z1M81Z2ZGcTA6pxpGYkYZBhpK0ahhghhMF0VkN8yihY-9AqjAhTUgT0kzSndvrsg8uTsCbjCrF0MJtRx5nPE4C77kdrT79i9RV16jzDkjUs5LGwgx5Nkgiz9iX8V4Gxbz0WRAx6DowrGux9QVlWY2wxS12tVCwWLWjwOl1FuS8mKPAeTF_fhmnGM9u-uy684wUAEOKFAADMQEwjCR6Al4gK7asL8u_bHO-fwFyRTIr8gIAAA)"})
+        </script>
+        
+		
+		<div>
+			<div class="demonstrate" onclick="var x = document.getElementById('img_election23'); x.hidden = ! x.hidden;">Demonstrate</div>
+		</div>
+		<div>
+			<img class="gif_show" src="gif/election23_map_of_winner.gif" id="img_election23" hidden="true" />
+		</div>
+		
+    </div>
+
+</div>
+
+<h2 id="better-candidates">Better Candidates</h2>
+
+<p>In this next part, I’ll describe how approval voting gives an opportunity to candidates to run for office. We’ll change perspective to consider what a candidate sees.</p>
+
+<p>A candidate will win if he moves to the center. A candidate thinking about running for office would think about what his campaign message is. He would consider where that would put him on the political spectrum (left to right). If everything looks good, he would start his campaign. <strong>Try to see what a candidate sees, below.</strong> This is a map of every place <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> could put his campaign message, and who would win if he entered the race. Move him toward the center of the voters and see that he wins. This example works for every candidate, so all the candidates will want to be at the center and try to be as broadly representative of the entire population. This is good because it serves the purpose of an election that the people have the power to choose their representatives.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">The Winners' Circle</h2>
+        <p class="ballot_caption">
+        
+        </p>
+        
+        
+        <script id="election24">
+            sandbox({idScript:"election24",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSW2rEMAxF9-JvUSxZspXZSpiVlHbtlX0IFEoZhms9cnIl57P19rrvlaK53nK7S3ipaYp1f7-l6W7Q6FL_HY_26tK8vdq39iYt2kulzeqq4irp8udXlfy3cv1bKf5-lypwNcJyMEqcKJCJlAH10qTnOlkrTiVNj1UzhEHMieI8YGBsESURlNGPUd07UDJFshJIA9Io0q2iNE46FsKoKlYlP7h90Odgz6GA99gHPz78N9LneY0v7gGLfp1ksLDAXjBoYC_YV3BfASUwFolcR2ZHWNdk6xPKjDPCNjfZ1cTBZEkLB4tnFwtagwgHixtbzyezKOazGxniO89ICTD1kBJgYiYBZpDET8JLbOW29RH1lW3O1w83jKme8AIAAA)"})
+        </script>
+        
+		
+		<div>
+			<div class="demonstrate" onclick="var x = document.getElementById('img_election24'); x.hidden = ! x.hidden;">Demonstrate</div>
+		</div>
+		<div>
+			<img class="gif_show" src="gif/election24_winners_circle.gif" id="img_election24" hidden="true" />
+		</div>
+		
+    </div>
+
+</div>
+
+<p>Compare that to what we have now at the general election and you’ll see that some nice candidates can’t run. Right now, once the two front-running candidates are settled on, there isn’t much opportunity for another candidate to be running against them. <strong>Try it out below.</strong> Move <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> to the center and see that voters are still stuck on the frontrunners. I have set this example so that about a quarter of voters who like <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> best will actually vote for him as “true believers”. See that this causes <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> to become a spoiler. When <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> moves toward <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span>, <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> loses because <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> takes votes away from <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span>. This is the spoiler effect. If <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> was nice, he would drop out to help <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> win because they’re on the same side. <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> is a jerk, so he stays in and spoils the election for <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span>.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">The Spoiler Effect</h2>
+        <p class="ballot_caption">
+        
+        </p>
+        
+        
+        <script id="election25">
+            sandbox({idScript:"election25",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSW2rtMAxF5-JvUyxZtpQzlXBGUtqxV9YiUO6l5GPr4axsyflso73u21eXsHe_dVuXoSeSK2vj_e5NzhGxzN1OPttr9Gbt1b5H6221l_S281D2PKWptz7-fbIZ2fyvXp3rz46M-poIfFHS9DBTjGwhG0kPYqnBmauqmpwsqpRbTYymMIoaxVUvKJgcorIggzJHGdWzBUgT0oQ0Ic0k3dLzOQc3J5wWo0oxrHAnkCfQJ0jgPU9g5cN-I20Xy5ybwKJdVVwsbAmiFLG32NfiyhaU5eVvBXKV7IEw5GbrG8peNcIxt9nVxsFmSY4D511nQT7JcODcmD9_DbvxeHbTZ7dTZ6QAGFKkABiYCYABMPAT8AJbcWx9rPzLDufrB89U4yz0AgAA)"})
+        </script>
+        
+		
+		<div>
+			<div class="demonstrate" onclick="var x = document.getElementById('img_election25'); x.hidden = ! x.hidden;">Demonstrate</div>
+		</div>
+		<div>
+			<img class="gif_show" src="gif/election25_spoiler.gif" id="img_election25" hidden="true" />
+		</div>
+		
+    </div>
+
+</div>
+
+<p>Nice candidates dropping out is very common in the primaries. With the way we vote now, primaries are necessary to prevent the vote-splitting we see with <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> and <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span>. The important choices are made in the primary, and in the general, we are left with only two. A primary will pick the candidates in a complicated kind of way involving considerations of electability. <strong>Try it out below.</strong> <span class="letterBig" style="color:hsl(30,80%,70%);"><b>E</b></span> wins the primary vote because primary voters saw that <span class="letterBig" style="color:hsl(0,80%,70%);"><b>C</b></span> would lose the general election against the more moderate <span class="letterBig" style="color:hsl(240,80%,70%);"><b>A</b></span>, and <span class="letterBig" style="color:hsl(45,80%,70%);"><b>B</b></span> and <span class="letterBig" style="color:hsl(90,80%,70%);"><b>D</b></span> split their vote. For more explanation, see the <a href="primaries">Page on Primaries</a>.</p>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Primary Vote-Splitting</h2>
+        <p class="ballot_caption">
+        
+        </p>
+        
+        
+        <script id="primary_sim">
+            sandbox({idScript:"primary_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA3WSW24DIQxF98I3qrCxwcxWRllJ1K69hqMqUqpoPowfHF-beZZWrvuOUcXbo94yvYpFnlRXxnTHVsZEzinrVn88apF9bUgW-y7ucooz0cvVarFylR8ptXi5pJaR1ZmbaVr992UmPmbWx4y000oEuCguAsQwjhmYFCCWNtt5mnXEaXIyqIKXGE0DRo1gYnoaMDrxAm-dC70dobpXAKkjqEPqkHqS7lwW3y4eXIfZGVeq1l4t0wZ2z2vyOurrmPhbT1-zw7D3FjZOa5s8DbKN4Z0lumCUIJKdHTpv6Azv8-j1OL2c4UfDMPhg8AFl-NHaU8gAMVAw1jETBZO7k_XPjoeCySvOv99okoy3XU1GCoDBSIGYQEwADICBnoAXyIot6yt_j7U5379wAhm1IgMAAA)"})
+        </script>
+        
+		
+		<div>
+			<div class="demonstrate" onclick="var x = document.getElementById('img_primary_sim'); x.hidden = ! x.hidden;">Demonstrate</div>
+		</div>
+		<div>
+			<img class="gif_show" src="gif/primary.gif" id="img_primary_sim" hidden="true" />
+		</div>
+		
+    </div>
+
+</div>
+
+<p><strong>Final Recap:</strong></p>
+
+<ul>
+  <li>Approval chooses a better winner.
+    <ul>
+      <li>Better information is collected from the voters.
+        <ul>
+          <li>It asks for the better candidates (plural).</li>
+          <li>It asks for a risk assessment.</li>
+          <li>A group judgement is formed and the candidate nearest the center wins.</li>
+        </ul>
+      </li>
+      <li>Compare to the way we vote now:
+        <ul>
+          <li>It asks for one candidate.</li>
+          <li>It asks for a risk assessment which leads to a bad choice between two.</li>
+          <li>A group judgement is formed but the center doesn’t always win.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>There are better candidates running.
+    <ul>
+      <li>The incentive is for candidates to move to the center.</li>
+      <li>Nice candidates are available that otherwise are staying out of the race because they’ll cause a spoiler effect.</li>
+      <li>There is no need for a primary.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Putting it all together, here’s a sandbox for you to try out all the different systems and to make your own scenarios:</p>
+
+    </div>
+       
+    <p id="editnote"><a href="https://github.com/paretoman/ballot/blob/gh-pages/approval.md">Edit this page</a>.</p>
+    
+    
+        <div id="sandbox-section">
+            <div class="sim-sandbox">
+                <div class="sim-container">
+                    <h1 class="caption-test" style="margin: 30px 0 15px 0;">SANDBOX MODE! <a href="sandbox">(link to <em>just</em> this)</a></h1>
+		                
+		<div id="sandbox" class="div-sandbox div-election div-ballot-in-sandbox div-model" scrolling="no">
+		</div>
+		<script>
+			sandbox({quick:"sandbox"})
+		</script>
+                </div>
+            </div>
+            
+		<div style="text-align: center;">
+			<div class="demonstrate" onclick="var x = document.getElementById('img_sandbox'); x.hidden = ! x.hidden;">Demonstrate</div>
+		</div>
+		<div style="text-align: center;">
+			<img class="gif_show" src="gif/sandbox.gif" id="img_sandbox" hidden="true"/>
+		</div>
+            <div class="words">
+                
+			<p>
+				<b>From Nicky Case:</b> One hope for Sandbox Mode is that readers can debate with me and each other
+				<em>using</em> this tool! Not just telling me I'm wrong, but
+				<em>showing</em> me I'm wrong.  Granted, this tool is very limited – it doesn't handle strategic voting
+				or imperfect information – but I think it's a start, and may help improve our Democratic Discourse&trade;
+			</p>
+			<p>
+				<b> From Paretoman: </b>if you'd like your own models included here, 
+				save it, copy the saved link, and tweet it with the <a href="https://twitter.com/hashtag/smartvotesim">hashtag #smartvotesim.</a>
+			</p>
+            </div>
+        </div>
+
+</div><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+        <ul class="contact-list">
+          <li class="p-name">Paretoman</li>
+          <li><a class="u-email" href="mailto:smartvotingsimulator1@gmail.com">smartvotingsimulator1@gmail.com</a></li>
+        </ul>
+        <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/Paretoman" title="Paretoman"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/Paretoman1" title="Paretoman1"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li><li><a rel="me" href="https://www.youtube.com/channel/UCrwpT8YjxePjH0RxSCwbTlQ" title="Paretoman"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#youtube"></use></svg></a></li></ul>
+</div>
+      </div>
+      <div class="footer-col">
+        <p>A simulator for voting methods - so you can understand how voting methods work for making group decisions. The best voting methods are responsive to all parts of the group and can even work when voters use strategies.</p>
+      </div>
+    </div>
+            
+            <div style="text-align:center; color:#fff; background-color: #222;margin-bottom:0px;">
+				Share this:
+				<ul class="share-buttons">
+                    <li class="reddit">
+                        <a href="http://www.reddit.com/submit?url=https://paretoman.github.io//approval/&title=Practical%20Approval%20Voting" target="_blank">
+                            <img height="32" width="32" alt="Post on Reddit" src="/social/reddit.png">
+                        </a>
+                    </li>
+                    <li class="hn">
+                        <a href="http://news.ycombinator.com/submitlink?u=https://paretoman.github.io//approval/&t=Practical%20Approval%20Voting" target="_blank">
+                            <img height="32" width="32" alt="Share on Hacker News" src="/social/ycombinator.png">
+                        </a>
+                    </li>
+                    <li class="twitter">
+                        <a href="https://twitter.com/intent/tweet?via=paretoman1&url=https://paretoman.github.io//approval/&text=Practical%20Approval%20Voting" target="_blank">
+                            <img alt="Tweet" src="/social/Twitter.png">
+                        </a>
+                    </li>
+                    <li class="email">
+                        <a href="mailto:?subject=Practical%20Approval%20Voting&body=Practical%20Approval%20Voting:https://paretoman.github.io//approval/" target="_blank" title="Send email">
+                            <img alt="Send email" src="/social/Email.png">
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://paretoman.github.io//approval/&t=Practical%20Approval%20Voting" title="Share on Facebook" target="_blank">
+                            <img alt="Share on Facebook" src="/social/Facebook.png">
+                        </a>
+                    </li>
+				</ul>
+			</div></div>
+
+</footer>
+</body>
+
+</html>

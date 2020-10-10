@@ -2579,7 +2579,8 @@ Election.stv = function(district, model, options){
 		}
 		history.rounds.push(roundHistory)
 		
-		won.push(_jcopy(winnerslist))
+		
+		if (drawFlows) won.push(_jcopy(winnerslist))
 
 		text += "<br>"
 		text += '</div>'

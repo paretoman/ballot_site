@@ -344,29 +344,6 @@ function Model(idModel){
 					v[i].b = pairList(v[i].b)
 				}
 			}
-			function pairList(b) {
-				var p = []
-				for (var i = 0; i < b.length; i++ ) {
-					p[b[i]] = []
-					for (var j = 0; j < i; j ++) {
-						var weight = b.length - j // set to 1 maybe
-						var weight = 1
-						p[b[i]][b[j]] = weight // set all beats to 1
-					}
-				}
-				var pairs = []
-				for (var i = 0; i < b.length; i++ ) {
-					for (var j = 0; j < b.length; j ++) {
-						if (p[i][j]) {
-							pairs.push(p[i][j])
-						} else {
-							pairs.push(0)
-						}
-					}
-				}
-				return pairs
-				
-			}
 			if (v.length > 0) {
 				if (self.dimensions == "1D+B" || self.dimensions == "1D") {
 					// easy sort in 1D
@@ -378,13 +355,12 @@ function Model(idModel){
 					var draggingSomething = (self.arena.mouse.dragging || self.tarena.mouse.dragging)
 					var changedNumVoters = (self.orderOfVoters != undefined) && (self.orderOfVoters.length != v.length)
 					if (changedNumVoters || !draggingSomething ) {
-						var algorithmForTSP = 2
-						if (algorithmForTSP == 2) {
-							var bWeight = 739
-							var nodeDist2 = (m,n) => (m.x - n.x) ** 2 + (m.y - n.y) ** 2 + euclidian2(m.b, n.b) * bWeight * bWeight
-							function euclidian2(a, b) {
-							  return a.map((_, i) => (a[i] - b[i]) ** 2).reduce((a, b) => a + b); // sum of squares of differences
-							}
+						var algorithmForTSP = 1
+						if (algorithmForTSP == 3) {
+							var out = clusterTheVoters(v,{sortCluster:true,sortAll:true})
+							var order = out.map(x => x.i)
+						} else if (algorithmForTSP == 2) {
+							
 							if (v.length > 2) {
 								var out = order_by_distance(v,nodeDist2, {crossover: true, points: true})
 							} else {
@@ -396,13 +372,96 @@ function Model(idModel){
 							tsp.runOnSet(v)
 							var order = tsp.getOrder()
 						}
-						self.orderOfVoters  = order
+						self.orderOfVoters = order
 	
 					}
 				}
 			}
 		}
 		
+	}
+	
+	// helpers for the immediately above code for self.sortVoters
+	function pairList(b) {
+		var p = []
+		for (var i = 0; i < b.length; i++ ) {
+			p[b[i]] = []
+			for (var j = 0; j < i; j ++) {
+				var weight = b.length - j // set to 1 maybe
+				var weight = 1
+				p[b[i]][b[j]] = weight // set all beats to 1
+			}
+		}
+		var pairs = []
+		for (var i = 0; i < b.length; i++ ) {
+			for (var j = 0; j < b.length; j ++) {
+				if (p[i][j]) {
+					pairs.push(p[i][j])
+				} else {
+					pairs.push(0)
+				}
+			}
+		}
+		return pairs
+		
+	}
+	function clusterTheVoters(v,opt) {
+		// basically, we're creating clusters based only on the ballots, not the voter positions.
+		// Then we're sorting the center of each cluster by it's similarity in ballot and in position to other clusters.
+		// Also, there is no sorting within the clusters.
+
+		opt = opt || {}
+
+		// identify clusters
+		var clusters = {}
+		var clusterNames = []
+		for (var i = 0; i < v.length; i++ ) {
+			var clusterName = JSON.stringify(v[i].b)
+			if (clusters[clusterName] == undefined) {
+				clusters[clusterName] = []
+				clusterNames.push(clusterName)
+			}
+			clusters[clusterName].push(v[i])
+		}
+		// find center of clusters
+		clusterPositions = []
+		for (var i = 0; i < clusterNames.length; i++) {
+			var clusterName = clusterNames[i]
+			var cluster = clusters[clusterName]
+			var avgx = cluster.map( a => a.x).reduce( (a,b) => a + b) / cluster.length // average voter positions
+			var avgy = cluster.map( a => a.y).reduce( (a,b) => a + b) / cluster.length // average voter positions
+			clusterPositions.push( {x:avgx , y:avgy, i:i, b:cluster[0].b})
+		}
+		// tsp on cluster positions
+		var sortedClusterPositions = order_by_distance(clusterPositions,nodeDist2,{crossover: true, points: true})
+		var clusterOrder = sortedClusterPositions.map( x => x.i)
+		// clustered voters
+		var clusteredVoters = []
+		for ( var i = 0; i < clusterOrder.length; i++) {
+			var index = clusterOrder[i]
+			var clusterName = clusterNames[index]
+			var cluster = clusters[clusterName]
+			if (opt.sortCluster && cluster.length > 2) {
+				cluster = order_by_distance(cluster, dist2xy)
+			}
+			for ( var k = 0; k < cluster.length; k++) {
+				clusteredVoters.push(cluster[k])
+			}
+		}
+		if (opt.sortAll) {
+			crosssOverAndPoints(clusteredVoters, nodeDist2, {crossover: true, points: true})
+		}
+		return clusteredVoters
+	}
+	function nodeDist2(m,n) {
+		var bWeight = 739
+		return (m.x - n.x) ** 2 + (m.y - n.y) ** 2 + euclidian2(m.b, n.b) * bWeight * bWeight
+	}
+	function euclidian2(a, b) {
+	  return a.map((_, i) => (a[i] - b[i]) ** 2).reduce((a, b) => a + b); // sum of squares of differences
+	}
+	function dist2xy(a,b) {
+		return (a.x - b.x) ** 2 + (a.y - b.y) ** 2
 	}
 
 	self.selection = function() {
@@ -1896,11 +1955,14 @@ function Arena(arenaName, model) {
 		// Clear it all!
 		self.ctx.clearRect(0,0,self.canvas.width,self.canvas.height);
 		// not sure why this doesn't work
-		// self.ctx.fillStyle = "white"
-		// self.ctx.beginPath()
-		// self.ctx.fillRect(0,0,self.canvas.width,self.canvas.height);
-		// self.ctx.closePath()
-		// self.ctx.fill()
+		var darkMode = false
+		if (darkMode) {
+			self.ctx.fillStyle = "#222"
+			self.ctx.beginPath()
+			self.ctx.fillRect(0,0,self.canvas.width,self.canvas.height);
+			self.ctx.closePath()
+			self.ctx.fill()
+		}
 	}
 
 	self.drawHorizontal = function(yLine) {
@@ -1927,7 +1989,7 @@ function Arena(arenaName, model) {
 		resetAnnotations()
 		if (self.id == "arena") {
 			setAnnotations()
-			// drawSortLines()
+			// if (model.orderOfVoters) drawSortLines()
 			if (model.dimensions == "2D" || noClip) {
 				drawVoters0()
 				drawVoters1()
@@ -2027,7 +2089,7 @@ function Arena(arenaName, model) {
 				ctx.beginPath();
 				ctx.moveTo(va.x*2	,va.y*2	);
 				ctx.lineTo(vb.x*2	,vb.y*2	);
-				ctx.lineWidth = 2;
+				ctx.lineWidth = 5;
 				ctx.strokeStyle = "#888";
 				ctx.stroke();
 

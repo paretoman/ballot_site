@@ -398,7 +398,9 @@ function bindModel(ui,model,config) {
         
         ui.redrawButtons() // make sure the icons show up
         
-        sankeyDraw()
+        if (model.district[0].result.transfers) {
+            sankeyDraw()
+        }
 
         ballotDraw()
     }

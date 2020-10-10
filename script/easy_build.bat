@@ -1,0 +1,1 @@
+bundle exec jekyll build --config _config.yml,_config_make_easy.yml
