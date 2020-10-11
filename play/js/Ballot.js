@@ -37,8 +37,8 @@ function ScoreBallot(model){
 		for(var box in self.boxes){
 			self.boxes[box].gotoFrame(0);
 		}
-		for(var cID in ballot){
-			var score = ballot[cID];
+		for(var cID in ballot.scores){
+			var score = ballot.scores[cID];
 			
 			var okScore = (score < 6)
 			if (! (self._okCandidate(cID) && okScore)) continue
@@ -80,8 +80,8 @@ function ThreeBallot(model){
 			self.boxes[box].gotoFrame(0);
 		}
 
-		for(var cID in ballot){
-			var score = ballot[cID];
+		for(var cID in ballot.scores){
+			var score = ballot.scores[cID];
 			var okScore = (score < 6)
 			if (! (self._okCandidate(cID) && okScore)) continue
 			self.boxes[cID].gotoFrame(score+1);
@@ -121,8 +121,8 @@ function ApprovalBallot(model){
 
 		// Check all those who were approved
 
-		for(var cID in ballot){
-			var score = ballot[cID];
+		for(var cID in ballot.scores){
+			var score = ballot.scores[cID];
 			if (! (self._okCandidate(cID))) continue
 			if (score) {
 				self.boxes[cID].gotoFrame(1);

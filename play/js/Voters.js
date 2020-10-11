@@ -137,7 +137,7 @@ CastBallot.Score = function (model,voterModel,voterPerson) {
 	voterPerson.radiusLast = scoresfirstlast.radiusLast
 	voterPerson.maphelp = scoresfirstlast.maphelp
 
-	return scores
+	return {scores: scores}
 
 
 }
@@ -1651,8 +1651,8 @@ DrawMe.Score = function (ctx, model,voterModel,voterPerson) {
 	for(var i=0; i<model.candidates.length; i++){
 		var c = model.candidates[i];
 		var cID = c.id;
-		if (ballot[cID] == undefined) continue
-		var score = ballot[cID] - voterModel.minscore;
+		if (ballot.scores[cID] == undefined) continue
+		var score = ballot.scores[cID] - voterModel.minscore;
 		leftover -= score;
 		if (model.allCan || score > 0) {
 			slices.push({
@@ -1706,7 +1706,7 @@ DrawMe.Approval = function (ctx, model,voterModel,voterPerson) {
 	// Draw 'em slices
 	if (model.allCan) {
 		for(var candidate of model.candidates) {
-			var approved = ballot[candidate.id]
+			var approved = ballot.scores[candidate.id]
 			if (approved) {
 				slices.push({ num:1, fill:candidate.fill });
 				numApproved ++
@@ -1716,7 +1716,7 @@ DrawMe.Approval = function (ctx, model,voterModel,voterPerson) {
 		}
 	} else {
 		for(var candidate of model.candidates) {
-			var approved = ballot[candidate.id]
+			var approved = ballot.scores[candidate.id]
 			if (approved) {
 				slices.push({ num:1, fill:candidate.fill });
 				numApproved ++
@@ -2244,7 +2244,7 @@ DrawBallot.Score = function (model,voterModel,voterPerson) {
 	var text = ""
 	var scoreByCandidate = []
 	for(var i = 0; i < cans.length; i++) {
-		scoreByCandidate[i] = ballot[cans[i].id]
+		scoreByCandidate[i] = ballot.scores[cans[i].id]
 	}
 
 	var rTitle = `
@@ -2281,7 +2281,7 @@ DrawBallot.Approval = function (model,voterModel,voterPerson) {
 		approvedByCandidate.push("&#x2800;")
 	}
 	for(var candidate of model.candidates) {
-		var approved = ballot[candidate.id]
+		var approved = ballot.scores[candidate.id]
 		if (approved) {
 			var spot = spotsById[candidate.id]
 			approvedByCandidate[spot] = "&#x2714;"
@@ -2372,12 +2372,12 @@ DrawTally.Score = function (model,voterModel,voterPerson) {
 	if(cans.length == 0) return text
 
 	if (voterModel.say) text += "<span class='small' style> Vote: </span> <br />" 
-	cIDs = Object.keys(ballot).sort(function(a,b){return -(ballot[a]-ballot[b])}) // sort descending
+	cIDs = Object.keys(ballot.scores).sort(function(a,b){return -(ballot.scores[a]-ballot.scores[b])}) // sort descending
 
 	if (0){
 		for(var i=0; i < cIDs.length; i++){
 			cID = cIDs[i]
-			var score = ballot[cID]
+			var score = ballot.scores[cID]
 			text += model.icon(cID) + ":" + score
 			text += "<br />"
 		}
@@ -2385,7 +2385,7 @@ DrawTally.Score = function (model,voterModel,voterPerson) {
 	if (0){
 		for(var i=0; i < cIDs.length; i++){
 			cID = cIDs[i]
-			var score = ballot[cID]
+			var score = ballot.scores[cID]
 			for (var j=0; j < score; j++) {
 				text += model.icon(cID) + " "
 			}
@@ -2408,7 +2408,7 @@ DrawTally.Score = function (model,voterModel,voterPerson) {
 			for(var j=0; j<i; j++){
 				if (j>0) text += "  "
 				text += model.icon(cIDs[j])
-				if (ballot[cIDs[j]] > ballot[cIDs[i]]) {
+				if (ballot.scores[cIDs[j]] > ballot.scores[cIDs[i]]) {
 					text += ">"
 				} else text += "="
 				text += model.icon(cIDs[i])
@@ -2433,12 +2433,12 @@ DrawTally.Three = function (model,voterModel,voterPerson) {
 	var ballot = voterPerson.stages[model.stage].ballot
 	
 	var text = ""
-	cIDs = Object.keys(ballot).sort(function(a,b){return -(ballot[a]-ballot[b])}) // sort descending
+	cIDs = Object.keys(ballot.scores).sort(function(a,b){return -(ballot.scores[a]-ballot.scores[b])}) // sort descending
 	if (0){
 		if (voterModel.say) text += "<span class='small' style> Vote: </span> <br />" 
 		for(var i in cIDs){
 			cID = cIDs[i]
-			var score = ballot[cID]
+			var score = ballot.scores[cID]
 			text += model.icon(cID) + ":" + score
 			text += "<br />"
 		}
@@ -2450,8 +2450,8 @@ DrawTally.Three = function (model,voterModel,voterPerson) {
 		
 	}
 	groups = [[],[],[]]
-	for (cID in ballot) {
-		var score = ballot[cID]
+	for (cID in ballot.scores) {
+		var score = ballot.scores[cID]
 		groups[score].push(cID)
 	}
 	text +=  "<pre><span class='small' style>   Good:</span>" 
@@ -2489,7 +2489,7 @@ DrawTally.Three = function (model,voterModel,voterPerson) {
 		for(var j=0; j<i; j++){
 			if (j>0) text += "  "
 			text += model.icon(cIDs[j])
-			if (ballot[cIDs[j]] > ballot[cIDs[i]]) {
+			if (ballot.scores[cIDs[j]] > ballot.scores[cIDs[i]]) {
 				text += ">"
 			} else text += "="
 			text += model.icon(cIDs[i])
@@ -2515,7 +2515,7 @@ DrawTally.Approval = function (model,voterModel,voterPerson) {
 	
 	if (0) {
 		for(var candidate of model.candidates) {
-			var approved = ballot[candidate.id]
+			var approved = ballot.scores[candidate.id]
 			if (approved) {
 				text += model.icon(candidate)
 				text += "<br />"
@@ -3080,12 +3080,12 @@ function makeDistList(model,voterPerson,voterAtStage,cans,opt) {
 		if (model.ballotType == "Score" || model.ballotType == "Three") {
 			var maxscore = model.voterGroups[0].voterModel.maxscore
 			distSet.maxscore = maxscore
-			distSet.score = voterAtStage.ballot[c.id] / maxscore
-			distSet.scoreDisplay = voterAtStage.ballot[c.id]
+			distSet.score = voterAtStage.ballot.scores[c.id] / maxscore
+			distSet.scoreDisplay = voterAtStage.ballot.scores[c.id]
 		}
 		if (model.ballotType == "Approval") {
 			distSet.maxscore = 1
-			distSet.score = voterAtStage.ballot[c.id]
+			distSet.score = voterAtStage.ballot.scores[c.id]
 			distSet.scoreDisplay = distSet.score
 		}
 		if (model.ballotType == "Ranked") {
@@ -3494,14 +3494,14 @@ function VoterSet(model) {
 					var ballot = ballots[k]
 					for (var n = 0; n < model.candidates.length; n++) {
 						var id = model.candidates[n].id
-						v.b[n] = ballot[id] || 0
+						v.b[n] = ballot.scores[id] || 0
 					}
 					vs.push(v)
 				} else if (model.ballotType == "Score") {
 					var ballot = ballots[k]
 					for (var n = 0; n < model.candidates.length; n++) {
 						var id = model.candidates[n].id
-						v.b[n] = ballot[id] || 0
+						v.b[n] = ballot.scores[id] || 0
 					}
 					vs.push(v)
 				} else if (model.ballotType == "Ranked") {
