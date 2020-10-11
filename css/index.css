@@ -439,6 +439,7 @@ ul.share-buttons .sr-only {
 	width: 290px;
 	height: unset;
 	vertical-align: top;
+    margin-bottom: 20px;
 }
 #content img.picture100 {
 	display: inline-block;

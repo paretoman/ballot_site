@@ -34,7 +34,6 @@ function ScoreBallot(model){
 	// On update...
 	self.update = function(ballot){
 		// Clear all
-		var vote = ballot.vote;
 		for(var box in self.boxes){
 			self.boxes[box].gotoFrame(0);
 		}
@@ -77,7 +76,6 @@ function ThreeBallot(model){
 	// On update...
 	self.update = function(ballot){
 		// Clear all
-		var vote = ballot.vote;
 		for(var box in self.boxes){
 			self.boxes[box].gotoFrame(0);
 		}
@@ -117,16 +115,18 @@ function ApprovalBallot(model){
 	self.update = function(ballot){
 
 		// Clear all
-		var vote = ballot.vote;
 		for(var box in self.boxes){
 			self.boxes[box].gotoFrame(0);
 		}
 
 		// Check all those who were approved
-		for(var i=0; i<ballot.approved.length; i++){
-			var candidate = ballot.approved[i];
-			if (! (self._okCandidate(candidate))) continue
-			self.boxes[candidate].gotoFrame(1);
+
+		for(var cID in ballot){
+			var score = ballot[cID];
+			if (! (self._okCandidate(cID))) continue
+			if (score) {
+				self.boxes[cID].gotoFrame(1);
+			}
 		}
 
 	};
@@ -157,7 +157,6 @@ function RankedBallot(model){
 	// On update...
 	self.update = function(ballot){
 		// Clear all
-		var vote = ballot.vote;
 		for(var box in self.boxes){
 			self.boxes[box].gotoFrame(0);
 		}

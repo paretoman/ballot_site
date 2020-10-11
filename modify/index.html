@@ -229,26 +229,49 @@
 		<p></p></div>
     <div id="content">
         <div class="words">
-            <p>These are the build instructions. That means, if you want to run the site locally on your computer, you have to follow these instructions.</p>
+            <p>These are the build instructions to help you run this site on your computer.</p>
 
-<p>Why? Because I’m using a build tool, Jekyll. The reason I’m using Jekyll is I want to modularize my html, and jekyll seems to be popular and minimal, and github does it.</p>
+<p>There are two paths.</p>
 
-<p>If you really don’t want to run jekyll, I also have a repository for the <a href="https://github.com/paretoman/ballot_site/">build</a>. So you can start from there. But really, you’re making it harder on yourself to do things like add new pages.  To get started from this build, do the following:</p>
+<h2 id="modify-a-build">Modify a Build</h2>
+
+<p>If you want to mess around with the javascript code for calculating elections and votes, then it’s quicker and easier to work from the already-compiled repository, the <a href="https://github.com/paretoman/ballot_site/">build</a>.</p>
+
+<p>To get started from this build, do the following:</p>
 
 <ol>
   <li>
-    <p>open a terminal get in an empty folder</p>
+    <p>Download the repository from github.</p>
   </li>
   <li>
-    <p>git clone https://github.com/paretoman/ballot_site.git</p>
-  </li>
-  <li>
-    <p>rename “ballot_site/” to “ballot/”: mv ballot_site ballot</p>
-  </li>
-  <li>
-    <p>python -m http.server or some other way to serve the files.  Serve from the folder that contains “ballot/”.</p>
+    <p>Start an http server. For example, start a terminal in the downloaded folder and type:</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python -m http.server
+</code></pre></div>    </div>
   </li>
 </ol>
+
+<p>Here’s more detailed instructions for those that are new to programming web pages:</p>
+
+<ol>
+  <li>Download the repository from github.</li>
+  <li>Install VS Code.</li>
+  <li>Open VS Code, and open the repository folder you downloaded.</li>
+  <li>Install the Live Server extension by Ritwick Dey.</li>
+  <li>Hit “Go Live” in bottom right corner, small text.</li>
+  <li>Hit F5 in VS Code. This starts a debug session.</li>
+  <li>The first time you hit F5, you have to edit the config file. Change the port from 8080 to 5500 because that’s what Live Server uses. Then save. Then hit F5.</li>
+</ol>
+
+<p>Now you are in a debug session where you can search through the code for interesting parts and set breakpoints and check out variable contents. You can basically watch the code work.</p>
+
+<p>You can make changes. When you hit save on your changes, the current page you’re on in the browser will reload with your changes.</p>
+
+<h2 id="modify-the-source">Modify the Source</h2>
+
+<p>If you want to edit the html or add more js files, then you’ll want to run the jekyll build tool at some point.</p>
+
+<p>Jekyll is a build tool. The reason I’m using Jekyll is I want to modularize my html, and jekyll seems to be popular and minimal, and github does it.</p>
 
 <p>Here are instructions for building this site on your local machine.</p>
 

@@ -147,23 +147,7 @@ CastBallot.Three = function (model,voterModel,voterPerson) {
 }
 
 CastBallot.Approval = function (model,voterModel,voterPerson) {
-	var iDistrict = voterPerson.iDistrict
-	
-	var scores = CastBallot.Score(model,voterModel,voterPerson)
-	
-	// Anyone close enough. If anyone.
-	var approved = [];
-	var cans = model.district[iDistrict].stages[model.stage].candidates
-	for(var j=0;j<cans.length;j++){
-		var c = cans[j];
-		if(scores[c.id] == 1){
-			approved.push(c.id);
-		}
-	}
-
-	// Vote for the CLOSEST
-	return { approved: approved };
-	
+	return CastBallot.Score(model,voterModel,voterPerson)	
 }
 
 CastBallot.Ranked = function (model,voterModel,voterPerson) {
@@ -1717,21 +1701,26 @@ DrawMe.Approval = function (ctx, model,voterModel,voterPerson) {
 
 
 	var slices = [];
+	var numApproved = 0
 
 	// Draw 'em slices
 	if (model.allCan) {
 		for(var candidate of model.candidates) {
-			var approved = ballot.approved.includes(candidate.id)
+			var approved = ballot[candidate.id]
 			if (approved) {
 				slices.push({ num:1, fill:candidate.fill });
+				numApproved ++
 			} else {
 				slices.push({ num:0, fill:candidate.fill });
 			}
 		}
 	} else {
-		for(var i=0; i<ballot.approved.length; i++){
-			var candidate = model.candidatesById[ballot.approved[i]];
-			slices.push({ num:1, fill:candidate.fill });
+		for(var candidate of model.candidates) {
+			var approved = ballot[candidate.id]
+			if (approved) {
+				slices.push({ num:1, fill:candidate.fill });
+				numApproved ++
+			}
 		}
 	}
 	
@@ -1741,11 +1730,11 @@ DrawMe.Approval = function (ctx, model,voterModel,voterPerson) {
 	} else if (model.drawSliceMethod == "barChart") {
 		_drawVoterBarChart(model, ctx, x, y, size, slices, slices.length,voterModel.maxscore);
 	} else {
-		if(ballot.approved.length==0){
+		if(numApproved==0){
 			_drawBlank(model, ctx, x, y, size);
 			return;
 		}
-		_drawSlices(model, ctx, x, y, size, slices, ballot.approved.length);
+		_drawSlices(model, ctx, x, y, size, slices, numApproved);
 	}
 
 
@@ -2291,10 +2280,12 @@ DrawBallot.Approval = function (model,voterModel,voterPerson) {
 	for(var i = 0; i < cans.length; i++) {
 		approvedByCandidate.push("&#x2800;")
 	}
-	for(var i=0; i<ballot.approved.length; i++){
-		var approved = ballot.approved[i];
-		var spot = spotsById[approved]
-		approvedByCandidate[spot] = "&#x2714;"
+	for(var candidate of model.candidates) {
+		var approved = ballot[candidate.id]
+		if (approved) {
+			var spot = spotsById[candidate.id]
+			approvedByCandidate[spot] = "&#x2714;"
+		}
 	}
 
 	var text = ""
@@ -2523,11 +2514,12 @@ DrawTally.Approval = function (model,voterModel,voterPerson) {
 	if (voterModel.say) text += "<span class='small' style> Approved </span> <br />" 
 	
 	if (0) {
-		for(var i=0; i<ballot.approved.length; i++){
-			// if (i>0) text += ">"
-			var candidate = ballot.approved[i];
-			text += model.icon(candidate)
-			text += "<br />"
+		for(var candidate of model.candidates) {
+			var approved = ballot[candidate.id]
+			if (approved) {
+				text += model.icon(candidate)
+				text += "<br />"
+			}
 		}
 	}
 	if (1) {
@@ -3093,7 +3085,7 @@ function makeDistList(model,voterPerson,voterAtStage,cans,opt) {
 		}
 		if (model.ballotType == "Approval") {
 			distSet.maxscore = 1
-			distSet.score = voterAtStage.ballot.approved.includes(c.id) ? 1 : 0
+			distSet.score = voterAtStage.ballot[c.id]
 			distSet.scoreDisplay = distSet.score
 		}
 		if (model.ballotType == "Ranked") {
@@ -3499,12 +3491,10 @@ function VoterSet(model) {
 				}
 
 				if (model.ballotType == "Approval") { // not yet fully functional TODO
-					
-					var ballot = ballots[k].approved
-					for (var n = 0; n < ballot.length; n++) {
-						var id = ballot[n]
-						var index = model.candidatesById[id].i
-						v.b[index] = 1
+					var ballot = ballots[k]
+					for (var n = 0; n < model.candidates.length; n++) {
+						var id = model.candidates[n].id
+						v.b[n] = ballot[id] || 0
 					}
 					vs.push(v)
 				} else if (model.ballotType == "Score") {

@@ -336,8 +336,9 @@ Election.approval = function(district, model, options){
 	var ballots = model.voterSet.getBallotsDistrict(district)
 	var tally = _zeroTally(cans)
 	for(var ballot of ballots){
-		var approved = ballot.approved;
-		for(var i=0; i<approved.length; i++) tally[approved[i]]++;
+		for(var cid in ballot){
+			tally[cid] += ballot[cid];
+		}
 	}
 
 	var winners = _countWinner(tally);
@@ -1746,11 +1747,9 @@ Election.rav = function(district, model, options){
 		var tally = _zeroTally(cans)
 		for(var i=0; i<ballots.length; i++){
 			var ballot = ballots[i]
-			var approved = ballot.approved;
-			for(var k=0; k<approved.length; k++) {
-				if (candidates.includes(approved[k])) {
-					tally[approved[k]] += ballotweight[i];
-				}
+			for(var k=0; k<candidates.length; k++){
+				var candidate = candidates[k];
+				tally[candidate] += ballot[candidate] * ballotweight[i]
 			}
 		}
 		tallies.push(tally)
@@ -1763,8 +1762,8 @@ Election.rav = function(district, model, options){
 		//reweight
 		for(var i=0; i<ballots.length; i++){
 			var ballot = ballots[i]
-			var approved = ballot.approved;
-			if (approved.includes(winner)) {
+			var approved = ballot[winner];
+			if (approved) {
 				ballotsum[i]++
 				ballotweight[i] = 1/(1+ballotsum[i]*invmaxscore)
 			}
@@ -4260,8 +4259,9 @@ function runPoll(district,model,options,electiontype){
 			// Tally the approvals & get winner!
 			var tally = _zeroTally(cans)
 			for(var ballot of ballots){
-				var approved = ballot.approved;
-				for(var i=0; i<approved.length; i++) tally[approved[i]]++;
+				for(var candidate in ballot){
+					tally[candidate] += ballot[candidate];
+				}
 			}
 		} else if (electiontype=="plurality"){
 			var tally = _zeroTally(cans)

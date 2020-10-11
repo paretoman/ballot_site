@@ -795,7 +795,11 @@ function Model(idModel){
 	}
 
 	self.checkDoSort = function() {
-		return self.checkGotoTarena() ||  ["IRV","STV"].includes(self.system)
+		if (self.orderOfVoters == undefined || self.behavior == "stand") { 
+			return self.checkGotoTarena() ||  ["IRV","STV"].includes(self.system)
+		} else {
+			return false
+		}
 	}
 
 	self.checkDoBeatMap = function() {
