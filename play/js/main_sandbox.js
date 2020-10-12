@@ -398,9 +398,7 @@ function bindModel(ui,model,config) {
         
         ui.redrawButtons() // make sure the icons show up
         
-        if (model.district[0].result.transfers) {
-            sankeyDraw()
-        }
+        sankeyDraw()
 
         ballotDraw()
     }
@@ -487,8 +485,10 @@ function bindModel(ui,model,config) {
         var sankeyOn = ["IRV","STV"].includes(model.system)        
         
         // do sankey if any districts have more than 1 person
-        var sankeyOn = sankeyOn && model.district.map(x => x.voterPeople.length).some( x => x > 1) 
+        sankeyOn = sankeyOn && model.district.map(x => x.voterPeople.length).some( x => x > 1) 
 
+        sankeyOn = sankeyOn && model.district[0].result.transfers
+        
         if (! sankeyOn) {
             if (ui.dom.sankey) ui.dom.sankey.remove() 
             return
