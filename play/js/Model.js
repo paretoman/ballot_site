@@ -355,10 +355,13 @@ function Model(idModel){
 					var draggingSomething = (self.arena.mouse.dragging || self.tarena.mouse.dragging)
 					var changedNumVoters = (self.orderOfVoters != undefined) && (self.orderOfVoters.length != v.length)
 					if (changedNumVoters || !draggingSomething ) {
-						var algorithmForTSP = 1
-						if (algorithmForTSP == 3) {
-							var out = clusterTheVoters(v,{sortCluster:true,sortAll:true})
+						var algorithmForTSP = 4
+						if (algorithmForTSP == 4) { // fast way
+							var out = clusterTheVoters(v,{sortCluster:false,sortAll:false})
 							var order = out.map(x => x.i)
+						} else if (algorithmForTSP == 3) {
+								var out = clusterTheVoters(v,{sortCluster:true,sortAll:true})
+								var order = out.map(x => x.i)
 						} else if (algorithmForTSP == 2) {
 							
 							if (v.length > 2) {

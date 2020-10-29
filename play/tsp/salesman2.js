@@ -1,5 +1,7 @@
 function order_by_distance(nodes, distance, opts) {
     const n = nodes.length;
+
+    if (n < 3) return nodes
   
     const m = new Map(),
       connect = [];
