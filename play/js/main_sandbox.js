@@ -1990,7 +1990,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             {name:"STV", value:"STV", ballotType:"Ranked", election:Election.stv, margin:4},
             {name:"QuotaMinimax", value:"QuotaMinimax", realname:"Using a quota with Minimax Condorcet voting to make proportional representation.",ballotType:"Ranked", election:Election.quotaMinimax},
             {name:"Test LP", value:"PhragmenMax", realname:"Phragmen's method of minimizing the maximum representation with assignments.",ballotType:"Score", election:Election.phragmenMax},
-            {name:_smaller("Equal Facility"), value:"equalFacilityLocation", realname:"Facility location problem with equal assignments.",ballotType:"Score", election:Election.equalFacilityLocation},
+            {name:_smaller("Equal Facility"), nameIsHTML:true, value:"equalFacilityLocation", realname:"Facility location problem with equal assignments.",ballotType:"Score", election:Election.equalFacilityLocation},
             {name:"Create One", value:"Create",realname:"Write your own javascript code for a voting method.",ballotType:undefined, election:Election.create},
             
         ];
@@ -2360,11 +2360,11 @@ function menu(ui,model,config,initialConfig, cConfig) {
     ui.menu.nVoterGroups = new function() { // How many voters?
         var self = this
         self.list = [
-            {realname: "Single Voter", value:"Single Voter", name:"&#50883;", num:1, margin:4, oneVoter:true},
+            {realname: "Single Voter", value:"Single Voter", name:"&#50883;", nameIsHTML:true, num:1, margin:4, oneVoter:true},
             {realname: "One Group", value:"One Group", name:"1", num:1, margin:4},
             {realname: "Two Groups", value:"Two Groups", name:"2", num:2, margin:4},
             {realname: "Three Groups", value:"Three Groups", name:"3", num:3, margin:4},
-            {realname: "Different Sized Groups (like a snowman)", value:"Different Sized Groups (like a snowman)", name:"&#x2603;", num:3, snowman:true, margin:4},
+            {realname: "Different Sized Groups (like a snowman)", value:"Different Sized Groups (like a snowman)", name:"&#x2603;", nameIsHTML:true, num:3, snowman:true, margin:4},
             {realname: "Custom Number of Voters and Sizes and Spreads", value:"Custom Number of Voters and Sizes and Spreads", name:"X", num:4, x_voters:true},
         ];
         self.codebook = [
@@ -3131,7 +3131,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
     ui.menu.createStrategyType = new function() { // set the type of strategy for the new method we're writing
         var self = this
         self.list = [
-            {name:_smaller("Choice"), value:"choice", realname:"Do choice-type strategy", margin:4},
+            {name:_smaller("Choice"), nameIsHTML:true, value:"choice", realname:"Do choice-type strategy", margin:4},
             {name:"Pair", value:"pair", realname:"Do pair-type strategy", margin:4},
             {name:"Score", value:"score", realname:"Do score-type strategy"},
         ]; 
@@ -3173,11 +3173,11 @@ function menu(ui,model,config,initialConfig, cConfig) {
     ui.menu.createBallotType = new function() { // set the ballot type for the new method we're making
         var self = this
         self.list = [
-            {name:_smaller("Ranked"), value:"Ranked", realname:"Ranked", margin:4},
-            {name:_smaller("Score"), value:"Score", realname:"Score", margin:4},
-            {name:_smaller("Approval"), value:"Approval", realname:"Approval", margin:4},
-            {name:_smaller("Plurality"), value:"Plurality", realname:"Plurality"},
-            {name:_smaller("Three"), value:"Three", realname:"Three"},
+            {name:_smaller("Ranked"), nameIsHTML:true, value:"Ranked", realname:"Ranked", margin:4},
+            {name:_smaller("Score"), nameIsHTML:true, value:"Score", realname:"Score", margin:4},
+            {name:_smaller("Approval"), nameIsHTML:true, value:"Approval", realname:"Approval", margin:4},
+            {name:_smaller("Plurality"), nameIsHTML:true, value:"Plurality", realname:"Plurality"},
+            {name:_smaller("Three"), nameIsHTML:true, value:"Three", realname:"Three"},
         ]; 
         self.codebook = [ {
             field: "createBallotType",
@@ -3278,7 +3278,8 @@ function menu(ui,model,config,initialConfig, cConfig) {
             ui.strategyOrganizer.onChoose()
         };
         self.choose = new ButtonGroup({
-            label: "Voter Strategy <span class='smaller'>(choice-type)</span>:",
+            label: "Voter Strategy " + _smaller("(choice-type):"),
+            labelIsHTML:true,
             width: bw(5),
             data: self.list,
             onChoose: self.onChoose
@@ -3598,6 +3599,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
                 var c = model.candidates[i]
                 a.push({
                     name:_iconButton(c.id),
+                    nameIsHTML:true,
                     realname:c.id,
                     margin:4
                 })
@@ -3752,6 +3754,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
                 var c = model.candidates[i]
                 a.push({
                     name:_iconButton(c.id),
+                    nameIsHTML:true,
                     realname:c.id,
                     keyyee:c.id,
                     kindayee:"can",
@@ -3829,6 +3832,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
                 var c = model.candidates[i]
                 a.push({
                     name:_iconButton(c.id),
+                    nameIsHTML:true,
                     realname:c.id,
                     keyyee:c.id,
                     serial: c.serial,
@@ -6228,7 +6232,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
     ui.menu.includeSystems = new function () {
         var self = this
         self.list = [
-            {name:'<span class="smaller">choice</span>',value:"choice",realname:"choice",margin:4},
+            {name:_smaller("choice"), nameIsHTML:true,value:"choice",realname:"choice",margin:4},
             {name:"pair",value:"pair",margin:4},
             {name:"score",value:"score",margin:4},
             {name:"multi",value:"multi",margin:4},
@@ -7102,39 +7106,41 @@ sandbox.assets = [
     // the peeps
     "play/img/voter_face.png",
 
-    "play/img/square.png",
-    "play/img/triangle.png",
-    "play/img/hexagon.png",
-    "play/img/pentagon.png",
-    "play/img/bob.png",
+    // candidate images - now we dynamically load them
 
-    "play/img/square.svg",
-    "play/img/triangle.svg",
-    "play/img/hexagon.svg",
-    "play/img/pentagon.svg",
-    "play/img/bob.svg",
+    // "play/img/square.png",
+    // "play/img/triangle.png",
+    // "play/img/hexagon.png",
+    // "play/img/pentagon.png",
+    // "play/img/bob.png",
 
-    "play/img/blue_bee.png",
-    "play/img/yellow_bee.png",
-    "play/img/red_bee.png",
-    "play/img/green_bee.png",
-    "play/img/orange_bee.png",
+    // "play/img/square.svg",
+    // "play/img/triangle.svg",
+    // "play/img/hexagon.svg",
+    // "play/img/pentagon.svg",
+    // "play/img/bob.svg",
 
-    // plus
-    "play/img/plusCandidate.png",
-    "play/img/plusOneVoter.png",
-    "play/img/plusVoterGroup.png",
+    // "play/img/blue_bee.png",
+    // "play/img/yellow_bee.png",
+    // "play/img/red_bee.png",
+    // "play/img/green_bee.png",
+    // "play/img/orange_bee.png",
 
-    // Ballot instructions
-    "play/img/ballot5_fptp.png",
-    "play/img/ballot5_ranked.png",
-    "play/img/ballot5_approval.png",
-    "play/img/ballot5_range.png",
+    // plus - dynamic loading works for these 
+    // "play/img/plusCandidate.png",
+    // "play/img/plusOneVoter.png",
+    // "play/img/plusVoterGroup.png",
 
-    // The boxes
-    "play/img/ballot5_box.png",
-    "play/img/ballot_rate.png",
-    "play/img/ballot_three.png"
+    // Ballot instructions - old style ballot
+    // "play/img/ballot5_fptp.png",
+    // "play/img/ballot5_ranked.png",
+    // "play/img/ballot5_approval.png",
+    // "play/img/ballot5_range.png",
+
+    // The boxes - old style ballot
+    // "play/img/ballot5_box.png",
+    // "play/img/ballot_rate.png",
+    // "play/img/ballot_three.png"
 
 ];
 

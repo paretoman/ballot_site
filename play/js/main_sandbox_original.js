@@ -164,6 +164,7 @@ function sandbox(ui){
 				var s = self.listByName()
 				model.election = s.election
 				model.system = config.system;
+				model.ballotType = s.ballotType
 				for(var i=0;i<model.voterGroups.length;i++){
 					model.voterGroups[i].typeVoterModel = s.ballotType
 				}

@@ -23,6 +23,9 @@ function ButtonGroup(config){
 	}
 	self.buttonConfigs = config.data;
 
+	self.labelName = config.label
+	self.labelIsHTML = config.labelIsHTML || false
+
 	self.onChoose = config.onChoose;
 	self.isCheckbox = config.isCheckbox || false;
 	self.isCheckboxBool = config.isCheckboxBool || false;
@@ -45,10 +48,10 @@ function ButtonGroup(config){
 		self.buttonsByName = {}
 		
 		// Label!
-		self.label = document.createElement("div");
-		self.label.setAttribute("class", "button-group-label");
+		self.labelDOM = document.createElement("div");
+		self.labelDOM.setAttribute("class", "button-group-label");
 		self.draw()
-		self.dom.appendChild(self.label);
+		self.dom.appendChild(self.labelDOM);
 		
 		// Create & place buttons!
 		for(var i=0; i<self.buttonConfigs.length; i++){
@@ -84,7 +87,11 @@ function ButtonGroup(config){
 		self.draw()
 	}
 	self.draw = function() {
-		self.label.innerHTML = config.label;
+		if(self.labelIsHTML) {
+			self.labelDOM.innerHTML = self.labelName;	
+		} else {
+			self.labelDOM.innerText = self.labelName;
+		}
 		for(var button of self.buttons) {
 			button.draw()
 		}
@@ -168,6 +175,7 @@ function Button(buttonConfig, onChoose){
 
 	self.config = buttonConfig;
 	self.name = buttonConfig.name
+	self.nameIsHTML = buttonConfig.nameIsHTML || false
 	self.dom = document.createElement("div");
 	self.dom.setAttribute("class", "button");
 
@@ -179,7 +187,11 @@ function Button(buttonConfig, onChoose){
 
 	// Click!
 	self.draw = function() {
-		self.dom.innerHTML = self.name
+		if (self.nameIsHTML) {
+			self.dom.innerHTML = self.name
+		} else {
+			self.dom.innerText = self.name
+		}
 	}
 	self.draw()
 	self.dom.setAttribute("title", buttonConfig.realname || "");
