@@ -7105,6 +7105,7 @@ sandbox.assets = [
     
     // the peeps
     "play/img/voter_face.png",
+	"play/img/voter.png",
 
     // candidate images - now we dynamically load them
 

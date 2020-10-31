@@ -429,6 +429,7 @@ main_ballot.assets = [
 	
 	// the peeps
 	"play/img/voter_face.png",
+	"play/img/voter.png",
 
 	// candidate icons - don't need because we dynamically load
 	// "play/img/square.png",
