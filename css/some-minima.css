@@ -58,6 +58,7 @@ a:hover { text-decoration: underline; }
 /** Tables */
 .words > table { margin-bottom: 30px; width: 100%; text-align: left; color: #3f3f3f; border-collapse: collapse; 
   text-align: center;
+  word-break:break-word;
   /* border: 1px solid #e8e8e8;  */
 }
 .words > table tr:nth-child(even) { background-color: #f7f7f7; }
