@@ -1333,18 +1333,20 @@ function Config(ui, config, initialConfig) {
         // Put it in the save link box!
         
         // make link string
-        var getUrl = window.location;
-        var baseUrl = getUrl.protocol + "//" + getUrl.host; // http://ncase.me/
-        var restofurl = getUrl.pathname.split('/')
-        for (var i=1; i < restofurl.length - 1; i++) { //  /ballot/
-            if (restofurl[i] != "sandbox") {
-                baseUrl += "/" + restofurl[i];
-            }
-        }
+        
+        var baseUrl = document.baseURI
+        // var getUrl = window.location;
+        // var baseUrl = getUrl.protocol + "//" + getUrl.host; // http://ncase.me/
+        // var restofurl = getUrl.pathname.split('/')
+        // for (var i=1; i < restofurl.length - 1; i++) { //  /ballot/
+        //     if (restofurl[i] != "sandbox") {
+        //         baseUrl += "/" + restofurl[i];
+        //     }
+        // }
         if (ui.embed) {            
-		    var relativePath = "/sandbox/embedbox.html?v="
+		    var relativePath = "sandbox/embedbox.html?v="
         } else {
-            var relativePath = "/sandbox/?v="
+            var relativePath = "sandbox/?v="
         }
         if (ui.tryNewURL) {
             var link = baseUrl + relativePath + config.configversion + "&m="+uri;    
@@ -1359,7 +1361,7 @@ function Config(ui, config, initialConfig) {
 
         // var shortCode = _randAlphaNum(7)
         var shortCode = _hashCode(link)
-        var shortLink = baseUrl + "/sandbox/?v=" + config.configversion + "&u=" + shortCode
+        var shortLink = baseUrl + "sandbox/?v=" + config.configversion + "&u=" + shortCode
         
         console.log("(Link length is ",linkText.length,")")
         console.log("")
