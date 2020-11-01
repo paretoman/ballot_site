@@ -4,44 +4,44 @@ var e = [
     ["main", [ 
         ["index","index.html"],
         ["sandbox","sandbox"],
-        ["original","original.html"],
-        ["approval","approval.html"],
-        ["newer","newer.html"],
-        ["condorcet methods","condorcet.html"],
-        ["primaries","primaries.html"],
-        ["common ground","commonground.html"],
-        ["modify","modify.html"],
-        ["blog","blog.html"],
+        ["original","original"],
+        ["approval","approval"],
+        ["newer","newer"],
+        ["condorcet methods","condorcet"],
+        ["primaries","primaries"],
+        ["common ground","commonground"],
+        ["modify","modify"],
+        ["blog","blog"],
         ["irv","irv"]
     ]],
     ["drafts", [ 
-        ["quotaApproval","quotaApproval.html"],
-        ["bees","bees.html"],
-        ["draft common ground - old index","draft-common-ground.html"],
-        ["oncemore","oncemore.html"],
-        ["essay","essay.html"],
-        ["essay-dec-5","essay-dec-5.html"],
+        ["quotaApproval","quotaApproval"],
+        ["bees","bees"],
+        ["draft common ground - old index","draft-common-ground"],
+        ["oncemore","oncemore"],
+        ["essay","essay/essay"],
+        ["essay-dec-5","essay/essay-dec-5"],
     ]],
     ["tests", [ 
-        ["testPreset","testPreset.html"],
-        ["test (Layout)","test.html"],
-        ["testBallot","testBallot.html"],
-        ["testEmbedLink","testLink.html"],
-        ["try","try.html"],
+        ["testPreset","testPreset"],
+        ["test (Layout)","test"],
+        ["testBallot","testBallot"],
+        ["testEmbedLink","testLink"],
+        ["try","try"],
         ["play/examples/election1","play/examples/election1.html"],
         ["play/examples/ballot1","play/examples/ballot1.html"],
         ["play/examples/model1","play/examples/model1.html"],
         ["play/examples/model0","play/examples/model0.html"],
         ["play/examples/sandbox","play/examples/sandbox.html"],
         ["play/examples/ballot1_original","play/examples/ballot1_original.html"],
-        ["testAttach","testAttach.html"],
+        ["testAttach","testAttach"],
         ["sandbox/embedbox","sandbox/embedbox.html"],
         ["sandbox/index","sandbox/index.html"],
         ["sandbox/original","sandbox/original.html"],
         ["splash/splash","splash/splash.html"],
-        ["oncemore (not working)","oncemore.html"],
+        ["oncemore (not working)","oncemore"],
         ["rbvote/calc","rbvote/calc.html"],
-        ["testSwitcher","testSwitcher.html"],
+        ["testSwitcher","testSwitcher"],
     ]],
     ["borda viz", [ 
         [1,"http://127.0.0.1:8000/sandbox/?v=2.5&m=H4sIAAAAAAAAA41WwXKbMBD9F511QEjGOLc2mZya9JCZXOKMRzGyrRlALhKZJpnk2_sWG7uN6lg2sMvTW2l3WbS8sYxdPDwIlXGh1CN_ECLnohy1UkKZFFwU6vGRM0HcXIIhaWAKRRU0INkFy68YZwrKBHLCLla69oazAjYsB3T-xERTsDMe_TFSYmSS8dMHODNwxAyhnD8pGoQeuh4-CgqMfcxxzOcso8ucwaURERFCF_qxyjam9da1fkROc9sr60NnlyGB643-gpZHiIwQFSGTCClOO7DsfXDNrW5MSmSg1QjuJHMaIWWEzOK8_-dRxM9CxNkQcTpEnA8RJ-QQ0drobunalV2fj37bGW9CKnu5cc6bxdb-NvXC21eTYOKabR_MjQkbV6XQa9ddDst0iey7rV4mOOIRqq4WK70Mrls8u2C6hOrQnWl1YqiNqaxuF43R7Xly2JgmYc4-2NqGl4Xf6G0CfRfWN3-p28pWOqS8AE-6rl24twnUZ-vvbLuuzffBxv9s65eTVuKLN5RK1K1WKTlt-3uEhF0qjfzDPJv6PNUHs70B_TyzctfYz_rOXNs6pBSlp3r8zKM9O0eDyWAhqOUgelLVodmIY98RxVFFVyEWNHQRBTHbz5Jnw30uiED3mD6HkOM4phYQmBY9DkoxDkxHpByR2WAqqZ8y_6tH0QPFdq_pWZPvUuypMt8vJ4e-ScoxBIm13tixNY2KHBW1U94BkTfmlezhTpFBlmTsbWWedHfkzYauKrjkaOxMDS7S-oLcUtT8dosPV4LyGJLUW7kgFR5IiMkO4Xu0GFKlKDEfgxV9DpT_3FHaP8gp-kKAF-zWkUZ5gfyrTPdp-VQ2hxyNhbenHUp2yO_7H3QVO2bUCAAA"],
@@ -131,7 +131,9 @@ for (var [d,a] of e) {
     for (var [i,b] of a) {
         c += "<li>"
         // embed = '<iframe src="' + b + '" scrolling="yes" width="100%" height="650"></iframe>'
-        var f = b.replace("http://127.0.0.1:8000/","")
+        var matchString = "http://127.0.0.1:8000/"
+        var matchString = /http.*sandbox/
+        var f = b.replace(matchString,"sandbox")
         c += '<a href="' + f + '"> ' + i + '</a>, '
         c += "</li>"
     }
