@@ -398,6 +398,8 @@ function bindModel(ui,model,config) {
         
         ui.redrawButtons() // make sure the icons show up
         
+        roundChartDraw()
+
         sankeyDraw()
 
         ballotDraw()
@@ -627,124 +629,412 @@ function bindModel(ui,model,config) {
                 link.attr("d", path);
             }
 
-            function getDataSankey(district) {
-                var nodes = []
-                var links = []
-
-                // each transfer is referred to by transfers [ round ] [ transfer index ] 
-                // we use ids
-                // transfer.from 
-                // transfer.flows [ to ] 
-                // transfer.flows [ to ] [ first ]    -- also shows who was the first choice
-
-                var coalitions = district.result.coalitions
-                var tallies = district.result.tallies
-                var continuing = district.result.continuing
-                var transfers = district.result.transfers
-                var numRounds = transfers.length
-                var numBallots = district.voterPeople.length
-                
-                var winnersContinue = model.system == "STV" && 1
-                if (winnersContinue)var won = district.result.won
-                if (winnersContinue) var quotaAmount = numBallots / (model.seats + 1)
-                
-
-                // function to find the sorted position of the candidate
-                var xpos =  cid => model.tarena.modelToArena(model.candidatesById[cid]).x
-                // var listOfCandidates = Object.keys(transfers[0][0].flows)
-                // listOfCandidates.push(transfers[0][0].from)
-                var listOfCandidates = district.candidates.map(c => c.id)
-                // listOfCandidates.sort((a,b) => a.length - b.length)
-                var xc = {}
-                for (var cid of listOfCandidates) {
-                    xc[cid] = xpos(cid)
-                }
-                
-
-                // make ids and lookup tool
-                var idx = 0
-                var lookup = {}
-                for (var rid = 0; rid <= numRounds; rid ++) {
-                    lookup[rid] = {}
-                    if (rid == 0) {
-                        var useList = _jcopy(listOfCandidates)
-                    } else {
-                        var useList = _jcopy(continuing[rid-1]) // continuing from last round
-                        if (winnersContinue) useList = useList.concat(won[rid-1])
-                    }
-                    useList.sort( (a,b) => xc[a] - xc[b] )
-                    for( var k = 0; k < useList.length; k++) {
-                        var cid = useList[k]
-                        lookup[rid][cid] = idx
-                        var node = {name:rid + "_" + cid,round:rid,cid:cid,numBallots:numBallots}
-                        if (winnersContinue) {
-                            if (won[rid] && won[rid].includes(cid)) node.winner = true
-                        } else {
-                            if (rid == numRounds) { //last round
-                                if (result.winners.includes(cid)) node.winner = true
-                            }
-                        }
-                        nodes.push(node)
-                        idx ++
-                    }
-                }
-
-
-                for (var rid = 0; rid < numRounds; rid ++) {
-                    var round = transfers[rid]
-                    // var unTransferred = _jcopy(listOfCandidates)
-                    for (var transfer of round) {
-                        var from = transfer.from
-                        // delete unTransferred[from]
-                        for (var to in transfer.flows) {
-                            var lfrom = lookup[rid][from]
-                            var lto = lookup[rid+1][to]
-                            var v = 0
-                            var allfirst = transfer.flows[to]
-                            for (var first of Object.keys(allfirst) ) {
-                                v += allfirst[first]
-                            }
-                            if (v > 0) {
-                                var link = {"source":lfrom,"target":lto,"value":v,numBallots:numBallots}
-                                links.push(link)
-                            }
-                            
-                        }
-                    }
-                    for (var cid of continuing[rid]) {
-                        var lfrom = lookup[rid][cid]
-                        var lto = lookup[rid+1][cid]
-                        var v = tallies[rid][cid]
-                        if (v > 0) {
-                            var link = {"source":lfrom,"target":lto,"value":v,numBallots:numBallots}
-                            links.push(link)
-                        }
-
-                    }
-                    if (winnersContinue) {
-                        for (var cid of won[rid]) {
-                            var lfrom = lookup[rid][cid]
-                            var lto = lookup[rid+1][cid]
-                            var v = quotaAmount
-                            var link = {"source":lfrom,"target":lto,"value":v,"winner":true,numBallots:numBallots}
-                            links.push(link)
-                        }
-                    }
-                    // if (v == 0 && stv && rid > 0 && won[rid-1].includes(from) ) { // you won, and you're not on the tally
-                    //     v = quotaAmount
-                    // }
-                }
-
-
-                var data = {nodes:nodes,links:links}
-                return data
-            }
+            
 
         }
         
         if (noSankeys) ui.dom.sankey.remove()
 
     };
+    
+    function getDataSankey(district) {
+        var nodes = []
+        var links = []
+
+        // each transfer is referred to by transfers [ round ] [ transfer index ] 
+        // we use ids
+        // transfer.from 
+        // transfer.flows [ to ] 
+        // transfer.flows [ to ] [ first ]    -- also shows who was the first choice
+
+        var coalitions = district.result.coalitions
+        var tallies = district.result.tallies
+        var continuing = district.result.continuing
+        var transfers = district.result.transfers
+        var numRounds = transfers.length
+        var numBallots = district.voterPeople.length
+        
+        var winnersContinue = model.system == "STV" && 1
+        if (winnersContinue)var won = district.result.won
+        if (winnersContinue) var quotaAmount = numBallots / (model.seats + 1)
+        
+
+        // function to find the sorted position of the candidate
+        var xpos =  cid => model.tarena.modelToArena(model.candidatesById[cid]).x
+        // var listOfCandidates = Object.keys(transfers[0][0].flows)
+        // listOfCandidates.push(transfers[0][0].from)
+        var listOfCandidates = district.candidates.map(c => c.id)
+        // listOfCandidates.sort((a,b) => a.length - b.length)
+        var xc = {}
+        for (var cid of listOfCandidates) {
+            xc[cid] = xpos(cid)
+        }
+        
+
+        // make ids and lookup tool
+        var idx = 0
+        var lookup = {}
+        for (var rid = 0; rid <= numRounds; rid ++) {
+            lookup[rid] = {}
+            if (rid == 0) {
+                var useList = _jcopy(listOfCandidates)
+            } else {
+                var useList = _jcopy(continuing[rid-1]) // continuing from last round
+                if (winnersContinue) useList = useList.concat(won[rid-1])
+            }
+            useList.sort( (a,b) => xc[a] - xc[b] )
+            for( var k = 0; k < useList.length; k++) {
+                var cid = useList[k]
+                lookup[rid][cid] = idx
+                var node = {name:rid + "_" + cid,round:rid,cid:cid,numBallots:numBallots}
+                if (winnersContinue) {
+                    if (won[rid] && won[rid].includes(cid)) node.winner = true
+                } else {
+                    if (rid == numRounds) { //last round
+                        if (result.winners.includes(cid)) node.winner = true
+                    }
+                }
+                nodes.push(node)
+                idx ++
+            }
+        }
+
+
+        for (var rid = 0; rid < numRounds; rid ++) {
+            var round = transfers[rid]
+            // var unTransferred = _jcopy(listOfCandidates)
+            for (var transfer of round) {
+                var from = transfer.from
+                // delete unTransferred[from]
+                for (var to in transfer.flows) {
+                    var lfrom = lookup[rid][from]
+                    var lto = lookup[rid+1][to]
+                    var v = 0
+                    var allfirst = transfer.flows[to]
+                    for (var first of Object.keys(allfirst) ) {
+                        v += allfirst[first]
+                    }
+                    if (v > 0) {
+                        var link = {"source":lfrom,"target":lto,"value":v,numBallots:numBallots}
+                        links.push(link)
+                    }
+                    
+                }
+            }
+            for (var cid of continuing[rid]) {
+                var lfrom = lookup[rid][cid]
+                var lto = lookup[rid+1][cid]
+                var v = tallies[rid][cid]
+                if (v > 0) {
+                    var link = {"source":lfrom,"target":lto,"value":v,numBallots:numBallots}
+                    links.push(link)
+                }
+
+            }
+            if (winnersContinue) {
+                for (var cid of won[rid]) {
+                    var lfrom = lookup[rid][cid]
+                    var lto = lookup[rid+1][cid]
+                    var v = quotaAmount
+                    var link = {"source":lfrom,"target":lto,"value":v,"winner":true,numBallots:numBallots}
+                    links.push(link)
+                }
+            }
+            // if (v == 0 && stv && rid > 0 && won[rid-1].includes(from) ) { // you won, and you're not on the tally
+            //     v = quotaAmount
+            // }
+        }
+
+
+        var data = {nodes:nodes,links:links}
+        return data
+    }
+
+    function roundChartDraw() {
+ 
+
+        var roundChartOn = ["IRV","STV"].includes(model.system)  
+
+        // turning off
+        if (! roundChartOn) {
+            if (ui.dom.roundChart) ui.dom.roundChart.remove()
+            return
+        }
+
+        // hmm, might have a problem with changing number of districts.
+
+        var haveCharts = (ui.dom.roundChart != undefined) && ui.roundChartDistricts == model.district.length  // we already have the number of charts we need. They're ready.
+
+        // turning on
+        if (haveCharts) { // we already have the number of charts we need. They're ready.
+            // nothing
+        } else {
+
+            // if we're updating the number, remove the old charts
+            if (ui.dom.roundChart) ui.dom.roundChart.remove()
+
+            // set up container dom for chart
+            ui.roundChartDistricts = model.district.length
+    
+            ui.dom.roundChart = document.createElement("div")
+            ui.dom.roundChart.id = "chart"
+            ui.dom.right.prepend(ui.dom.roundChart)
+    
+            ui.dom.roundChart.innerHTML += '<div style="text-align:center;"><span class="small" > Rounds </span></div>'
+
+            
+            ui.dom.roundChartRoundNumText = []
+            ui.dom.roundChartBackButton = []
+            ui.dom.roundChartForwardButton = []
+            
+            ui.dom.roundChartSpace = []
+            ui.roundCurrent = []
+            ui.dom.roundChartCaption = []
+            for (var i = 0; i < model.district.length; i++) {
+                if (model.district.length > 1) {
+                    var title = document.createElement("div")
+                    // title.innerText = `District ${i+1}`
+                    title.innerHTML = `<div style="text-align:center;"><span class="small" > District ${i+1} </span></div>`
+                    ui.dom.roundChart.append(title)
+                    // don't use innerHTML on ui.dom.roundChart here. It will cause problems. The bindings to variables will be lost.
+                    // if (model.district.length > 1) ui.dom.roundChart.innerHTML += `<div style="text-align:center;"><span class="small" > District ${i+1} </span></div>`
+                }
+                var buttonDiv = document.createElement("div")
+                buttonDiv.setAttribute("style","margin-left:10px;")
+                ui.dom.roundChart.append(buttonDiv)
+                ui.dom.roundChartBackButton[i] = document.createElement("button")
+                ui.dom.roundChartBackButton[i].innerText = " < "
+                ui.dom.roundChartBackButton[i].className = "roundChartButton"
+                buttonDiv.append(ui.dom.roundChartBackButton[i])
+                
+                ui.dom.roundChartRoundNumText[i] = document.createElement("span")
+                ui.dom.roundChartRoundNumText[i].className = "small"
+                buttonDiv.append(ui.dom.roundChartRoundNumText[i])
+                // var roundNumberText = document.createTextNode(` Round x `);
+                // ui.dom.roundChart.appendChild(roundNumberText)
+                ui.dom.roundChartForwardButton[i] = document.createElement("button")
+                ui.dom.roundChartForwardButton[i].innerText = " > "
+                ui.dom.roundChartForwardButton[i].className = "roundChartButton"
+                buttonDiv.append(ui.dom.roundChartForwardButton[i])
+                ui.roundCurrent[i] = 0
+                ui.dom.roundChartSpace[i] = document.createElement("div")
+                ui.dom.roundChart.append(ui.dom.roundChartSpace[i])
+                ui.dom.roundChartCaption[i] = document.createElement("div")
+                ui.dom.roundChart.append(ui.dom.roundChartCaption[i])
+            }
+            
+        }
+
+        if (!haveCharts) {
+            // set up chart
+
+            // Load the Visualization API and the corechart package.
+            // google.charts.load('current', {'packages':['corechart']});
+            google.charts.load('49', {'packages':['corechart']});
+
+            // Set a callback to run when the Google Visualization API is loaded.
+            ui.roundChart = []
+            for (var i = 0; i < model.district.length; i++) {
+
+                google.charts.setOnLoadCallback( (function(a) { return function() { instantiateThenDrawRoundChart(a) }})(i) )
+            }
+            
+        } else {
+            // update chart
+            for (var i = 0; i < model.district.length; i++) {
+                actualRoundChartDraw(i)
+            }
+        }
+
+    }
+
+    function instantiateThenDrawRoundChart(i) {
+
+        // Instantiate chart        
+        ui.roundChart[i] = new google.visualization.BarChart(ui.dom.roundChartSpace[i]);
+
+        // Disabling the button while the chart is drawing.
+        getButtonReady(ui.dom.roundChartBackButton[i],i)
+        getButtonReady(ui.dom.roundChartForwardButton[i],i)
+        
+        ui.dom.roundChartBackButton[i].onclick = (function(i) { return function() {
+            var district = model.district[i]
+            ui.roundCurrent[i] --
+            if (ui.roundCurrent[i] < 0) ui.roundCurrent[i] = 0
+            actualRoundChartDraw(i, {ease:true});
+        }})(i)
+        ui.dom.roundChartForwardButton[i].onclick = (function(i) { return function() {
+            var district = model.district[i]
+            ui.roundCurrent[i] ++
+            var maxRound = district.result.tallies.length - 1
+            if (ui.roundCurrent[i] > maxRound) ui.roundCurrent[i] = maxRound
+            actualRoundChartDraw(i, {ease:true});
+        }})(i)
+            
+        
+        function getButtonReady(button,i) {
+            button.disabled = true;
+            google.visualization.events.addListener(ui.roundChart[i], 'ready', function() {
+                button.disabled = false;
+            });
+        }
+
+        actualRoundChartDraw(i)
+        
+        
+    }
+
+    function actualRoundChartDraw(iDistrict, opt) {
+
+        opt = opt || {}
+        opt.ease = opt.ease || false
+
+        // for (var district of model.district) {
+
+        //
+        var district = model.district[iDistrict]
+        var round = ui.roundCurrent[iDistrict]
+
+        // future
+        // ui.dom.roundChartCaption[i].innerHTML = district.result.roundText[round+1]
+
+        ui.dom.roundChartRoundNumText[iDistrict].innerText = ` ${round + 1} `
+
+            var dataSankey = getDataSankey(district)
+        // }
+
+        // Create the data table.
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Candidate');
+        data.addColumn('number', 'Votes');
+        data.addColumn({ type:'string', role: 'style' })
+        data.addColumn({ type:'string', role: 'annotation' })
+
+        var color = (cid) => model.candidatesById[cid].fill
+        var getName = (cid) => model.candidatesById[cid].name
+        var fPercent = (frac) => Math.round(100 * frac) + "%"
+
+        if (0) {
+            // get round
+            var nodes = dataSankey.nodes.filter( x => x.round == round)
+    
+            var rows = []
+            for ( var i = 0; i < nodes.length; i++) {
+                var node = nodes[i]
+                var num = district.result.tallies[round][node.cid]
+                var frac = num / node.numBallots
+                var name = getName(node.cid)
+                var barColor = hslToHex(color(node.cid))
+                // todo: convert color from hsl
+                rows.push([name,frac*100,barColor])
+            }
+        } else {
+            // get round
+            var nodes = dataSankey.nodes.filter( x => x.round == round)
+    
+            // get round 0
+            var nodes0 = dataSankey.nodes.filter( x => x.round == 0)
+    
+    
+            var lookup = []
+            var rows = []
+            for ( var i = 0; i < nodes0.length; i++) {
+                var node = nodes0[i]
+                lookup[node.cid] = i
+                var name = getName(node.cid)
+                var barColor = hslToHex(color(node.cid))
+                var annotation = "Lose: " + name
+                // todo: convert color from hsl
+                rows.push([name,0,barColor,annotation])
+            }
+
+            var numBallots = dataSankey.nodes[0].numBallots 
+            var quotaAmount = numBallots / (model.seats + 1)
+
+            for ( var i = 0; i < nodes.length; i++) {
+                var node = nodes[i]
+                var num = district.result.tallies[round][node.cid]
+                var name = getName(node.cid)
+                var annotation = name
+                if (num == null) {
+                    annotation = "Win: " + name
+                    num = quotaAmount
+                } else {
+                    if (round == district.result.tallies.length - 1) { //last round
+                        if (result.winners.includes(node.cid)) {
+                            annotation = "Win: " + name
+                        } else {
+                            annotation = "Lose: " + name
+                        }
+                    }
+                }
+                var frac = num / node.numBallots
+                var name = getName(node.cid)
+                var barColor = hslToHex(color(node.cid))
+                // todo: convert color from hsl
+                var idx = lookup[node.cid]
+                rows[idx] = [name,frac*100,barColor,annotation]
+            }
+        }
+        data.addRows(rows);
+
+        // make annotations at end of bars. https://developers.google.com/chart/interactive/docs/gallery/barchart
+        // var view = new google.visualization.DataView(data);
+        // view.setColumns([0, 1,
+        //                 { calc: "stringify",
+        //                     sourceColumn: 1,
+        //                     type: "string",
+        //                     role: "annotation" },
+        //                 2]);
+
+
+        var formatter = new google.visualization.NumberFormat(
+            {suffix: '%', fractionDigits:0});
+        formatter.format(data, 1); // Apply formatter to second column
+
+        // Set chart options
+        var options = {
+            "height": 20 * rows.length,
+            width: 200,
+            fontSize: 13,
+            chartArea: {
+                left: 10,
+                top: 10,
+                bottom: 10,
+                right: 10,
+            },                
+            legend: { position: 'none' },             
+            hAxis: { 
+                minValue: 0,
+                maxValue: 100,
+                ticks: [0,10,20,30,40,50,60,70,80,90,100],
+                gridlines: {
+                    color: '#eee'
+                },
+
+            },
+            bar: {groupWidth: '100%'},
+            annotations: {
+                // alwaysOutside: true,
+                textStyle: {
+                    fontSize: 15,
+                    auraColor: 'none',
+                    bold: true,
+                },
+            },
+        }
+
+        if (opt.ease) {
+            options.animation = {
+              duration: 1000,
+              easing: 'out',
+            }
+        }
+
+        // draw our chart, passing in some options.
+        ui.roundChart[iDistrict].draw(data, options);
+        // ui.roundChart.draw(view, options);
+    }
 
     model.updateFromModel = function() {
         _objF(ui.menu,"updateFromModel")

@@ -373,3 +373,6 @@ svg {
     width: unset;
     height: unset;
 }
+
+/* fix google charts tooltip flicker */
+svg[aria-label="A chart."] > g > g:last-child { pointer-events: none } 

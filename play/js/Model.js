@@ -339,9 +339,10 @@ function Model(idModel){
 			// 		voter.b = newb
 			// 	}
 			// }
-			for (var i = 0; i < v.length; i++) {
-				if (self.ballotType == "Ranked") {
-					v[i].b = pairList(v[i].b)
+			if (self.ballotType == "Ranked") {
+				var iList = self.candidates.map( x => x.i)
+				for (var i = 0; i < v.length; i++) {
+					v[i].b = pairList(v[i].b,iList)
 				}
 			}
 			if (v.length > 0) {
@@ -385,7 +386,7 @@ function Model(idModel){
 	}
 	
 	// helpers for the immediately above code for self.sortVoters
-	function pairList(b) {
+	function pairList(b,iList) {
 		var p = []
 		for (var i = 0; i < b.length; i++ ) {
 			p[b[i]] = []
@@ -396,9 +397,11 @@ function Model(idModel){
 			}
 		}
 		var pairs = []
-		for (var i = 0; i < b.length; i++ ) {
-			for (var j = 0; j < b.length; j ++) {
-				if (p[i][j]) {
+		for (var m = 0; m < iList.length; m++ ) {
+			var i = iList[m]
+			for (var n = 0; n < iList.length; n ++) {
+				var j = iList[n]
+				if (p[i] && p[i][j]) {
 					pairs.push(p[i][j])
 				} else {
 					pairs.push(0)
