@@ -961,7 +961,7 @@ function bindModel(ui,model,config) {
                     num = quotaAmount
                 } else {
                     if (round == district.result.tallies.length - 1) { //last round
-                        if (result.winners.includes(node.cid)) {
+                        if (district.result.winners.includes(node.cid)) {
                             annotation = "Win: " + name
                         } else {
                             annotation = "Lose: " + name
