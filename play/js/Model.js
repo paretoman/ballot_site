@@ -802,7 +802,7 @@ function Model(idModel){
 
 	self.checkDoSort = function() {
 		if (self.orderOfVoters == undefined || self.behavior == "stand") { 
-			return self.checkGotoTarena() ||  ["IRV","STV"].includes(self.system)
+			return self.checkGotoTarena() ||  ["IRV","STV"].includes(self.system) || self.showUtilityChart
 		} else {
 			return false
 		}

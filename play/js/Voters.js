@@ -3062,6 +3062,7 @@ function GeneralVoterModel(model,voterModel) {
 function makeDistList(model,voterPerson,voterAtStage,cans,opt) {
 	opt = opt || {}
 	opt.dontSort = opt.dontSort || false
+	opt.noBallot = opt.noBallot || false
 
 	var distList = []
 	var uf = utility_function(model.utility_shape)
@@ -3077,18 +3078,18 @@ function makeDistList(model,voterPerson,voterAtStage,cans,opt) {
 			nUNorm: uf(dist) / uf(model.size),
 			uNorm: 1-uf(dist) / uf(model.size),
 		}
-		if (model.ballotType == "Score" || model.ballotType == "Three") {
+		if (opt.noBallot) {
+
+		} else if (model.ballotType == "Score" || model.ballotType == "Three") {
 			var maxscore = model.voterGroups[0].voterModel.maxscore
 			distSet.maxscore = maxscore
 			distSet.score = voterAtStage.ballot.scores[c.id] / maxscore
 			distSet.scoreDisplay = voterAtStage.ballot.scores[c.id]
-		}
-		if (model.ballotType == "Approval") {
+		} else if (model.ballotType == "Approval") {
 			distSet.maxscore = 1
 			distSet.score = voterAtStage.ballot.scores[c.id]
 			distSet.scoreDisplay = distSet.score
-		}
-		if (model.ballotType == "Ranked") {
+		} else if (model.ballotType == "Ranked") {
 			if (model.system == "Borda") {
 				var rank = voterAtStage.ballot.rank.indexOf(c.id) + 1
 				var maxpoints = voterAtStage.ballot.rank.length
@@ -3490,7 +3491,23 @@ function VoterSet(model) {
 					continue
 				}
 
-				if (model.ballotType == "Approval") { // not yet fully functional TODO
+				// var optByDist = model.byDist
+				var optByDist = false
+				if (optByDist) {
+
+					var uf = utility_function(model.utility_shape)
+					for (var n = 0; n < model.candidates.length; n++) {
+						var c = model.candidates[n]
+						var dist = distF(model,{x:v.x, y:v.y}, c)
+						// dNorm: dist / model.size,
+						// nUtility: uf(dist),
+						// nUNorm: uf(dist) / uf(model.size),
+						var uNorm = 1-uf(dist) / uf(model.size)
+						v.b[n] = uNorm
+					}
+					vs.push(v)
+
+				} else if (model.ballotType == "Approval") { // not yet fully functional TODO
 					var ballot = ballots[k]
 					for (var n = 0; n < model.candidates.length; n++) {
 						var id = model.candidates[n].id

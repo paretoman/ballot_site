@@ -403,6 +403,8 @@ function bindModel(ui,model,config) {
         sankeyDraw()
 
         ballotDraw()
+
+        utilityDraw()
     }
 
     function ballotDraw() {
@@ -1036,6 +1038,213 @@ function bindModel(ui,model,config) {
         // ui.roundChart.draw(view, options);
     }
 
+    function utilityDraw() {
+        // make a google chart
+
+        // each data series is a candidate's utility value over all the voters
+
+
+        // turning off
+        if (! model.showUtilityChart) {
+            if (ui.dom.utilityChart) {
+                ui.dom.utilityChart.remove()
+                ui.dom.utilityChart = undefined
+            }
+            return
+        }
+
+        // hmm, might have a problem with changing number of districts.
+
+        var haveCharts = (ui.dom.utilityChart != undefined) && ui.utilityChartDistricts == model.district.length  // we already have the number of charts we need. They're ready.
+
+        // turning on
+        if (haveCharts) { // we already have the number of charts we need. They're ready.
+            // nothing
+        } else {
+
+            // if we're updating the number, remove the old charts
+            if (ui.dom.utilityChart) {
+                ui.dom.utilityChart.remove()
+                ui.dom.utilityChart = undefined
+            }
+
+            // set up container dom for chart
+            ui.utilityChartDistricts = model.district.length
+    
+            ui.dom.utilityChart = document.createElement("div")
+            ui.dom.utilityChart.id = "chart"
+            ui.dom.right.prepend(ui.dom.utilityChart)
+    
+            ui.dom.utilityChart.innerHTML += '<div style="text-align:center;"><span class="small" > Utility </span></div>'
+
+            
+            ui.dom.utilityChartRoundNumText = []
+            ui.dom.utilityChartBackButton = []
+            ui.dom.utilityChartForwardButton = []
+            
+            ui.dom.utilityChartSpace = []
+            ui.dom.utilityChartCaption = []
+            for (var i = 0; i < model.district.length; i++) {
+                if (model.district.length > 1) {
+                    var title = document.createElement("div")
+                    title.innerHTML = `<div style="text-align:center;"><span class="small" > District ${i+1} </span></div>`
+                    ui.dom.utilityChart.append(title)
+                }
+                ui.dom.utilityChartSpace[i] = document.createElement("div")
+                ui.dom.utilityChart.append(ui.dom.utilityChartSpace[i])
+                ui.dom.utilityChartCaption[i] = document.createElement("div")
+                ui.dom.utilityChart.append(ui.dom.utilityChartCaption[i])
+            }
+            
+        }
+
+        if (!haveCharts) {
+            // set up chart
+
+            // Load the Visualization API and the corechart package.
+            // google.charts.load('current', {'packages':['corechart']});
+            google.charts.load('49', {'packages':['corechart']});
+
+            // Set a callback to run when the Google Visualization API is loaded.
+            ui.utilityChart = []
+            for (var i = 0; i < model.district.length; i++) {
+
+                google.charts.setOnLoadCallback( (function(a) { return function() { instantiateThenDrawUtilityChart(a) }})(i) )
+            }
+            
+        } else {
+            // update chart
+            for (var i = 0; i < model.district.length; i++) {
+                actualUtilityChartDraw(i)
+            }
+        }
+
+    }
+
+    function instantiateThenDrawUtilityChart(i) {
+
+        // Instantiate chart        
+        ui.utilityChart[i] = new google.visualization.LineChart(ui.dom.utilityChartSpace[i]);
+
+        actualUtilityChartDraw(i)
+        
+        
+    }
+
+    function actualUtilityChartDraw(iDistrict, opt) {
+
+        opt = opt || {}
+
+
+        var district = model.district[iDistrict]
+
+
+        
+        // candidates
+        var cans = district.stages[model.stage].candidates
+        if (model.stage == "primary") {
+            var district = model.district[voterPerson.iDistrict]
+            cans = district.parties[voterPerson.iParty].candidates
+        }
+        
+        // Create the data table.
+        var data = new google.visualization.DataTable();
+        data.addColumn('number', 'Voter ID');
+        cans.forEach( c => data.addColumn('number', c.name) )
+
+        var optDist = {dontSort: true, noBallot:true}
+
+        var rows = []
+        var i = 0
+
+        
+        if (model.orderOfVoters) {
+            var vPeople = []
+            var v = model.voterSet.getVoterArray()
+            for ( var i = 0; i < model.orderOfVoters.length; i++ ) {
+                var idx = model.orderOfVoters[i]
+                vPerson = v[idx]
+                if (vPerson.iDistrict == iDistrict) {
+                    vPeople.push(vPerson)
+                }
+            }
+        } else {
+            return
+            // var vPeople = district.voterPeople
+        }
+
+		for (let voterPerson of vPeople) {
+            // // voters
+            // var voterAtStage = voterPerson.stages[model.stage]
+
+
+            // // distances
+            // var distList = makeDistList(model,voterPerson,voterAtStage,cans,optDist)
+
+            // distances
+            var distList = makeDistList(model,voterPerson,null,cans,optDist)
+            voterPerson.distList = distList // just pass it along.. maybe do this part better
+            var utilities = distList.map( c => c.uNorm )
+            utilities.unshift(i)
+            rows.push(utilities)
+            i++
+        }
+        
+
+        // var voters = model.getSortedVoters()
+        // for ( var i = 0; i < voters.length; i++) {
+
+        // }
+
+        var color = (cid) => model.candidatesById[cid].fill
+
+        var seriesColors = []
+        for (let c of cans) {
+            seriesColors.push({color: hslToHex(color(c.id))})
+        }
+        // seriesColors = cans.map( c => { color:hslToHex(color(c.id)) } )
+
+        // var getName = (cid) => model.candidatesById[cid].name
+        // var fPercent = (frac) => Math.round(100 * frac) + "%"
+
+        data.addRows(rows);
+
+
+        // var formatter = new google.visualization.NumberFormat(
+        //     {suffix: '%', fractionDigits:0});
+        // formatter.format(data, 1); // Apply formatter to second column
+
+        // Set chart options
+        var options = {
+            height: 200,
+            width: 200,
+            fontSize: 13,
+            chartArea: {
+                left: 10,
+                top: 10,
+                bottom: 10,
+                right: 10,
+            },                
+            legend: { position: 'none' },   
+            series: seriesColors,           
+            hAxis: { 
+                gridlines: {
+                    color: '#fff'
+                },
+            },         
+            vAxis: { 
+                gridlines: {
+                    color: '#fff'
+                },
+            },   
+        }
+
+
+        // draw our chart, passing in some options.
+        ui.utilityChart[iDistrict].draw(data, options);
+        // ui.utilityChart.draw(view, options);
+    }
+
     model.updateFromModel = function() {
         _objF(ui.menu,"updateFromModel")
     }
@@ -1151,6 +1360,7 @@ function Config(ui, config, initialConfig) {
         filterSystems: [],
         doFilterStrategy: true,
         includeSystems: ["choice","pair","score","multi","dev"],
+        showUtilityChart: false,
         showPowerChart: true,
         putMenuAbove: false,
         scoreFirstStrategy: "zero strategy. judge on an absolute scale.",
@@ -1785,6 +1995,7 @@ function Cypher(ui) {
         93:"group_count_h",
         94:"createStrategyType",
         95:"createBallotType",
+        96:"showUtilityChart",
     } 
     // HOWTO
     // add more on to the end ONLY
@@ -4268,7 +4479,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
                     61: "filterSystems",
                     62: "doFilterStrategy",
                     63: "includeSystems",
-                    64: "showPowerChart",
+                    64: "showUtilityChart",
                     65: "putMenuAbove",
                     66: "scoreFirstStrategy",
                     67: "choiceFirstStrategy",
@@ -5537,6 +5748,43 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
     }
 
+    ui.menu.showUtilityChart = new function () {
+        var self = this
+        self.list = [
+            {name:"yes",value:true,margin:4},
+            {name:"no",value:false},
+        ]
+        self.codebook = [ {
+            field: "showUtilityChart",
+            decode: {
+                0:false,
+                1:true,
+            }
+        } ]
+        self.onChoose = function(data){
+            // LOAD
+            config.showUtilityChart = data.value
+            // CONFIGURE
+            self.configure()
+            // INIT
+            if (config.sidebarOn = "on") {
+                model.update()
+            }
+        };
+        self.configure = function() {
+            model.showUtilityChart = config.showUtilityChart
+        }
+        self.choose = new ButtonGroup({
+            label: "Show Utility Chart:", // Sub Menu
+            width: bw(4),
+            data: self.list,
+            onChoose: self.onChoose
+        });
+        self.select = function() {
+            self.choose.highlight("value", config.showUtilityChart);
+        }
+    }
+
     ui.menu.sidebarOn = new function () {
         var self = this
         self.list = [
@@ -6764,6 +7012,7 @@ function createMenu(ui) {
             "beatMap",
             "ballotConcept",
             "roundChart",
+            "showUtilityChart",
             "showPowerChart",
             "behavior",
             "doTextBallots",
@@ -6910,6 +7159,7 @@ function createMenu(ui) {
                 ]],
                 ["advanced", [
                     "roundChart",
+                    "showUtilityChart",
                     "showPowerChart",
                     "sidebarOn",
                     "ballotVis",
