@@ -385,6 +385,7 @@ function bindModel(ui,model,config) {
 		// ui.menu.gearicon.init_sandbox()
 		ui.arena.desc.init_sandbox()
 		ui.arena.codeEditor.init_sandbox()
+        ui.arena.minusControl.init_sandbox()
         ui.menu.theme.init_sandbox();
         // UPDATE
         ui.menu_update()
@@ -479,27 +480,44 @@ function bindModel(ui,model,config) {
                 var BallotType = model.BallotType
                 var ballot = new BallotType(model);
                 ui.dom.rightBallot = ballot.dom
+                ui.dom.right.prepend(ui.dom.rightBallot)
                 ballot.update(voterPerson.stages[model.stage].ballot);
 
             } else {
 
                 var divBallot = document.createElement("div")
+                divBallot.style["width"] = "230px"
                 ui.dom.rightBallot = divBallot
-
-                divBallot.innerHTML = ""
+                ui.dom.right.prepend(ui.dom.rightBallot)
 
                 var currentStage = model.stage
                 for (var stage of Object.keys(voterPerson.stages)) {
                     if (stage == "backup") continue // just show the real stages, not this one that I made as a temporary holding place
                     model.stage = stage
+           
+                    var divStage = document.createElement("div")
+                    divStage.className = "div-ballot"
+                    divBallot.append(divStage)
 
-                    var text = ""                    
-                    text += '<div class="div-ballot">'
+                    var divPaper = document.createElement("div")
+                    divPaper.id = "paper"
+                    divStage.append(divPaper)
+
                     // text += model.voterGroups[0].voterModel.toTextV(voterPerson.stages[model.stage].ballot);
-                    text += model.voterGroups[0].voterModel.toTextV(voterPerson);
-                    text += '</div>'
+                    parts = model.voterGroups[0].voterModel.toTextV(voterPerson);
+                    if (ui.minusControl == undefined) ui.minusControl = {}
+                    if (ui.minusControl.ballotPart == undefined) ui.minusControl.ballotPart = []
+                    for (var i = 0; i < parts.length; i++) {
+                        if (parts[i] == '') continue
+                        var divPart = document.createElement("div")
+                        divPart.style["margin-bottom"] = "10px"
+                        divPart.innerHTML = parts[i]
+                        divPaper.append(divPart)
+                        if (ui.minusControl.ballotPart[i] == undefined) ui.minusControl.ballotPart[i] = {}
+                        addMinusButtonC(divPart,ui.minusControl.ballotPart[i],{ballot:true})
+
+                    }
                     
-                    divBallot.innerHTML += text
                     var target = divBallot
                     if (model.tallyEventsToAssign) {
                         for (let e of model.tallyEventsToAssign) {
@@ -511,7 +529,6 @@ function bindModel(ui,model,config) {
                 }
                 model.stage = currentStage
             }
-            ui.dom.right.prepend(ui.dom.rightBallot)
         }
     }
 
@@ -542,16 +559,20 @@ function bindModel(ui,model,config) {
                 ui.dom.sankey = undefined
             }
             ui.dom.sankey = document.createElement("div")
-            addMinusButton(ui.dom.sankey)
     
             ui.dom.sankey.id = "chart"
-            
+
         }
         ui.dom.right.prepend(ui.dom.sankey)
 
         ui.sankeyDistricts = model.district.length
 
         ui.dom.sankey.innerHTML = '<div style="text-align:center;"><span class="small" > Sankey Diagram </span></div>'
+
+        
+        if (ui.minusControl == undefined) ui.minusControl = {}
+        if (ui.minusControl.sankey == undefined) ui.minusControl.sankey = {}
+        addMinusButtonC(ui.dom.sankey,ui.minusControl.sankey)
 
         var noSankeys = true
 
@@ -833,6 +854,9 @@ function bindModel(ui,model,config) {
     
             ui.dom.roundChart.innerHTML += '<div style="text-align:center;"><span class="small" > Votes by Round </span></div>'
 
+            if (ui.minusControl == undefined) ui.minusControl = {}
+            if (ui.minusControl.roundChart == undefined) ui.minusControl.roundChart = {}
+            addMinusButtonC(ui.dom.roundChart,ui.minusControl.roundChart)
             
             ui.dom.roundChartRoundNumText = []
             ui.dom.roundChartBackButton = []
@@ -1425,9 +1449,12 @@ function bindModel(ui,model,config) {
     
             ui.dom.weightCharts = document.createElement("div")
             ui.dom.weightCharts.id = "chart"
-    
+            
             ui.dom.weightCharts.innerHTML += '<div style="text-align:center;"><span class="small" > Voter Weight by Round</span></div>'
     
+            if (ui.minusControl == undefined) ui.minusControl = {}
+            if (ui.minusControl.weightCharts == undefined) ui.minusControl.weightCharts = {}
+            addMinusButtonC(ui.dom.weightCharts,ui.minusControl.weightCharts)
             
             ui.dom.weightChartsRoundNumText = []
             ui.dom.weightChartsBackButton = []
@@ -1806,6 +1833,7 @@ function Config(ui, config, initialConfig) {
         codeEditorText: Election.defaultCodeScore,
         createStrategyType: "score",
         createBallotType: "Score",
+        minusControl: [],
     }
     // HOWTO: add to the end here (or anywhere inside)
 
@@ -2430,6 +2458,7 @@ function Cypher(ui) {
         94:"createStrategyType",
         95:"createBallotType",
         96:"showUtilityChart",
+        97:"minusControl",
     } 
     // HOWTO
     // add more on to the end ONLY
@@ -7838,6 +7867,26 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
         self.text.dom = codeEditorText
     }
 
+    ui.arena.minusControl = new function() {
+        var self = this
+        self.init_sandbox = function() {
+            if (model.minusControl == undefined) model.minusControl = {}
+            if (ui.minusControl == undefined) ui.minusControl = {}
+            model.minusControl.caption = readConfigControl(0)
+            ui.minusControl.sankey = readConfigControl(1)
+            ui.minusControl.weightCharts = readConfigControl(2)
+            ui.minusControl.roundChart = readConfigControl(3)
+            ui.minusControl.ballotPart = []
+            ui.minusControl.ballotPart[0] = readConfigControl(4)
+            ui.minusControl.ballotPart[1] = readConfigControl(5)
+            ui.minusControl.ballotPart[2] = readConfigControl(6)
+            ui.minusControl.ballotPart[3] = readConfigControl(7)
+            ui.minusControl.ballotPart[4] = readConfigControl(8)
+            function readConfigControl(x) { return {show: defaultTrue(config.minusControl[x])} }
+            function defaultTrue(x) { return (x == undefined) ? true : x}
+        }
+    }
+
     ui.arena.codeSave = new function() { // Create a "save" button for code
         var self = this
         var codeSaveDOM = document.createElement("div");
@@ -7867,6 +7916,28 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
         // Description
         config.description = ui.dom.descText.value || "";
         config.codeEditorText = ui.dom.codeMirror.getValue() || "";
+        // Minuses
+        // if the minus is not defined, then it defaults to true. Maybe I should insert a step into the setup to set these variables to default to true with the others.
+        var bp = ui.minusControl.ballotPart
+        if (bp == undefined) ui.minusControl.ballotPart = []
+        var mc = {
+            0: defaultTrue(model.minusControl.caption.show),
+            1: defaultTrue(ui.minusControl.sankey.show),
+            2: defaultTrue(ui.minusControl.weightCharts.show),
+            3: defaultTrue(ui.minusControl.roundChart.show),
+            4: defaultTrue(ui.minusControl.ballotPart[0].show),
+            5: defaultTrue(ui.minusControl.ballotPart[1].show),
+            6: defaultTrue(ui.minusControl.ballotPart[2].show),
+            7: defaultTrue(ui.minusControl.ballotPart[3].show),
+            8: defaultTrue(ui.minusControl.ballotPart[4].show),
+        }
+        function defaultTrue(x) { return (x == undefined) ? true : x}
+        // convert to array
+        config.minusControl = []
+        for (const [key, value] of Object.entries(mc)) {
+            config.minusControl[key] = value
+        }
+        
     }
 
     ui.arena.save = new function() { // Create a "save" button
@@ -8002,6 +8073,13 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
                 1:Election.defaultCodeScore,
             },
             field: "codeEditorText"
+        },
+        {
+            field: "minusControl",
+            decode:{
+                0:false,
+                1:true,
+            },
         },
         {
             field: "hidegearconfig",

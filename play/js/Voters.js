@@ -2802,7 +2802,6 @@ function GeneralVoterModel(model,voterModel) {
 		// writing //
 		
 		var tablewrap = false
-		var text = ''
 		var part1 = voterModel.drawBallot(voterPerson)
 
 
@@ -3001,25 +3000,30 @@ function GeneralVoterModel(model,voterModel) {
 			<span class="small">
 			Alternative form of ballot:
 			</span>
+			<br> <br>
 			`
 			part4 += tBarChart("score",distList,model,{differentDisplay: true,bubbles:true})
 			part4 += `<br>`
 			part4 += tableFoot
 		}
+
+		var part5 = ''
 		if (model.ballotType == "Ranked") {
-			part4 += tableHead
-			part4 += `
+			part5 += tableHead
+			part5 += `
 			<span class="small">
 			Visualization of ballot:
 			</span>
+			<br> <br>
 			`
-			part4 += tBarChart("score",distList,model,{differentDisplay: true,distLine:true})
-			part4 += `<br>`
-			part4 += tableFoot
+			part5 += tBarChart("score",distList,model,{differentDisplay: true,distLine:true})
+			part5 += `<br>`
+			part5 += tableFoot
 		}
 
 
 		if (tablewrap) {
+			var text = ''
 			text += `<table id="paper">
 			<tbody>
 			<tr>
@@ -3037,24 +3041,33 @@ function GeneralVoterModel(model,voterModel) {
 			</tr>
 			</tbody>
 			</table>`
+			return text
 		} else {
-			text += `
-			<div id="paper">
-			<div>
-			` + part1 + `
-			</div>
-			<div>
-			` + part2 + `
-			</div>
-			<div>
-			` + part3 + `
-			</div>
-			<div>
-			` + part4 + `
-			</div>
-			</div>`
+			if (direction == "H") {
+				var text = ''
+				text += `
+				<div id="paper">
+				<div>
+				` + part1 + `
+				</div>
+				<div>
+				` + part2 + `
+				</div>
+				<div>
+				` + part3 + `
+				</div>
+				<div>
+				` + part4 + `
+				</div>
+				<div>
+				` + part5 + `
+				</div>
+				</div>`
+				return text
+			} else { // direction == "V"
+				return [part1,part2,part3,part4,part5]
+			}
 		}
-		return text
 	}
 }
 

@@ -77,15 +77,13 @@ Election/Sandbox design:
 }
 
 .div-election #caption{
-    padding-left: 15px;
-    padding-top: 15px;
-    padding-bottom: 15px;
-    width: 210px;
+    padding: 14px;
+    width: 200px;
 }
 
 .div-election #caption .small,
 .div-election #chart .small{
-	font-size: 15px;
+	font-size: 14px;
 	line-height: 1.0em;
 }
 .div-election #caption .xsmall,

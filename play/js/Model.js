@@ -137,7 +137,6 @@ function Model(idModel){
 		self.dom.appendChild(self.arena.canvas);
 		self.dom.appendChild(self.tarena.canvas);
 		self.dom.appendChild(self.caption);
-		addMinusButton(self.caption)
 	}
 
 	self.initDOM = function() {
@@ -623,7 +622,12 @@ function Model(idModel){
 				} else {
 					self.result.textSubs = self.result.text
 				}
-				self.caption.innerHTML = self.result.textSubs;
+				if (! (self.optionsForElection.originalCaption == true) ) {
+					var title = '<div style="text-align:center;"><span class="small" > Election Results </span></div>'
+				} else {
+					var title = ''
+				}
+				self.caption.innerHTML = title + self.result.textSubs;
 				if (self.result.eventsToAssign) {
 					for (var i=0; i < self.result.eventsToAssign.length; i++) {
 						var e = self.result.eventsToAssign[i]
@@ -631,7 +635,12 @@ function Model(idModel){
 						self.caption.querySelector("#" + e.eventID).addEventListener("mouseleave", ()=>self.drawArenas())
 					}
 				}
-				// addMinusButton(self.caption)
+				if (! (self.optionsForElection.originalCaption == true) ) {
+					// self should really be ui and this should be moved out of model as a plugin to model like sandbox
+					if (self.minusControl == undefined) self.minusControl = {}
+					if (self.minusControl.caption == undefined) self.minusControl.caption = {}
+					addMinusButtonC(self.caption,self.minusControl.caption, {caption:true})
+				}
 			}
 		}
 	}

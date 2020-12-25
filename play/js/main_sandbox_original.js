@@ -77,7 +77,7 @@ function sandbox(ui){
         model.createDOM()
 
 		// CONFIGURE DEFAULTS
-		model.optionsForElection = {sidebar:true}
+		model.optionsForElection = {sidebar:true, originalCaption:true}
 		model.HACK_BIG_RANGE = true;
 		model.theme = "Nicky"
 		model.doOriginal = true

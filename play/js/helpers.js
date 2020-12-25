@@ -271,6 +271,7 @@ function _removeClass(element,name) {
 	element.className = element.className.replace(new RegExp(name,"g"), "")
 }
 function _addClass(element,name) {
+	_removeClass(element,name) // only one
 	element.className = element.className + " " + name
 }
 
@@ -417,35 +418,76 @@ function hslToHex(hsl) {
 	return sepHslToHex(h, s, l)
 }
 
-function addMinusButton(div) {
+function addMinusButton(div,opt) {
+	var control = {}
+	addMinusButtonC(div,control,opt)
+}
+
+function addMinusButtonC(div,control,opt) {
+
+	opt = opt || {}
+	opt.caption = opt.caption || false
+	opt.ballot = opt.ballot || false
 	// add to dom
 	// var minus = document.createElement("div")
-	var minus = document.createElement("button")
-	// div.append(minus)
+	var minus = document.createElement("div")
+	div.prepend(minus)
 	// div.parentNode.insertBefore(minus, div.nextSibling)
-	div.insertAdjacentElement('beforebegin', minus)
+	// div.insertAdjacentElement('beforebegin', minus)
 	// make float to upper right
-	// minus.style.position = "absolute"
-	// minus.style.top = "0"
-	// minus.style.right = "0"
-	minus.style.float = "right"
-	minus.style.border = '2px solid black';
+	div.style.position = "relative"
+	minus.style = `
+		position: absolute;
+		top: 0px;
+		right: 0px;
+		width: 20px;
+		height: 20px;
+		text-align: center;
+		vertical-align: middle;
+		line-height: 20px;
+		font-size: 20px;
+		background-color: #fff9;
+		color: #000d;
+		margin-top: 2px;
+	`
+	// minus.style.float = "right"
+	// minus.style.clear = "both"
+	if (opt.ballot) {
+		minus.style["margin-right"] = "10px"
+	}
+	// minus.style.border = '2px solid black';
 	// make minus sign
 	// var sign = document.createTextNode('-')
 	// minus.append(sign)
 	minus.innerText = '-'
 	// keep track of state
-	var stateShow = true
+	if (control.show == undefined) control.show = true
 	var stateDisplayDefault = div.style.display
+	updateMinus()
 	// add button function
 	minus.onclick = function () {
-		stateShow = ! stateShow
-		if (stateShow) {
+		control.show = ! control.show
+		updateMinus()
+	}
+	function updateMinus() {
+		if (control.show) {
 			minus.innerText = '-'
-			div.style.display = stateDisplayDefault
+			// div.style.display = stateDisplayDefault
+			// div.hidden = false
+			div.style.height = 'unset'
+			div.style["overflow-y"] = "inherit"
 		} else {
 			minus.innerText = '+'
-			div.style.display = 'none'
+			// div.style.display = 'none'
+			// div.hidden = true
+			if (opt.caption) {
+				div.style.height = '5px'
+			} else if (opt.ballot) {
+				div.style.height = '39px'
+			} else {
+				div.style.height = '25px'
+			}
+			div.style["overflow-y"] = "hidden"
 		}
 	}
 	
