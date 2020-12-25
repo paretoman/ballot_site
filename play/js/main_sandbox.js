@@ -417,7 +417,7 @@ function bindModel(ui,model,config) {
 
     function handleRoundTransition() {
 
-        if (!model.checkSystemWithBarChart()) return
+        if (!model.checkSystemWithRoundButtons()) return
 
         if (ui.roundCurrent == undefined) {
             // initialize
@@ -542,6 +542,7 @@ function bindModel(ui,model,config) {
                 ui.dom.sankey = undefined
             }
             ui.dom.sankey = document.createElement("div")
+            addMinusButton(ui.dom.sankey)
     
             ui.dom.sankey.id = "chart"
             

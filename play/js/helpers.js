@@ -403,7 +403,7 @@ function sepHslToHex(h, s, l) {
 }
 
 // https://stackoverflow.com/a/36721970
-hslToHex = function(hsl) {
+function hslToHex(hsl) {
 	var a, b, g, h, l, p, q, r, ref, s;
 	if (hsl.match(/hsla?\((.+?)\)/)) {
 	  ref = hsl.match(/hsla?\((.+?)\)/)[1].split(',').map(function(value) {
@@ -415,4 +415,38 @@ hslToHex = function(hsl) {
 	}
 
 	return sepHslToHex(h, s, l)
+}
+
+function addMinusButton(div) {
+	// add to dom
+	// var minus = document.createElement("div")
+	var minus = document.createElement("button")
+	// div.append(minus)
+	// div.parentNode.insertBefore(minus, div.nextSibling)
+	div.insertAdjacentElement('beforebegin', minus)
+	// make float to upper right
+	// minus.style.position = "absolute"
+	// minus.style.top = "0"
+	// minus.style.right = "0"
+	minus.style.float = "right"
+	minus.style.border = '2px solid black';
+	// make minus sign
+	// var sign = document.createTextNode('-')
+	// minus.append(sign)
+	minus.innerText = '-'
+	// keep track of state
+	var stateShow = true
+	var stateDisplayDefault = div.style.display
+	// add button function
+	minus.onclick = function () {
+		stateShow = ! stateShow
+		if (stateShow) {
+			minus.innerText = '-'
+			div.style.display = stateDisplayDefault
+		} else {
+			minus.innerText = '+'
+			div.style.display = 'none'
+		}
+	}
+	
 }
