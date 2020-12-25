@@ -2,6 +2,22 @@
 Math.TAU = Math.PI*2;
 
 
+function _drawText(text, x, y, textsize, ctx, textAlign) {
+	var lw = 2
+	var color = 'black'
+
+	ctx.save()
+	ctx.textAlign = textAlign || "center"
+	ctx.font = textsize + "px Sans-serif"
+	ctx.lineWidth = lw;
+	// ctx.strokeStyle = 'black';
+	// ctx.strokeText(text, x, y);
+	ctx.fillStyle = color;
+	ctx.fillText(text, x, y);
+	ctx.restore()
+}
+	
+
 function _drawStroked(text, x, y, textsize, ctx, textAlign) {
 	_drawStrokedColor(text, x, y, textsize, 4, 'white', ctx, false,textAlign)
 }

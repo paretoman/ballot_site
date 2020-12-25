@@ -183,7 +183,10 @@ BALLOT DESIGN
 	color: #302702;
 }
 .div-ballot #paper table.main2 td{
-	padding: 5px;
+	padding: 4px;
+}
+.div-ballot #paper table.main2 > tbody > tr > td{
+	padding: 15px;
 }
 
 .div-ballot #paper table.main th span.small,

@@ -1568,6 +1568,12 @@ Election.rrv = function(district, model, options){
 		history.seats = numreps
 		history.maxscore = maxscore
 		model.round = -1
+
+		var weightUsed = v.map( () => 0 )
+		var beforeWeightUsed = v.map( () => 0 )
+		var beforeWeight = v.map( () => 1 )
+		var powerUsed = v.map( () => 0 )
+		var beforePowerUsed = v.map( () => 0 )
 	}
 
 	var invmaxscore = 1/maxscore
@@ -1609,19 +1615,36 @@ Election.rrv = function(district, model, options){
 			var ballot = ballots[i]
 			var votetotal = tally[winner]
 			ballotsum[i] += ballot.scores[winner] 
-			ballotweight[i] = 1/(1+ballotsum[i]*invmaxscore)
+			var bw = 1/(1+ballotsum[i]*invmaxscore)
+			
+			if (options.sidebar) {
+				weightUsed[i] = ballotweight[i] - bw
+			}
+			ballotweight[i] = bw
+		}
+		
+		if (options.sidebar) {
+            powerUsed = _calcPowerFromWeight(weightUsed,numreps)
 		}
 
 		if (options.sidebar) {
 			var roundHistory = {
 				winners:[model.candidatesById[winner].i],
-				q:_jcopy(ballotweight),
-				tally:tally
+                beforeWeight:_jcopy(beforeWeight),
+				weightUsed:_jcopy(weightUsed),
+				beforeWeightUsed:_jcopy(beforeWeightUsed),
+				powerUsed:_jcopy(powerUsed),
+                beforePowerUsed:_jcopy(beforePowerUsed),
+				tally:_jcopy(tally),
 			}
 			history.rounds.push(roundHistory)
+			for(var i=0; i<ballots.length; i++){
+				beforeWeightUsed[i] += weightUsed[i]
+				beforePowerUsed[i] += powerUsed[i]
+			}
+			beforeWeight = _jcopy(ballotweight)
 
 		}
-		
 		// remove winner from candidates
 		candidates.splice(candidates.indexOf(winner),1)
 	}
@@ -1705,6 +1728,13 @@ Election.rrv = function(district, model, options){
 	return result;
 };
 
+function _calcPowerFromWeight(weightUsed,numreps) {
+	var totalWeightUsed = weightUsed.reduce((p,c) => p + c) // sum
+	var totalPower = weightUsed.length / numreps // voters per seat
+	powerUsed = weightUsed.map( x => totalPower * (x / totalWeightUsed) )
+	return powerUsed
+}
+
 Election.rav = function(district, model, options){
 
 	options = _electionDefaults(options)
@@ -1723,6 +1753,12 @@ Election.rav = function(district, model, options){
 		history.seats = numreps
 		history.maxscore = maxscore
 		model.round = -1
+
+		var weightUsed = v.map( () => 0 )
+		var beforeWeightUsed = v.map( () => 0 )
+		var beforeWeight = v.map( () => 1 )
+		var powerUsed = v.map( () => 0 )
+        var beforePowerUsed = v.map( () => 0 )
 	}
 
 	var invmaxscore = 1/maxscore
@@ -1765,18 +1801,38 @@ Election.rav = function(district, model, options){
 			var approved = ballot.scores[winner];
 			if (approved) {
 				ballotsum[i]++
-				ballotweight[i] = 1/(1+ballotsum[i]*invmaxscore)
+				bw = 1/(1+ballotsum[i]*invmaxscore)
+				if (options.sidebar) {
+					weightUsed[i] = ballotweight[i] - bw
+				}
+				ballotweight[i] = bw
+			} else {
+				if (options.sidebar) {
+					weightUsed[i] = 0
+				}
 			}
+		}
+		if (options.sidebar) {
+            powerUsed = _calcPowerFromWeight(weightUsed,numreps)
 		}
 
 		if (options.sidebar) {
 			var roundHistory = {
 				winners:[model.candidatesById[winner].i],
-				q:_jcopy(ballotweight),
-				tally:tally
+                beforeWeight:_jcopy(beforeWeight),
+				weightUsed:_jcopy(weightUsed),
+				beforeWeightUsed:_jcopy(beforeWeightUsed),
+				powerUsed:_jcopy(powerUsed),
+                beforePowerUsed:_jcopy(beforePowerUsed),
+				tally:_jcopy(tally)
+
 			}
 			history.rounds.push(roundHistory)
-
+			for(var i=0; i<ballots.length; i++){
+				beforeWeightUsed[i] += weightUsed[i]
+				beforePowerUsed[i] += powerUsed[i]
+			}
+			beforeWeight = _jcopy(ballotweight)
 		}
 		
 		// remove winner from candidates
@@ -1934,10 +1990,18 @@ Election.irv = function(district, model, options){
 	var ballots = model.voterSet.getBallotsDistrict(district)
 	cBallots = _jcopy(ballots)
 
-	var text = "";
-	if (options.sidebar) text += "<span class='small'>";
+	if (options.sidebar) {
+		var text = "";
+		text += "<span class='small'>";
+		text += polltext;
 
-	text += polltext;
+		var history = {}
+		history.rounds = []
+
+		var startText = "Who's voters' top choice?";
+		history.startText = startText
+	}
+
 	var resolved = null;
 	var roundNum = 1;
 
@@ -2003,6 +2067,8 @@ Election.irv = function(district, model, options){
 				}   
             }
 			text += "<br>";
+
+			var roundHistory = {}
 		}
 
 		if (drawFlows) {
@@ -2041,7 +2107,12 @@ Election.irv = function(district, model, options){
 		if (option100) {
 			if (candidates.length == 1) {
 				resolved = "done";
-				if (options.sidebar) text += model.icon(winner)+" is the last candidate standing<br>";
+				if (options.sidebar) {
+					var roundText = model.icon(winner)+" is the last candidate standing";
+					text += roundText
+					text += "<br>"
+					roundHistory.roundText = roundText
+				}
 				break;
 			}
 			
@@ -2051,23 +2122,34 @@ Election.irv = function(district, model, options){
 				break;
 			}
 			resolved = "done";
-			if (options.sidebar) text += model.icon(winner)+" has more than 50%<br>";
+			if (options.sidebar) {
+				var roundText = model.icon(winner)+" has more than 50%";
+				text += roundText
+				text += "<br>"
+				roundHistory.roundText = roundText
+			}
 			break;
 		}
 		// Otherwise... runoff...
 		var losers = _countLoser(tally);
 		var loser = losers[0];
+		if (options.sidebar) var roundText = ""
 		if (model.opt.breakEliminationTiesIRV && losers.length > 1) {
 
 			loser = losers[Math.floor(losers.length * Math.random())]
 
 			if (options.sidebar) {
+
 				for (var li = 0; li < losers.length ; li++ ) {
 					cid = losers[li]
-					text += model.icon(cid)
+					roundText += model.icon(cid)
 				}
-				text += " tie during elimination.<br>"
-				text += model.icon(loser) + " chosen to lose by tiebreaker.<br>"
+				var eTieText = " tie for lowest. Break tie.<br>"
+				// eTieText += model.icon(loser) + " chosen to lose by tiebreaker."
+				// eTieText += "<br>"
+				roundText += eTieText
+				text += eTieText
+				roundHistory.roundText = roundText
 			}
 
 			losers = [loser]
@@ -2078,7 +2160,13 @@ Election.irv = function(district, model, options){
 		}
 		if (0 && candidates.length > 2 && candidates.length - losers.length === 1) {
 			// There's only one candidate left
-			if (options.sidebar) text += model.icon(winner)+" wins because the others tied in this elimination round.<br>";
+			if (options.sidebar) {
+				var elimText = model.icon(winner)+" wins because the others tied in this elimination round."
+				roundText += elimText;
+				text += elimText
+				text += "<br>"
+				roundHistory.roundText = roundText
+			}
 			break;
 		}
 		loserslist = loserslist.concat(losers)
@@ -2109,7 +2197,13 @@ Election.irv = function(district, model, options){
 
 		for (var li = 0; li < losers.length ; li++ ) {
 			loser = losers[li];
-			if (options.sidebar) text += "eliminate loser, "+model.icon(loser)+".<br>";
+			if (options.sidebar) {
+				var eText =  "Eliminate loser, "+model.icon(loser)+".";
+				roundText += eText
+				text += eText
+				text += "<br>"
+				roundHistory.roundText = roundText
+			}
 
 			// REMOVE THE LOSER
 			candidates.splice(candidates.indexOf(loser), 1); // remove from candidates...
@@ -2150,8 +2244,11 @@ Election.irv = function(district, model, options){
 			}
 		}
 		roundNum++
-		if (options.sidebar) text += "<br>"
-	
+		if (options.sidebar) {
+			text += "<br>"
+
+			history.rounds.push(_jcopy(roundHistory))
+		}
 	}
 
 	if (drawFlows) {
@@ -2221,8 +2318,12 @@ Election.irv = function(district, model, options){
 
 	if (!options.sidebar) return result
 
+	
+
 	if (resolved == "tie") {
-		text += _tietext(model,winners);
+		var tieText = _tietext(model,winners)
+		text += tieText
+		var finalText = tieText
 		// text = "<b>TIE</b> <br> <br>" + text;
 	} else {
 		// END!
@@ -2230,7 +2331,14 @@ Election.irv = function(district, model, options){
 		text += "<br>";
 		text += "<b style='color:"+color+"'>"+model.nameUpper(winner)+"</b> WINS";
 		// text = "<b style='color:"+color+"'>"+model.nameUpper(winner)+"</b> WINS <br> <br>" + text;	
+		
+		var finalText = "Final Winner: ";
+		finalText += model.icon(winner)
 	}
+
+	history.rounds.push(roundHistory)
+	history.afterFinalRound = {finalText:finalText}
+	result.history = history
 
 	result.text = text;
 
@@ -2268,16 +2376,26 @@ Election.stv = function(district, model, options){
 		history.seats = numreps
 		history.maxscore = 5
 		model.round = -1
+		var beforeWeightUsed = v.map( () => 0)
+		var powerUsed = v.map( () => 0 )
+        var beforePowerUsed = v.map( () => 0 )
 	}
 
 	var quota = 1/(numreps+1)
 
 	if (options.sidebar) {
 		var quotapercent = Math.round(quota * 100)
+		var startText = "";
+		startText += "Find " + numreps + " winners.<br>"
+		startText += "Set quota at 1/(1+" + numreps + ") = " + quotapercent + "%.<br>"
+		
 		var text = "";
 		text += "<span class='small'>";
-		text += "Find " + numreps + " winners.<br>"
-		text += "Set quota at 1/(1+" + numreps + ") = " + quotapercent + "%.<br><br>"
+		text += startText
+		text += "<br>"
+
+		startText += "Who's voters' top choice?";
+		history.startText = startText
 		
 		var hsid = "hide-show-detail-" + _rand5()
 
@@ -2304,6 +2422,7 @@ Election.stv = function(district, model, options){
 	}
 	var loserslist = []
 	var winnerslist = []
+	var top = []
 	var ballots = model.voterSet.getBallotsDistrict(district)
 	var cBallots = _jcopy(ballots)
 	var ballotweight = []
@@ -2322,10 +2441,12 @@ Election.stv = function(district, model, options){
 			}
 
 			var roundHistory = {
-				q:_jcopy(ballotweight),
+				beforeWeight:_jcopy(ballotweight),
+				beforeWeightUsed: _jcopy(beforeWeightUsed),
 				ballots:_jcopy(cBallots),
 				stillin: stillin
 			}
+			roundHistory.weightUsed = v.map( () => 0)
 
 			text += '<div id="district'+district.i+'round' + (roundNum) + '" class="round">'
 			text += "<b>round "+roundNum+":</b><br>";
@@ -2333,11 +2454,14 @@ Election.stv = function(district, model, options){
 		}
 
 		var pre_tally = _zeroTally(cans)
+		top = []
 		for(var i=0; i<cBallots.length; i++){
 			var ballot = cBallots[i]
 			var first = ballot.rank[0]; // just count #1
 			pre_tally[first] += ballotweight[i];
+			if (options.sidebar) top.push(first)
 		}
+
 
 		// ONLY tally the remaining candidates...
 		var tally = {};
@@ -2346,7 +2470,12 @@ Election.stv = function(district, model, options){
 			tally[cID] = pre_tally[cID];
 		}
 
+
 		if (options.sidebar) {
+
+			roundHistory.tally = tally
+			roundHistory.top = top
+
 			// Say 'em...
 			if (model.doTallyChart) {
 				text += tallyChart(tally,cans,model,1,ballots.length)
@@ -2411,12 +2540,15 @@ Election.stv = function(district, model, options){
 			// 	resolved = "tie"; 
 			// 	break;
 			// }
-			reweight = 1-quota/ratio
+			var reweight = 1-quota/ratio
 			winnerslist.push(winner)
 			
 			if (options.sidebar) {
-				text += model.icon(winner)+" has more than " + quotapercent + "%<br>";
-				text += "select winner, "+model.icon(winner)+".<br><br>";
+				var roundText = model.icon(winner)+" has more than " + quotapercent + "%<br>";
+				roundText += "select winner, "+model.icon(winner)+".<br>";
+				text += roundText
+				text += "<br>"
+				roundHistory.roundText = roundText
 			}
 
 			if (drawFlows) {
@@ -2434,9 +2566,22 @@ Election.stv = function(district, model, options){
 			for(var i=0; i<cBallots.length; i++){
 				var rank = cBallots[i].rank;
 				if (rank[0] === winner) {
+					if (options.sidebar) {
+						var weightUsed = ballotweight[i] * (1-reweight)
+						roundHistory.weightUsed[i] = weightUsed
+						beforeWeightUsed[i] += weightUsed
+					}
 					ballotweight[i] *= reweight
 				}
 				rank.splice(rank.indexOf(winner), 1); // REMOVE THE winner
+			}
+			if (options.sidebar) {
+				powerUsed = _calcPowerFromWeight(roundHistory.weightUsed,numreps)
+				roundHistory.powerUsed = _jcopy(powerUsed)
+				roundHistory.beforePowerUsed = _jcopy(beforePowerUsed)
+				for ( var i = 0; i < powerUsed.length; i++) {
+					beforePowerUsed[i] += powerUsed[i]
+				}
 			}
 			if (drawFlows) {
 				canIdByDecision = canIdByDecision.concat(winner)
@@ -2495,7 +2640,10 @@ Election.stv = function(district, model, options){
 				loser = losers[li];
 				
 				if (options.sidebar) {
-					text += "eliminate loser, "+model.icon(loser)+".<br>";
+					var roundText = "eliminate loser, "+model.icon(loser)+".";
+					text += roundText
+					roundHistory.roundText = roundText
+					text += "<br>"
 				}
 				candidates.splice(candidates.indexOf(loser), 1); // remove from candidates...
 				for(var i=0; i<cBallots.length; i++){
@@ -2553,8 +2701,6 @@ Election.stv = function(district, model, options){
 
 		if (options.sidebar) {
 			
-			roundHistory.tally = tally
-			roundHistory.ballots = _jcopy(cBallots)
 			if (winner) {
 				roundHistory.winners = [model.candidatesById[winner].i]
 			} else {
@@ -2569,8 +2715,6 @@ Election.stv = function(district, model, options){
 	
 	if (options.sidebar) {
 			
-		roundHistory.tally = tally
-		roundHistory.ballots = _jcopy(cBallots)
 		if (winner) {
 			roundHistory.winners = [model.candidatesById[winner].i]
 		} else {
@@ -2585,7 +2729,7 @@ Election.stv = function(district, model, options){
 		text += '</div>'
 		text += '</div>'
 
-		// push out a final reweight just to evaluate how well the method worked
+		// push out a final count just to evaluate how well the method worked
 		if (1) {
 			var stillin = []
 			for (var i=0; i<candidates.length; i++) {
@@ -2593,16 +2737,19 @@ Election.stv = function(district, model, options){
 			}
 
 			var roundHistory = {
-				q:_jcopy(ballotweight),
+				beforeWeight:_jcopy(ballotweight),
+				beforeWeightUsed: _jcopy(beforeWeightUsed),
 				ballots:_jcopy(cBallots),
 				stillin: stillin
 			}
 
 			var pre_tally = _zeroTally(cans)
+			var top = []
 			for(var i=0; i<cBallots.length; i++){
 				var ballot = cBallots[i]
 				var f1 = ballot.rank[0]; // just count #1
 				pre_tally[f1] += ballotweight[i];
+				top.push(f1)
 			}
 	
 			// ONLY tally the remaining candidates...
@@ -2616,6 +2763,7 @@ Election.stv = function(district, model, options){
 			var winners = _countWinner(tally);
 			var winner = winners[0];  // there needs to be a better tiebreaker here. TODO
 
+			roundHistory.top = top
 			roundHistory.tally = tally
 			roundHistory.ballots = _jcopy(cBallots)
 			if (winner) {
@@ -2623,7 +2771,7 @@ Election.stv = function(district, model, options){
 			} else {
 				roundHistory.winners = []
 			}
-			history.rounds.push(roundHistory)
+			history.afterFinalRound = roundHistory
 			
 		}
 	}
@@ -2693,7 +2841,9 @@ Election.stv = function(district, model, options){
 
 	if (options.sidebar) {
 		text += '<div id="district'+district.i+'round' + (roundNum+1) + '" class="round">'
+		var finalText = ""
 		if (resolved == "tie") {
+			finalText += _tietext(model,tiedlosers);
 			text += _tietext(model,tiedlosers);
 			// text = "<b>TIE</b> <br> <br>" + text;
 		} 
@@ -2703,12 +2853,21 @@ Election.stv = function(district, model, options){
 			var color = _colorsWinners([winner],model)[0]
 			// END!
 			text += "</span>";
-			text += "<br>";
-			text += "<b style='color:"+color+"'>"+model.nameUpper(winner)+"</b> WINS";
+			text += "<br>"
+			text += "<b style='color:"+color+"'>"+model.nameUpper(winner)+"</b> WINS ";
 			// text = "<b style='color:"+color+"'>"+model.nameUpper(winner)+"</b> WINS <br>" + text;	
 		}
 		text += '</div>'
+
+		
+		finalText += "Final Winners:";
+		finalText += "<br>";
+		for(var i=0; i<winners.length; i++){
+			var c = winners[i]
+			finalText += model.icon(c)+" ";
+		}
 	
+		history.afterFinalRound.finalText = finalText
 		result.history = history
 		result.eventsToAssign = [] // we have an interactive caption
 		result.text = text;
@@ -2805,7 +2964,7 @@ Election.quotaMinimax = function(district, model, options){
 			}
 
 			var roundHistory = {
-				q:_jcopy(ballotweight),
+				ballotweight:_jcopy(ballotweight),
 				ballots:_jcopy(cBallots),
 				stillin: stillin
 			}
@@ -2991,7 +3150,7 @@ Election.quotaMinimax = function(district, model, options){
 			}
 
 			var roundHistory = {
-				q:_jcopy(ballotweight),
+				ballotweight:_jcopy(ballotweight),
 				ballots:_jcopy(cBallots),
 				stillin: stillin
 			}
@@ -3110,6 +3269,12 @@ Election.quotaApproval = function(district, model, options){
 		history.seats = seats
 		history.maxscore = 1
 		model.round = -1
+
+		var weightUsed = v.map( () => 0 )
+		var beforeWeightUsed = v.map( () => 0 )
+		var beforeWeight = v.map( () => 1 )
+		var powerUsed = v.map( () => 0 )
+        var beforePowerUsed = v.map( () => 0 )
 	}
 
 	var q = []
@@ -3126,13 +3291,13 @@ Election.quotaApproval = function(district, model, options){
 		}
 		for (var i = 0; i < v.length; i++) {
 			var b = v[i].b
-			var quota = Math.max(q[i],0)
+			var weight = Math.max(q[i],0)
 			
 			for (var k = 0; k < b.length; k++) {
 				if (winnersIndexes.includes(k)) continue
 				if (b[k] == 1) {
 					// add up the number of votes
-					tally[k] += quota
+					tally[k] += weight
 				}
 			}
 		}
@@ -3174,18 +3339,31 @@ Election.quotaApproval = function(district, model, options){
 			var rep = v.length / sum / seats
 			for (var k=0; k < v.length; k++) { 
 				var b = v[k].b
-				if (b[winnerIndex]) { // if this voter voted for this candidate
-					q[k] -= rep // we could just multiply by b[wI]
+
+				var wu = q[k] * rep * b[winnerIndex] // the weight of your contribution toward electing a candidate, weight used
+				q[k] -= wu // we could just multiply by b[wI]
+				if (options.sidebar) {
+					weightUsed[k] = wu
 				}
 			}
-		}
-		if (options.sidebar) {
+		}		
+		if (options.sidebar) {			
+			powerUsed = _calcPowerFromWeight(weightUsed,seats)
 			var roundHistory = {
-				winners: roundWinners,
-				q:q,
-				tally:tally
+				winners: _jcopy(roundWinners),
+                beforeWeight:_jcopy(beforeWeight),
+				weightUsed:_jcopy(weightUsed),
+				beforeWeightUsed:_jcopy(beforeWeightUsed),
+				powerUsed:_jcopy(powerUsed),
+                beforePowerUsed:_jcopy(beforePowerUsed),
+				tally:_jcopy(tally),
 			}
 			history.rounds.push(roundHistory)
+			for(var i=0; i<v.length; i++){
+				beforeWeightUsed[i] += weightUsed[i]
+				beforePowerUsed[i] += powerUsed[i]
+			}
+			beforeWeight = _jcopy(q)
 		}
 	}
 
@@ -3251,6 +3429,12 @@ Election.quotaScore = function(district, model, options){
 		history.seats = seats
 		history.maxscore = maxscore
 		model.round = -1
+
+		var weightUsed = v.map( () => 0 )
+		var beforeWeightUsed = v.map( () => 0 )
+		var beforeWeight = v.map( () => 1 )
+		var powerUsed = v.map( () => 0 )
+        var beforePowerUsed = v.map( () => 0 )
 	}
 
 	var q = []
@@ -3267,12 +3451,12 @@ Election.quotaScore = function(district, model, options){
 		}
 		for (var i = 0; i < v.length; i++) {
 			var b = v[i].b
-			var quota = Math.max(q[i],0)
+			var weight = Math.max(q[i],0)
 			
 			for (var k = 0; k < b.length; k++) {
 				if (winnersIndexes.includes(k)) continue
 				// add up the number of votes
-				tally[k] += quota * b[k] / maxscore
+				tally[k] += weight * b[k] / maxscore
 			}
 		}
 		if(options.sidebar) {
@@ -3313,15 +3497,558 @@ Election.quotaScore = function(district, model, options){
 			var rep = v.length / sum / seats
 			for (var k=0; k < v.length; k++) { 
 				var b = v[k].b
-				q[k] -= rep * b[winnerIndex] / maxscore // we could just multiply by b[wI]
+				var wu = q[k] * rep * b[winnerIndex] / maxscore
+				q[k] -= wu // we could just multiply by b[wI]
+				if (options.sidebar) {
+					weightUsed[k] = wu
+				}
 			}
 		}
 		if (options.sidebar) {
+			powerUsed = _calcPowerFromWeight(weightUsed,seats)
 			var roundHistory = {
-				winners: roundWinners,
-				q:q,
-				tally:tally
+				winners: _jcopy(roundWinners),
+				beforeWeight:_jcopy(beforeWeight),
+				weightUsed:_jcopy(weightUsed),
+				beforeWeightUsed:_jcopy(beforeWeightUsed),
+				powerUsed:_jcopy(powerUsed),
+                beforePowerUsed:_jcopy(beforePowerUsed),
+				tally:_jcopy(tally),
 			}
+			history.rounds.push(roundHistory)
+			for(var i=0; i<v.length; i++){
+				beforeWeightUsed[i] += weightUsed[i]
+				beforePowerUsed[i] += powerUsed[i]
+			}
+			beforeWeight = _jcopy(q)
+		}
+	}
+
+	
+	if(options.sidebar) {
+		text += '<div id="district'+district.i+'round' + (n+1) + '" class="round">'
+		text += "Final Winners:";
+		text += "<br>";
+		for(var i=0; i<winners.length; i++){
+			var c = winners[i]
+			text += model.icon(c)+" ";
+		}
+		text += "<br>";
+		text += "<br>";
+		text += '</div>'
+	}
+	
+	var result = _result(winners,model)
+	if (options.sidebar) {
+		result.history = history
+		
+		result.text = text
+
+		result.eventsToAssign = [] // we have an interactive caption
+		// attach caption hover functions
+		for (var i=0; i < n+1; i++) {
+			var cbDraw = function(i) { // a function is returned, so that i has a new scope
+				return function() {
+					model.round = i+1
+					model.drawArenas()
+					model.round = -1
+				}
+			}
+			var e = {
+				eventID: "district"+district.i+"round" + (i+1),
+				f: cbDraw(i)
+			}
+			result.eventsToAssign.push(e)
+		}
+	}
+	return result
+}
+
+Election.monroeSequentialRange = function(district, model, options){
+	// Monroe like
+	// sort scores
+	// sum only the top quota of ballots
+	// top means highest ballotweight * score
+	// or top means highest score
+	// highest sum wins
+	// sequential rounds
+
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"nopoll")	
+	let cans = district.stages[model.stage].candidates
+	
+	var v = model.voterSet.getDistrictVoterArray(district)
+
+	var seats = model.seats
+	var winners = []
+	var winnersIndexes = []
+	var maxscore = model.voterGroups[0].voterModel.maxscore
+	
+	if (options.sidebar) {
+		var text = ""
+		text += "<span class='small'>";
+		var history = {}
+		history.rounds = []
+		history.v = v
+		history.seats = seats
+		history.maxscore = maxscore
+		model.round = -1
+		var powerUsed = v.map( () => 0 )
+        var beforePowerUsed = v.map( () => 0 )
+	}
+
+	var q = []
+	for (var i=0; i < v.length; i++) {
+		q.push(1)
+	}
+	var qPrevious = _jcopy(q)
+	for (var n = 0; n < cans.length; n++) {
+		if (winners.length >= seats) {
+			break
+		}
+		var tally = []
+		for (var k = 0; k < cans.length; k++) {
+			tally[k] = 0
+		}
+		
+		// how many in quota?
+		var quota = Math.ceil(v.length / seats) // number of voters in a quota
+
+		// TODO: Add weighting so that we can assign all the voters that gave a score or higher. Rather than just choosing them by whatever sort order the sorting algorithm placed them in.
+
+		// make sorted arrays of index and score for each candidate
+		var bByCan = [] // going to be a sorted array of voters for each candidate
+		var tally = []
+		var lasti = [] // the number of voters needed to complete a quota (based on ballotweight and sort order)
+		for (var k = 0; k < cans.length; k++) {
+			bByCan[k] = v.map( (x,i) => [x.b[k],i] ).sort( (a,b) => a[0]-b[0] ).reverse()
+			// only get q's adding up to quota
+			var sumq = 0
+			lasti[k] = v.length - 1 // default value, all of them are in quota
+			for (var i = 0; i < v.length; i++) {
+				var idx = bByCan[k][i][1]
+				sumq += q[idx]
+				if (sumq > quota) {
+					lasti[k] = i
+					break // this is the i value we want
+				}
+			}
+			
+			var talsum = 0
+			for (var i = 0; i <= lasti[k]; i++) {
+				var voter = bByCan[k][i]
+				talsum += voter[0] * q[voter[1]]// sum, score * q
+			}
+			tally[k] = talsum/ maxscore
+			// tally[k] = bByCan[k].slice(0,lasti[k]).reduce( (p,c) => p + c[0]*q[c[1]]) // sum, score * q
+			if (winnersIndexes.includes(k)) tally[k] = 0
+		}
+		
+		// display winner
+		if(options.sidebar) {
+			text += '<div id="district'+district.i+'round' + (n+1) + '" class="round">'
+			text += "Round " + (n+1);
+			text += "<br>";
+			if (model.doTallyChart) {
+				var cidTally = {}
+				for(var i=0; i<cans.length; i++){
+					var cid = cans[i].id;
+					cidTally[cid] = tally[i]
+				}   
+				text += tallyChart(cidTally,cans,model,1,v.length)
+			} else {
+				for(var i=0; i<cans.length; i++){
+					var c = cans[i].id;
+					text += model.icon(c)+" got "+_percentFormat(district, tally[i])+"<br>";
+				}
+            }
+			text += "<br>";
+			text += '</div>'
+		}
+
+		// who won this round?
+		var roundWinners = _countWinner(tally) // need to exclude twice-winners
+		if (model.opt.breakWinTiesMultiSeat) {
+			roundWinners = roundWinners[Math.floor(Math.random() * roundWinners.length)]
+			roundWinners = [roundWinners]
+		}
+		roundWinners = roundWinners.map(x => Number(x))
+		roundWinners.forEach(x => winnersIndexes.push(Number(x)))
+		roundWinnersId = roundWinners.map( x => cans[x].id)
+		roundWinnersId.forEach(x => winners.push(x))
+
+		// subtract off the quota
+		for (var k=0; k < roundWinners.length; k++) {
+			var winnerIndex = roundWinners[k]
+			// var sum = tally[winnerIndex]
+			// var rep = v.length / sum / seats
+
+			var bByCanWin = bByCan[winnerIndex]
+			var lastiWin = lasti[winnerIndex]
+			var smallestScore = bByCanWin[lastiWin][0]
+			var cutset = bByCanWin.filter( x => x[0] == smallestScore) // for the voters that gave the minimum score required to be part of the quota, reweight differently
+			var fullset = bByCanWin.filter( x => x[0] > smallestScore) // for the voters that gave more than the minimum score, use full weight
+
+			var qFull = 0
+			for (var i=0; i < fullset.length; i++) {
+				var idx = fullset[i][1]
+				qFull += q[idx]
+				q[idx] = 0 // zero out all within quota
+			}
+			
+			var qCut = 0
+			for (var i=0; i < cutset.length; i++) { 
+				var idx = cutset[i][1]
+				qCut += q[idx]
+			}
+			var needTotal = quota - qFull
+			var needPer = needTotal / cutset.length
+			for (var i=0; i < cutset.length; i++) { 
+				var idx = cutset[i][1]
+				q[idx] -= needPer * q[idx]
+			}
+		}
+		var qUsed = []
+		var beforeWeightUsed = qPrevious.map( x => 1-x )
+		for (var i = 0; i < q.length; i++) {
+			qUsed.push(qPrevious[i] - q[i])
+		}
+
+		if (options.sidebar) {
+			powerUsed = _calcPowerFromWeight(qUsed,seats)
+			var roundHistory = {
+				winners: _jcopy(roundWinners),
+				beforeWeightUsed: _jcopy(beforeWeightUsed),
+				weightUsed:_jcopy(qUsed),
+                beforeWeight:_jcopy(qPrevious),
+				powerUsed:_jcopy(powerUsed),
+                beforePowerUsed:_jcopy(beforePowerUsed),
+				qUsed:_jcopy(qUsed),
+				tally:_jcopy(tally)
+			}
+			history.rounds.push(roundHistory)
+			for (var i = 0; i < powerUsed.length; i++) {
+				beforePowerUsed[i] += powerUsed[i]
+			}
+			qPrevious = _jcopy(q)
+		}
+	}
+
+	
+	if(options.sidebar) {
+		text += '<div id="district'+district.i+'round' + (n+1) + '" class="round">'
+		text += "Final Winners:";
+		text += "<br>";
+		for(var i=0; i<winners.length; i++){
+			var c = winners[i]
+			text += model.icon(c)+" ";
+		}
+		text += "<br>";
+		text += "<br>";
+		text += '</div>'
+	}
+	
+	var result = _result(winners,model)
+	if (options.sidebar) {
+		result.history = history
+		
+		result.text = text
+
+		result.eventsToAssign = [] // we have an interactive caption
+		// attach caption hover functions
+		for (var i=0; i < n+1; i++) {
+			var cbDraw = function(i) { // a function is returned, so that i has a new scope
+				return function() {
+					model.round = i+1
+					model.drawArenas()
+					model.round = -1
+				}
+			}
+			var e = {
+				eventID: "district"+district.i+"round" + (i+1),
+				f: cbDraw(i)
+			}
+			result.eventsToAssign.push(e)
+		}
+	}
+	return result
+}
+
+
+Election.phragmenSequentialRange = function(district, model, options){
+	// sequential Phragmen after KP transform 
+	// KP transform means from score to approval in a certain way. It's a particular way of counting support.
+
+	// do KP transform
+
+	// sequential rounds start
+	// group by ballot weight remaining
+	// groups[weight class].voters[i] = {b:ballot, i:original index}
+	// groups[weight class].weight
+	// for each candidate
+		// keep track of total ballot weight used, start at 0. This is the same across all supporting ballots.
+		// add up number of supporting ballots, starting with ballots with most weight, m = 0
+		//   weight required = divide remaining quota by number of supporting ballots
+		//   if this is the last weight class, then
+		//     update the total ballot weight used by adding the weight required
+		//     exit the loop
+		//   else
+		//     if the weight required is greater than the jump to the next weight class, then 
+		//       weight diff = the difference between this weight class and the next weight class
+		//       update the total ballot weight used by adding the weight diff
+		//       update the quota remaining
+		//       continue the loop
+		//     else
+		//       update the total ballot weight used by adding the weight required
+		//       exit the loop
+		// now we know the total ballot weight used for all the voters in the included ballot weight groups
+		// the included ballot weight groups are 0 through m
+		// the last weight group is m
+	// find the candidate with the lowest total ballot weight used
+	// For display later, calculate ballot weight used for this candidate from each voter.  
+	//   This is just the "total ballot weight used" minus each voters's already used ballot weight.
+	// sequential rounds end
+
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"nopoll")	
+	let cans = district.stages[model.stage].candidates
+	
+	var v = model.voterSet.getDistrictVoterArray(district)
+
+	var seats = model.seats
+	var winners = []
+	var winnersIndexes = []
+	var maxscore = model.voterGroups[0].voterModel.maxscore
+
+	// do KP transform
+	var va = []
+	var t = 0
+	for (var i = 0; i < v.length; i++) {
+		// did the voter give at least this score?
+		for (var s = 1; s <= maxscore; s++) {
+			var va0 = []
+			for (var k = 0; k < cans.length; k++) {
+				if (v[i].b[k] >= s) {
+					va0.push(1)
+				} else {
+					va0.push(0)
+				}
+			}
+			va.push({b:va0,i:i,t:t}) // i is voter id, n is transformed voter id
+			t++
+		}
+	}
+
+	if (options.sidebar) {
+		var text = ""
+		text += "<span class='small'>";
+		var history = {}
+		history.rounds = []
+		history.v = va
+		history.seats = seats
+		history.maxscore = maxscore
+		model.round = -1
+		var powerUsed = v.map( () => 0 )
+        var beforePowerUsed = v.map( () => 0 )
+	}
+
+	var q = va.map(() => 1)
+
+	var qPrevious = _jcopy(q)
+	
+	var qi = v.map( () => 1 )
+	var qiPrevious = _jcopy(qi)
+	var beforeWeightUsed = v.map( () => 0 )
+	var tBeforeWeightUsed = []
+
+	// group by ballot weight remaining
+	// groups[weight class].voters[i] = {b:ballot, i:original index}
+	// groups[weight class].weight
+	var groups = []
+	groups[0] = { voters:va, weight:1 }
+
+	for (var n = 0; n < cans.length; n++) {
+		if (winners.length >= seats) {
+			break
+		}
+		var tally = []
+		for (var k = 0; k < cans.length; k++) {
+			tally[k] = 0
+		}
+		
+		// how many in quota?
+		var quota = Math.ceil(va.length / seats) // number of transformed voters in a quota
+		var allused = []
+		var lastgroup = [] // the last group of supporters needed to complete a quota
+		for (var k = 0; k < cans.length; k++) {
+			// keep track of total ballot weight used, start at 0. This is the same across all supporting ballots.
+			var used = 0
+			// add up number of supporting ballots, starting with ballots with most weight, m = 0
+			var supporting = 0
+			var remaining = quota // initial value
+
+			for (var m = 0; m < groups.length; m++) {
+				var group = groups[m]
+				// count how many voters support the candidate
+				var groupvoters = group.voters
+				var thisGroupSupport = 0
+				for (var i = 0; i < groupvoters.length; i++) {
+					if (groupvoters[i].b[k] === 1) {
+						thisGroupSupport += 1
+					}
+				}
+				supporting += thisGroupSupport
+				// weight required = divide remaining quota by number of supporting ballots
+				var required = remaining / supporting
+			
+				// if this is the last weight class, then
+				if (m == groups.length - 1) {
+					// update the total ballot weight used by adding the weight required
+					used += required
+					// exit the loop
+					break
+				} else {
+					// weight jump = the difference between this weight class and the next weight class
+					var jump = groups[m].weight - groups[m+1].weight
+					// if the weight required is greater than the jump to the next weight class, then 
+					if (required > jump) {
+						// update the total ballot weight used by adding the weight jump
+						used += jump
+						// update the quota remaining
+						remaining -= jump * supporting
+						// continue the loop
+						continue
+					} else {
+						// update the total ballot weight used by adding the weight required
+						used += required
+						// exit the loop
+						break
+					}
+				}	
+			}
+			// used = now we know the total ballot weight used for all the voters in the included ballot weight groups
+			// the included ballot weight groups are 0 through m
+			// the last weight group is m
+			allused.push(used)
+			lastgroup.push(m)
+
+			// tally is just a vestigial functionality for now
+			// find the candidate with the lowest total ballot weight used
+			tally[k] = (1-used) * v.length
+			if (winnersIndexes.includes(k)) tally[k] = -Infinity
+		}
+		
+		// display winner
+		if(options.sidebar) {
+			text += '<div id="district'+district.i+'round' + (n+1) + '" class="round">'
+			text += "Round " + (n+1);
+			text += "<br>";
+			if (0 && model.doTallyChart) {
+				var cidTally = {}
+				for(var i=0; i<cans.length; i++){
+					var cid = cans[i].id;
+					cidTally[cid] = tally[i]
+				}
+				text += tallyChart(cidTally,cans,model,1,v.length)
+			} else {
+				for(var i=0; i<cans.length; i++){
+					var c = cans[i].id;
+					text += model.icon(c)+" uses "+_percentFormat(district, allused[i] * v.length)+"<br>";
+				}
+            }
+			text += "<br>";
+			text += '</div>'
+		}
+
+		// who won this round?
+		// find the candidate with the lowest total ballot weight used
+
+		var roundWinners = _countWinner(tally) // need to exclude twice-winners
+		if (model.opt.breakWinTiesMultiSeat) {
+			roundWinners = roundWinners[Math.floor(Math.random() * roundWinners.length)]
+			roundWinners = [roundWinners]
+		}
+		roundWinners = roundWinners.map(x => Number(x))
+		roundWinners.forEach(x => winnersIndexes.push(Number(x)))
+		roundWinnersId = roundWinners.map( x => cans[x].id)
+		roundWinnersId.forEach(x => winners.push(x))
+
+		// subtract off the quota
+		for (var k=0; k < roundWinners.length; k++) {
+			var winnerIndex = roundWinners[k]
+			// fill up a new group with voters
+			// if they supported the winner
+			// otherwise, keep them in the old group
+			var newVoterGroup = []
+			var oldGroups = []
+			for (var m = 0; m <= lastgroup[winnerIndex]; m++) {
+				var group = groups[m]
+				var groupvoters = group.voters
+				oldGroups[m] = { voters:[] , weight:groups[m].weight } // make a replacement group
+				oldVoterGroup = oldGroups[m].voters
+				for (var i = 0; i < groupvoters.length; i++) {
+					if (groupvoters[i].b[winnerIndex] === 1) {
+						var t = group.voters[i].t
+						q[t] = 1 - allused[winnerIndex] // use up quota
+						newVoterGroup.push(groupvoters[i])
+					} else {
+						oldVoterGroup.push(groupvoters[i])
+					}
+				}
+			}
+			// TODO: This probably won't work with multiple winners in one round.
+			// remove old groups
+			groups.splice(0,lastgroup[winnerIndex]+1)
+			// add old groups back, but only non-supporters of the winning candidate
+			groups = oldGroups.concat(groups)
+			// add new group with supporters of the winning candidate
+			var newGroup = { voters:newVoterGroup, weight:1-allused[winnerIndex] }
+			groups.push(newGroup)
+		}
+		// sort groups by weight remaining, descending
+		groups.sort( (a,b) => -(a.weight - b.weight) )
+
+		if (options.sidebar) {
+			// For display later, calculate ballot weight used for this candidate from each voter.  
+			// This is just the "total ballot weight used" minus each voters's already used ballot weight.
+			var qUsed = []
+			for (var t = 0; t < q.length; t++) {
+				qUsed.push(qPrevious[t] - q[t])
+				tBeforeWeightUsed[t] = 1 - qPrevious[t] // The total weight used before this round.
+			}
+			
+			var qi = []
+			var qiUsed = []
+			var t = 0
+			for (var i = 0; i < v.length; i++) {
+				// loop through all transformed ballots for this voter
+				qi[i] = 0
+				for (var s = 1; s <= maxscore; s++) {
+					qi[i] += q[t] // sum up the used fraction
+					t++
+				}
+				qi[i] *= 1/maxscore // average the used fraction
+				qiUsed[i] = qiPrevious[i] - qi[i]
+				beforeWeightUsed[i] = 1 - qiPrevious[i]
+			} 
+			powerUsed = _calcPowerFromWeight(qiUsed,seats)
+			var roundHistory = {
+				winners: _jcopy(roundWinners),
+				beforeWeightUsed: _jcopy(beforeWeightUsed),
+				weightUsed: _jcopy(qiUsed),
+				beforeWeight: _jcopy(qiPrevious),
+				tBeforeWeightUsed: _jcopy(tBeforeWeightUsed),
+				tBeforeWeight:_jcopy(qPrevious), // qt is the ballot weight for the transformed ballots. I'm not using this yet.
+				tWeightUsed:_jcopy(qUsed),
+				powerUsed:_jcopy(powerUsed),
+                beforePowerUsed:_jcopy(beforePowerUsed),
+				tally:_jcopy(tally)
+			}
+			for (var i = 0; i < powerUsed.length; i++) {
+				beforePowerUsed[i] += powerUsed[i]
+			}
+			qPrevious = _jcopy(q)
+			qiPrevious = _jcopy(qi)
 			history.rounds.push(roundHistory)
 		}
 	}
@@ -3369,7 +4096,7 @@ Election.quotaScore = function(district, model, options){
 
 Election.phragmenMax = function(district, model, options){
 
-	return lpGeneral(_solvePhragmenMax,district,model,options)
+	return lpGeneral(_solvePhragmenMaxKP,district,model,options)
 
 }
 
@@ -3386,12 +4113,14 @@ function lpGeneral(_solver,district,model,options) {
 
 	var b = _getBallotsAsB(ballots, cans)
 
-	var phragmenResult = _solver(b,model.seats)
+	var maxscore = 5
+
+	var phragmenResult = _solver(b,model.seats,maxscore)
 	district.stages[model.stage].lpResult = phragmenResult.results
+	district.stages[model.stage].assignments = phragmenResult.assignments
 
 	var winners = _getWinnersFromPhragmenResult(phragmenResult,cans)
 
-	var maxscore = 5
 
 	// var winners = _countWinner(tally);
 	var result = _result(winners,model)
@@ -3449,11 +4178,139 @@ function _getBallotsAsB(ballots,cans) {
 	return b
 }
 
-function _solvePhragmenMax(b,seats) {
+function _solvePhragmenMaxKP(b,seats,maxscore) {
+
+
+	// do KP transform
+	var nk = b[0].length
+	var ni = b.length
+	var ba = []
+	var baInfo = []
+	var t = 0
+	for (var i = 0; i < ni; i++) {
+		// did the voter give at least this score?
+		for (var s = 1; s <= maxscore; s++) {
+			var ba0 = []
+			for (var k = 0; k < nk; k++) {
+				if (b[i][k] >= s) {
+					ba0.push(1)
+				} else {
+					ba0.push(0)
+				}
+			}
+			ba.push(ba0)
+			baInfo.push({b:ba0,i:i,t:t}) // i is voter id, n is transformed voter id
+			t++
+		}
+	}
+	maxscore1 = 1
+
+	phragmenResult = _solvePhragmenMax(ba,seats,maxscore1)
+
+	// reverse KP transform
+	var a = []
+	if (0) {
+		var t = 0
+		for (var i = 0; i < ni; i++) {
+			a[i] = []
+			for (var k = 0; k < nk; k++) {
+				// loop through all transformed ballots for this voter
+				a[i][k] = 0
+				for (var s = 1; s <= maxscore; s++) {
+					var t = s-1 + i * maxscore
+					a[i][k] += phragmenResult.assignments[t][k] // sum up the used fraction
+				}
+				a[i][k] *= 1/maxscore // average the used fraction
+			}
+		} 
+	} else {
+		var a = b.map( () => [] ) // empty i by k array
+		for (var i = 0; i < ni; i++) {
+			for (var k = 0; k < nk; k++) {
+				a[i][k] = 0 // zero
+			}
+		}
+		var nt = ba.length
+		for (var t = 0; t < nt; t++) {
+			var i = baInfo[t].i
+			for (var k = 0; k < nk; k++) {
+				var x = phragmenResult.assignments[t][k]
+				if (x > 0) {
+					a[i][k] += x // sum
+				}
+			}
+		}
+		for (var i = 0; i < ni; i++) {
+			for (var k = 0; k < nk; k++) {
+				a[i][k] *= 1/maxscore // average
+			}
+		}
+	}
+
+	testAssignment(phragmenResult.assignments)
+	testAssignment(a)
+
+	testAssignment(phragmenResult.assignments,ba)
+	testAssignmentB(a,b) 
+
+	phragmenResult.assignments = a
+
+
+	return phragmenResult
+}
+
+
+function testAssignment(a) {
+	// test
+
+	var ni = a.length
+	var nk = a[0].length
+
+	var avg = []
+	for (var k = 0; k < nk; k++) {
+		avg[k] = 0 
+	}
+	for (var i = 0; i < ni; i++) {
+		for (var k = 0; k < nk; k++) {
+			if (a[i][k] > 0) {
+				avg[k] += a[i][k]
+			}
+		}
+	}
+	for (var k = 0; k < nk; k++) {
+		avg[k] /= nk
+	}
+	console.log(avg)
+}
+
+function testAssignmentB(a,b) {
+	// test
+
+	var ni = a.length
+	var nk = a[0].length
+
+	var avg = []
+	for (var k = 0; k < nk; k++) {
+		avg[k] = 0 
+	}
+	for (var i = 0; i < ni; i++) {
+		for (var k = 0; k < nk; k++) {
+			if (a[i][k] > 0) {
+				avg[k] += a[i][k] * b[i][k]
+			}
+		}
+	}
+	for (var k = 0; k < nk; k++) {
+		avg[k] /= nk
+	}
+	console.log(avg)
+}
+
+function _solvePhragmenMax(b,seats,maxscore) {
 
 	// doesn't work right now due to limitations of the solver.
 
-	var lb = true
+	var lb = false
 
 	var nk = b[0].length
 	var ni = b.length
@@ -3502,9 +4359,9 @@ function _solvePhragmenMax(b,seats) {
 	// support must be the same for all winning candidates
 	for (var k of kset) {
 		con['xby' + k] = {"equal": 0}
-		va['x' + k]["xby" + k] = ni / seats // 1
+		va['x' + k]["xby" + k] = ni / seats // the y values are weights and should be 1 on average, so they sum to the number of voters divided by the number of seats.
 		for (var i of iset) {
-			va["y" + i + "_" + k]["xby" + k] = -b[i][k] * .2
+			va["y" + i + "_" + k]["xby" + k] = -b[i][k] / maxscore
 			// va["y" + i + "_" + k]["xby" + k] = -1 // or.. same assignment level for all winning candidates
 		}
 	}
@@ -3512,11 +4369,33 @@ function _solvePhragmenMax(b,seats) {
 	// find upper bound of assignment level for voters
 	va["z"] = {}
 	for (var i of iset) {
-		con["zoy" + i] = {"min": 0},
+		con["zoy" + i] = {"min": 0}
 		va["z"]["zoy" + i] = 1
 		for (var k of kset) {
 			va["y" + i + "_" + k]["zoy" + i] = -1
 			// va["y" + i + "_" + k]["zoy" + i] = -b[i][k] // or.. find ub of support level
+		}
+	}
+
+	// if x is not elected, then y is 0
+	// Not sure why I needed this. I think there is a bug in the linear programming solver.
+	if (0) {
+		for ( var i of iset) {
+			for (var k of kset) {
+				var conName = "xy_i" + i + "_k" + k
+				con[conName] = {"min": 0}
+				va["x" + k][conName] = 1000 // the limit is 1 / smallest value of b .  So, 1/(1/5)) = 5 or anything greater should be good.
+				va["y" + i + "_" + k][conName] = -1
+			}
+		}
+	} else if (0) {
+		for ( var i of iset) {
+			var conName = "xy_k" + k
+			con[conName] = {"min": 0}
+			va["x" + k][conName] = 100000 // the limit is ni / smallest value of b .  So, 100 * 5 /(1/5)) = 2500 or anything greater should be good.
+			for (var k of kset) {
+				va["y" + i + "_" + k][conName] = -1
+			}
 		}
 	}
 
@@ -3530,6 +4409,7 @@ function _solvePhragmenMax(b,seats) {
 		"variables": va,
 		"ints": ints,
 		"options": {
+			"timeout": 30,
 			"tolerance": 0.05
 		}
 	};
@@ -3558,12 +4438,15 @@ function _solvePhragmenMax(b,seats) {
 	console.log(model)
 	results = solver.Solve(model);
 	console.log(results)
+	console.log(results.z)
 	var canResult = []
 	for (var k = 0; k < nk; k++) {
 		canResult[k] = results['x' + k]
 	}
+	
+	var assignments = _getAssignmentsFromLP(results, ni, nk)
 
-	var phragmenResult = { results:results, canResult:canResult}
+	var phragmenResult = { results:results, canResult:canResult, assignments:assignments}
 
 	return phragmenResult
 }
@@ -3610,6 +4493,19 @@ function _getWinnersFromPhragmenResult(phragmenResult,cans) {
 	return winners
 } 
 
+
+function _getAssignmentsFromLP(results, ni, nk) {
+
+	var a = []
+	for(var i = 0; i < ni; i++ ){
+		a[i] = []
+		for(var k = 0; k < nk; k++){
+			a[i][k] = results["y" + i + "_" + k]
+		}
+	}
+	return a
+}
+
 Election.equalFacilityLocation = function(district, model, options){
 
 	var result = lpGeneral(_solveEqualFacilityLocation,district,model,options)
@@ -3637,7 +4533,7 @@ Election.equalFacilityLocation = function(district, model, options){
 
 }
 
-function _solveEqualFacilityLocation(b,seats) {
+function _solveEqualFacilityLocation(b,seats,maxscore) {
 
 	var nk = b[0].length
 	var ni = b.length
@@ -3737,7 +4633,7 @@ function _solveEqualFacilityLocation(b,seats) {
 		va["z"]["zby"] = -1
 		for (var i of iset) {
 			for (var k of kset) {
-				va["y" + i + "_" + k]["zby"] = 6-b[i][k]
+				va["y" + i + "_" + k]["zby"] = maxscore-b[i][k]
 				// va["y" + i + "_" + k]["zby" + i] = -b[i][k] // or.. find ub of support level
 			}
 		}
@@ -3766,7 +4662,9 @@ function _solveEqualFacilityLocation(b,seats) {
 		canResult[k] = results['x' + k]
 	}
 
-	var phragmenResult = { results:results, canResult:canResult}
+	var assignments = _getAssignmentsFromLP(results, ni, nk)
+
+	var phragmenResult = { results:results, canResult:canResult, assignments:assignments}
 
 	return phragmenResult
 }
@@ -4652,7 +5550,7 @@ var _countWinner = function(tally){
 
 	// TO DO: TIES as an array?!?! // attempted
 
-	var highScore = -1;
+	var highScore = -Infinity;
 	var winners = [];
 
 	for(var candidate in tally){
@@ -4787,24 +5685,19 @@ function _padAfter(padding,a){
 	return a
 }
 
-function _drawBars(iDistrict, arena, model, round) {
-	// sort the voters
-	// according to x
+// break up this massive drawing function into smaller units with documentation
 
-	var v = model.getSortedVoters()
+
+function _drawBars(iDistrict, arena, model, round) {
+
 	// get only the sorted voters for this district.
+	var v = model.getSortedVoters()
 	v = v.filter(x => x.iDistrict == iDistrict)
-	var v2 = []
-	// draw only the district's voters
-	model.districtIndexOfVoter = []
-	for (var i = 0; i < v.length; i++) {
-		model.districtIndexOfVoter[model.district[iDistrict].voterPeople[i].iAll] = i
-	}
 
 	// There are two sorts here... one for all voters and one for the district
 	// we want to use the one for all voters... and we want to get data that is based on the one for the districtq[]
 	// definitions
-	//   q[iAll] or q[iDistSort]
+	//   weightUsed[iAll] or weightUsed[iDistSort] -- not sure about this one, maybe works for selectedRoundBeforeWeight
 	//   district[].voterPeople[iDistSort]
 	//   iAll = district[].voterPeople[iDistSort].iAll
 	//   v[iTSP]
@@ -4813,42 +5706,481 @@ function _drawBars(iDistrict, arena, model, round) {
 
 
 	// for votes cast, draw rectangles
-	var lineHeight = 6
-	var width = arena.canvas.width 
 	// need to make a rectangle for displaying.
-	var widthRectangle = width / v.length
-	var heightRectangle = Math.min(300 / model.candidates.length, 300/10)
+	var barOptions = {}
+	barOptions.width = arena.canvas.width
+	barOptions.widthRectangle = barOptions.width / v.length    
+	barOptions.heightRectangle = 100
+	barOptions.base = 600
+	barOptions.baralpha = .8
+
+	drawWeightUsed(model,arena,barOptions,v,round)
+
+	barOptions.pos = 200
+	barOptions.heightRectangle2 = Math.min(200 / model.candidates.length, 200/5)
+
+	drawWeight(model,arena,barOptions,v,round)
+
+}
+
+function _rLimitFrom(model,round) {
+    if (round == -1) {
+        var rLimit = model.result.history.rounds.length // Draw the weight used in all rounds.
+    } else if (round > -1) { // round is never 0
+        var rLimit = round-1 // Only draw the weight used in previous rounds.
+	}
+	return rLimit
+}
+
+function _type1Get(model) {
+	var type1 = model.system == "Phragmen Seq S" || model.system == "Monroe Seq S" || model.system == "QuotaApproval" || model.system == "QuotaScore" // not sure why .. also not sure if STV is type 1 or not
+	return type1
+}
+
+function drawWeightUsed(model,arena,barOptions,v,round) {
+
+	var rLimit = _rLimitFrom(model,round)
+	var type1 = _type1Get(model)
 	
-	if (0) { // do later
+	drawBackGroundPowerChart(model,arena,barOptions,rLimit)
+
+	arena.ctx.globalAlpha = barOptions.baralpha
+
+	// drawing functions are separated out to simplify the code
+	// this loop does a calculation of support that really should already be done in the election function.
+    
+    // loop through rounds
+    // build one layer at a time
+	// for the last layer, keep track of the ballot weight remaining (unUsed) after the round
+	// rLimit is the upper bound for the index of the rounds. It lets us loop through all the rounds that ran previously.
+    for (var r=0; r < rLimit; r++) {
+        var thisround = model.result.history.rounds[r]
+        if (thisround.winners.length == 0) continue
+        var winnerIndex = thisround.winners[0]
+        for (var i=0; i < v.length; i++) {
+            if (type1) {
+				var idx = model.orderOfVoters[i]
+			} else {
+				var idx = model.districtIndexOfVoter[model.orderOfVoters[i]]
+			}
+			if (barOptions.doPowerUsed) {  // doPowerUsed
+				var beforePowerUsed = thisround.beforePowerUsed[idx]
+				var powerUsed = thisround.powerUsed[idx]
+				drawOneLayerOfWeightUsed(model,arena,i,beforePowerUsed,powerUsed,winnerIndex,barOptions)
+			} else {
+				var beforeWeightUsed = thisround.beforeWeightUsed[idx]
+				var weightUsed = thisround.weightUsed[idx]
+				drawOneLayerOfWeightUsed(model,arena,i,beforeWeightUsed,weightUsed,winnerIndex,barOptions)
+			}
+        }
+		// q[i] = 1 - (lastround.beforeWeightUsed[idx] + lastround.weightUsed[idx]) // the weight remaining after the round
+	}
+
+	arena.ctx.globalAlpha = 1
+
+	if (model.showPowerChart) {
+		if (barOptions.doPowerUsed) { 
+			_drawText("Voter Power Used",10,barOptions.base - 120,40,arena.ctx,"start")
+		} else {
+			_drawText("Voter Weight Used",10,barOptions.base - 120,40,arena.ctx,"start") // used to be _drawStroked
+		}
+    }
+	
+}
+
+function drawKWeightUsed(model,arena,barOptions,v,round) {
+
+	// do KP transform on v
+
+	// the rest just is a modification of the drawWeightUsed function
+	
+	var vk = []
+	var t = 0
+	var nk = v[0].b.length
+	var maxscore = model.district[0].result.history.maxscore
+	for (var i = 0; i < v.length; i++) {
+		// did the voter give at least this score?
+		for (var s = 1; s <= maxscore; s++) {
+			var va0 = []
+			for (var k = 0; k < nk; k++) {
+				if (v[i].b[k] >= s) {
+					va0.push(1)
+				} else {
+					va0.push(0)
+				}
+			}
+			vk.push({b:va0,i:i,t:t,s:s}) // i is voter id, n is transformed voter id
+			t++
+		}
+	}
+
+	barOptions.widthRectangle = barOptions.width / vk.length 
+
+	var rLimit = _rLimitFrom(model,round)
+	var type1 = _type1Get(model)
+	
+	drawBackGroundPowerChart(model,arena,barOptions,rLimit)
+
+	arena.ctx.globalAlpha = barOptions.baralpha
+
+	// drawing functions are separated out to simplify the code
+	// this loop does a calculation of support that really should already be done in the election function.
+    
+    // loop through rounds
+    // build one layer at a time
+	// for the last layer, keep track of the ballot weight remaining (unUsed) after the round
+	// rLimit is the upper bound for the index of the rounds. It lets us loop through all the rounds that ran previously.
+	var maxscore = model.result.history.maxscore
+    for (var r=0; r < rLimit; r++) {
+        var thisround = model.result.history.rounds[r]
+        if (thisround.winners.length == 0) continue
+        var winnerIndex = thisround.winners[0]
+        for (var i=0; i < vk.length; i++) {
+            if (type1) {
+				var idx = model.orderOfVoters[vk[i].i]
+			} else {
+				var idx = model.districtIndexOfVoter[model.orderOfVoters[vk[i].i]]
+			}
+			var idxk = idx * maxscore + vk[i].s - 1 // KP transform changes the indices
+			// console.log(idxk)
+			if (barOptions.doPowerUsed) {  // doPowerUsed
+				var beforePowerUsed = thisround.tBeforePowerUsed[idxk]
+				var powerUsed = thisround.tPowerUsed[idxk]
+				drawOneLayerOfWeightUsed(model,arena,i,beforePowerUsed,powerUsed,winnerIndex,barOptions)
+			} else {
+				var beforeWeightUsed = thisround.tBeforeWeightUsed[idxk]
+				var weightUsed = thisround.tWeightUsed[idxk]
+				drawOneLayerOfWeightUsed(model,arena,i,beforeWeightUsed,weightUsed,winnerIndex,barOptions)
+			}
+        }
+		// q[i] = 1 - (lastround.beforeWeightUsed[idx] + lastround.weightUsed[idx]) // the weight remaining after the round
+	}
+
+	arena.ctx.globalAlpha = 1
+
+	if (model.showPowerChart) {
+		if (barOptions.doPowerUsed) { 
+			_drawText("Voter Power Used",10,barOptions.base - 120,40,arena.ctx,"start")
+		} else {
+			_drawText("Voter Weight Used KP Transform",10,barOptions.base - 120,40,arena.ctx,"start") // used to be _drawStroked
+		}
+    }
+	
+}
+
+function drawWeight(model,arena,barOptions,v,round) {
+
+	var rLimit = _rLimitFrom(model,round)
+	var type1 = _type1Get(model)
+
+	if (0) { // this was a first attempt to draw the ballots. It is no longer needed.
+		barOptions.heightRectangle3 = Math.min(300 / model.candidates.length, 300/10)
 		for (var i = 0; i < v.length; i++) {
 			var b = v[i].b
 			for (var k = 0; k < b.length; k++) {
 				if (b[k] == 1) {
-
-					var left = Math.round(i * widthRectangle)
-					var right = Math.round((i+1) * widthRectangle)
-
-					var top = Math.round((k+1/2) * heightRectangle - lineHeight / 2)
-					var bottom = Math.round((k+1/2) * heightRectangle + lineHeight / 2)
-					
-					var color = model.candidates[k].fill
-					arena.ctx.fillStyle = color
-					arena.ctx.fillRect(left,top,right-left,bottom-top)
-					arena.ctx.fill()
+					firstAttemptDrawBallots(model,arena,i,k,barOptions)
 				}
 			}
 		}
+    }
+
+	// calculate the weight remaining before the current round
+    // calculate weight not used, selectedRoundBeforeWeight
+	var selectedRoundBeforeWeight = v.map( () => 1)
+	// If we're looking at the results after the final round, then calculate the weight remaining after the final round
+	var doAfterFinalRound = (round == -1) || (round == model.result.history.rounds.length + 1) // show the weight after the final round
+	for (var i=0; i < v.length; i++) {
+		if (type1) {
+			var idx = model.orderOfVoters[i]
+		} else {
+			var idx = model.districtIndexOfVoter[model.orderOfVoters[i]]
+		}
+		if (doAfterFinalRound) {
+			var lastIdx = model.result.history.rounds.length - 1
+			var lastround = model.result.history.rounds[lastIdx]
+			selectedRoundBeforeWeight[i] = 1 - (lastround.beforeWeightUsed[idx] + lastround.weightUsed[idx])
+		} else {
+			var lastIdx = round - 1
+			var lastround = model.result.history.rounds[lastIdx]
+			selectedRoundBeforeWeight[i] = 1 - lastround.beforeWeightUsed[idx]
+		}
 	}
 
+	
+	// I should make it clear the difference between weight and power. This may be different for different systems.
 
-	heightRectangle = 100
 
+	if (0){ // don't draw the weight.. for now
+		drawWeightGrey(model,arena,selectedRoundBeforeWeight,rLimit,barOptions)
+	}
+	
+
+	// draw votes for each candidate in this round
+
+	if (model.system == "STV") {
+		var rowFunction = "rounds"
+		// var rowFunction = "candidates"
+		
+		// grey out the ones that were eliminated that we voted for
+		if (rowFunction == "rounds") {
+			// loop through all the rounds we want to see
+			for (var r = 0	; r <= rLimit; r++) {
+                if (r == model.result.history.rounds.length) {
+                    var thisround = model.result.history.afterFinalRound 
+                } else {
+                    var thisround = model.result.history.rounds[r]
+                }
+				for (var i = 0; i < v.length; i++) {
+					var idx = model.districtIndexOfVoter[model.orderOfVoters[i]]
+					var beforeWeight = thisround.beforeWeight[idx]
+					var top = thisround.top[idx]
+					var color = model.candidatesById[top].fill
+					drawOneRoundSquareSTV(model,arena,beforeWeight,i,r,color,barOptions)
+				}
+			}
+		} else {
+			if (rLimit == model.result.history.rounds.length) {
+				var thisround = model.result.history.afterFinalRound 
+			} else {
+				var thisround = model.result.history.rounds[rLimit]
+			}
+			var stillin = thisround.stillin
+			// who is still in the race
+			for (var i = 0; i < v.length; i++) {
+				var b = v[i].b
+				var idx = model.districtIndexOfVoter[model.orderOfVoters[i]]
+				var beforeWeight = thisround.beforeWeight[idx]
+	
+				for (var k = 0; k < b.length; k++) {
+					var c = b[k]
+					drawOneCandidateSquareSTV(model,arena,beforeWeight,i,c,stillin,barOptions)
+					if (stillin.includes(c)) {
+						break
+						// go through the list of people the voter voted for in order until we get to one that is still in the race
+					}
+				}
+			}
+		}
+	} else { // not STV
+		
+		// var rowFunction = "rounds"
+		var rowFunction = "candidates"
+
+		if (rowFunction == "rounds") {
+			barOptions.heightRectangle4 = barOptions.heightRectangle2 / (rLimit+1)
+			for (var r = 0	; r <= rLimit; r++) {
+				// var thisround = model.result.history.rounds[r]						
+				for (var i = 0; i < v.length; i++) {
+					var b = v[i].b
+					// var idx = model.districtIndexOfVoter[model.orderOfVoters[i]]
+					// var beforeWeight = Math.max(1 - thisround.beforeWeightUsed,0)
+					var beforeWeight = Math.max(selectedRoundBeforeWeight[i],0)
+					for (var k = 0; k < b.length; k++) {
+						var support = b[k] / model.result.history.maxscore
+						drawOneCandidateSquareScore(model,arena,beforeWeight,support,i,k,r,rLimit,barOptions)
+					}
+				}
+			}
+
+		} else {
+			for (var i = 0; i < v.length; i++) {
+                var b = v[i].b
+                // beforeWeight is just the weight at the beginning of the round
+				// support is the score the voter gave to each candidate
+				
+				// var thisround = model.result.history.rounds[rLimit]		
+				// var idx = model.districtIndexOfVoter[model.orderOfVoters[i]]
+				// var beforeWeight = Math.max(0, 1 - thisround.beforeWeightUsed)
+
+				var beforeWeight = Math.max(selectedRoundBeforeWeight[i],0)
+				for (var k = 0; k < b.length; k++) {
+					var support = b[k] / model.result.history.maxscore
+					drawOneRoundSquareScore(model,arena,beforeWeight,support,i,k,barOptions)
+				}
+			}
+		}
+	
+	}
+
+	// labels
+	var pos = barOptions.pos
+	if (rowFunction == "rounds") {
+		_drawText("Votes by Round",10,pos-20,40,arena.ctx,"start") // used to be _drawStroked
+	} else {
+		_drawText("Votes",10,pos-20,40,arena.ctx,"start")
+	}
+	
+}
+
+function drawKWeight(model,arena,barOptions,v,round) {
+
+
+	// do KP transform on v
+
+	// the rest just is a modification of the drawWeight function
+	
+	var vk = []
+	var t = 0
+	var nk = v[0].b.length
+	var maxscore = model.district[0].result.history.maxscore
+	for (var i = 0; i < v.length; i++) {
+		// did the voter give at least this score?
+		for (var s = 1; s <= maxscore; s++) {
+			var va0 = []
+			for (var k = 0; k < nk; k++) {
+				if (v[i].b[k] >= s) {
+					va0.push(1)
+				} else {
+					va0.push(0)
+				}
+			}
+			vk.push({b:va0,i:i,t:t,s:s}) // i is voter id, n is transformed voter id
+			t++
+		}
+	}
+
+	barOptions.widthRectangle = barOptions.width / vk.length 
+
+	var maxscore = model.result.history.maxscore
+
+	var rLimit = _rLimitFrom(model,round)
+	var type1 = _type1Get(model)
+
+
+	// calculate the weight remaining before the current round
+    // calculate weight not used, selectedRoundBeforeWeight
+	var selectedRoundBeforeWeight = vk.map( () => 1)
+	// If we're looking at the results after the final round, then calculate the weight remaining after the final round
+	var doAfterFinalRound = (round == -1) || (round == model.result.history.rounds.length + 1) // show the weight after the final round
+	for (var i=0; i < vk.length; i++) {
+		if (type1) {
+			var idx = model.orderOfVoters[vk[i].i]
+		} else {
+			var idx = model.districtIndexOfVoter[model.orderOfVoters[vk[i].i]]
+		}
+		var idxk = idx * maxscore + vk[i].s - 1 // KP transform changes the indices
+		if (doAfterFinalRound) {
+			var lastIdx = model.result.history.rounds.length - 1
+			var lastround = model.result.history.rounds[lastIdx]
+			selectedRoundBeforeWeight[i] = 1 - (lastround.tBeforeWeightUsed[idxk] + lastround.tWeightUsed[idxk])
+		} else {
+			var lastIdx = round - 1
+			var lastround = model.result.history.rounds[lastIdx]
+			selectedRoundBeforeWeight[i] = 1 - lastround.tBeforeWeightUsed[idxk]
+		}
+	}
 
 	
+	// I should make it clear the difference between weight and power. This may be different for different systems.
+
+
+	if (0){ // don't draw the weight.. for now
+		drawWeightGrey(model,arena,selectedRoundBeforeWeight,rLimit,barOptions)
+	}
+	
+
+	// draw votes for each candidate in this round
+
+	if (0) {
+	} else { // not STV
+		
+		// var rowFunction = "rounds"
+		var rowFunction = "candidates"
+
+		if (rowFunction == "rounds") {
+			barOptions.heightRectangle4 = barOptions.heightRectangle2 / (rLimit+1)
+			for (var r = 0	; r <= rLimit; r++) {
+				// var thisround = model.result.history.rounds[r]						
+				for (var i = 0; i < vk.length; i++) {
+					var b = vk[i].b
+					var beforeWeight = Math.max(selectedRoundBeforeWeight[i],0)
+					for (var k = 0; k < b.length; k++) {
+						var support = b[k] 
+						drawOneCandidateSquareScore(model,arena,beforeWeight,support,i,k,r,rLimit,barOptions)
+					}
+				}
+			}
+
+		} else {
+			for (var i = 0; i < vk.length; i++) {
+                var b = vk[i].b
+                // beforeWeight is just the weight at the beginning of the round
+				// support is the score the voter gave to each candidate
+
+				var beforeWeight = Math.max(selectedRoundBeforeWeight[i],0)
+				for (var k = 0; k < b.length; k++) {
+					var support = b[k] 
+					drawOneRoundSquareScore(model,arena,beforeWeight,support,i,k,barOptions)
+				}
+			}
+		}
+	
+	}
+
+	// labels
+	var pos = barOptions.pos
+	if (rowFunction == "rounds") {
+		_drawText("Votes by Round",10,pos-20,40,arena.ctx,"start") // used to be _drawStroked
+	} else {
+		_drawText("Votes KP Transform",10,pos-20,40,arena.ctx,"start")
+	}
+	
+}
+
+
+function firstAttemptDrawBallots(model,arena,i,k,barOptions) {
+    var widthRectangle = barOptions.widthRectangle
+    var heightRectangle = barOptions.heightRectangle3
+    
+    var lineHeight = 6
+    
+    var left = Math.round(i * widthRectangle)
+    var right = Math.round((i+1) * widthRectangle)
+
+    var top = Math.round((k+1/2) * heightRectangle - lineHeight / 2)
+    var bottom = Math.round((k+1/2) * heightRectangle + lineHeight / 2)
+    
+    var color = model.candidates[k].fill
+    arena.ctx.fillStyle = color
+    arena.ctx.fillRect(left,top,right-left,bottom-top)
+    arena.ctx.fill()
+}
+
+
+function drawDottedVoterLine(y,barOptions,v,ctx) {
+	ctx.save()
+    heightRectangle = barOptions.heightRectangle2
+    for (var i=0; i < v.length; i++) {
+        drawDotted(ctx,i,barOptions,heightRectangle,y)
+	}
+	ctx.restore()
+}
+
+function drawDotted(ctx,i,barOptions,heightRectangle,y) {
+    var widthRectangle = barOptions.widthRectangle    
+    
+    var left = Math.round(i * widthRectangle)
+    var right = Math.round((i+1) * widthRectangle)
+
+    var top = Math.round(y - heightRectangle * .5)
+    var bottom = Math.round(y + heightRectangle * .5)
+    
+    var color = (i % 2) ? "#fff" : "#ccc"
+    ctx.fillStyle = color
+    ctx.fillRect(left,top,right-left,bottom-top)
+    ctx.fill()
+}
+
+function drawBackGroundPowerChart(model,arena,barOptions) {
+    
+    var width = barOptions.width
+    var heightRectangle = barOptions.heightRectangle
+    var base = barOptions.base
+
 	if (model.showPowerChart) {
 			
 		// draw background for quota and build
-		var base = 600
 		var left = 0
 		var right = width
 		var top = base - heightRectangle
@@ -4865,444 +6197,266 @@ function _drawBars(iDistrict, arena, model, round) {
 		arena.ctx.fillRect(left,top,right-left,bottom-top)
 		//arena.ctx.fill()
 	}
-
-	
-	// calculate quota and build
-	var w = model.result.winners
-	var seats = model.seats//w.length // how many seats there are to fill.... just count the number of winners
-	var q = []
-	var build = []
-	for (var i=0; i < v.length; i++) {
-		q.push(1)
-		build.push(0)
-	}
-
-	var baralpha = .8
-	arena.ctx.globalAlpha = baralpha
-
-
-	if (model.system == "STV") {
-		var hacknum = 1
-	} else {
-		var hacknum = 0
-	}
-	for (var r=0; (round == -1 && r < model.result.history.rounds.length-hacknum) || (round > -1 && r < round-1); r++) {
-		var thisround = model.result.history.rounds[r]
-		var w = thisround.winners
-		if (w.length == 0) continue
-		for (var i=0; i < w.length; i++) {
-			// how many people voted for each winner?
-			var winnerIndex = w[i]
-			if (model.system == "STV") {
-				var tally = thisround.tally
-				var sum = tally[model.candidates[winnerIndex].id] // TODO doublecheck
-			} else {
-				var sum = 0
-				for (var k=0; k < v.length; k++) {
-					var b = v[k].b
-					var support = b[winnerIndex] / model.result.history.maxscore
-					sum += support // add the vote to the candidate
-				}
-			}
-			var rep = v.length / sum / seats
-
-			for (var k=0; k < v.length; k++) { // subtract the winners from each voter's quota
-				
-				if (model.system == "STV") {
-					var b = v[k].b
-					for (var m = 0; m < b.length; m++) {
-						var c = b[m]
-						if (thisround.stillin.includes(c)) break
-						// go through the list of people the voter voted for in order until we get to one that is still in the race
-					}
-					if (c == winnerIndex) {
-						var support = thisround.q[model.districtIndexOfVoter[model.orderOfVoters[k]]]
-					} else {
-						var support = 0
-					}
-				} else { // a scoring system
-					var b = v[k].b
-					var support = b[winnerIndex] / model.result.history.maxscore
-				}
-			
-				if (support > 0) {
-					// draw the build
-
-					
-					if (model.showPowerChart) {
-			
-						var left = Math.round(k * widthRectangle)
-						var right = Math.round((k+1) * widthRectangle)
-						var top = Math.round(base-(build[k] + rep*support) * heightRectangle)
-						var bottom = Math.round(base-build[k] * heightRectangle)
-						var bucket = Math.round(base- heightRectangle) // where the shadows start
-
-						// white background for bar
-						arena.ctx.globalAlpha = 1
-						arena.ctx.fillStyle = "white"
-						arena.ctx.fillRect(left,top,right-left,bottom-top)
-						arena.ctx.fill()
-						arena.ctx.globalAlpha = baralpha
-
-						var color = model.candidates[winnerIndex].fill
-						arena.ctx.fillStyle = color
-
-						var greyedout = .2
-						if (bottom > bucket) { // bottom is in bucket
-							if (top < bucket) { // top is out of bucket
-								arena.ctx.fillRect(left,bucket,right-left,bottom-bucket)
-								arena.ctx.fill()
-								arena.ctx.globalAlpha = greyedout
-								arena.ctx.fillRect(left,top,right-left,bucket-top)
-								arena.ctx.fill()
-							} else { // entirely in bucket
-								arena.ctx.fillRect(left,top,right-left,bottom-top)
-								arena.ctx.fill()
-							}
-						} else { // entirely out of bucket
-							arena.ctx.globalAlpha = greyedout
-							arena.ctx.fillRect(left,top,right-left,bottom-top)
-							arena.ctx.fill()
-						}
-						arena.ctx.globalAlpha = baralpha
-					}
-
-					// calculate the next step
-					q[k] -= rep*support
-					build[k] += rep*support
-				}
-			}
-		}
-	}
-			
-	arena.ctx.globalAlpha = 1
-
-	if (0){ // don't draw the weight.. for now
-		if (model.system == "RRV" || model.system == "RAV") {
-			var startpos = 450
-			// draw the quota
-			for (var i=0; i < q.length; i++) {
-				var quota = Math.max(q[i],0)
-				if (r==0) {
-					var quota = 1
-				} else {
-					var quota = Math.max(model.result.history.rounds[r-1].q[model.districtIndexOfVoter[model.orderOfVoters[i]]],0)
-				}
-				var left = Math.round(i * widthRectangle)
-				var right = Math.round((i+1) * widthRectangle)
-				var top = Math.round(startpos - 1 * heightRectangle)
-				var bottom = Math.round(startpos - (1-quota) * heightRectangle)
-				arena.ctx.fillStyle = "#ccc"
-				arena.ctx.fillRect(left,top,right-left,bottom-top)
-				arena.ctx.fill()
-	
-			}
-			// draw line at bottom
-			var yLine = bottom
-			var ctx = arena.ctx
-			ctx.beginPath();
-			ctx.moveTo(0,yLine*2);
-			ctx.lineTo(ctx.canvas.width,yLine*2);
-			ctx.lineWidth = 2;
-			ctx.strokeStyle = "#888";
-			ctx.stroke();
-	
-			_drawStroked("Weight",70,400,40,arena.ctx)
-		}
-		
-	}
-	
-	if (model.showPowerChart) {
-	
-		_drawStroked("Power",10,480,40,arena.ctx,"start")
-
-	}
-
-
-
-
-
-	
-	// draw votes for each candidate in this round
-	var pos = 170
-	heightRectangle = 30	
-	
-	heightRectangle = Math.min(200 / model.candidates.length, 200/5)
-	
-
-	if (model.system == "STV") {
-		var rowFunction = "rounds"
-		// var rowFunction = "candidates"
-
-		// use order
-		// use order with history
-		// use calculations from before, in the voting system
-		// grey out the ones that were eliminated that we voted for
-		
-		if (round == -1) {
-			var r = model.result.history.rounds.length - 1
-		} else {
-			var r = round - 1
-		}
-
-
-		if (rowFunction == "rounds") {
-			// loop through all the rounds we want to see
-			for (var m = 0	; m <= r; m++) {
-				var thisround = model.result.history.rounds[m]
-
-				// who is still in the race
-				var stillin = thisround.stillin
-
-				// for each voter
-				for (var i = 0; i < v.length; i++) {
-					var b = v[i].b
-					if (r==0) {
-						var quota = 1
-					} else {
-						var quota = thisround.q[model.districtIndexOfVoter[model.orderOfVoters[i]]]
-					}
-
-					// find who we are voting for
-					for (var k = 0; k < b.length; k++) {
-						var c = b[k]
-						if (stillin.includes(c)) {
-							var color = model.candidates[c].fill
-							break
-						}
-					}
-
-					// determine where to draw
-					var left = Math.round(i * widthRectangle)
-					var right = Math.round((i+1) * widthRectangle)
-					var middle = Math.round(pos+(m+quota*1) * heightRectangle)
-					var middle2 = Math.round(pos+(m+1-quota) * heightRectangle)
-					var top = Math.round(pos+(m) * heightRectangle)
-					var bottom = Math.round(pos+(m+1) * heightRectangle)
-
-					// draw candidate color
-					arena.ctx.fillStyle = color
-					arena.ctx.fillRect(left,top,right-left,bottom-top)
-					arena.ctx.fill()
-					
-					// draw amount of support
-					arena.ctx.fillStyle = "white"
-					supportMethod = "useTransparency"
-					if (supportMethod == "useTransparency") {
-						arena.ctx.globalAlpha = 1-quota
-						var width = right-left
-						var height = bottom-top
-						arena.ctx.fillRect(left,top,width,height)
-					} else { // "useVertical"
-						arena.ctx.globalAlpha = .7
-						var topdown = true
-						if (topdown) {
-							arena.ctx.fillRect(left,middle,right-left,bottom-middle)
-						} else {
-							arena.ctx.fillRect(left,top,right-left,middle2-top)
-						}
-					}
-									
-					arena.ctx.globalAlpha = 1
-				}
-
-			}
-		} else {
-			var thisround = model.result.history.rounds[r]
-	
-			var stillin = thisround.stillin
-			// who is still in the race
-			for (var i = 0; i < v.length; i++) {
-				var b = v[i].b
-				if (r==0) {
-					var quota = 1
-				} else {
-					var quota = thisround.q[model.districtIndexOfVoter[model.orderOfVoters[i]]]
-				}
-	
-				for (var k = 0; k < b.length; k++) {
-					var c = b[k]
-					// determine where to draw
-					var left = Math.round(i * widthRectangle)
-					var right = Math.round((i+1) * widthRectangle)
-	
-					var middle = Math.round(pos+(c+quota*1) * heightRectangle)
-					var middle2 = Math.round(pos+(c+1-quota) * heightRectangle)
-					var top = Math.round(pos+(c) * heightRectangle)
-					var bottom = Math.round(pos+(c+1) * heightRectangle)
-					
-					var color = model.candidates[c].fill
-					if (stillin.includes(c)) {
-						// draw support in color
-					} else {
-						// draw support in grey
-						// var color = "#ccc"
-						middle = top // just solid grey, no quota stuff
-					}
-	
-					arena.ctx.fillStyle = color
-					arena.ctx.fillRect(left,top,right-left,bottom-top)
-					arena.ctx.fill()
-					
-					arena.ctx.globalAlpha = .7
-					arena.ctx.fillStyle = "white"
-					if (1) {
-						arena.ctx.fillRect(left,middle,right-left,bottom-middle)
-					} else {
-						arena.ctx.fillRect(left,top,right-left,middle2-top)
-					}
-									
-					arena.ctx.globalAlpha = 1
-	
-					if (stillin.includes(c)) {
-						break
-						// go through the list of people the voter voted for in order until we get to one that is still in the race
-					}
-				}
-			}
-	
-
-		}
-
-
-	} else {
-		
-		// var rowFunction = "rounds"
-		var rowFunction = "candidates"
-
-		if (rowFunction == "rounds") {
-			heightRectangle /= (r+1)
-			for (var m = 0	; m <= r; m++) {
-						
-				for (var i = 0; i < v.length; i++) {
-					var b = v[i].b
-					if (model.system == "QuotaApproval" || model.system == "QuotaScore") { // workaround for now
-						var quota = Math.max(q[i],0)
-					} else {
-						if (m==0) {
-							var quota = 1
-						} else {
-							var quota = Math.max(model.result.history.rounds[m-1].q[model.districtIndexOfVoter[model.orderOfVoters[i]]],0)
-						}
-					}
-					
-					for (var k = 0; k < b.length; k++) {
-						
-						var support = b[k] / model.result.history.maxscore
-						if (support > 0) {
-							var left = Math.round(i * widthRectangle)
-							var right = Math.round((i+1) * widthRectangle)
-			
-							var interleaveCandidates = false
-							if (interleaveCandidates) {
-								var g = m * b.length + k
-							} else {
-								var g = m + k * (r+1)
-							}
-							var middle = Math.round(pos+(g+quota*support) * heightRectangle)
-							var middle2 = Math.round(pos+(g+1-quota) * heightRectangle)
-							var top = Math.round(pos+(g) * heightRectangle)
-							var useHeight = true
-							if (useHeight) { // for STV, support = 1
-								var bottom = Math.round(pos+(g+support) * heightRectangle)
-							} else {
-								var bottom = Math.round(pos+(g+1) * heightRectangle)
-							}
-							
-							var color = model.candidates[k].fill
-							arena.ctx.fillStyle = color
-							arena.ctx.fillRect(left,top,right-left,bottom-top)
-							arena.ctx.fill()
-							
-							// draw amount of support
-							arena.ctx.fillStyle = "white"
-							supportMethod = "useTransparency"
-							if (supportMethod == "useTransparency") {
-								arena.ctx.globalAlpha = (1-quota) * support
-								var width = right-left
-								var height = bottom-top
-								arena.ctx.fillRect(left,top,width,height)
-							} else { // "useVertical"
-								arena.ctx.globalAlpha = .7
-								var topdown = true
-								if (topdown) {
-									arena.ctx.fillRect(left,middle,right-left,bottom-middle)
-								} else {
-									arena.ctx.fillRect(left,top,right-left,middle2-top)
-								}
-							}
-											
-							arena.ctx.globalAlpha = 1
-						}
-					}
-				}
-			}
-
-		} else {
-			for (var i = 0; i < v.length; i++) {
-				var b = v[i].b
-				if (model.system == "QuotaApproval" || model.system == "QuotaScore") { // workaround for now
-					var quota = Math.max(q[i],0)
-				} else {
-					if (r==0) {
-						var quota = 1
-					} else {
-						var quota = Math.max(model.result.history.rounds[r-1].q[model.districtIndexOfVoter[model.orderOfVoters[i]]],0)
-					}
-				}
-				
-				for (var k = 0; k < b.length; k++) {
-					
-					var support = b[k] / model.result.history.maxscore
-					if (support > 0) {
-						var left = Math.round(i * widthRectangle)
-						var right = Math.round((i+1) * widthRectangle)
-		
-						var middle = Math.round(pos+(k+quota*support) * heightRectangle)
-						var middle2 = Math.round(pos+(k+1-quota) * heightRectangle)
-						var top = Math.round(pos+(k) * heightRectangle)
-						var bottom = Math.round(pos+(k+support) * heightRectangle)
-						
-						var color = model.candidates[k].fill
-						arena.ctx.fillStyle = color
-						arena.ctx.fillRect(left,top,right-left,bottom-top)
-						arena.ctx.fill()
-						
-							// draw amount of support
-							arena.ctx.fillStyle = "white"
-							// var supportMethod = "useTransparency"
-							var supportMethod = "useVertical"
-							if (supportMethod == "useTransparency") {
-								arena.ctx.globalAlpha = (1-quota) * support
-								var width = right-left
-								var height = bottom-top
-								arena.ctx.fillRect(left,top,width,height)
-							} else { // "useVertical"
-								arena.ctx.globalAlpha = .7
-								var topdown = true
-								if (topdown) {
-									arena.ctx.fillRect(left,middle,right-left,bottom-middle)
-								} else {
-									arena.ctx.fillRect(left,top,right-left,middle2-top)
-								}
-							}
-										
-						arena.ctx.globalAlpha = 1
-					}
-				}
-			}
-		}
-	
-	}
-
-	// labels
-	if (rowFunction == "rounds") {
-		_drawStroked("Votes by Round",10,150,40,arena.ctx,"start")
-	} else {
-		_drawStroked("Votes",10,150,40,arena.ctx,"start")
-	}
-	
 }
+
+function drawOneLayerOfWeightUsed(model,arena,i,beforeWeightUsed,weightUsed,winnerIndex,barOptions) {
+    if (model.showPowerChart) {
+        
+        var baralpha = barOptions.baralpha
+        var widthRectangle = barOptions.widthRectangle
+        var heightRectangle = barOptions.heightRectangle
+        var base = barOptions.base
+                
+        var left = Math.round(i * widthRectangle)
+        var right = Math.round((i+1) * widthRectangle)
+        var top = Math.round(base-(beforeWeightUsed + weightUsed) * heightRectangle)
+        var bottom = Math.round(base-beforeWeightUsed * heightRectangle)
+        var bucket = Math.round(base- heightRectangle) // where the shadows start
+    
+        // white background for bar
+        arena.ctx.globalAlpha = 1
+        arena.ctx.fillStyle = "white"
+        arena.ctx.fillRect(left,top,right-left,bottom-top)
+        arena.ctx.fill()
+        arena.ctx.globalAlpha = baralpha
+    
+        var color = model.candidates[winnerIndex].fill
+        arena.ctx.fillStyle = color
+    
+        var greyedout = .7
+        if (bottom > bucket) { // bottom is in bucket
+            if (top < bucket) { // top is out of bucket
+                arena.ctx.fillRect(left,bucket,right-left,bottom-bucket)
+                arena.ctx.fill()
+                arena.ctx.globalAlpha = greyedout
+                arena.ctx.fillRect(left,top,right-left,bucket-top)
+                arena.ctx.fill()
+            } else { // entirely in bucket
+                arena.ctx.fillRect(left,top,right-left,bottom-top)
+                arena.ctx.fill()
+            }
+        } else { // entirely out of bucket
+            arena.ctx.globalAlpha = greyedout
+            arena.ctx.fillRect(left,top,right-left,bottom-top)
+            arena.ctx.fill()
+        }
+        arena.ctx.globalAlpha = baralpha
+    }
+}
+
+
+function drawWeightGrey(model,arena,selectedRoundBeforeWeight,r,barOptions) {
+    
+    var widthRectangle = barOptions.widthRectangle
+    var heightRectangle = barOptions.heightRectangle
+
+    if (model.system == "RRV" || model.system == "RAV") {
+        var startpos = 450
+        // draw the beforeWeight
+        for (var i=0; i < selectedRoundBeforeWeight.length; i++) {
+            var beforeWeight = Math.max(selectedRoundBeforeWeight[i],0)
+            var left = Math.round(i * widthRectangle)
+            var right = Math.round((i+1) * widthRectangle)
+            var top = Math.round(startpos - 1 * heightRectangle)
+            var bottom = Math.round(startpos - (1-beforeWeight) * heightRectangle)
+            arena.ctx.fillStyle = "#ccc"
+            arena.ctx.fillRect(left,top,right-left,bottom-top)
+            arena.ctx.fill()
+
+        }
+        // draw line at bottom
+        var yLine = bottom
+        var ctx = arena.ctx
+        ctx.beginPath();
+        ctx.moveTo(0,yLine*2);
+        ctx.lineTo(ctx.canvas.width,yLine*2);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#888";
+        ctx.stroke();
+
+        _drawStroked("Weight",70,400,40,arena.ctx)
+    }
+}
+
+
+function drawOneRoundSquareSTV(model,arena,beforeWeight,i,r,color,barOptions) {
+
+    var widthRectangle = barOptions.widthRectangle
+    var heightRectangle = barOptions.heightRectangle2
+    var pos = barOptions.pos
+
+    // determine where to draw
+    var left = Math.round(i * widthRectangle)
+    var right = Math.round((i+1) * widthRectangle)
+    var middle = Math.round(pos+(r+beforeWeight*1) * heightRectangle)
+    var middle2 = Math.round(pos+(r+1-beforeWeight) * heightRectangle)
+    var top = Math.round(pos+(r) * heightRectangle)
+    var bottom = Math.round(pos+(r+1) * heightRectangle)
+
+    // draw candidate color
+    arena.ctx.fillStyle = color
+    arena.ctx.fillRect(left,top,right-left,bottom-top)
+    arena.ctx.fill()
+
+    // draw amount of support
+    arena.ctx.fillStyle = "white"
+    supportMethod = "useTransparency"
+    if (supportMethod == "useTransparency") {
+        arena.ctx.globalAlpha = 1-beforeWeight
+        var width = right-left
+        var height = bottom-top
+        arena.ctx.fillRect(left,top,width,height)
+    } else { // "useVertical"
+        arena.ctx.globalAlpha = .7
+        var topdown = true
+        if (topdown) {
+            arena.ctx.fillRect(left,middle,right-left,bottom-middle)
+        } else {
+            arena.ctx.fillRect(left,top,right-left,middle2-top)
+        }
+    }
+                    
+    arena.ctx.globalAlpha = 1
+}
+
+function drawOneCandidateSquareSTV(model,arena,beforeWeight,i,c,stillin,barOptions) {
+
+    var widthRectangle = barOptions.widthRectangle
+    var heightRectangle = barOptions.heightRectangle2
+    var pos = barOptions.pos
+
+    // determine where to draw
+    var left = Math.round(i * widthRectangle)
+    var right = Math.round((i+1) * widthRectangle)
+
+    var middle = Math.round(pos+(c+beforeWeight*1) * heightRectangle)
+    var middle2 = Math.round(pos+(c+1-beforeWeight) * heightRectangle)
+    var top = Math.round(pos+(c) * heightRectangle)
+    var bottom = Math.round(pos+(c+1) * heightRectangle)
+    
+    var color = model.candidates[c].fill
+    if (stillin.includes(c)) {
+        // draw support in color
+    } else {
+        // draw support in grey
+        // var color = "#ccc"
+        middle = top // just solid grey, no beforeWeight stuff
+    }
+
+    arena.ctx.fillStyle = color
+    arena.ctx.fillRect(left,top,right-left,bottom-top)
+    arena.ctx.fill()
+    
+    arena.ctx.globalAlpha = .7
+    arena.ctx.fillStyle = "white"
+    if (1) {
+        arena.ctx.fillRect(left,middle,right-left,bottom-middle)
+    } else {
+        arena.ctx.fillRect(left,top,right-left,middle2-top)
+    }
+                    
+    arena.ctx.globalAlpha = 1
+}
+
+function drawOneCandidateSquareScore(model,arena,beforeWeight,support,i,k,r,rLimit,barOptions) {
+
+    if (support > 0) {
+
+        var widthRectangle = barOptions.widthRectangle
+        var heightRectangle = barOptions.heightRectangle4
+        var pos = barOptions.pos
+
+        var left = Math.round(i * widthRectangle)
+        var right = Math.round((i+1) * widthRectangle)
+
+        var interleaveCandidates = false
+        if (interleaveCandidates) {
+            var g = r * b.length + k
+        } else {
+            var g = r + k * (rLimit+1)
+        }
+        var middle = Math.round(pos+(g+beforeWeight*support) * heightRectangle)
+        var middle2 = Math.round(pos+(g+1-beforeWeight) * heightRectangle)
+        var top = Math.round(pos+(g) * heightRectangle)
+        var useHeight = true
+        if (useHeight) { // for STV, support = 1
+            var bottom = Math.round(pos+(g+support) * heightRectangle)
+        } else {
+            var bottom = Math.round(pos+(g+1) * heightRectangle)
+        }
+        
+        var color = model.candidates[k].fill
+        arena.ctx.fillStyle = color
+        arena.ctx.fillRect(left,top,right-left,bottom-top)
+        arena.ctx.fill()
+        
+        // draw amount of support
+        arena.ctx.fillStyle = "white"
+        supportMethod = "useTransparency"
+        if (supportMethod == "useTransparency") {
+            arena.ctx.globalAlpha = (1-beforeWeight) * support
+            var width = right-left
+            var height = bottom-top
+            arena.ctx.fillRect(left,top,width,height)
+        } else { // "useVertical"
+            arena.ctx.globalAlpha = .7
+            var topdown = true
+            if (topdown) {
+                arena.ctx.fillRect(left,middle,right-left,bottom-middle)
+            } else {
+                arena.ctx.fillRect(left,top,right-left,middle2-top)
+            }
+        }
+                        
+        arena.ctx.globalAlpha = 1
+    }
+}
+
+
+function drawOneRoundSquareScore(model,arena,beforeWeight,support,i,k,barOptions) {
+    if (support > 0) {
+            
+        var widthRectangle = barOptions.widthRectangle
+        var heightRectangle = barOptions.heightRectangle2
+        var pos = barOptions.pos
+        
+        var left = Math.round(i * widthRectangle)
+        var right = Math.round((i+1) * widthRectangle)
+
+        var middle = Math.round(pos+(k+beforeWeight*support) * heightRectangle)
+        var middle2 = Math.round(pos+(k+1-beforeWeight) * heightRectangle)
+        var top = Math.round(pos+(k) * heightRectangle)
+        var bottom = Math.round(pos+(k+support) * heightRectangle)
+        
+        var color = model.candidates[k].fill
+        arena.ctx.fillStyle = color
+        arena.ctx.fillRect(left,top,right-left,bottom-top)
+        arena.ctx.fill()
+        
+            // draw amount of support
+            arena.ctx.fillStyle = "white"
+            // var supportMethod = "useTransparency"
+            var supportMethod = "useVertical"
+            if (supportMethod == "useTransparency") {
+                arena.ctx.globalAlpha = (1-beforeWeight) * support
+                var width = right-left
+                var height = bottom-top
+                arena.ctx.fillRect(left,top,width,height)
+            } else { // "useVertical"
+                arena.ctx.globalAlpha = .7
+                var topdown = true
+                if (topdown) {
+                    arena.ctx.fillRect(left,middle,right-left,bottom-middle)
+                } else {
+                    arena.ctx.fillRect(left,top,right-left,middle2-top)
+                }
+            }
+                        
+        arena.ctx.globalAlpha = 1
+    }
+}
+
+
 
 function _percentileToX(percentile,model) {
 	var v = model.getSortedVoters()

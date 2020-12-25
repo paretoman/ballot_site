@@ -91,15 +91,28 @@ function Candidate(model){
 		var p = arena.modelToArena(self)
 		_drawStroked(text,p.x*2,p.y*2-35,40,ctx);
 	}	
-	self.draw = function(ctx,arena){
+	self.draw = function(ctx,arena,opt){
 		if (model.nLoading > 0) return // still loading, will call lat
+
+		opt = opt || {}
+		opt.rotate = opt.rotate || 0
 
 		// RETINA
 		var p = arena.modelToArena(self)
 		var x = p.x*2;
 		var y = p.y*2;
 		var size = self.size*2;
-
+		var hsize
+		
+		if (opt.rotate != 0) {
+			var angle = Math.PI/180 * -opt.rotate
+			ctx.save()
+			ctx.translate(x, y)
+			x = 0
+			y = 0
+			ctx.rotate(angle);
+		}
+			
 		// Draw image instead!
 		//if(self.highlight) ctx.filter = "brightness(150%)"
 		if(self.highlight) var temp = ctx.globalAlpha
@@ -144,6 +157,9 @@ function Candidate(model){
 		if(self.highlight) ctx.globalAlpha = temp
 		//if(self.highlight) ctx.filter = "brightness(100%)"
 
+		if (opt.rotate != 0) {
+			ctx.restore()
+		}
 	};
 
 }

@@ -1228,28 +1228,11 @@ function LpAssignmentsViz(model) {
 	self.drawLpAssignmentsViz = function() {
 		for (var district of model.district) {
 
-			var a = LpGetA(district)
+			var a = district.stages[model.stage].assignments
 			
 			drawA(a,district)
 
 		}
-	}
-
-	function LpGetA(district) {
-		var r = district.stages[model.stage].lpResult
-		console.log(r)
-		var cans = district.stages[model.stage].candidates
-		var nk = cans.length
-		var ni = district.voterPeople.length
-	
-		var a = []
-		for(var i = 0; i < ni; i++ ){
-			a[i] = []
-			for(var k = 0; k < nk; k++){
-				a[i][k] = r["y" + i + "_" + k]
-			}
-		}
-		return a
 	}
 
 	function drawA(a,district) {

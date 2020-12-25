@@ -114,6 +114,8 @@ function Model(idModel){
         codeEditorText: Election.defaultCodeScore,
 		createStrategyType: "score",
 		createBallotType: "Score",
+		showUtilityChart: false,
+		enableTArena: false,
 	})
 	
 	self.viz = new Viz(self);
@@ -579,6 +581,7 @@ function Model(idModel){
 			} else {
 				if (self.optionsForElection.sidebar) {
 					_drawBars(0,self.tarena,self,self.round)
+					_drawText("Candidates in Voter Space",10,35,40,self.tarena.ctx,"start")
 				}
 			}
 		}
@@ -624,7 +627,7 @@ function Model(idModel){
 					for (var i=0; i < self.result.eventsToAssign.length; i++) {
 						var e = self.result.eventsToAssign[i]
 						self.caption.querySelector("#" + e.eventID).addEventListener("mouseover", e.f)
-						self.caption.querySelector("#" + e.eventID).addEventListener("mouseleave", ()=>self.draw())
+						self.caption.querySelector("#" + e.eventID).addEventListener("mouseleave", ()=>self.drawArenas())
 					}
 				}
 			}
@@ -797,12 +800,20 @@ function Model(idModel){
 	self.checkGotoTarena = function() { 
 		// checks to see if we want to add the additional arena for displaying the bar charts that we use for multi-winner systems
 		// right now, we don't have a good visual of these for multiple districts, just one
-		return (self.nDistricts < 2) && (self.system == "QuotaApproval"  || self.system == "QuotaScore" || self.system == "RRV" ||  self.system == "RAV" ||  self.system == "STV") && ! (self.roundChart == "off")
+		return (self.nDistricts < 2) && self.checkSystemWithBarChart() && ! (self.roundChart == "off") && (self.enableTArena)
+	}
+	self.checkDoMultiWinnerBarCharts = function() { 
+		// checks to see if we want to add the additional arena for displaying the bar charts that we use for multi-winner systems
+		// right now, we don't have a good visual of these for multiple districts, just one
+		return self.checkSystemWithBarChart() && ! (self.roundChart == "off")
+	}
+	self.checkSystemWithBarChart = function () {
+		return self.system == "QuotaApproval"  || self.system == "QuotaScore" || self.system == "Monroe Seq S" || self.system == "Phragmen Seq S" || self.system == "RRV" ||  self.system == "RAV" ||  self.system == "STV"
 	}
 
 	self.checkDoSort = function() {
 		if (self.orderOfVoters == undefined || self.behavior == "stand") { 
-			return self.checkGotoTarena() ||  ["IRV","STV"].includes(self.system) || self.showUtilityChart
+			return self.checkDoMultiWinnerBarCharts() ||  ["IRV","STV"].includes(self.system) || self.showUtilityChart
 		} else {
 			return false
 		}
@@ -853,7 +864,7 @@ function Model(idModel){
 	}
 	
 	self.checkMultiWinner = function(system) {
-		return (system == "QuotaApproval"  || system == "QuotaScore" || system == "RRV" ||  system == "RAV" ||  system == "STV" || system == "QuotaMinimax" || system == "PhragmenMax" || system == "equalFacilityLocation") 
+		return (system == "QuotaApproval"  || system == "QuotaScore" || system == "Monroe Seq S" || system == "Phragmen Seq S" || system == "RRV" ||  system == "RAV" ||  system == "STV" || system == "QuotaMinimax" || system == "PhragmenMax" || system == "equalFacilityLocation") 
 	}
 
 	self.updateVC = function() {
@@ -1773,11 +1784,11 @@ function Arena(arenaName, model) {
 					// find closest voter's index
 					var i = _closestVoterIndex(d,model)
 					var xP = i  * (self.canvas.width/2)
-					return {x:xP,y:35}
+					return {x:xP,y:50}
 				} else {
 					var xP = _xToPercentile(d.x,model) / 100 * (self.canvas.width/2)
 					// return {x:xP,y:15*d.i+7} // each candidate has his own track
-					return {x:xP,y:35}
+					return {x:xP,y:50}
 				}
 			} else {
 				return {x:0,y:-100} // offscreen... move voter offscreen
@@ -2687,6 +2698,17 @@ function DistrictManager(model) {
 			var d = voterPerson.iDistrict
 			model.district[d].parties[iParty].voterPeople.push(voterPerson) // fill district.parties[i].voters with references to voters
 		}
+		
+		// For each voter, this takes the index over all districts, and it gives the index within a district.
+		model.districtIndexOfVoter = []
+		for (var iDistrict = 0; iDistrict < model.nDistricts; iDistrict++) {
+			var voterPeople = model.district[iDistrict].voterPeople
+			for (var i = 0; i < voterPeople.length; i++) {
+				var iAll = voterPeople[i].iAll
+				model.districtIndexOfVoter[iAll] = i
+			}
+		}
+
 
 		self.redistrictCandidates()
 	}
