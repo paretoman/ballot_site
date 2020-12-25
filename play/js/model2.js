@@ -27,7 +27,7 @@ l.onload = function(assets){
 		model.initMODEL()
 		model.voterGroups[0].init()
 		model.election = Election.plurality
-		model.optionsForElection = {sidebar:true,verbose:true}
+		model.optionsForElection = {sidebar:true,verbose:true,originalCaption:true}
 		model.dm.redistrict()
 		// UPDATE
 		model.update()
