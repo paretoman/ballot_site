@@ -3274,18 +3274,20 @@ function dLineChart(measure,dls,model,opt) {
 	text += `<div style=' position: relative; width: ${w1}px; height: ${h1}px; border: 1px dashed #ccc; border-left: 0px dashed #ccc; padding: 0 0em;'>`
 	text += `<svg id="pollChart" viewBox="0 0 ${w1} ${h1}" xmlns="http://www.w3.org/2000/svg">`
 	for (var k = 0; k < ncans; k++) {
+		text += `<path d="`
 		for (var i = 0; i < dls.length; i++) {
 			var dl = dls[i]
 			var d = dl[k]
 			var color = d.c.fill
 			var y2 = i * yscale
 			var x2 = d[measure]*w1
-			if (i > 0) {
-				text += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="5" opacity=".8" />`
+			if (i == 0) {
+				text += `M ${x2} ${y2}`
+			} else {
+				text += ` L ${x2} ${y2}`
 			}
-			var y1 = y2
-			var x1 = x2
 		}
+		text += `"  fill="transparent" stroke="${color}" stroke-width="5" opacity=".8" />`
 	}
 	text += `</svg>`
 	text += `

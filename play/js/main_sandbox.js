@@ -486,7 +486,7 @@ function bindModel(ui,model,config) {
             } else {
 
                 var divBallot = document.createElement("div")
-                divBallot.style["width"] = "230px"
+                divBallot.className = "div-ballot-parent"
                 ui.dom.rightBallot = divBallot
                 ui.dom.right.prepend(ui.dom.rightBallot)
 
