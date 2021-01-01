@@ -1172,6 +1172,9 @@ function bindModel(ui,model,config) {
     
             ui.dom.utilityChart.innerHTML += '<div style="text-align:center;"><span class="small" > Utility </span></div>'
 
+            if (ui.minusControl == undefined) ui.minusControl = {}
+            if (ui.minusControl.utilityChart == undefined) ui.minusControl.utilityChart = {}
+            addMinusButtonC(ui.dom.utilityChart,ui.minusControl.utilityChart)
             
             ui.dom.utilityChartRoundNumText = []
             ui.dom.utilityChartBackButton = []
@@ -1252,12 +1255,21 @@ function bindModel(ui,model,config) {
         var data = new google.visualization.DataTable();
         data.addColumn('number', 'Voter ID');
         cans.forEach( c => data.addColumn('number', c.name) )
+        var doMax = true
+        if (doMax) {
+            data.addColumn('number', "Max Utility of Winners")
+        }
 
         var optDist = {dontSort: true, noBallot:true}
 
         var rows = []
         var i = 0
 
+        if (doMax) {
+            var winnerCans = district.candidates.filter(c => district.result.winners.includes(c.id))
+            var winnerIndices = winnerCans.map( c => c.i )
+            var rowsPlus = []
+        }
         
         if (model.orderOfVoters) {
             var vPeople = []
@@ -1286,8 +1298,16 @@ function bindModel(ui,model,config) {
             var distList = makeDistList(model,voterPerson,null,cans,optDist)
             voterPerson.distList = distList // just pass it along.. maybe do this part better
             var utilities = distList.map( c => c.uNorm )
+            if (doMax) {
+                var winnerUtilities = utilities.filter( (x,idx) => winnerIndices.includes(idx))
+                var maxUtility = winnerUtilities.reduce( (a,b) =>  Math.max(a, b) )
+            }
             utilities.unshift(i)
-            rows.push(utilities)
+            rows.push(_jcopy(utilities))
+            if (doMax) {
+                utilities.push(maxUtility)
+                rowsPlus.push(utilities)
+            }
             i++
         }
         
@@ -1303,12 +1323,19 @@ function bindModel(ui,model,config) {
         for (let c of cans) {
             seriesColors.push({color: hslToHex(color(c.id))})
         }
+        if (doMax) {
+            seriesColors.push({color: "#555", pointSize:2, lineWidth:0}) // max chosen
+        }
         // seriesColors = cans.map( c => { color:hslToHex(color(c.id)) } )
 
         // var getName = (cid) => model.candidatesById[cid].name
         // var fPercent = (frac) => Math.round(100 * frac) + "%"
 
-        data.addRows(rows);
+        if (doMax) {
+            data.addRows(rowsPlus);
+        } else {
+            data.addRows(rows);
+        }
 
 
         // var formatter = new google.visualization.NumberFormat(
@@ -1431,9 +1458,14 @@ function bindModel(ui,model,config) {
             return
         }
     
-        // hmm, might have a problem with changing number of districts.
+        var old = ui.justFinal
+        ui.justFinal = model.system == "equalFacilityLocation" // only show the final assignments
+        var matchOpt = old == ui.justFinal 
+
+        // redo charts when changing number of districts.
+        var matchDist = ui.weightChartsDistricts == model.district.length
     
-        var haveCharts = (ui.dom.weightCharts != undefined) && ui.weightChartsDistricts == model.district.length  // we already have the number of charts we need. They're ready.
+        var haveCharts = (ui.dom.weightCharts != undefined) && matchDist && matchOpt  // we already have the number of charts we need. They're ready.
     
         // turning on
         if (haveCharts) { // we already have the number of charts we need. They're ready.
@@ -1450,7 +1482,11 @@ function bindModel(ui,model,config) {
             ui.dom.weightCharts = document.createElement("div")
             ui.dom.weightCharts.id = "chart"
             
-            ui.dom.weightCharts.innerHTML += '<div style="text-align:center;"><span class="small" > Voter Weight by Round</span></div>'
+            if (ui.justFinal) {
+                ui.dom.weightCharts.innerHTML += '<div style="text-align:center;"><span class="small" > Voter Weight by Candidate</span></div>'
+            } else {
+                ui.dom.weightCharts.innerHTML += '<div style="text-align:center;"><span class="small" > Voter Weight by Round</span></div>'
+            }
     
             if (ui.minusControl == undefined) ui.minusControl = {}
             if (ui.minusControl.weightCharts == undefined) ui.minusControl.weightCharts = {}
@@ -1558,6 +1594,13 @@ function bindModel(ui,model,config) {
         canvasP.style = "height: 67px; width:200px; margin-left: 10px;"
         ui.dom.weightChartsSpace[i].append(canvasP)
         
+        var canvasS = document.createElement('canvas')
+        var ctxS = canvasS.getContext('2d')
+        canvasS.height = 201
+        canvasS.width = 600
+        canvasS.style = "height: 67px; width:200px; margin-left: 10px;"
+        ui.dom.weightChartsSpace[i].append(canvasS)
+        
         var canvasWK = document.createElement('canvas')
         var ctxWK = canvasWK.getContext('2d')
         canvasWK.height = 300
@@ -1573,7 +1616,7 @@ function bindModel(ui,model,config) {
         ui.dom.weightChartsSpace[i].append(canvasK)
         
 
-        ui.weightCharts[i] = {arena: {canvas:canvas, ctx:ctx} , arenaP: {canvas:canvasP, ctx:ctxP} , arenaU: {canvas:canvasU, ctx:ctxU} , arenaW: {canvas:canvasW, ctx:ctxW} , arenaK: {canvas:canvasK, ctx:ctxK} , arenaWK: {canvas:canvasWK, ctx:ctxWK} }
+        ui.weightCharts[i] = {arena: {canvas:canvas, ctx:ctx} , arenaP: {canvas:canvasP, ctx:ctxP} , arenaU: {canvas:canvasU, ctx:ctxU} , arenaW: {canvas:canvasW, ctx:ctxW} , arenaK: {canvas:canvasK, ctx:ctxK} , arenaWK: {canvas:canvasWK, ctx:ctxWK}  , arenaS: {canvas:canvasS, ctx:ctxS}}
     
         ui.dom.weightChartsBackButton[i].onclick = (function(i) { return function() {
             var district = model.district[i]
@@ -1611,6 +1654,7 @@ function bindModel(ui,model,config) {
         barOptions.widthRectangle = barOptions.width / v.length    
         barOptions.heightRectangle = 100
         barOptions.baralpha = .9
+        barOptions.fontSize = 32
         
         barOptions.heightRectangle2 = Math.min(200 / model.candidates.length, 200/5)
 
@@ -1653,6 +1697,20 @@ function bindModel(ui,model,config) {
             arenaP.ctx.clearRect(0,0,arenaP.canvas.width,arenaP.canvas.height)
             drawWeightUsed(model,arenaP,barOptionsP,v,round+1)
 
+            // show satisfaction
+            if (model.system != "STV") {
+                var arenaS = ui.weightCharts[iDistrict].arenaS
+                arenaS.canvas.hidden = false
+                var barOptionsS = _jcopy(barOptions)   
+                barOptionsS.base = 200
+                barOptionsS.doSatisfaction = true
+                arenaS.ctx.clearRect(0,0,arenaS.canvas.width,arenaS.canvas.height)
+                drawWeightUsed(model,arenaS,barOptionsS,v,round+1)
+            } else {
+                var arenaS = ui.weightCharts[iDistrict].arenaS
+                arenaS.canvas.hidden = true
+            }
+
             if (model.system == "Phragmen Seq S") {
 
                 var arenaWK = ui.weightCharts[iDistrict].arenaWK
@@ -1687,6 +1745,9 @@ function bindModel(ui,model,config) {
 
             var arenaK = ui.weightCharts[iDistrict].arenaK
             arenaK.canvas.hidden = true
+
+            var arenaS = ui.weightCharts[iDistrict].arenaS
+            arenaS.canvas.hidden = true
         }
     }
     
@@ -7872,6 +7933,7 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
         self.init_sandbox = function() {
             if (model.minusControl == undefined) model.minusControl = {}
             if (ui.minusControl == undefined) ui.minusControl = {}
+
             model.minusControl.caption = readConfigControl(0)
             ui.minusControl.sankey = readConfigControl(1)
             ui.minusControl.weightCharts = readConfigControl(2)
@@ -7882,6 +7944,8 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
             ui.minusControl.ballotPart[2] = readConfigControl(6)
             ui.minusControl.ballotPart[3] = readConfigControl(7)
             ui.minusControl.ballotPart[4] = readConfigControl(8)
+            ui.minusControl.utilityChart = readConfigControl(9)
+
             function readConfigControl(x) { return {show: defaultTrue(config.minusControl[x])} }
             function defaultTrue(x) { return (x == undefined) ? true : x}
         }
@@ -7930,6 +7994,7 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
             6: defaultTrue(ui.minusControl.ballotPart[2].show),
             7: defaultTrue(ui.minusControl.ballotPart[3].show),
             8: defaultTrue(ui.minusControl.ballotPart[4].show),
+            9: defaultTrue(ui.minusControl.utilityChart.show),
         }
         function defaultTrue(x) { return (x == undefined) ? true : x}
         // convert to array

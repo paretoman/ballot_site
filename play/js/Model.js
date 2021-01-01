@@ -819,7 +819,7 @@ function Model(idModel){
 		return self.checkSystemWithBarChart() && ! (self.roundChart == "off")
 	}
 	self.checkSystemWithBarChart = function () {
-		return self.system == "QuotaApproval"  || self.system == "QuotaScore" || self.system == "Monroe Seq S" || self.system == "Phragmen Seq S" || self.system == "RRV" ||  self.system == "RAV" ||  self.system == "STV"
+		return self.system == "QuotaApproval"  || self.system == "QuotaScore" || self.system == "Monroe Seq S" || self.system == "Phragmen Seq S" || self.system == "RRV" ||  self.system == "RAV" ||  self.system == "STV" || self.system == "equalFacilityLocation"
 	}
 	self.checkSystemWithRoundButtons = function() { 
 		return self.checkSystemWithBarChart() || self.system == "IRV"
@@ -1991,11 +1991,17 @@ function Arena(arenaName, model) {
 		// not sure why this doesn't work
 		var darkMode = false
 		if (darkMode) {
-			self.ctx.fillStyle = "#222"
-			self.ctx.beginPath()
-			self.ctx.fillRect(0,0,self.canvas.width,self.canvas.height);
-			self.ctx.closePath()
-			self.ctx.fill()
+			if (model.ballotType == "Ranked" || model.ballotType == "Plurality") {
+				if (model.system != "Borda") {
+					if (! (model.yeeon || model.checkDoBeatMap()) ) {
+						self.ctx.fillStyle = "#222"
+						self.ctx.beginPath()
+						self.ctx.fillRect(0,0,self.canvas.width,self.canvas.height);
+						self.ctx.closePath()
+						self.ctx.fill()
+					}
+				}
+			}
 		}
 	}
 

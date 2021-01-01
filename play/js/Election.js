@@ -4120,6 +4120,7 @@ function lpGeneral(_solver,district,model,options) {
 	district.stages[model.stage].assignments = phragmenResult.assignments
 
 	var winners = _getWinnersFromPhragmenResult(phragmenResult,cans)
+	var iWinners = _getIWinnersFromPhragmenResult(phragmenResult,cans)
 
 
 	// var winners = _countWinner(tally);
@@ -4157,6 +4158,32 @@ function lpGeneral(_solver,district,model,options) {
 		}
 
 		result.text = text;
+
+		result.iWinners = iWinners // district candidate indexes of winners
+		result.history = {}
+		result.history.rounds = []
+		for (var r = 0; r < iWinners.length; r++) {
+			var k = iWinners[r]
+			if (r == 0) {
+				var beforeWeightUsed = b.map( () => 0)
+			} else {
+				for (var i = 0; i < weightUsed.length; i++) {
+					beforeWeightUsed[i] += weightUsed[i]
+				}
+			}
+			var weightUsed = phragmenResult.assignments.map( x => x[k])
+			var winners = [district.candidates[k].i]
+			var round = {
+				weightUsed:_jcopy(weightUsed),
+				beforeWeightUsed:_jcopy(beforeWeightUsed),
+				powerUsed:_jcopy(weightUsed),
+				beforePowerUsed:_jcopy(beforeWeightUsed),
+				winners:_jcopy(winners),
+			}
+			result.history.rounds.push(round)
+		}
+		result.history.maxscore = maxscore
+
 	}
 	
 	if (model.doTop2) var theTop2 = _sortTally(tally).slice(0,2)
@@ -4493,6 +4520,16 @@ function _getWinnersFromPhragmenResult(phragmenResult,cans) {
 	return winners
 } 
 
+function _getIWinnersFromPhragmenResult(phragmenResult,cans) {
+	var winners = []
+	for (var k = 0; k < cans.length; k++) {
+		if (phragmenResult.canResult[k] == 1) {
+			winners.push(k)
+		}
+	}
+	return winners
+} 
+
 
 function _getAssignmentsFromLP(results, ni, nk) {
 
@@ -4500,7 +4537,11 @@ function _getAssignmentsFromLP(results, ni, nk) {
 	for(var i = 0; i < ni; i++ ){
 		a[i] = []
 		for(var k = 0; k < nk; k++){
-			a[i][k] = results["y" + i + "_" + k]
+			var x = results["y" + i + "_" + k]
+			if (typeof x !== "number") {
+				x = 0
+			}
+			a[i][k] = x
 		}
 	}
 	return a
@@ -5713,6 +5754,7 @@ function _drawBars(iDistrict, arena, model, round) {
 	barOptions.heightRectangle = 100
 	barOptions.base = 600
 	barOptions.baralpha = .8
+	barOptions.fontSize = 32
 
 	drawWeightUsed(model,arena,barOptions,v,round)
 
@@ -5753,6 +5795,8 @@ function drawWeightUsed(model,arena,barOptions,v,round) {
     // build one layer at a time
 	// for the last layer, keep track of the ballot weight remaining (unUsed) after the round
 	// rLimit is the upper bound for the index of the rounds. It lets us loop through all the rounds that ran previously.
+	
+	if (barOptions.doSatisfaction) var beforeSatisfaction = v.map( () => 0)
     for (var r=0; r < rLimit; r++) {
         var thisround = model.result.history.rounds[r]
         if (thisround.winners.length == 0) continue
@@ -5767,6 +5811,12 @@ function drawWeightUsed(model,arena,barOptions,v,round) {
 				var beforePowerUsed = thisround.beforePowerUsed[idx]
 				var powerUsed = thisround.powerUsed[idx]
 				drawOneLayerOfWeightUsed(model,arena,i,beforePowerUsed,powerUsed,winnerIndex,barOptions)
+			} else if (barOptions.doSatisfaction) {
+				var powerUsed = thisround.powerUsed[idx]
+				var support = v[i].b[winnerIndex] / model.result.history.maxscore
+				var satisfaction = powerUsed * support
+				drawOneLayerOfWeightUsed(model,arena,i,beforeSatisfaction[idx],satisfaction,winnerIndex,barOptions)
+				beforeSatisfaction[idx] += satisfaction
 			} else {
 				var beforeWeightUsed = thisround.beforeWeightUsed[idx]
 				var weightUsed = thisround.weightUsed[idx]
@@ -5780,9 +5830,11 @@ function drawWeightUsed(model,arena,barOptions,v,round) {
 
 	if (model.showPowerChart) {
 		if (barOptions.doPowerUsed) { 
-			_drawText("Voter Power Used",10,barOptions.base - 120,40,arena.ctx,"start")
+			_drawText("Voter Weight Contributed to Candidates",10,barOptions.base - 120,barOptions.fontSize,arena.ctx,"start")
+		} else if (barOptions.doSatisfaction) {
+			_drawText("Voter Support for Assigned Candidate",10,barOptions.base - 120,barOptions.fontSize,arena.ctx,"start") // used to be _drawStroked
 		} else {
-			_drawText("Voter Weight Used",10,barOptions.base - 120,40,arena.ctx,"start") // used to be _drawStroked
+			_drawText("Voter Weighting Used by Method",10,barOptions.base - 120,barOptions.fontSize,arena.ctx,"start") // used to be _drawStroked
 		}
     }
 	
@@ -5860,9 +5912,9 @@ function drawKWeightUsed(model,arena,barOptions,v,round) {
 
 	if (model.showPowerChart) {
 		if (barOptions.doPowerUsed) { 
-			_drawText("Voter Power Used",10,barOptions.base - 120,40,arena.ctx,"start")
+			_drawText("Voter Weight Contributed to Candidates",10,barOptions.base - 120,barOptions.fontSize,arena.ctx,"start")
 		} else {
-			_drawText("Voter Weight Used KP Transform",10,barOptions.base - 120,40,arena.ctx,"start") // used to be _drawStroked
+			_drawText("Voter Weighting Used by Method, KP",10,barOptions.base - 120,barOptions.fontSize,arena.ctx,"start") // used to be _drawStroked
 		}
     }
 	
