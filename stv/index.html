@@ -384,7 +384,7 @@
 
 </div>
 
-<p>If you use single-winner Ranked Choice Voting, then the quota is 50%. The ballot counts for the top choice, so there is no way that there is another candidate with more than 50% of ballots who could win. So, more than 50% of people are represented. More than 50% had their votes matter in the election (unless they didn’t use all their rankings).</p>
+<p>If you use single-winner Ranked Choice Voting, then the quota is 50%. The ballot counts for the top choice, so there is no way that there is another candidate with more than 50% of ballots who could win. So, in the final round, between the last two contenders, more than 50% of people who had a preference between the two got their preferred candidate. In that sense, more than 50% of people are represented because their votes mattered in deciding the outcome.</p>
 
 <p><strong>Refresher on RCV:</strong> Ranked choice voting asks voters to rank the candidates in order from best to worst. During counting, your vote counts for your top candidate. One-by-one, the candidate with the least number of votes is eliminated and taken out of the running. <strong>Check out the sketch below</strong> that shows everyone connected to their first pick. Colored flow lines show some voters moving to their next choice after their top pick is eliminated. The flow diagram shown on the right is called a Sankey diagram.</p>
 
@@ -488,6 +488,18 @@
 
 <p>Ranked-Choice Voting is better (more representative) when it allows smaller groups to be represented. Five would be a great number. More would be even more representative but could be overwhelming. Voters don’t have to rank all the candidates. They just need to rank enough to get one candidate elected, or maybe two.</p>
 
+<p>Before we move on, let’s revisit this idea of representation with a few tangent ideas that we’ll only discuss briefly. Like we said before, in the final round, between the last two contenders, more than 50% of people who had a preference between the two got their preferred candidate. In that sense, more than 50% of people are represented because their votes mattered in deciding the outcome. Let’s dive into a little more detail.</p>
+
+<!--In another sense, many of those voters probably don't feel represented by that one preference. I have personally voted for many candidates that don't entirely represent me. Only in the sense of choosing between two did I feel my vote mattered.-->
+
+<p><strong>Tangent 1:</strong> Which supporters does a candidate represent? Which supporters could affect the outcome? Maybe candidates don’t have to pay much attention to their most ardent supporters because their vote is guaranteed. The voters that really matter to them in this model are “swing voters” because those could go either way. In that case, STV is pretty good because there are many boundaries between candidates where voters can swing either way, so more voters matter to the outcome.</p>
+
+<p><strong>Tangent 2:</strong> In another sense, the only position the candidate represents is their own. In that case, STV is still pretty good because there are more positions represented and voters have a candidate with a closer position to their own.</p>
+
+<p><strong>Tangent 3:</strong> I didn’t model voter engagement, but there is a point to be made here, and it’s where I think an improvement could be made to this model. Disengaged voters are on a candidate’s side but they don’t vote because it takes time and effort. One way I could model engagement is to figure that the closer a voter’s position is to a candidate, the more engaged that voter will be. In that case, having more candidates will lead to greater voter engagement. That is a key feature of voting methods where voters can give their opinion on many candidates, like STV.</p>
+
+<!--In another sense, the only position the candidate represents is their own.-->
+
 <h2 id="counting-ballots">Counting Ballots</h2>
 
 <p>The fundamental part of what makes STV work is that it counts quotas exactly once.</p>
@@ -501,6 +513,8 @@
 <h3 id="visualization">Visualization</h3>
 
 <p>See the example chart below for a visual of the process of elimination. It starts at the top and each row tracks who the <strong>voter’s</strong> top pick is. Each column is a voter. Transparency is used to represent the excess vote that remains after a quota is filled. As candidates are eliminated, the groups of voters become visually apparent.</p>
+
+<p>Also, notice that the choice of quota size makes sense because 50% of remaining votes are required to elect the final candidate.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
@@ -566,7 +580,7 @@
 
 <p>Think of single-winner voting methods. The winner is most representative of the median of the group. The median is a collective measure. If there are two sides and both are competing for the median, then both sides are represented. To see why this is the case, consider a case where the election is not competitive and the median belongs to only one side, then all the voters on that side benefit from that power, which is not very representative. The most representative election would be a competitive election where the median could be on either side.</p>
 
-<p>In STV, there are multiple “medians” (more like percentiles), one for each winner. These medians can be spread out over a larger region than for the single-winner case. This means there are more ways to be part of a group that wins and candidates have to pay attention to more voters.</p>
+<p>In STV, there are multiple “medians” (more like percentiles), one for each winner. These medians can be spread out over a larger region than for the single-winner case. This means there are more ways to be part of a group that wins, and there are more “swing voters” that could belong to one group or another. Both of these effects mean candidates have to pay attention to more voters.</p>
 
 <p>Also, consider what would happen if, after the election, a candidate shifted their position toward the center of the group that elected them. They would lose the more moderate voters that voted for them when the next election comes.</p>
 
