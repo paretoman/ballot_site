@@ -124,6 +124,13 @@ function Candidate(model){
 		if (model.customNames == "Yes") {
 			hsize = self.imageSelf.img.width / self.imageSelf.img.height * size
 		}
+		if (model.candidateIconsSet.includes("body")) {
+			if (self.winner) {
+				_drawSpeckMan2(self.fill, self.fill, 6, x/2, y/2, ctx)				
+			} else {
+				_drawSpeckMan1(self.fill, self.fill, 6, x/2, y/2, ctx)
+			}
+		}
 		if (model.candidateIconsSet.includes("image")) {
 			hsize = self.imageSelf.img.width / self.imageSelf.img.height * size
 			ctx.drawImage(self.imageSelf.img, x-hsize/2, y-size/2, hsize, size);

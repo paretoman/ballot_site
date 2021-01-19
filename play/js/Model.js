@@ -21,6 +21,7 @@ function Model(idModel){
 	self.tarena = new Arena("tarena",self)
 	self.nLoading = 0 // counter for drawing after everything is loaded
 	// the only thing to be done after loading the images is drawing the images
+	self.randomSeed = 0
 	
 	// CONFIGURE DEFAULTS
 	// helper
@@ -116,6 +117,9 @@ function Model(idModel){
 		createBallotType: "Score",
 		showUtilityChart: false,
 		enableTArena: false,
+		voterGroupCustomNames: "No",
+		voterGroupNameList: [],
+		drawNameSingleVoter: false,
 	})
 	
 	self.viz = new Viz(self);
@@ -918,6 +922,12 @@ function Model(idModel){
 	}
 	self.updateBallots = function() {
 		self.voterSet.updateBallots()
+	}
+
+	self.random = function() {
+		Math.seedrandom(self.randomSeed)
+		self.randomSeed = Math.random()
+		return self.randomSeed
 	}
 };
 
@@ -2024,6 +2034,9 @@ function Arena(arenaName, model) {
 		// DRAW 'EM ALL.
 		// Draw voters' BG first, then candidates, then voters.
 
+		// set winners
+		setWinners()
+
 		var noClip = true
 		//set annotations
 		resetAnnotations()
@@ -2610,6 +2623,36 @@ function Arena(arenaName, model) {
 				// 		}
 				// 	}
 				// }
+	
+			}
+		}
+		
+		function setWinners() {
+			// might need to change in the future,
+			// just setting a parameter for each candidate to indicate if they are a winner.
+
+			if (!model.dontdrawwinners) {
+				// draw text next to the winners
+
+				// check how many winners there should be
+				let winnersAllowed = 1
+				if (model.checkMultiWinner(model.system)) {
+					winnersAllowed = model.seats
+				}
+
+				for (var k = 0; k < model.district.length; k++) {
+					var district = model.district[k]
+					var result = district.result
+
+					for (let can of district.candidates) {
+						if (result && result.winners && result.winners.includes(can.id)) {
+							can.winner = true
+						} else {
+							can.winner = false
+						}
+					}
+					
+				}
 	
 			}
 		}

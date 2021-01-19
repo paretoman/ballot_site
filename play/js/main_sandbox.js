@@ -1895,6 +1895,8 @@ function Config(ui, config, initialConfig) {
         createStrategyType: "score",
         createBallotType: "Score",
         minusControl: [],
+        voterGroupCustomNames: "No",
+        voterGroupNameList: "",
     }
     // HOWTO: add to the end here (or anywhere inside)
 
@@ -2520,6 +2522,10 @@ function Cypher(ui) {
         95:"createBallotType",
         96:"showUtilityChart",
         97:"minusControl",
+        98:"codeEditorText",
+        99:"voterGroupRandomSeed",
+        100:"voterGroupCustomNames",
+        101:"voterGroupNameList",
     } 
     // HOWTO
     // add more on to the end ONLY
@@ -3548,6 +3554,12 @@ function menu(ui,model,config,initialConfig, cConfig) {
                         group_count_vert: config.group_count_vert[i],
                         group_count_h: config.group_count_h[i],
                     })
+                    if (config.voterGroupRandomSeeds && config.voterGroupRandomSeeds[i]) {
+                        // if we are reading a config that includes a seed, then assign the seed
+                        Object.assign(model.voterGroups[i], {
+                            randomSeed: config.voterGroupRandomSeeds[i]
+                        })
+                    }
                     model.voterGroups[i].typeVoterModel = model.ballotType // needs init	
                 }
             } else if (config.voterPositions) {
@@ -3920,6 +3932,47 @@ function menu(ui,model,config,initialConfig, cConfig) {
         });
     }
 
+    ui.menu.voterGroupCustomNames = new function () {
+        var self = this
+        self.list = [
+            {name:"Yes", value:"Yes",margin:4},
+            {name:"No", value:"No"}
+        ]
+        self.codebook = [ {
+            field: "voterGroupCustomNames",
+            decode: {
+                0:"No",
+                1:"Yes",
+            }
+        } ]
+        self.onChoose = function(data){
+            // LOAD
+            config.voterGroupCustomNames = data.value
+            // CONFIGURE
+            self.configure()
+            // INIT
+            for (let i = 0; i < model.voterGroups.length; i++) {
+                const voterGroup = model.voterGroups[i];
+                voterGroup.initVoterName()
+            }
+            // UPDATE
+            model.draw()
+        };
+        self.configure = function() {
+            showMenuItemsIf("divVoterGroupCustomNames", config.voterGroupCustomNames === "Yes")
+            model.voterGroupCustomNames = config.voterGroupCustomNames
+            ui.menu.voterGroupNameList.choose.dom.hidden = (model.voterGroupCustomNames == "Yes") ? false : true
+        }
+        self.select = function() {
+            self.choose.highlight("value", config.voterGroupCustomNames);
+        }
+        self.choose = new ButtonGroup({
+            label: "Customize Voter Groups' Names?",
+            width: bw(3),
+            data: self.list,
+            onChoose: self.onChoose
+        });
+    }
     
     ui.menu.namelist = new function () {
         var self = this
@@ -3946,6 +3999,40 @@ function menu(ui,model,config,initialConfig, cConfig) {
         }
         self.select = function() {
             self.choose.dom.value = config.namelist
+        }
+        self.choose = {
+            dom: document.createElement("textarea")
+        }
+        self.choose.dom.addEventListener("input",self.onChoose)
+    }
+
+    
+    ui.menu.voterGroupNameList = new function () {
+        var self = this
+        self.codebook = [ {
+            field: "voterGroupNameList",
+            decode: {
+                0:"",
+            }
+        } ]
+        self.onChoose = function(){
+            // LOAD
+            config.voterGroupNameList = self.choose.dom.value
+            // CONFIGURE
+            self.configure()
+            // INIT
+            for (let i = 0; i < model.voterGroups.length; i++) {
+                const voterGroup = model.voterGroups[i];
+                voterGroup.initVoterName()
+            }
+            // UPDATE
+            model.draw()
+        };
+        self.configure = function() {
+            model.voterGroupNameList = config.voterGroupNameList.split("\n")
+        }
+        self.select = function() {
+            self.choose.dom.value = config.voterGroupNameList
         }
         self.choose = {
             dom: document.createElement("textarea")
@@ -5022,6 +5109,8 @@ function menu(ui,model,config,initialConfig, cConfig) {
                     76: "doMedianDistViz",
                     77: "createStrategyType",
                     78: "createBallotType",
+                    79: "voterGroupCustomNames",
+                    80: "namelist",
                 },
             }
         ]
@@ -6399,6 +6488,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             {name:"circle",value:"circle",realname:"circle",margin:4},
             {name:"top",value:"top",realname:"circles with the top preference only",margin:4},
             {name:"dots",value:"dots",realname:"dots",margin:4},
+            {name:"body",value:"body",realname:"People"},
             {name:"off",value:"off",realname:"off"},
         ]
         self.codebook = [ {
@@ -6408,6 +6498,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
                 1:"top",
                 2:"dots",
                 3:"off",
+                4:"body",
             }
         } ]
         self.onChoose = function(data){
@@ -6471,9 +6562,10 @@ function menu(ui,model,config,initialConfig, cConfig) {
         self.list = [
             {name:"image",value:"image",realname:"image",margin:4},
             // {name:"both",value:"both",realname:"both image and name",margin:4},
+            {name:"body",value:"body",realname:"People",margin:4},
             {name:"name",value:"name",realname:"name",margin:4},
             // {name:"off",value:"off",realname:"off"},
-            {name:"dots",value:"dots",realname:"dots",margin:4},
+            {name:"dots",value:"dots",realname:"dots",margin:0},
             {name:"note",value:"note",realname:"annotation",margin:0},
         ]
         self.codebook = [ {
@@ -6483,6 +6575,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
                 1:"name",
                 2:"dots",
                 3:"note",
+                4:"body",
             }
         } ]
         var decoder = ["image","name","dots"] // be careful to only add to the end of this list
@@ -7505,6 +7598,10 @@ function createMenu(ui) {
             ["divCustomNames", [
                 "namelist",
             ]],
+            "voterGroupCustomNames",
+            ["divVoterGroupCustomNames", [
+                "voterGroupNameList",
+            ]],
             ["divDoElectabilityPolls", [
                 "doElectabilityPolls",
             ]],
@@ -7605,6 +7702,10 @@ function createMenu(ui) {
                     "customNames",
                     ["divCustomNames", [
                         "namelist",
+                    ]],
+                    "voterGroupCustomNames",
+                    ["divVoterGroupCustomNames", [
+                        "voterGroupNameList",
                     ]],
                     "candidateIcons",
                     "voterIcons",
@@ -8002,6 +8103,7 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
         for (const [key, value] of Object.entries(mc)) {
             config.minusControl[key] = value
         }
+        config.voterGroupRandomSeeds = model.voterGroups.map( x => x.randomSeed)
         
     }
 

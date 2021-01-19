@@ -3645,6 +3645,9 @@ function VoterCrowd(model) {
 
 	self.img = new Image();  // use the face
 	self.img.src = "play/img/voter_face.png";
+	
+	var n = 1000
+	self.randomSeed = (model.random() * n) % n
 
 	self.drawBackAnnotation = function(x,y,ctx) {}
 	self.drawAnnotation = function(x,y,ctx) {}; // TO IMPLEMENT
@@ -3667,6 +3670,13 @@ function VoterCrowd(model) {
 		
 		model.voterSet.init()
 		self.updateVoterSet()
+	}
+	self.initVoterName = function() {
+		if (model.voterGroupCustomNames == "Yes" && self.vid < model.voterGroupNameList.length && model.voterGroupNameList[self.vid] != "") {
+			self.name = model.voterGroupNameList[self.vid]
+		} else {
+			self.name = self.vid + 1
+		}
 	}
 	self.updateVoterSet = function() {
 
@@ -3723,6 +3733,7 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 		self.initVoterModel()
 		self.initPoints()
 		self.initVoterSet()
+		self.initVoterName()
 	}
 
 	self.updatePeople = function() {
@@ -4056,6 +4067,13 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 				var iDistrict = voterPerson.iDistrict
 				var c = _findClosestCan(x,y,iDistrict,model)
 				_drawCircleFill(x,y,circlesize,c.fill,ctx,model)
+			} else if (model.voterIcons == "body") {
+				var x = voterPerson.xArena
+				var y = voterPerson.yArena
+				var iDistrict = voterPerson.iDistrict
+				var c = _findClosestCan(x,y,iDistrict,model)
+				var headColor = skinColor(voterPerson.iPoint + self.randomSeed)
+				_drawSpeckMan1(c.fill, headColor, 1, x, y, ctx)
 			} else {
 				self.voterModel.drawMe(ctx, voterPerson)
 			}
@@ -4091,14 +4109,7 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 				
 				// Face!
 				// ctx.drawImage(self.img, x*2-size, y*2-size, size*2, size*2);
-		
-				// Number ID
-				var textsize = 20
-				ctx.textAlign = "center";
-				
-				if(model.voterGroups.length != 1) {
-					_drawStroked(self.vid+1,x*2+0*textsize,y*2+0*textsize,textsize,ctx);
-				}
+				_drawName(model,ctx,x,y,self.name)
 			}				
 	
 		}
@@ -4195,6 +4206,258 @@ function _drawDot(diameter,x,y,ctx) {
 	// ctx.stroke()
 }
 
+function _drawSpeckMan1(fill,headColor,scale,x,y,ctx) {
+	sizex = 11 * scale
+	sizey = 30 * scale
+
+	// ctx.save()
+	
+	ctx.translate(Math.round(x*2 - sizex/2), Math.round(y * 2 - sizey/2));
+	ctx.scale(scale,scale)
+
+	
+	ctx.fillStyle = fill;
+	ctx.strokeStyle = "black";
+	ctx.globalAlpha = "1.0";
+	ctx.lineWidth = "1";
+	ctx.lineCap = "butt";
+	ctx.lineJoin = "round";
+	ctx.mitterLimit = "1";
+	// ctx.font = "normal normal 12 Courier";
+	
+	ctx.shadowColor = "rgba(0,0,0,0.3)";
+	ctx.shadowBlur = 4;
+	ctx.shadowOffsetX = 2;
+	ctx.shadowOffsetY = 2;
+
+	// head
+	ctx.fillStyle = headColor;
+	ctx.roundRect(2, 0, 7, 8, 2);
+	ctx.globalAlpha = "0.3";
+	ctx.stroke()
+	ctx.globalAlpha = "1.0";
+	ctx.fill()
+
+	// ctx.fillRect(2, 0, 7, 8);
+	// ctx.globalAlpha = "0.3";
+	// ctx.strokeRect(2, 0, 7, 8);
+	// ctx.globalAlpha = "1.0";
+
+	// legs
+	ctx.fillStyle = fill;
+	ctx.roundRect(2, 17, 7, 10, 2);
+	ctx.globalAlpha = "0.3";
+	ctx.stroke()
+	ctx.globalAlpha = "1.0";
+	ctx.fill()
+	// ctx.fillRect(2, 17, 7, 10);
+	// ctx.globalAlpha = "0.3";
+	// ctx.strokeRect(2, 17, 7, 10);
+	// ctx.globalAlpha = "1.0";
+
+	// torso
+	ctx.roundRect(0, 10, 11, 9, 2);
+	ctx.globalAlpha = "0.3";
+	ctx.stroke()
+	ctx.globalAlpha = "1.0";
+	ctx.fill()
+	// ctx.fillRect(0, 10, 11, 9);
+	// ctx.globalAlpha = "0.3";
+	// ctx.strokeRect(0, 10, 11, 9);
+	// ctx.globalAlpha = "1.0";
+
+	
+	ctx.shadowBlur = 0;
+	ctx.shadowOffsetX = 0;
+	ctx.shadowOffsetY = 0;
+
+	// legs again
+	ctx.roundRect(2, 17, 7, 10, 2);
+	ctx.fill()
+
+	// eyes
+	// ctx.fillStyle = "white";
+	// ctx.strokeStyle = "white";
+	// ctx.fillRect(4, 2, 1, 2);
+	// ctx.strokeRect(4, 2, 1, 2);
+	// ctx.fillRect(7, 2, 1, 2);
+	// ctx.strokeRect(7, 2, 1, 2);
+
+	ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+	// ctx.restore()
+
+}
+
+function _drawSpeckMan2(fill,headColor,scale,x,y,ctx) {
+	sizex = 17 * scale
+	sizey = 30 * scale
+	
+	ctx.translate(Math.round(x*2 - sizex/2), Math.round(y * 2 - sizey/2));
+	ctx.scale(scale,scale)
+
+	
+	ctx.fillStyle = fill;
+	ctx.strokeStyle = "black";
+	ctx.globalAlpha = "1.0";
+	ctx.lineWidth = "1";
+	ctx.lineCap = "butt";
+	ctx.lineJoin = "round";
+	ctx.mitterLimit = "1";
+	// ctx.font = "normal normal 12 Courier";
+	
+	ctx.shadowColor = "rgba(0,0,0,0.3)";
+	ctx.shadowBlur = 4;
+	ctx.shadowOffsetX = 2;
+	ctx.shadowOffsetY = 2;
+
+	// head
+	ctx.fillStyle = headColor;
+	ctx.roundRect(5, 0, 7, 8, 2);
+	ctx.globalAlpha = "0.3";
+	ctx.stroke()
+	ctx.globalAlpha = "1.0";
+	ctx.fill()
+
+	// ctx.fillRect(2, 0, 7, 8);
+	// ctx.globalAlpha = "0.3";
+	// ctx.strokeRect(2, 0, 7, 8);
+	// ctx.globalAlpha = "1.0";
+
+	// legs
+	ctx.fillStyle = fill;
+	ctx.roundRect(5, 13, 7, 14, 2);
+	ctx.globalAlpha = "0.3";
+	ctx.stroke()
+	ctx.globalAlpha = "1.0";
+	ctx.fill()
+	// ctx.fillRect(2, 17, 7, 10);
+	// ctx.globalAlpha = "0.3";
+	// ctx.strokeRect(2, 17, 7, 10);
+	// ctx.globalAlpha = "1.0";
+
+	
+	// arms
+	ctx.roundRect(0, 6, 4, 9, 2);
+	ctx.globalAlpha = "0.3";
+	ctx.stroke()
+	ctx.globalAlpha = "1.0";
+	ctx.fill()
+
+	
+	ctx.roundRect(14, 6, 4, 9, 2);
+	ctx.globalAlpha = "0.3";
+	ctx.stroke()
+	ctx.globalAlpha = "1.0";
+	ctx.fill()
+
+	// torso
+	ctx.roundRect(0, 10, 17, 5, 2);
+	ctx.globalAlpha = "0.3";
+	ctx.stroke()
+	ctx.globalAlpha = "1.0";
+	ctx.fill()
+	// ctx.fillRect(0, 10, 11, 9);
+	// ctx.globalAlpha = "0.3";
+	// ctx.strokeRect(0, 10, 11, 9);
+	// ctx.globalAlpha = "1.0";
+
+	ctx.shadowBlur = 0;
+	ctx.shadowOffsetX = 0;
+	ctx.shadowOffsetY = 0;
+
+	// legs again
+	ctx.roundRect(5, 13, 7, 14, 2);
+	ctx.fill()
+	
+	// arms again
+	ctx.roundRect(0, 6, 4, 9, 2);
+	ctx.fill()
+	ctx.roundRect(14, 6, 4, 9, 2);
+	ctx.fill()
+
+	// eyes
+	// ctx.fillStyle = "white";
+	// ctx.strokeStyle = "white";
+	// ctx.fillRect(10, 2, 1, 2);
+	// ctx.strokeRect(10, 2, 1, 2);
+	// ctx.fillRect(7, 2, 1, 2);
+	// ctx.strokeRect(7, 2, 1, 2);
+
+
+	ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+	
+}
+
+CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+	if (w < 2 * r) r = w / 2;
+	if (h < 2 * r) r = h / 2;
+	this.beginPath();
+	this.moveTo(x+r, y);
+	this.arcTo(x+w, y,   x+w, y+h, r);
+	this.arcTo(x+w, y+h, x,   y+h, r);
+	this.arcTo(x,   y+h, x,   y,   r);
+	this.arcTo(x,   y,   x+w, y,   r);
+	this.closePath();
+  }
+
+function skinColor(i) {
+	
+	// var colors = [
+	// 	"#3b2219",
+	// 	"#a16e4b",
+	// 	"#d4aa78",
+	// 	"#e6bc98",
+	// 	"#ffe7d1",
+	// 	"#80654B",
+	// 	"#271914",
+	// 	"#EEC1A0",
+	// ]
+	var colors = [		
+        "#382922",
+        "#3F2B2A",
+        "#512B1E",
+        "#522E20",
+        "#6A3928",
+        "#8F4C31",
+        "#9A5E42",
+        "#9A5E42",
+        "#AD6D4A",
+        "#AF613D",
+        "#AF775E",
+        "#AF775E",
+        "#BB7752",
+        "#BC7750",
+        "#BE8866",
+        "#BE8866",
+        "#CAA088",
+        "#CE8248",
+        "#D1957D",
+        "#D1957D",
+        "#D39475",
+        "#D3A67C",
+        "#D3AF97",
+        "#D6BAA5",
+        "#DCA788",
+        "#DCA788",
+        "#DCAE8D",
+        "#DCAE8D",
+        "#DDA479",
+        "#E19F7D",
+        "#E6B7B1",
+        "#E8BD9B",
+        "#E9BFA7",
+        "#E9CBC3",
+        "#EBD1B8",
+        "#F3C2B3",
+	]
+	// var x = i
+	Math.seedrandom(i * 100);
+	var x = Math.round(Math.random() * 100)
+	return colors[x % colors.length]
+}
+
 function SingleVoter(model){
 
 	var self = this;
@@ -4207,6 +4470,7 @@ function SingleVoter(model){
 
 		self.initVoterModel()
 		self.initVoterSet()
+		self.initVoterName()
 
 		self.voterPerson = self.voterPeople[0] // shorthand
 		
@@ -4247,6 +4511,9 @@ function SingleVoter(model){
 
 		_drawMe(ctx)
 
+		if (model.drawNameSingleVoter || model.voterGroupCustomNames == "Yes") {
+			_drawName(model,ctx,self.voterPerson.xArena,self.voterPerson.yArena,self.name)
+		}
 	}
 
     function setPositionAndSizeSingle() {
@@ -4310,11 +4577,16 @@ function SingleVoter(model){
 				ctx.drawImage(self.img, x*2 -size/2, y*2-size/2, size, size);
 			}
 		} else if (model.voterIcons == "top") {
-            var iDistrict = voterPerson.iDistrict
+            var iDistrict = self.voterPerson.iDistrict
 			var c = _findClosestCan(x,y,iDistrict,model)
 			_drawCircleFill(x,y,size,c.fill,ctx,model)
 		} else if (model.voterIcons == "dots") {
 			_drawDot(2, x, y, ctx)
+		} else if (model.voterIcons == "body") {
+            var iDistrict = self.voterPerson.iDistrict
+			var c = _findClosestCan(x,y,iDistrict,model)
+			var headColor = skinColor(self.randomSeed)
+			_drawSpeckMan1(c.fill, headColor, 2, x, y, ctx)
 		} 
 		
 			
@@ -4322,6 +4594,16 @@ function SingleVoter(model){
 		if(self.highlight) ctx.globalAlpha = temp
     }
     
+}
+
+function _drawName(model,ctx,x,y,name) {
+	// Number ID
+	var textsize = 20
+	ctx.textAlign = "center";
+	
+	if(model.voterGroupCustomNames == "Yes" || model.voterGroups.length != 1) {
+		_drawStroked(name,x*2+0*textsize,y*2+0*textsize,textsize,ctx);
+	}
 }
 
 function _findClosestCan(x,y,iDistrict,model) {
