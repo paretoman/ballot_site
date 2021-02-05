@@ -193,6 +193,12 @@ function Candidate(model){
 			ctx.drawImage(self.nameSelf.img, x-hsize/2, y-size/2, hsize, size);
 		}
 		if (model.candidateIconsSet.includes("dots")) {
+
+			var squareSize = 20
+			if (self.winner && model.candidateIconsSet.includes("note")) {
+				_winBackgroundRectangle(ctx,x,y,squareSize,squareSize)
+			}
+
 			ctx.fillStyle = self.fill
 			ctx.strokeStyle = 'black'
 			ctx.lineWidth = 1
