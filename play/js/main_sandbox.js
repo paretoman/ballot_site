@@ -1787,7 +1787,7 @@ function bindModel(ui,model,config) {
                 actualRoundChartDraw(i, {ease:true});
             }
         }
-        model.draw()
+        model.drawArenas()
     }
 
     model.updateFromModel = function() {
