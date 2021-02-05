@@ -15,6 +15,7 @@ function Model(idModel){
 	self.voterSet = new VoterSet(self)
 	self.district = []
 	self.dm = new DistrictManager(self)
+	self.voterManager = new VoterManager(self)
 	self.candidates = [];
 	self.dom = document.createElement("div");
 	self.arena = new Arena("arena",self)
@@ -74,9 +75,10 @@ function Model(idModel){
 		opt: {
 			irv100: true, // show the final transfer to the winner (to reach 100%)
 			IRVShowdown: false,  // show a reverse-direction transfer to represent the winner
-			showIRVTransfers: true,  // show lines representing transfers between rounds
+			showIRVTransfers: false,  // show lines representing transfers between rounds
 			breakWinTiesMultiSeat: true, // break ties for winning candidates in multi-winner methods
-			breakEliminationTiesIRV: true // break ties for eliminations of candidates in IRV
+			breakEliminationTiesIRV: true, // break ties for eliminations of candidates in IRV
+			doDrawIRVCandidates: false, // TODO: make a button for this
 		},
 		ballotVis: true, // turn on or off the visuals that show where the ballots go
 		visSingleBallotsOnly: false, // only show the single ballots as part of the ballotVis
@@ -284,12 +286,12 @@ function Model(idModel){
 		
 		self.viz.calculateAfterElection()
 		 
-		self.draw()
 
 		// Update!
 		self.onUpdate();
 		publish(self.id+"-update");
 
+		self.draw()
 	};
 
 
@@ -881,7 +883,7 @@ function Model(idModel){
 	}
 	
 	self.checkMultiWinner = function(system) {
-		return (system == "QuotaApproval"  || system == "QuotaScore" || system == "Monroe Seq S" || system == "Phragmen Seq S" || system == "RRV" ||  system == "RAV" ||  system == "STV" || system == "QuotaMinimax" || system == "PhragmenMax" || system == "equalFacilityLocation") 
+		return (system == "QuotaApproval"  || system == "QuotaScore" || system == "Monroe Seq S" || system == "Phragmen Seq S" || system == "RRV" ||  system == "RAV" ||  system == "STV" || system == "QuotaMinimax" || system == "stvMinimax" || system == "PhragmenMax" || system == "equalFacilityLocation") 
 	}
 
 	self.updateVC = function() {
@@ -929,6 +931,7 @@ function Model(idModel){
 		self.randomSeed = Math.random()
 		return self.randomSeed
 	}
+
 };
 
 function Arena(arenaName, model) {
@@ -1108,7 +1111,7 @@ function Arena(arenaName, model) {
 				model.voterGroups.push(n)
 				// INIT
 				model.initMODEL()
-				n.init()
+				model.voterManager.initVoters()
 				return n
 			}
 		}
@@ -1218,6 +1221,12 @@ function Arena(arenaName, model) {
 					model.voterGroups.splice(i,1)
 					// need to init voterSet
 					model.voterSet.init()
+					// remove name from customNames, if there was one
+					if (model.voterGroupNameList && model.voterGroupNameList[i] !== undefined) {
+						model.voterGroupNameList.splice(i,1)
+					}
+					model.voterManager.initNames()
+					model.voterManager.onDeleteVoterGroup()
 
 					// also, check if the viewMan was on a voter in the group
 					var viewMan = model.arena.viewMan
@@ -2198,7 +2207,7 @@ function Arena(arenaName, model) {
 		function drawCandidates() {
 			// There's two ways to draw the candidate.  One shows the candidate icon.
 			// Two shows the vote totals and optionally, the candidate icon.
-			var go = model.checkDoIRVConcept() && self.id == "arena"
+			var go = model.checkDoIRVConcept() && self.id == "arena" && model.opt.doDrawIRVCandidates
 			if (go) {
 				for (var k = 0; k < model.district.length; k++) {
 					result = model.district[k].result
@@ -2598,11 +2607,26 @@ function Arena(arenaName, model) {
 				for (var k = 0; k < model.district.length; k++) {
 					var district = model.district[k]
 					var result = district.result
+
+					
 					
 					if(result && result.winners) {
-						for (let wid of result.winners) {
+						var winners = result.winners
+
+						// draw differently for each round
+						if (model.roundCurrent !== undefined) {
+							var round = model.roundCurrent[district.i]
+							// if (round > model.result.history.rounds.length) round = model.result.history.rounds.length - 1
+							if (round !== undefined && (model.system == "STV")) {
+								if (round >= model.result.won.length) round = model.result.won.length - 1
+								winners = model.result.won[round]
+								// winnerIdxs = model.result.history.rounds[round].winners
+								// winners = winnerIdxs.map( x => district.candidates[x].id)
+							}
+						}
+						for (let wid of winners) {
 							let c = model.candidatesById[wid]
-							if (result.winners.length > winnersAllowed) {
+							if (winners.length > winnersAllowed) {
 								c.drawTie(self.ctx,self)
 							} else {
 								c.drawWin(self.ctx,self)

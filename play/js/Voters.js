@@ -20,7 +20,7 @@ function VoterModel(model,type) {
 	self.drawBallot = (voterPerson) => DrawBallot[type](model, self, voterPerson)
 	self.drawTally = (voterPerson) => DrawTally[type](model, self, voterPerson)
 	self.drawMap = (ctx, voterPerson) => DrawMap[type](ctx, model, self, voterPerson)
-	self.drawMe = (ctx, voterPerson) => DrawMe[type](ctx, model, self, voterPerson)
+	self.drawMe = (ctx, voterPerson, scale) => DrawMe[type](ctx, model, self, voterPerson, scale)
 
 	// self.crowd = new VoterCrowd[self.crowdType](model, self)
 
@@ -37,19 +37,19 @@ function VoterModel(model,type) {
 	// 	// self.drawBallot = new DrawBallot[self.drawBallotType](model, self)
 	// 	// self.drawTally = new DrawTally[self.drawTallyType](model, self)
 	// 	// self.drawMap = new DrawMap[self.drawMapType](model, self)
-	// 	// self.drawMe = new DrawMe[self.drawMeType](model, self)
+	// 	// self.drawMe = new DrawMe[self.drawMeType](model, self, scale)
 
 	// 	self.castBallot = (voterPerson) => CastBallot[type](model, self, voterPerson)
 	// 	self.drawBallot = (voterPerson) => DrawBallot[self.drawBallotType](model, self, voterPerson)
 	// 	self.drawTally = (voterPerson) => DrawTally[self.drawTallyType](model, self, voterPerson)
 	// 	self.drawMap = (ctx, voterPerson) => DrawMap[self.drawMapType](ctx, model, self, voterPerson)
-	// 	self.drawMe = (ctx, voterPerson) => DrawMe[self.drawMeType](ctx, model, self, voterPerson)
+	// 	self.drawMe = (ctx, voterPerson) => DrawMe[self.drawMeType](ctx, model, self, voterPerson, scale)
 
 	// 	// self.getBallot = CastBallot[self.castBallotType](model, self)
 	// 	// self.textBallot = DrawBallot[self.drawBallotType](model, self)
 	// 	// self.textTally = DrawTally[self.drawTallyType](model, self)
 	// 	// self.drawBG = DrawMap[self.drawMapType](model, self)
-	// 	// self.drawCircle = DrawMe[self.drawMeType](model, self)
+	// 	// self.drawCircle = DrawMe[self.drawMeType](model, self, scale)
 	// }
 
 	// self.setType(type) // Default
@@ -1176,7 +1176,8 @@ DrawMap.Ranked = function (ctx, model,voterModel,voterPerson) {
 		}
 
 	} else if (model.system == "IRV" || model.system == "STV") {
-		if (1) {
+		var bon = model.ballotConcept == "on"
+		if (bon) {
 			if (ballot.rank.length == 0) return
 			var candidate = model.candidatesById[ballot.rank[0]];
 	
@@ -1196,7 +1197,7 @@ DrawMap.Ranked = function (ctx, model,voterModel,voterPerson) {
 			ctx.stroke();
 	
 
-		} else {
+		} else if (0) {
 			var old = {}
 			old.x = x
 			old.y = y
@@ -1608,7 +1609,7 @@ DrawMap.Plurality = function (ctx, model,voterModel,voterPerson) {
 	var ballot = voterPerson.stages[model.stage].ballot
 
 	
-	if (model.ballotConcept == "off") return
+	if (model.ballotConcept != "on") return
 
 	var candidate = model.candidatesById[ballot.vote];
 	
@@ -1634,7 +1635,16 @@ DrawMap.Plurality = function (ctx, model,voterModel,voterPerson) {
 
 var DrawMe = {}
 
-DrawMe.Score = function (ctx, model,voterModel,voterPerson) {
+DrawMe.Score = function (ctx, model,voterModel,voterPerson, scale) {
+	
+	if (model.voterIcons == "top") {
+		_drawTopDefault(model, ctx, voterPerson)
+		return
+	} else if (model.voterIcons == "body") {
+		_drawBodyDefault(model, ctx, voterPerson, scale)
+		return
+	} 
+
 	var x = voterPerson.xArena
 	var y = voterPerson.yArena
 	var size = voterPerson.size
@@ -1687,12 +1697,21 @@ DrawMe.Score = function (ctx, model,voterModel,voterPerson) {
 
 }
 
-DrawMe.Three = function (ctx, model,voterModel,voterPerson) {
-	DrawMe.Score(ctx, model,voterModel,voterPerson)
+DrawMe.Three = function (ctx, model,voterModel,voterPerson, scale) {
+	DrawMe.Score(ctx, model,voterModel,voterPerson, scale)
 
 }
 
-DrawMe.Approval = function (ctx, model,voterModel,voterPerson) {
+DrawMe.Approval = function (ctx, model,voterModel,voterPerson, scale) {
+	
+	if (model.voterIcons == "top") {
+		_drawTopDefault(model, ctx, voterPerson)
+		return
+	} else if (model.voterIcons == "body") {
+		_drawBodyDefault(model, ctx, voterPerson, scale)
+		return
+	} 
+
 	var x = voterPerson.xArena
 	var y = voterPerson.yArena
 	var size = voterPerson.size
@@ -1741,25 +1760,95 @@ DrawMe.Approval = function (ctx, model,voterModel,voterPerson) {
 
 }
 
-DrawMe.Ranked = function (ctx, model,voterModel,voterPerson) {
+DrawMe.Ranked = function (ctx, model,voterModel,voterPerson, scale) {
+
+
+	var elimSystem = (model.system == "IRV" || model.system == "STV")
+	if (model.voterIcons == "top" && ! elimSystem) {
+		_drawTopDefault(model, ctx, voterPerson)
+		return
+	} else if (model.voterIcons == "body" && ! elimSystem) {
+		_drawBodyDefault(model, ctx, voterPerson, scale)
+		return
+	} 
+
 	var x = voterPerson.xArena
 	var y = voterPerson.yArena
 	var size = voterPerson.size
 	var ballot = voterPerson.stages[model.stage].ballot
+	var rank = ballot.rank
 	var weight = voterPerson.weight
 	var iDistrict = voterPerson.iDistrict
+	var iAll = voterPerson.iAll
 
+	// change ballot to reflect the round
+	if (model.roundCurrent !== undefined) {
+		var round = model.roundCurrent[iDistrict]
+		if (round !== undefined && elimSystem && round > 0) {
+			var maxRound = model.result.continuing.length
+			if (round > maxRound) {
+				// show the final results
+				round = maxRound
+
+				var showFinalWeightUsed = false // switch
+				if (showFinalWeightUsed && model.system == "STV") {
+					round = round + 1
+					// weight in this round
+					var type1 = _type1Get(model)
+					if (type1) {
+						var idx = iAll
+					} else {
+						var idx = model.districtIndexOfVoter[iAll]
+					}
+					var lastIdx = model.result.history.rounds.length - 1
+					var lastround = model.result.history.rounds[lastIdx]
+					var finalWeightUsed = lastround.beforeWeightUsed[idx] + lastround.weightUsed[idx]
+
+					ctx.globalAlpha = Math.max(.05,finalWeightUsed)
+				}
+
+			} else {
+				rank = _jcopy(rank.filter((x) => model.result.continuing[round-1].includes(x)))
+	
+				if (model.system == "STV") {
+					round = round + 1
+					// weight in this round
+					var doAfterFinalRound = (round == -1) || (round == model.result.history.rounds.length + 1) // show the weight after the final round
+					var type1 = _type1Get(model)
+					if (type1) {
+						var idx = iAll
+					} else {
+						var idx = model.districtIndexOfVoter[iAll]
+					}
+					if (doAfterFinalRound) {
+						var lastIdx = model.result.history.rounds.length - 1
+						var lastround = model.result.history.rounds[lastIdx]
+						var selectedRoundBeforeWeight = 1 - (lastround.beforeWeightUsed[idx] + lastround.weightUsed[idx])
+					} else {
+						var lastIdx = round - 1
+						var lastround = model.result.history.rounds[lastIdx]
+						var selectedRoundBeforeWeight = 1 - lastround.beforeWeightUsed[idx]
+					}
+					
+					ctx.globalAlpha = selectedRoundBeforeWeight
+				}
+			}
+		}
+		if (model.voterIcons == "top" || model.voterIcons == "body") {
+			rank = [rank[0]]
+		}
+	}
 
 	if (typeof weight === 'undefined') weight = 1
 	var slices = [];
-	var n = ballot.rank.length;
+	var n = rank.length;
 	if (n==0) {
 		var totalSlices = 1
 		slices.push({ num:1, fill:"#bbb" })
 	} else if(n==2) {
 		var totalSlices = 1
-		var rank = ballot.rank[0];
-		var candidate = model.candidatesById[rank];
+		var rank0 = rank[0];
+		var candidate = model.candidatesById[rank0];
 		slices.push({ num:1, fill:candidate.fill })
 	} else {
 
@@ -1768,9 +1857,9 @@ DrawMe.Ranked = function (ctx, model,voterModel,voterPerson) {
 		var orderByCandidate = (model.drawSliceMethod == "barChart" && model.system == "Borda")
 		if (orderByCandidate) var slicesById = {}
 		
-		for(var i=0; i<ballot.rank.length; i++){
-			var rank = ballot.rank[i];
-			var candidate = model.candidatesById[rank];
+		for(var i=0; i<rank.length; i++){
+			var rank1 = rank[i];
+			var candidate = model.candidatesById[rank1];
 			var slice = { num:(n-i), fill:candidate.fill }
 			slices.push(slice);
 			if (orderByCandidate) slicesById[candidate.id] = slice
@@ -1786,15 +1875,22 @@ DrawMe.Ranked = function (ctx, model,voterModel,voterPerson) {
 		if (model.system == "Borda") {
 			_drawVoterBarChart(model, ctx, x, y, size, slices, totalSlices, slices.length);
 		} else if (model.system == "IRV" || model.system == "STV") {
-			if (model.squareFirstChoice) {
-				_drawIRVStack(model, ctx, x, y, size, slices, totalSlices * 1/Math.max(weight,.000001));
+			if (model.voterIcons == "body") {
+				var colorfill = model.candidatesById[rank[0]].fill
+				var headColor = voterPerson.skinColor
+				_drawSpeckMan1(colorfill, headColor, scale, ctx.globalAlpha, x, y, ctx)
+
 			} else {
-				_drawRankList(model, ctx, x, y, size, slices, totalSlices * 1/Math.max(weight,.000001));
+				if (model.squareFirstChoice) {
+					_drawIRVStack(model, ctx, x, y, size, slices, totalSlices * 1/Math.max(weight,.000001));
+				} else {
+					_drawRankList(model, ctx, x, y, size, slices, totalSlices * 1/Math.max(weight,.000001));
+				}
 			}
 		} else {
 			if (model.pairOrderByCandidate) {
 				if (n==2) {
-					ballot_sub = {rank: [ballot.rank[0]]}
+					ballot_sub = {rank: [rank[0]]}
 					_drawPairTableByCandidate(model, ctx, x, y, size, ballot_sub, weight)
 				} else {
 					_drawPairTableByCandidate(model, ctx, x, y, size, ballot, weight)
@@ -1811,14 +1907,26 @@ DrawMe.Ranked = function (ctx, model,voterModel,voterPerson) {
 		}
 	}
 
+	ctx.globalAlpha = 1
 
 }
 
-DrawMe.Plurality = function (ctx, model,voterModel,voterPerson) {
+DrawMe.Plurality = function (ctx, model,voterModel,voterPerson, scale) {
+	
+	if (model.voterIcons == "top") {
+		_drawTopDefault(model, ctx, voterPerson)
+		return
+	} else if (model.voterIcons == "body") {
+		_drawBodyDefault(model, ctx, voterPerson, scale)
+		return
+	} 
+
 	var x = voterPerson.xArena
 	var y = voterPerson.yArena
 	var size = voterPerson.size
 	var ballot = voterPerson.stages[model.stage].ballot
+
+	
 
 	// RETINA
 	x = x*2;
@@ -1842,6 +1950,26 @@ DrawMe.Plurality = function (ctx, model,voterModel,voterPerson) {
 	if (model.checkDrawCircle()) {ctx.stroke();}
 
 
+	ctx.globalAlpha = 1
+}
+
+function _drawTopDefault(model, ctx, voterPerson) {
+	var x = voterPerson.xArena
+	var y = voterPerson.yArena
+	var circlesize = voterPerson.size
+	var iDistrict = voterPerson.iDistrict
+	var c = _findClosestCan(x,y,iDistrict,model)
+	_drawCircleFill(x,y,circlesize,c.fill,ctx,model)
+
+}
+
+function _drawBodyDefault(model, ctx, voterPerson, scale) {
+	var x = voterPerson.xArena
+	var y = voterPerson.yArena
+	var iDistrict = voterPerson.iDistrict
+	var c = _findClosestCan(x,y,iDistrict,model)
+	var headColor = voterPerson.skinColor
+	_drawSpeckMan1(c.fill, headColor, scale, ctx.globalAlpha, x, y, ctx)
 }
 
 function _drawPairTableByCandidate(model, ctx, x, y, size, ballot, weight) {
@@ -2216,7 +2344,7 @@ function _drawThickRing(ctx, x, y, size) {
 	x = x*2;
 	y = y*2;
 	// Just draw a circle.		
-	ctx.strokeStyle = 'rgb(50,50,50)';
+	ctx.strokeStyle = 'rgb(150,150,150,.7)';
 	ctx.lineWidth = 3; // border
 	ctx.beginPath();
 	ctx.arc(x, y, size, 0, Math.TAU, true);
@@ -2224,9 +2352,55 @@ function _drawThickRing(ctx, x, y, size) {
 	ctx.arc(x, y, size-8, 0, Math.TAU, true);
 	// ctx.arc(x, y, size, 0, 0, true);
 	ctx.closePath();
-	ctx.fillStyle = 'white'
+	ctx.fillStyle = 'rgb(255,255,255,.7)';
 	ctx.fill('evenodd')
 	ctx.stroke();
+}
+
+function drawArrows(ctx, x, y, size) {
+	
+
+	ctx.fillStyle = 'rgb(255,255,255,.5)';
+	ctx.strokeStyle = 'rgb(0,0,0,.5)';
+	ctx.lineWidth = 1
+
+	size *=4
+
+	ctx.translate(Math.round(x*2 - size/2), Math.round(y * 2 - size/2));
+	var scale = size / 96
+	ctx.scale(scale,scale)
+
+	ctx.beginPath();
+	ctx.moveTo(73, 48.40);
+	ctx.lineTo(62.60, 38.80);
+	ctx.lineTo(62.60, 43.60);
+	ctx.lineTo(52.40, 43.60);
+	ctx.lineTo(52.40, 33.40);
+	ctx.lineTo(57.20, 33.40);
+	ctx.lineTo(47.60, 23);
+	ctx.lineTo(38.70, 33.40);
+	ctx.lineTo(43.50, 33.40);
+	ctx.lineTo(43.50, 43.60);
+	ctx.lineTo(33.40, 43.60);
+	ctx.lineTo(33.40, 38.80);
+	ctx.lineTo(23, 48.40);
+	ctx.lineTo(33.40, 57.30);
+	ctx.lineTo(33.40, 52.50);
+	ctx.lineTo(43.60, 52.50);
+	ctx.lineTo(43.60, 62.70);
+	ctx.lineTo(38.80, 62.70);
+	ctx.lineTo(47.60, 73);
+	ctx.lineTo(57.20, 62.60);
+	ctx.lineTo(52.40, 62.60);
+	ctx.lineTo(52.40, 52.40);
+	ctx.lineTo(62.60, 52.40);
+	ctx.lineTo(62.60, 57.20);
+	ctx.lineTo(73, 48.40);
+	ctx.closePath();
+	ctx.fill();
+	ctx.stroke();
+	
+	ctx.setTransform(1, 0, 0, 1, 0, 0);
 }
 
 function _drawBlank(model, ctx, x, y, size){
@@ -3665,17 +3839,18 @@ function VoterCrowd(model) {
 			var voterPerson = new VoterPerson(model,self.voterModel)
 			voterPerson.iPoint = i
 			voterPerson.weight = 1
+			voterPerson.skinColor = skinColor(i + self.randomSeed)
 			self.voterPeople.push(voterPerson)
 		}
 		
 		model.voterSet.init()
 		self.updateVoterSet()
 	}
-	self.initVoterName = function() {
-		if (model.voterGroupCustomNames == "Yes" && self.vid < model.voterGroupNameList.length && model.voterGroupNameList[self.vid] != "") {
-			self.name = model.voterGroupNameList[self.vid]
+	self.initVoterName = function(i) {
+		if (model.voterGroupCustomNames == "Yes" && i < model.voterGroupNameList.length && model.voterGroupNameList[i] != "") {
+			self.name = model.voterGroupNameList[i]
 		} else {
-			self.name = self.vid + 1
+			self.name = i + 1
 		}
 	}
 	self.updateVoterSet = function() {
@@ -3733,7 +3908,6 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 		self.initVoterModel()
 		self.initPoints()
 		self.initVoterSet()
-		self.initVoterName()
 	}
 
 	self.updatePeople = function() {
@@ -4046,12 +4220,14 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 	}
 
 	function _drawMap(ctx) {
+		ctx.save()
 		temp = ctx.globalAlpha
 		ctx.globalAlpha = .2
 		for(var voterPerson of self.voterPeople){
 			self.voterModel.drawMap(ctx, voterPerson)
 		}
 		ctx.globalAlpha = temp
+		ctx.restore()
 	}
 
 	function _drawMe(ctx){
@@ -4060,22 +4236,8 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 				var x = voterPerson.xArena
 				var y = voterPerson.yArena
 				_drawDot( 2, x, y, ctx)
-			} else if (model.voterIcons == "top") {
-				var x = voterPerson.xArena
-				var y = voterPerson.yArena
-				var circlesize = voterPerson.size
-				var iDistrict = voterPerson.iDistrict
-				var c = _findClosestCan(x,y,iDistrict,model)
-				_drawCircleFill(x,y,circlesize,c.fill,ctx,model)
-			} else if (model.voterIcons == "body") {
-				var x = voterPerson.xArena
-				var y = voterPerson.yArena
-				var iDistrict = voterPerson.iDistrict
-				var c = _findClosestCan(x,y,iDistrict,model)
-				var headColor = skinColor(voterPerson.iPoint + self.randomSeed)
-				_drawSpeckMan1(c.fill, headColor, 1, x, y, ctx)
 			} else {
-				self.voterModel.drawMe(ctx, voterPerson)
+				self.voterModel.drawMe(ctx, voterPerson, 1)
 			}
 		}
 	}
@@ -4105,7 +4267,8 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 
 				// _drawBlank(model, ctx, x, y, size)
 				// _drawRing(ctx,x,y,self.size)
-				_drawThickRing(ctx,x,y,size)
+				// _drawThickRing(ctx,x,y,size)
+				drawArrows(ctx,x,y,size)
 				
 				// Face!
 				// ctx.drawImage(self.img, x*2-size, y*2-size, size*2, size*2);
@@ -4206,20 +4369,25 @@ function _drawDot(diameter,x,y,ctx) {
 	// ctx.stroke()
 }
 
-function _drawSpeckMan1(fill,headColor,scale,x,y,ctx) {
-	sizex = 11 * scale
-	sizey = 30 * scale
+function _drawSpeckMan1(fill,headColor,scale,alpha,x,y,ctx) {
+	
+	ctx.save()
 
-	// ctx.save()
+	scale *= 4
+	sizex = 5 * scale
+	sizey = 7 * scale
+	offx = (-34/64*50 + .5 * 50) * .1
+	offy = (-59/88*70 + .5 * 70) * .1
 	
 	ctx.translate(Math.round(x*2 - sizex/2), Math.round(y * 2 - sizey/2));
 	ctx.scale(scale,scale)
+	ctx.translate(offx,offy)
 
 	
 	ctx.fillStyle = fill;
 	ctx.strokeStyle = "black";
-	ctx.globalAlpha = "1.0";
-	ctx.lineWidth = "1";
+	ctx.globalAlpha = alpha;
+	ctx.lineWidth = ".2";
 	ctx.lineCap = "butt";
 	ctx.lineJoin = "round";
 	ctx.mitterLimit = "1";
@@ -4231,150 +4399,68 @@ function _drawSpeckMan1(fill,headColor,scale,x,y,ctx) {
 	ctx.shadowOffsetY = 2;
 
 	// head
-	ctx.fillStyle = headColor;
-	ctx.roundRect(2, 0, 7, 8, 2);
-	ctx.globalAlpha = "0.3";
-	ctx.stroke()
-	ctx.globalAlpha = "1.0";
-	ctx.fill()
+	// ctx.fillStyle = headColor;
+	// ctx.roundRect(5.25, 0, 8.5, 8, 2);
+	// ctx.globalAlpha = alpha * 0.3;
+	// ctx.stroke()
+	// ctx.globalAlpha = alpha;
+	// ctx.fill()
 
 	// ctx.fillRect(2, 0, 7, 8);
-	// ctx.globalAlpha = "0.3";
+	// ctx.globalAlpha = alpha * 0.3;
 	// ctx.strokeRect(2, 0, 7, 8);
-	// ctx.globalAlpha = "1.0";
+	// ctx.globalAlpha = alpha;
 
-	// legs
-	ctx.fillStyle = fill;
-	ctx.roundRect(2, 17, 7, 10, 2);
-	ctx.globalAlpha = "0.3";
-	ctx.stroke()
-	ctx.globalAlpha = "1.0";
-	ctx.fill()
-	// ctx.fillRect(2, 17, 7, 10);
-	// ctx.globalAlpha = "0.3";
-	// ctx.strokeRect(2, 17, 7, 10);
-	// ctx.globalAlpha = "1.0";
+	ctx.translate(0,2.167984-1.631359)
 
-	// torso
-	ctx.roundRect(0, 10, 11, 9, 2);
-	ctx.globalAlpha = "0.3";
-	ctx.stroke()
-	ctx.globalAlpha = "1.0";
-	ctx.fill()
-	// ctx.fillRect(0, 10, 11, 9);
-	// ctx.globalAlpha = "0.3";
-	// ctx.strokeRect(0, 10, 11, 9);
-	// ctx.globalAlpha = "1.0";
-
-	
-	ctx.shadowBlur = 0;
-	ctx.shadowOffsetX = 0;
-	ctx.shadowOffsetY = 0;
-
-	// legs again
-	ctx.roundRect(2, 17, 7, 10, 2);
-	ctx.fill()
-
-	// eyes
-	// ctx.fillStyle = "white";
-	// ctx.strokeStyle = "white";
-	// ctx.fillRect(4, 2, 1, 2);
-	// ctx.strokeRect(4, 2, 1, 2);
-	// ctx.fillRect(7, 2, 1, 2);
-	// ctx.strokeRect(7, 2, 1, 2);
-
-	ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-	// ctx.restore()
-
-}
-
-function _drawSpeckMan2(fill,headColor,scale,x,y,ctx) {
-	sizex = 17 * scale
-	sizey = 30 * scale
-	
-	ctx.translate(Math.round(x*2 - sizex/2), Math.round(y * 2 - sizey/2));
-	ctx.scale(scale,scale)
-
-	
-	ctx.fillStyle = fill;
-	ctx.strokeStyle = "black";
-	ctx.globalAlpha = "1.0";
-	ctx.lineWidth = "1";
-	ctx.lineCap = "butt";
-	ctx.lineJoin = "round";
-	ctx.mitterLimit = "1";
-	// ctx.font = "normal normal 12 Courier";
-	
-	ctx.shadowColor = "rgba(0,0,0,0.3)";
-	ctx.shadowBlur = 4;
-	ctx.shadowOffsetX = 2;
-	ctx.shadowOffsetY = 2;
-
-	// head
+	ctx.beginPath();
 	ctx.fillStyle = headColor;
-	ctx.roundRect(5, 0, 7, 8, 2);
-	ctx.globalAlpha = "0.3";
+	ctx.moveTo(2.001401, 1.631359);
+	ctx.lineTo(2.001401, 2.569706);
+	ctx.quadraticCurveTo(2.001401, 2.898966, 2.330661, 2.898966);
+	ctx.lineTo(2.961005, 2.898966);
+	ctx.quadraticCurveTo(3.290265, 2.898966, 3.290265, 2.569706);
+	ctx.lineTo(3.290265, 1.631359);
+	ctx.quadraticCurveTo(3.290265, 1.302099, 2.961005, 1.302099);
+	ctx.lineTo(2.330661, 1.302099);
+	ctx.quadraticCurveTo(2.001401, 1.302099, 2.001401, 1.631359);
+	
+	ctx.globalAlpha = alpha * 0.3;
 	ctx.stroke()
-	ctx.globalAlpha = "1.0";
+	ctx.globalAlpha = alpha;
 	ctx.fill()
 
-	// ctx.fillRect(2, 0, 7, 8);
-	// ctx.globalAlpha = "0.3";
-	// ctx.strokeRect(2, 0, 7, 8);
-	// ctx.globalAlpha = "1.0";
-
-	// legs
+	// body
+	
 	ctx.fillStyle = fill;
-	ctx.roundRect(5, 13, 7, 14, 2);
-	ctx.globalAlpha = "0.3";
-	ctx.stroke()
-	ctx.globalAlpha = "1.0";
-	ctx.fill()
-	// ctx.fillRect(2, 17, 7, 10);
-	// ctx.globalAlpha = "0.3";
-	// ctx.strokeRect(2, 17, 7, 10);
-	// ctx.globalAlpha = "1.0";
+	ctx.scale(0.264583,0.264583)
+	ctx.beginPath();
+	ctx.moveTo(6.474609, 11.205078);
+	ctx.bezierCurveTo(5.595976, 11.205078, 4.888672, 11.912383, 4.888672, 12.791016);
+	ctx.lineTo(4.888672, 17.923828);
+	ctx.bezierCurveTo(4.888672, 18.802461, 5.595976, 19.509766, 6.474609, 19.509766);
+	ctx.lineTo(6.843750, 19.509766);
+	ctx.lineTo(6.843750, 23.679688);
+	ctx.bezierCurveTo(6.843750, 24.558320, 7.551054, 25.265625, 8.429688, 25.265625);
+	ctx.lineTo(11.570312, 25.265625);
+	ctx.bezierCurveTo(12.448945, 25.265625, 13.156250, 24.558320, 13.156250, 23.679688);
+	ctx.lineTo(13.156250, 19.509766);
+	ctx.lineTo(13.525391, 19.509766);
+	ctx.bezierCurveTo(14.404023, 19.509766, 15.111328, 18.802461, 15.111328, 17.923828);
+	ctx.lineTo(15.111328, 12.791016);
+	ctx.bezierCurveTo(15.111328, 11.912383, 14.404023, 11.205078, 13.525391, 11.205078);
+	ctx.lineTo(6.474609, 11.205078);
+	ctx.fill();
 
-	
-	// arms
-	ctx.roundRect(0, 6, 4, 9, 2);
-	ctx.globalAlpha = "0.3";
+	ctx.globalAlpha = alpha * 0.3;
 	ctx.stroke()
-	ctx.globalAlpha = "1.0";
+	ctx.globalAlpha = alpha;
 	ctx.fill()
-
-	
-	ctx.roundRect(14, 6, 4, 9, 2);
-	ctx.globalAlpha = "0.3";
-	ctx.stroke()
-	ctx.globalAlpha = "1.0";
-	ctx.fill()
-
-	// torso
-	ctx.roundRect(0, 10, 17, 5, 2);
-	ctx.globalAlpha = "0.3";
-	ctx.stroke()
-	ctx.globalAlpha = "1.0";
-	ctx.fill()
-	// ctx.fillRect(0, 10, 11, 9);
-	// ctx.globalAlpha = "0.3";
-	// ctx.strokeRect(0, 10, 11, 9);
-	// ctx.globalAlpha = "1.0";
 
 	ctx.shadowBlur = 0;
 	ctx.shadowOffsetX = 0;
 	ctx.shadowOffsetY = 0;
 
-	// legs again
-	ctx.roundRect(5, 13, 7, 14, 2);
-	ctx.fill()
-	
-	// arms again
-	ctx.roundRect(0, 6, 4, 9, 2);
-	ctx.fill()
-	ctx.roundRect(14, 6, 4, 9, 2);
-	ctx.fill()
 
 	// eyes
 	// ctx.fillStyle = "white";
@@ -4387,7 +4473,136 @@ function _drawSpeckMan2(fill,headColor,scale,x,y,ctx) {
 
 	ctx.setTransform(1, 0, 0, 1, 0, 0);
 
+	ctx.restore()
+}
+
+function _drawSpeckMan2(fill,headColor,scale,alpha,x,y,ctx) {
+
+	ctx.save()
+
+	scale *= 4
+	sizex = 5 * scale
+	sizey = 7 * scale
+	offx = (-34/64*50 + .5 * 50) * .1
+	offy = (-59/88*70 + .5 * 70) * .1
 	
+	ctx.translate(Math.round(x*2 - sizex/2), Math.round(y * 2 - sizey/2));
+	ctx.scale(scale,scale)
+	ctx.translate(offx,offy)
+
+	
+	ctx.fillStyle = fill;
+	ctx.strokeStyle = "black";
+	ctx.globalAlpha = alpha;
+	ctx.lineWidth = ".2";
+	ctx.lineCap = "butt";
+	ctx.lineJoin = "round";
+	ctx.mitterLimit = "1";
+	// ctx.font = "normal normal 12 Courier";
+	
+	ctx.shadowColor = "rgba(0,0,0,0.3)";
+	ctx.shadowBlur = 4;
+	ctx.shadowOffsetX = 2;
+	ctx.shadowOffsetY = 2;
+
+	// head
+	// ctx.fillStyle = headColor;
+	// ctx.roundRect(5.25, 0, 8.5, 8, 2);
+	// ctx.globalAlpha = alpha * 0.3;
+	// ctx.stroke()
+	// ctx.globalAlpha = alpha;
+	// ctx.fill()
+
+	// ctx.fillRect(2, 0, 7, 8);
+	// ctx.globalAlpha = alpha * 0.3;
+	// ctx.strokeRect(2, 0, 7, 8);
+	// ctx.globalAlpha = alpha;
+
+	ctx.beginPath();
+	ctx.lineCap = "butt";
+	ctx.lineJoin = "round";
+	// ctx.mitterLimit = "1";
+	ctx.fillStyle = headColor;
+	ctx.mitterLimit = "4";
+
+	ctx.moveTo(2.001395, 2.167984);
+	ctx.lineTo(2.001395, 3.106331);
+	ctx.quadraticCurveTo(2.001395, 3.435591, 2.330655, 3.435591);
+	ctx.lineTo(2.960999, 3.435591);
+	ctx.quadraticCurveTo(3.290259, 3.435591, 3.290259, 3.106331);
+	ctx.lineTo(3.290259, 2.167984);
+	ctx.quadraticCurveTo(3.290259, 1.838724, 2.960999, 1.838724);
+	ctx.lineTo(2.330655, 1.838724);
+	ctx.quadraticCurveTo(2.001395, 1.838724, 2.001395, 2.167984);
+	ctx.globalAlpha = alpha * 0.3;
+	ctx.stroke()
+	ctx.globalAlpha = alpha;
+	ctx.fill()
+
+	// body
+	
+	ctx.fillStyle = fill;
+	ctx.beginPath();
+	ctx.moveTo(0.859890, 2.077099);
+	ctx.bezierCurveTo(0.825575, 2.082039, 0.792366, 2.092621, 0.761705, 2.110172);
+	ctx.lineTo(0.581871, 2.213008);
+	ctx.bezierCurveTo(0.459225, 2.283213, 0.429463, 2.430372, 0.515208, 2.542704);
+	ctx.lineTo(1.810736, 4.240275);
+	ctx.lineTo(1.810736, 6.801876);
+	ctx.bezierCurveTo(1.810736, 7.034347, 1.997877, 7.221488, 2.230348, 7.221488);
+	ctx.lineTo(3.061305, 7.221488);
+	ctx.bezierCurveTo(3.293777, 7.221488, 3.480918, 7.034347, 3.480918, 6.801876);
+	ctx.lineTo(3.480918, 4.248543);
+	ctx.lineTo(4.773346, 2.555623);
+	ctx.bezierCurveTo(4.864501, 2.436203, 4.832933, 2.279891, 4.702549, 2.205257);
+	ctx.lineTo(4.550620, 2.118441);
+	ctx.bezierCurveTo(4.420236, 2.043806, 4.242316, 2.079637, 4.151161, 2.199056);
+	ctx.lineTo(3.126418, 3.541092);
+	ctx.bezierCurveTo(3.105058, 3.537762, 3.083627, 3.534892, 3.061306, 3.534892);
+	ctx.lineTo(2.230348, 3.534892);
+	ctx.bezierCurveTo(2.210150, 3.534892, 2.190857, 3.537842, 2.171437, 3.540582);
+	ctx.lineTo(1.137392, 2.186653);
+	ctx.bezierCurveTo(1.073083, 2.102405, 0.962834, 2.062286, 0.859890, 2.077099);
+	ctx.fill();
+
+	ctx.globalAlpha = alpha * 0.3;
+	ctx.stroke()
+	ctx.globalAlpha = alpha;
+	ctx.fill()
+
+	// crown
+	ctx.beginPath();
+	ctx.strokeStyle = "#000000";
+	ctx.lineJoin = "miter";
+	ctx.fillStyle = "#eed508";
+	ctx.moveTo(1.975740, 1.732761);
+	ctx.lineTo(1.643042, 0.864743);
+	ctx.lineTo(2.332061, 1.334261);
+	ctx.lineTo(2.641136, 0.864743);
+	ctx.lineTo(2.997457, 1.334261);
+	ctx.lineTo(3.639229, 0.864743);
+	ctx.lineTo(3.306531, 1.732761);
+
+	ctx.globalAlpha = alpha * 0.3;
+	ctx.stroke()
+	ctx.globalAlpha = alpha;
+	ctx.fill()
+
+	ctx.shadowBlur = 0;
+	ctx.shadowOffsetX = 0;
+	ctx.shadowOffsetY = 0;
+
+	// eyes
+	// ctx.fillStyle = "white";
+	// ctx.strokeStyle = "white";
+	// ctx.fillRect(10, 2, 1, 2);
+	// ctx.strokeRect(10, 2, 1, 2);
+	// ctx.fillRect(7, 2, 1, 2);
+	// ctx.strokeRect(7, 2, 1, 2);
+
+
+	ctx.setTransform(1, 0, 0, 1, 0, 0);
+	ctx.restore()
 }
 
 CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
@@ -4470,7 +4685,6 @@ function SingleVoter(model){
 
 		self.initVoterModel()
 		self.initVoterSet()
-		self.initVoterName()
 
 		self.voterPerson = self.voterPeople[0] // shorthand
 		
@@ -4551,7 +4765,6 @@ function SingleVoter(model){
 		// Circle!
 		if (model.voterIcons == "circle") {
             
-			self.voterModel.drawMe(ctx, self.voterPerson)
 
 
 			// Face!
@@ -4560,35 +4773,28 @@ function SingleVoter(model){
 
 				_drawRing(ctx,x,y,size)
 				_simpleCircle(ctx,x*2,y*2,size,'#ccc')
-				self.voterModel.drawMe(ctx, self.voterPerson)
+				self.voterModel.drawMe(ctx, self.voterPerson, 2)
 	
 			} else if (scoreTypeMethod && model.drawSliceMethod == "barChart") {
-				self.voterModel.drawMe(ctx, self.voterPerson)
+				self.voterModel.drawMe(ctx, self.voterPerson, 2)
 			} else if (model.ballotType == "Ranked" && model.drawSliceMethod == "barChart") {
-				self.voterModel.drawMe(ctx, self.voterPerson)
+				self.voterModel.drawMe(ctx, self.voterPerson, 2)
 				if (model.system != "Borda") {
 					size = size*2;
 					ctx.drawImage(self.img, x*2 -size/2, y * 2 -size/2, size, size);
 				}
 			} else {
 				_drawRing(ctx,x,y,size)
-				self.voterModel.drawMe(ctx, self.voterPerson)
+				self.voterModel.drawMe(ctx, self.voterPerson, 2)
 				size = size*2;
 				ctx.drawImage(self.img, x*2 -size/2, y*2-size/2, size, size);
 			}
-		} else if (model.voterIcons == "top") {
-            var iDistrict = self.voterPerson.iDistrict
-			var c = _findClosestCan(x,y,iDistrict,model)
-			_drawCircleFill(x,y,size,c.fill,ctx,model)
+
 		} else if (model.voterIcons == "dots") {
 			_drawDot(2, x, y, ctx)
-		} else if (model.voterIcons == "body") {
-            var iDistrict = self.voterPerson.iDistrict
-			var c = _findClosestCan(x,y,iDistrict,model)
-			var headColor = skinColor(self.randomSeed)
-			_drawSpeckMan1(c.fill, headColor, 2, x, y, ctx)
-		} 
-		
+		} else {
+			self.voterModel.drawMe(ctx, self.voterPerson, 2)
+		}
 			
 		self.drawAnnotation(x*2,y*2,ctx)
 		if(self.highlight) ctx.globalAlpha = temp
@@ -4829,7 +5035,9 @@ function VoterCenter(model){
 				} else {
 					size = size*2;
 
-					_drawThickRing(ctx,x/2,y/2,size/2*.7)
+					// drawArrows(ctx,x/2,y/2,size/2)
+					// _drawThickRing(ctx,x/2,y/2,size/2 * .5)
+					_drawThickRing(ctx,x/2,y/2,size/2 * .7)
 
 					// ctx.drawImage(self.img, x-size/2, y-size/2, size, size);
 	
@@ -4841,6 +5049,24 @@ function VoterCenter(model){
 		if(self.highlight) ctx.globalAlpha = temp
 	};
 
+}
+
+function VoterManager(model) {
+	var self = this
+	self.initVoters = function() {
+		for (let i = 0; i < model.voterGroups.length; i++) {
+			const voterGroup = model.voterGroups[i];
+			voterGroup.init()
+			voterGroup.initVoterName(i)
+		}
+	}
+	self.initNames = function() {
+		for (let i = 0; i < model.voterGroups.length; i++) {
+			const voterGroup = model.voterGroups[i];
+			voterGroup.initVoterName(i)
+		}
+	}
+	self.onDeleteVoterGroup = () => null // hook for plug in
 }
 
 function numericApproxGeometricMedian(voterPeople, guess, distancemeasure) {

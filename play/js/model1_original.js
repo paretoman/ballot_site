@@ -29,7 +29,7 @@ l.onload = function(assets){
     model.candidates[0].init()
     model.candidates[1].init()
     model.initMODEL()
-    model.voterGroups[0].init()
+		model.voterManager.initVoters()
     model.dm.redistrict()
     // UPDATE
     model.update()

@@ -42,7 +42,7 @@ function main_ballot(ui){
 			model.candidates[1].init()
 			model.candidates[2].init()
 			model.initMODEL()
-			model.voterGroups[0].init()
+			model.voterManager.initVoters()
 			// UPDATE
 			if(ballotType=="Score") {
 				model.voterGroups[0].voterModel.minscore = 1

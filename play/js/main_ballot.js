@@ -357,7 +357,7 @@ function bindBallotModel(ui,model,config) {
 		model.candidates[1].init()
 		model.candidates[2].init()
 		model.initMODEL()
-		model.voterGroups[0].init()
+		model.voterManager.initVoters()
 		model.dm.redistrict()
 
 	};

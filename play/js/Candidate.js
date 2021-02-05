@@ -73,18 +73,18 @@ function Candidate(model){
 	self.drawBackAnnotation = function(x,y,ctx) {}; // TO IMPLEMENT
 	self.drawAnnotation = function(x,y,ctx) {}; // TO IMPLEMENT
 	self.drawTie = function(ctx,arena) {
-		ctx.textAlign = "center";
-		var p = arena.modelToArena(self)
-		if (model.candidateIconsSet.includes("note")) {
-			_drawStroked("TIE",p.x*2,p.y*2-35,40,ctx);
-		}
+		// ctx.textAlign = "center";
+		// var p = arena.modelToArena(self)
+		// if (model.candidateIconsSet.includes("note")) {
+		// 	_drawStroked("TIE",p.x*2,p.y*2-35,40,ctx);
+		// }
 	}	
 	self.drawWin = function(ctx,arena) {
-		ctx.textAlign = "center";
-		var p = arena.modelToArena(self)
-		if (model.candidateIconsSet.includes("note")) {
-			_drawStroked("WIN",p.x*2,p.y*2-35,40,ctx);
-		}
+		// ctx.textAlign = "center";
+		// var p = arena.modelToArena(self)
+		// if (model.candidateIconsSet.includes("note")) {
+		// 	_drawStroked("WIN",p.x*2,p.y*2-35,40,ctx);
+		// }
 	}	
 	self.drawText = function(text,ctx,arena) {
 		ctx.textAlign = "center";
@@ -121,21 +121,74 @@ function Candidate(model){
 			self.drawBackAnnotation(x,y,ctx)
 		}
 		
+
+		// fade out the non-continuing candidates
+		if (model.roundCurrent !== undefined) {
+			var round = model.roundCurrent[self.iDistrict]
+			var elimSystem = (model.system == "IRV" || model.system == "STV")
+			if (round !== undefined && elimSystem && round > 0) {
+				var maxRound = model.result.continuing.length
+				if (round > maxRound) {
+					// final results.. forget about shading out candidate
+					round = maxRound
+				} else {
+					if (! model.result.continuing[round-1].includes(self.id)) {
+						ctx.globalAlpha = 0.3
+					}
+				}
+			}
+		}
+
 		if (model.customNames == "Yes") {
 			hsize = self.imageSelf.img.width / self.imageSelf.img.height * size
 		}
 		if (model.candidateIconsSet.includes("body")) {
-			if (self.winner) {
-				_drawSpeckMan2(self.fill, self.fill, 6, x/2, y/2, ctx)				
+
+			size *= 2/3
+			
+			var iwon = self.winner
+
+			// draw differently for each round
+			if (model.roundCurrent !== undefined) {
+				var round = model.roundCurrent[self.iDistrict]
+				// if (round > model.result.history.rounds.length) round = model.result.history.rounds.length - 1
+				if (round !== undefined && (model.system == "STV")) {
+					if (round >= model.result.won.length) round = model.result.won.length - 1
+					winners = model.result.won[round]
+					iwon = winners.includes(self.id)
+					// winnerIdxs = model.result.history.rounds[round].winners
+					// winners = winnerIdxs.map( x => district.candidates[x].id)
+				}
+			}
+
+			if (iwon) {
+				_drawSpeckMan2(self.fill, self.fill, 4, ctx.globalAlpha, x/2, y/2, ctx)				
 			} else {
-				_drawSpeckMan1(self.fill, self.fill, 6, x/2, y/2, ctx)
+				_drawSpeckMan1(self.fill, self.fill, 4, ctx.globalAlpha, x/2, y/2, ctx)
 			}
 		}
 		if (model.candidateIconsSet.includes("image")) {
+			var rectW = self.nameSelf.widthFracName * size
+			var rectH = self.nameSelf.heightFracName * size
+
+			if (self.winner && model.candidateIconsSet.includes("note")) {
+				_winBackgroundRectangle(ctx,x,y,rectW,rectH)
+			} else {
+				_backgroundRectangle(ctx,x,y,rectW,rectH)
+			}
+
 			hsize = self.imageSelf.img.width / self.imageSelf.img.height * size
 			ctx.drawImage(self.imageSelf.img, x-hsize/2, y-size/2, hsize, size);
 		}
 		if (model.candidateIconsSet.includes("name")) {
+			var rectW = self.nameSelf.widthFracName * size
+			var rectH = self.nameSelf.heightFracName * size
+			if (self.winner && model.candidateIconsSet.includes("note")) {
+				_winBackgroundRectangle(ctx,x,y,rectW,rectH)
+			} else {
+				_backgroundRectangle(ctx,x,y,rectW,rectH)
+			}
+
 			hsize = self.nameSelf.img.width / self.nameSelf.img.height * size
 			ctx.drawImage(self.nameSelf.img, x-hsize/2, y-size/2, hsize, size);
 		}
@@ -167,6 +220,7 @@ function Candidate(model){
 		if (opt.rotate != 0) {
 			ctx.restore()
 		}
+		ctx.globalAlpha = 1.0
 	};
 
 }
@@ -563,7 +617,10 @@ function Graphicon(candidate,option,char,model,charIndex,chars) {
 	
 	function makeNameImage() {
 		model.nLoading++
-		self.png_b64 = _convertNameToDataURLviaCanvas(candidate.name,self.fill, '.png')
+		var nameImage = _convertNameToDataURLviaCanvas(candidate.name,self.fill, '.png')
+		self.png_b64 = nameImage.png_b64
+		self.widthFracName = nameImage.widthFrac
+		self.heightFracName = nameImage.heightFrac
 		self.img = new Image()
 		self.img.src = self.png_b64 // base64 png
 		self.texticon_png = "<img src='"+self.img.src+"'/>"

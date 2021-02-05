@@ -104,9 +104,7 @@ function sandbox(ui){
 				model.candidates[i].init()
 			}
 			model.initMODEL()
-			for (var i=0; i<model.voterGroups.length; i++) {
-				model.voterGroups[i].init()
-			}
+			model.voterManager.initVoters()
 			model.dm.redistrict()
 			model.update()
 		};
@@ -154,9 +152,7 @@ function sandbox(ui){
 				// CONFIGURE
 				self.configure()
 				// UPDATE
-				for(var i=0;i<model.voterGroups.length;i++){
-					model.voterGroups[i].init()
-				}
+				model.voterManager.initVoters()
 				model.dm.redistrict()
 				model.update();
 			};
@@ -202,9 +198,7 @@ function sandbox(ui){
 				self.configure()
 				// INIT
 				model.initMODEL()
-				for(var i=0; i<model.voterGroups.length; i++) {
-					model.voterGroups[i].init()
-				}
+				model.voterManager.initVoters()
 				// UPDATE
         		model.dm.redistrict()
 				model.update()

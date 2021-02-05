@@ -1035,6 +1035,8 @@ Election.minimax = function(district, model, options){ // Pairs of candidates ar
 				var rank = ballots[k].rank;
 				if (options.ballotweight) {
 					var inc = options.ballotweight[k][i][j]
+				} else if (options.ballotweight2) {
+					var inc = options.ballotweight2[k]
 				} else {
 					var inc = 1
 				}
@@ -1977,6 +1979,7 @@ Election.irv = function(district, model, options){
 	let cans = district.stages[model.stage].candidates
 
 	var drawFlows = (model.ballotConcept != "off") && ( ! options.yeefast )
+	drawFlows = options.sidebar // quick temporary fix
 	if (drawFlows) {
 		var transfers = []
 		var coalitions = []
@@ -2864,6 +2867,575 @@ Election.stv = function(district, model, options){
 		finalText += "<br>";
 		for(var i=0; i<winners.length; i++){
 			var c = winners[i]
+			finalText += model.icon(c)+" ";
+		}
+	
+		history.afterFinalRound.finalText = finalText
+		result.history = history
+		result.eventsToAssign = [] // we have an interactive caption
+		result.text = text;
+		
+		// attach caption hover functions
+		for (var i=0; i < roundNum+1; i++) {
+			var cbDraw = function(i) { // a function is returned, so that i has a new scope
+				return function() {
+					model.round = i+1
+					model.drawArenas()
+					model.round = -1
+				}
+			}
+			var e = {
+				eventID: "district"+district.i+"round" + (i+1),
+				f: cbDraw(i)
+			}
+			result.eventsToAssign.push(e)
+		}
+	}
+
+	return result;
+};
+
+Election.stvMinimax = function(district, model, options){
+
+	options = _electionDefaults(options)
+	var polltext = _beginElection(district,model,options,"nopoll")	
+	let cans = district.stages[model.stage].candidates
+
+	var numreps = model.seats
+	
+	var drawFlows = (model.ballotConcept != "off") && ( ! options.yeefast )
+	if (drawFlows) {
+		var transfers = []
+		var coalitions = []
+		var topChoice = []
+		var coalitionInRound = []
+		var lastlosers = []
+		var losers = []
+		var canIdByDecision = []
+		var tallies = []
+		var continuing = []
+		var won = []
+	}
+
+	if (options.sidebar) {
+		var text = ""
+		var history = {}
+		history.rounds = []
+		var v =  model.voterSet.getDistrictVoterArray(district)
+		history.v = v
+		history.seats = numreps
+		history.maxscore = 5
+		model.round = -1
+		var beforeWeightUsed = v.map( () => 0)
+		var powerUsed = v.map( () => 0 )
+        var beforePowerUsed = v.map( () => 0 )
+	}
+
+	var quota = 1/(numreps)
+
+	if (options.sidebar) {
+		var quotapercent = Math.round(quota * 100)
+		var startText = "";
+		startText += "Find " + numreps + " winners.<br>"
+		startText += "Set quota at 1/" + numreps + " = " + quotapercent + "%.<br>"
+		
+		var text = "";
+		text += "<span class='small'>";
+		text += startText
+		text += "<br>"
+
+		startText += "Who's voters' top choice?";
+		history.startText = startText
+		
+		var hsid = "hide-show-detail-" + _rand5()
+
+		if (0) {
+			text += `<button onclick='var x = document.getElementById("${hsid}");
+			if (x.style.display === "none") {
+				x.style.display = "block";
+			} else {
+				x.style.display = "none";
+			};'
+			">Hide/show detailed results</button>`
+		}
+		text += `<div id="${hsid}" >` // style="display:none;"
+	}
+	var resolved = null;
+	var roundNum = 1;
+
+	var candidates = [];
+	var startingCandidates = []
+	for(var i=0; i<cans.length; i++){
+		var cid = cans[i].id
+		candidates.push(cid);
+		startingCandidates.push(cid)
+	}
+	var loserslist = []
+	var winnerslist = []
+	var trueWinnerslist = []
+	var top = []
+	var ballots = model.voterSet.getBallotsDistrict(district)
+	var cBallots = _jcopy(ballots)
+	var ballotweight = []
+	for(var i=0; i<cBallots.length; i++){
+		ballotweight[i] = 1
+	}
+	while(!resolved){
+
+		
+		if (options.sidebar) {
+			
+					
+			var stillin = []
+			for (var i=0; i<candidates.length; i++) {
+				stillin.push(model.candidatesById[candidates[i]].i)
+			}
+
+			var roundHistory = {
+				beforeWeight:_jcopy(ballotweight),
+				beforeWeightUsed: _jcopy(beforeWeightUsed),
+				ballots:_jcopy(cBallots),
+				stillin: stillin
+			}
+			roundHistory.weightUsed = v.map( () => 0)
+
+			text += '<div id="district'+district.i+'round' + (roundNum) + '" class="round">'
+			text += "<b>round "+roundNum+":</b><br>";
+			text += "who's voters' top choice?<br>";
+		}
+
+		var pre_tally = _zeroTally(cans)
+		top = []
+		for(var i=0; i<cBallots.length; i++){
+			var ballot = cBallots[i]
+			var first = ballot.rank[0]; // just count #1
+			pre_tally[first] += ballotweight[i];
+			if (options.sidebar) top.push(first)
+		}
+
+
+		// ONLY tally the remaining candidates...
+		var tally = {};
+		for(var i=0; i<candidates.length; i++){
+			var cID = candidates[i];
+			tally[cID] = pre_tally[cID];
+		}
+
+
+		if (options.sidebar) {
+
+			roundHistory.tally = tally
+			roundHistory.top = top
+
+			// Say 'em...
+			if (model.doTallyChart) {
+				text += tallyChart(tally,cans,model,1,ballots.length)
+			} else {
+				for(var i=0; i<candidates.length; i++){
+					var c = candidates[i];
+					// text += model.icon(c)+":"+Math.round(tally[c]);
+					text += model.icon(c)+":"+_percentFormat(district,tally[c]);
+					
+					if(i<candidates.length-1) text+=",<br>";
+				}   
+            }
+			text += "<br>";
+		}
+
+
+		if (drawFlows) {
+
+			// find top choices 
+			topChoice[roundNum-1] = []
+			for(var i=0; i<cBallots.length; i++){
+				var top = cBallots[i].rank[0];
+				topChoice[roundNum-1][i] = top
+			}
+
+			// count coalition members
+			coalitionInRound[roundNum-1] = {}
+			for(var i=0; i<candidates.length; i++){
+				var cid = candidates[i];
+				coalitionInRound[roundNum-1][cid] = {}
+				for (var m = 0; m < startingCandidates.length; m++) {
+					var cid2 = startingCandidates[m]
+					coalitionInRound[roundNum-1][cid][cid2] = 0
+				}
+			}
+			// for all the ballots
+			// add to their current top choice's coalition
+			for(var k=0; k<cBallots.length; k++){
+				cid = cBallots[k].rank[0]
+				first = topChoice[0][k]
+				coalitionInRound[roundNum-1][cid][first] += ballotweight[k]
+			}
+			tallies.push(_jcopy(tally))
+		}
+
+
+		// 2. DECIDE WHETHER TO CONTINUE
+
+		// Do they have more than 50%?
+		var winners = _countWinner(tally);
+		var winner = winners[0];  // there needs to be a better tiebreaker here. TODO
+		var ratio = tally[winner]/district.voterPeople.length;
+		
+		// show all the transfers if the 100% option is chosen
+		var option100 = model.opt.irv100
+		var lastwin = numreps - winnerslist.length == 1 // this could be the last winner
+		var oneleft = candidates.length == 1 // there is only one candidate left
+		var wait = option100 && lastwin & !oneleft // don't name the last winner unless he's the only one left
+		
+		if( (ratio>=quota && ! wait) || (winnerslist.length + candidates.length == numreps) ){
+			// if (winners.length >= 2) {	// won't happen bc ratio > .5	
+			// 	resolved = "tie"; 
+			// 	break;
+			// }
+			var reweight = 1-quota/ratio
+			winnerslist.push(winner)
+			
+			if (options.sidebar) {
+				var roundText = model.icon(winner)+" has more than " + quotapercent + "%<br>";
+				roundText += "select winner, "+model.icon(winner)+".<br>";
+				text += roundText
+				text += "<br>"
+				roundHistory.roundText = roundText
+			}
+
+			if (drawFlows) {
+				var coalition = {
+					id: winner,
+					list: coalitionInRound[roundNum-1][winner]
+				}
+				coalitions.push(coalition)
+			}
+	
+			// 3. Remove winner from candidates
+
+			candidates.splice(candidates.indexOf(winner), 1); // remove from candidates...
+			// var ballots = model.voterSet.getBallotsDistrict(district)
+			var weightsForMinimax = cBallots.map( () => 0)
+			for(var i=0; i<cBallots.length; i++){
+				var rank = cBallots[i].rank;
+				if (rank[0] === winner) {
+					var weightUsed = ballotweight[i] * (1-reweight)
+					weightsForMinimax[i] = weightUsed
+					if (options.sidebar) {
+						roundHistory.weightUsed[i] = weightUsed
+						beforeWeightUsed[i] += weightUsed
+					}
+
+					ballotweight[i] *= reweight
+				}
+				rank.splice(rank.indexOf(winner), 1); // REMOVE THE winner
+			}
+			
+			var tempOptions = _jcopy(options) // send new options to minimax
+			tempOptions.ballotweight2 = weightsForMinimax
+			tempOptions.round = roundNum
+			// tempOptions.pastwinners = winnerslist
+			tempOptions.justCount = true
+
+			var roundResult = Election.minimax(district, model,tempOptions)
+			
+			var trueWinners = roundResult.winners
+			var trueWinner = trueWinners[0];  // there needs to be a better tiebreaker here. TODO
+			trueWinnerslist.push(trueWinner)
+			
+			if (options.sidebar) {
+				text += '</div>'
+				text += roundResult.text
+			}
+
+			if (options.sidebar) {
+				powerUsed = _calcPowerFromWeight(roundHistory.weightUsed,numreps)
+				roundHistory.powerUsed = _jcopy(powerUsed)
+				roundHistory.beforePowerUsed = _jcopy(beforePowerUsed)
+				for ( var i = 0; i < powerUsed.length; i++) {
+					beforePowerUsed[i] += powerUsed[i]
+				}
+			}
+			if (drawFlows) {
+				canIdByDecision = canIdByDecision.concat(winner)
+				var transferFrom = [winner]
+			}
+
+			if (winnerslist.length == numreps) {
+				resolved = "done"
+
+				break
+			}
+			if (candidates.length == 0) break
+		} else {
+			winners = []
+			winner = null
+			// Otherwise... runoff...
+			var losers = _countLoser(tally);
+			var loser = losers[0];
+			if (model.opt.breakEliminationTiesIRV && losers.length > 1) {
+				loser = losers[Math.floor(losers.length * Math.random())]
+				losers = [loser]
+			}
+			if (losers.length >= candidates.length) {
+				resolved = "tie"; 
+				winnerslist = winnerslist.concat(losers)
+				var tiedlosers = losers
+				break;
+			}
+			loserslist = loserslist.concat(losers)
+			if (drawFlows) canIdByDecision = canIdByDecision.concat(losers)
+
+			if (drawFlows) {
+
+				// keep a list of the most recent losers
+				lastlosers = losers
+	
+	
+				// assign coalitions for the losers
+				for (var li = 0; li < losers.length ; li++ ) {
+					cid = losers[li]
+					var coalition = {
+						id: cid,
+						list: coalitionInRound[roundNum-1][cid]
+					}
+					coalitions.push(coalition)
+				}
+	
+			}
+	
+			// 3. ELIMINATE
+			
+			//text += "nobody's more than 50%. ";
+			
+
+			for (var li = 0; li < losers.length ; li++ ) {
+				loser = losers[li];
+				
+				if (options.sidebar) {
+					var roundText = "eliminate loser, "+model.icon(loser)+".";
+					text += roundText
+					roundHistory.roundText = roundText
+					text += "<br>"
+				}
+				candidates.splice(candidates.indexOf(loser), 1); // remove from candidates...
+				for(var i=0; i<cBallots.length; i++){
+					var ranking = cBallots[i].rank;
+					var loserIndex = ranking.indexOf(loser)
+					ranking.splice(loserIndex, 1); // REMOVE THE LOSER		
+				}
+			}
+			var transferFrom = losers
+		}
+		
+
+		if (drawFlows) {
+			// calculate transferred voters
+			
+			transfers[roundNum-1] = []
+
+			for (var li = 0; li < transferFrom.length ; li++ ) {
+				from = transferFrom[li];
+
+				// make empty data structure for losing candidate
+				transfer = {from:from, flows:{}}
+				for (var k = 0; k < candidates.length; k++) {
+					var cid = candidates[k]
+					transfer.flows[cid] = {}
+					for (var m = 0; m < startingCandidates.length; m++) {
+						var cid2 = startingCandidates[m]
+						transfer.flows[cid][cid2] = 0
+					}
+				}
+
+				for(var i=0; i<cBallots.length; i++){
+					var old = topChoice[roundNum-1][i]
+					if (old === from) {
+						var first = topChoice[0][i]
+						var now = cBallots[i].rank[0];
+						transfer.flows[now][first] += ballotweight[i]
+					}
+				}
+				transfers[roundNum-1].push(transfer)
+                continuing.push(_jcopy(candidates))
+                won.push(_jcopy(winnerslist))
+			}
+		}
+
+
+		if (candidates.length == 0) {
+			// we ran out of candidates, everybody won already
+			resolved = "done"
+			break
+		}
+
+		// And repeat!
+		roundNum++;  // TODO: clarify what the round number means, w.r.t ties
+
+		if (options.sidebar) {
+			
+			if (trueWinner) {
+				roundHistory.winners = [model.candidatesById[trueWinner].i]
+			} else {
+				roundHistory.winners = []
+			}
+			history.rounds.push(roundHistory)
+
+			text += "<br>"
+			text += '</div>'
+		}
+	}
+	
+	if (options.sidebar) {
+			
+		if (trueWinner) {
+			roundHistory.winners = [model.candidatesById[trueWinner].i]
+		} else {
+			roundHistory.winners = []
+		}
+		history.rounds.push(roundHistory)
+		
+		
+		if (drawFlows) won.push(_jcopy(trueWinnerslist))
+
+		text += "<br>"
+		text += '</div>'
+		text += '</div>'
+
+		// push out a final count just to evaluate how well the method worked
+		if (1) {
+			var stillin = []
+			for (var i=0; i<candidates.length; i++) {
+				stillin.push(model.candidatesById[candidates[i]].i)
+			}
+
+			var roundHistory = {
+				beforeWeight:_jcopy(ballotweight),
+				beforeWeightUsed: _jcopy(beforeWeightUsed),
+				ballots:_jcopy(cBallots),
+				stillin: stillin
+			}
+
+			var pre_tally = _zeroTally(cans)
+			var top = []
+			for(var i=0; i<cBallots.length; i++){
+				var ballot = cBallots[i]
+				var f1 = ballot.rank[0]; // just count #1
+				pre_tally[f1] += ballotweight[i];
+				top.push(f1)
+			}
+	
+			// ONLY tally the remaining candidates...
+			var tally = {};
+			for(var i=0; i<candidates.length; i++){
+				var cID = candidates[i];
+				tally[cID] = pre_tally[cID];
+			}
+
+			
+			var winners = _countWinner(tally);
+			var winner = winners[0];  // there needs to be a better tiebreaker here. TODO
+
+			roundHistory.top = top
+			roundHistory.tally = tally
+			roundHistory.ballots = _jcopy(cBallots)
+			if (winner) {
+				roundHistory.winners = [model.candidatesById[winner].i]
+			} else {
+				roundHistory.winners = []
+			}
+			history.afterFinalRound = roundHistory
+			
+		}
+	}
+	
+	if (options.sidebar) {
+		text += '</div>'
+	}
+
+	trueWinners = trueWinnerslist.sort() 
+
+	if (model.doTop2) { /// TODO: see if this actually works
+		loserslist = loserslist.concat(_sortTallyRev(tally))
+		var ll = loserslist.length
+		var theTop2 = loserslist.slice(ll-1,ll).concat(loserslist.slice(ll-2,ll-1))
+	}
+	
+	
+	var result = _result(trueWinners,model)
+	var color = result.color
+	if (model.doTop2) result.theTop2 = theTop2
+
+	
+	if (drawFlows) {
+
+		// add the rest of the candidates onto the end of the list of candidates sorted by decision order
+		// and find their coalitions
+		for(var i=0; i<candidates.length; i++){
+			var cid = candidates[i];
+			canIdByDecision.push(cid)
+			
+			if (1) {
+				var rounds = coalitionInRound.length
+				var coalition = {
+					id: cid,
+					list: coalitionInRound[rounds-1][cid]
+				}
+			} else {
+				var coalition = {id: cid, list:{}}
+				for (var m = 0; m < startingCandidates.length; m++) {
+					var cid2 = startingCandidates[m]
+					coalition.list[cid2] = 0
+				}
+	
+				// record the coalition
+				for(var k=0; k<cBallots.length; k++){
+					var ranking = cBallots[k].rank;
+					if (ranking[0] === cid) {
+						first = topChoice[0][k]
+						coalition.list[first] ++
+					}	
+				}
+			}
+			coalitions.push(coalition)
+		}
+
+		result.loserslist = loserslist
+		result.canIdByDecision = canIdByDecision
+		result.transfers = transfers
+		result.topChoice = topChoice
+		result.coalitions = coalitions
+		result.lastlosers = lastlosers
+		result.nBallots = cBallots.length
+		result.tallies = tallies
+		result.continuing = continuing
+		result.won = won
+	}
+
+	if (options.sidebar) {
+		text += '<div id="district'+district.i+'round' + (roundNum+1) + '" class="round">'
+		var finalText = ""
+		if (resolved == "tie") {
+			finalText += _tietext(model,tiedlosers);
+			text += _tietext(model,tiedlosers);
+			// text = "<b>TIE</b> <br> <br>" + text;
+		} 
+		text = "<br>" + text
+		for (var i in trueWinners) {
+			var trueWinner = trueWinners[i]
+			var color = _colorsWinners([trueWinner],model)[0]
+			// END!
+			text += "</span>";
+			text += "<br>"
+			text += "<b style='color:"+color+"'>"+model.nameUpper(trueWinner)+"</b> WINS ";
+			// text = "<b style='color:"+color+"'>"+model.nameUpper(winner)+"</b> WINS <br>" + text;	
+		}
+		text += '</div>'
+
+		
+		finalText += "Final Winners:";
+		finalText += "<br>";
+		for(var i=0; i<trueWinners.length; i++){
+			var c = trueWinners[i]
 			finalText += model.icon(c)+" ";
 		}
 	
