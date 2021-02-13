@@ -170,8 +170,13 @@ function Candidate(model){
 		if (model.candidateIconsSet.includes("image")) {
 
 			if (model.theme != "Nicky") {
-				var rectW = size
-				var rectH = size
+				if (model.theme == "Letters") {
+					var rectW = self.nameSelf.widthFracName * size
+					var rectH = self.nameSelf.heightFracName * size
+				} else {
+					var rectW = size
+					var rectH = size
+				}
 	
 				if (self.winner && model.candidateIconsSet.includes("note")) {
 					_winBackgroundRectangle(ctx,x,y,rectW,rectH)

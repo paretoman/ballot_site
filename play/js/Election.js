@@ -4364,7 +4364,16 @@ Election.monroeSequentialRange = function(district, model, options){
 		}
 
 		if (options.sidebar) {
-			powerUsed = _calcPowerFromWeight(qUsed,seats)
+			if (options.allocatedScore) {
+				var weightCounted = []
+				for (var i = 0; i < q.length; i++) {
+					var idx = bByCan[winnerIndex][i][1]
+					weightCounted[idx] = qPrevious[idx] * bByCan[winnerIndex][i][0] // calculate weight counted toward a candidate
+				}
+				powerUsed = _calcPowerFromWeight(weightCounted,seats)
+			} else {
+				powerUsed = _calcPowerFromWeight(qUsed,seats)
+			}
 			var roundHistory = {
 				winners: _jcopy(roundWinners),
 				beforeWeightUsed: _jcopy(beforeWeightUsed),
