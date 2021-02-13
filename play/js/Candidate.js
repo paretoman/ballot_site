@@ -168,13 +168,17 @@ function Candidate(model){
 			}
 		}
 		if (model.candidateIconsSet.includes("image")) {
-			var rectW = self.nameSelf.widthFracName * size
-			var rectH = self.nameSelf.heightFracName * size
 
-			if (self.winner && model.candidateIconsSet.includes("note")) {
-				_winBackgroundRectangle(ctx,x,y,rectW,rectH)
-			} else {
-				_backgroundRectangle(ctx,x,y,rectW,rectH)
+			if (model.theme != "Nicky") {
+				var rectW = size
+				var rectH = size
+	
+				if (self.winner && model.candidateIconsSet.includes("note")) {
+					_winBackgroundRectangle(ctx,x,y,rectW,rectH)
+				} else {
+					_backgroundRectangle(ctx,x,y,rectW,rectH)
+				}
+
 			}
 
 			hsize = self.imageSelf.img.width / self.imageSelf.img.height * size
