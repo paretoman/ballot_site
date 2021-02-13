@@ -825,7 +825,7 @@ function Model(idModel){
 		return self.checkSystemWithBarChart() && ! (self.roundChart == "off")
 	}
 	self.checkSystemWithBarChart = function () {
-		return self.system == "QuotaApproval"  || self.system == "QuotaScore" || self.system == "Monroe Seq S" || self.system == "Phragmen Seq S" || self.system == "RRV" ||  self.system == "RAV" ||  self.system == "STV" || self.system == "equalFacilityLocation"
+		return self.system == "QuotaApproval"  || self.system == "QuotaScore" || self.system == "Monroe Seq S" || self.system == "Allocated Score" || self.system == "STAR PR" || self.system == "Phragmen Seq S" || self.system == "RRV" ||  self.system == "RAV" ||  self.system == "STV" || self.system == "equalFacilityLocation" || self.system == "PAV"
 	}
 	self.checkSystemWithRoundButtons = function() { 
 		return self.checkSystemWithBarChart() || self.system == "IRV"
@@ -883,7 +883,7 @@ function Model(idModel){
 	}
 	
 	self.checkMultiWinner = function(system) {
-		return (system == "QuotaApproval"  || system == "QuotaScore" || system == "Monroe Seq S" || system == "Phragmen Seq S" || system == "RRV" ||  system == "RAV" ||  system == "STV" || system == "QuotaMinimax" || system == "stvMinimax" || system == "PhragmenMax" || system == "equalFacilityLocation") 
+		return (system == "QuotaApproval"  || system == "QuotaScore" || system == "Monroe Seq S" || system == "Allocated Score" || system == "STAR PR" || system == "Phragmen Seq S" || system == "RRV" ||  system == "RAV" ||  system == "STV" || system == "QuotaMinimax" || system == "stvMinimax" || system == "PhragmenMax" || system == "PAV" || system == "equalFacilityLocation") 
 	}
 
 	self.updateVC = function() {

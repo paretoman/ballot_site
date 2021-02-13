@@ -70,7 +70,7 @@ function Viz(model) {
 			self.medianDistViz.drawMedianDistViz()
 		}
 
-		model.doLpAssignmentsViz = model.system == "PhragmenMax" || model.system == "equalFacilityLocation"
+		model.doLpAssignmentsViz = model.system == "PhragmenMax" || model.system == "equalFacilityLocation" ||  model.system == "PAV"
 		if (model.doLpAssignmentsViz) {
 			self.lpAssignmentsViz.drawLpAssignmentsViz()
 		}

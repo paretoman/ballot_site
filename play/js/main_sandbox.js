@@ -879,6 +879,7 @@ function bindModel(ui,model,config) {
             ui.dom.roundChartSpace = []
             ui.dom.roundChartCaption = []
             ui.dom.roundChartPreCaption = []
+            ui.dom.roundChartPreCaptionOuter = []
             for (var i = 0; i < model.district.length; i++) {
                 if (model.district.length > 1) {
                     var title = document.createElement("div")
@@ -888,13 +889,14 @@ function bindModel(ui,model,config) {
                     // don't use innerHTML on ui.dom.roundChart here. It will cause problems. The bindings to variables will be lost.
                     // if (model.district.length > 1) ui.dom.roundChart.innerHTML += `<div style="text-align:center;"><span class="small" > District ${i+1} </span></div>`
                 }
-                var startText = model.district[i].result.history.startText
-                if (startText) {
-                    ui.dom.roundChartPreCaption[i] = document.createElement("div")
-                    ui.dom.roundChartPreCaption[i].setAttribute("style","font-size: 12px; margin-left:10px; margin-top: 10px; margin-bottom: 10px;")
-                    ui.dom.roundChartPreCaption[i].innerHTML = `<span class="xsmall" > ${startText}</span>`
-                    ui.dom.roundChart.append(ui.dom.roundChartPreCaption[i])
-                }
+
+                ui.dom.roundChartPreCaptionOuter[i] = document.createElement("div")
+                ui.dom.roundChartPreCaptionOuter[i].setAttribute("style","font-size: 12px; margin-left:10px; margin-top: 10px; margin-bottom: 10px;")
+                ui.dom.roundChartPreCaption[i] = document.createElement("span")
+                ui.dom.roundChartPreCaption[i].className = "xsmall"
+                ui.dom.roundChartPreCaptionOuter[i].append(ui.dom.roundChartPreCaption[i])
+                ui.dom.roundChart.append(ui.dom.roundChartPreCaptionOuter[i])
+
                 var buttonDiv = document.createElement("div")
                 buttonDiv.setAttribute("style","margin-left:10px;")
                 ui.dom.roundChart.append(buttonDiv)
@@ -1000,11 +1002,14 @@ function bindModel(ui,model,config) {
         opt = opt || {}
         opt.ease = opt.ease || false
 
+        opt.showCoalitions = true
+
         // for (var district of model.district) {
 
         //
         var district = model.district[iDistrict]
         var round = model.roundCurrent[iDistrict]
+        var coalitionInRound = district.result.coalitionInRound
 
         // future
         // ui.dom.roundChartCaption[i].innerHTML = district.result.roundText[round+1]
@@ -1025,20 +1030,26 @@ function bindModel(ui,model,config) {
 
         var dataSankey = getDataSankey(district)
 
+        // get list of all candidates in the same order as the sankey nodes
+        var nodes0 = dataSankey.nodes.filter( x => x.round == 0)
+        var cids = nodes0.map( x => x.cid)
+
         // Create the data table.
         var data = new google.visualization.DataTable();
         data.addColumn('string', 'Candidate');
+        if (opt.showCoalitions) {
+            for ( var i = 0; i < cids.length; i++) {
+                data.addColumn('number', 'Votes');
+            }
+        }
         data.addColumn('number', 'Votes');
-        data.addColumn({ type:'string', role: 'style' })
         data.addColumn({ type:'string', role: 'annotation' })
+        data.addColumn({ type:'string', role: 'style' })
 
         var color = (cid) => model.candidatesById[cid].fill
         var getName = (cid) => model.candidatesById[cid].name
         var fPercent = (frac) => Math.round(100 * frac) + "%"
 
-        // get list of all candidates in the same order as the sankey nodes
-        var nodes0 = dataSankey.nodes.filter( x => x.round == 0)
-        var cids = nodes0.map( x => x.cid)
 
         var lookup = []
         var rows = []
@@ -1064,6 +1075,19 @@ function bindModel(ui,model,config) {
         var continuing = district.result.continuing[round]
         if (continuing == undefined) continuing = []
 
+        if (opt.showCoalitions) {
+            var eliminationOrder = _jcopy(district.result.loserslist)//.reverse()
+            if (district.result.loserslist.length < district.candidates.length) {
+                eliminationOrder = eliminationOrder.concat(_jcopy(district.result.winners).reverse())
+                for ( var i = 0; i < cids.length; i++) {
+                    var cid = cids[i]
+                    if ( ! eliminationOrder.includes(cid)) {
+                        eliminationOrder.push(cid)
+                    }
+                }
+            }
+        }
+
         for ( var i = 0; i < cids.length; i++) {
             var cid = cids[i]
             var name = getName(cid)
@@ -1085,7 +1109,30 @@ function bindModel(ui,model,config) {
                 var annotation = "Lose: " + name
             }
             var idx = lookup[cid]
-            rows[idx] = [name,frac*100,barColor,annotation]
+            if (opt.showCoalitions) {
+                var coal = coalitionInRound[round][cid]
+                if (coal) {
+                    var fracs100 = eliminationOrder.map( x => coal[x] / numBallots * 100)
+                } else {
+                    if (won.includes(cid)) {
+                        // find round in which they won
+                        var r
+                        for (r = round; coalitionInRound[r][cid] == undefined; r--) {
+                            // keep going
+                        }
+                        coal = coalitionInRound[r][cid]
+                        var fracs100 = eliminationOrder.map( x => coal[x] / numBallots * 100)
+                        var sum = fracs100.reduce( (p,c) => p+c)
+                        var normalize = quotaAmount / (sum / 100 * numBallots)
+                        fracs100 = fracs100.map( x => x * normalize)
+                    } else {
+                        var fracs100 = eliminationOrder.map( () => 0)
+                    }
+                }
+                rows[idx] = [name, ...fracs100 ,0,annotation,barColor]
+            } else {
+                rows[idx] = [name,frac*100,annotation,barColor]
+            }
         }
         data.addRows(rows);
 
@@ -1125,9 +1172,16 @@ function bindModel(ui,model,config) {
             },
         }
 
+        if (opt.showCoalitions) {
+            var allBarColors = eliminationOrder.map( (cid) => hslToHex(color(cid)))
+            allBarColors.push('#000')
+            options.isStacked = true
+            options.colors = allBarColors
+        }
+
         if (opt.ease) {
             options.animation = {
-              duration: 1000,
+              duration: 700,
               easing: 'out',
             }
         }
@@ -1154,6 +1208,10 @@ function bindModel(ui,model,config) {
         } else {
             ui.dom.roundChartCaption[iDistrict].innerHTML = roundText
         }
+        
+        var startText = model.district[iDistrict].result.history.startText
+        // startText = startText.replace("/<br>/g","\n")
+        ui.dom.roundChartPreCaption[iDistrict].innerHTML = startText
         
     }
 
@@ -1206,6 +1264,8 @@ function bindModel(ui,model,config) {
             ui.dom.utilityChartSpace = []
             ui.dom.utilityChartSpace2 = []
             ui.dom.utilityChartCaption = []
+            ui.dom.utilityChartCaptionOuter = []
+            ui.dom.utilityChartCaptionButton = []
             for (var i = 0; i < model.district.length; i++) {
                 if (model.district.length > 1) {
                     var title = document.createElement("div")
@@ -1216,8 +1276,24 @@ function bindModel(ui,model,config) {
                 ui.dom.utilityChart.append(ui.dom.utilityChartSpace[i])
                 ui.dom.utilityChartSpace2[i] = document.createElement("div")
                 ui.dom.utilityChart.append(ui.dom.utilityChartSpace2[i])
-                ui.dom.utilityChartCaption[i] = document.createElement("div")
-                ui.dom.utilityChart.append(ui.dom.utilityChartCaption[i])
+                ui.dom.utilityChartCaption[i] = document.createElement("span")
+                ui.dom.utilityChartCaption[i].className = "small"
+                ui.dom.utilityChartCaptionOuter[i] = document.createElement("div")
+                ui.dom.utilityChart.append(ui.dom.utilityChartCaptionOuter[i])
+                ui.dom.utilityChartCaptionOuter[i].append(ui.dom.utilityChartCaption[i])
+                
+                ui.dom.utilityChartCaptionButton[i] = document.createElement("button")
+                ui.dom.utilityChartCaptionButton[i].className = "roundChartButton"
+                ui.dom.utilityChartCaptionButton[i].innerText = "Reset VSE Average"
+                ui.dom.utilityChartCaptionButton[i].onmouseup = function() {
+                    model.totalNumVSEData = 0
+                    model.averageVSE = 0
+                    console.log("clicked")
+                }
+                model.totalNumVSEData = 0
+                model.averageVSE = 0
+                ui.dom.utilityChartCaptionOuter[i].append(ui.dom.utilityChartCaptionButton[i])
+
             }
             
         }
@@ -1468,6 +1544,22 @@ function bindModel(ui,model,config) {
 
         ui.utilityChartAverage[iDistrict].draw(dataAverage, options);
         
+        // write out the utility
+        // var winneridx = model.district[iDistrict].result.winners[0]
+        var winneridx = winnerIndices[0]
+        var averageUtility = 1 / avg.length * avg.reduce( (p,c) => p + c)
+        var maxUtility = avg.reduce( (p,c) => Math.max(p , c) )
+        var winUtility = avg[winneridx]
+        var vse = ( winUtility - averageUtility ) / ( maxUtility - averageUtility )
+
+        if (winnerIndices.length == 1) { // ties aren't good data points right now, but maybe later.
+            var frac = model.totalNumVSEData / (model.totalNumVSEData+1)
+            model.averageVSE = vse * (1-frac) + model.averageVSE * frac
+            model.totalNumVSEData ++
+        }
+
+        var vseText = `VSE of winner is ${Math.round(vse*100)} %. \n Average VSE of ${model.totalNumVSEData} past Elections is  ${Math.round(model.averageVSE*100)} %.\n`
+        ui.dom.utilityChartCaption[iDistrict].innerText = vseText
     }
 
     function weightChartsDraw() {
@@ -1482,7 +1574,7 @@ function bindModel(ui,model,config) {
         }
     
         var old = ui.justFinal
-        ui.justFinal = model.system == "equalFacilityLocation" // only show the final assignments
+        ui.justFinal = (model.system == "equalFacilityLocation" || model.system == "PAV") // only show the final assignments
         var matchOpt = old == ui.justFinal 
 
         // redo charts when changing number of districts.
@@ -3051,10 +3143,13 @@ function menu(ui,model,config,initialConfig, cConfig) {
             {name:"QuotaApproval", value:"QuotaApproval", realname:"Using a quota with approval voting to make proportional representation.",ballotType:"Approval", election:Election.quotaApproval},
             {name:"STV", value:"STV", ballotType:"Ranked", election:Election.stv, margin:4},
             {name:"STV-Minimax", value:"stvMinimax", realname:"Use STV to form equal clusters of voters. Then use Minimax within the voter clusters to elect candidates.",ballotType:"Ranked", election:Election.stvMinimax},
-            {name:"QuotaMinimax", value:"QuotaMinimax", realname:"Using a quota with Minimax Condorcet voting to make proportional representation.",ballotType:"Ranked", election:Election.quotaMinimax},
+            {name:_smaller("TestQuotaMinimax"), nameIsHTML:true, value:"QuotaMinimax", realname:"An idea of using a quota with Minimax Condorcet voting to make proportional representation.",ballotType:"Ranked", election:Election.quotaMinimax},
             {name:"Test LP", value:"PhragmenMax", realname:"Phragmen's method of minimizing the maximum representation with assignments.",ballotType:"Score", election:Election.phragmenMax},
+            {name:"PAV", value:"PAV", realname:"Proportional Approval Voting",ballotType:"Approval", election:Election.pav},
             {name:_smaller("Equal Facility"), nameIsHTML:true, value:"equalFacilityLocation", realname:"Facility location problem with equal assignments.",ballotType:"Score", election:Election.equalFacilityLocation},
             {name:"Monroe Seq S", value:"Monroe Seq S", realname:"A monroe-like sequential method.", ballotType:"Score",election:Election.monroeSequentialRange},
+            {name:"AllocatedScore", value:"Allocated Score", realname:"A proportional sequential method. Monroe Sequential Score is similar.", ballotType:"Score",election:Election.allocatedScore},
+            {name:"STAR PR", value:"STAR PR", realname:"A proportional sequential method using STAR to elect. Monroe Sequential Score is similar.", ballotType:"Score",election:Election.starPR},
             {name:"Phragmen Seq S", value:"Phragmen Seq S", realname:"A phragmen-like sequential method for score voting with KP transform.", ballotType:"Score",election:Election.phragmenSequentialRange},
             {name:"Create One", value:"Create",realname:"Write your own javascript code for a voting method.",ballotType:undefined, election:Election.create},
             
@@ -3089,6 +3184,9 @@ function menu(ui,model,config,initialConfig, cConfig) {
                     23:"Monroe Seq S",
                     24:"Phragmen Seq S",
                     25:"stvMinimax",
+                    26:"Allocated Score",
+                    27:"STAR PR",
+                    28:"PAV",
                 }
             }
         ]
@@ -4091,9 +4189,12 @@ function menu(ui,model,config,initialConfig, cConfig) {
             "stvMinimax": pairType,
             "QuotaScore": scoreType,
             "PhragmenMax": scoreType,
+            "PAV": scoreType,
             "equalFacilityLocation": scoreType,
             "Monroe Seq S": scoreType,
             "Phragmen Seq S": scoreType,
+            "Allocated Score": scoreType,
+            "STAR PR": scoreType,
         }
         self.stratBySys = function(sys) { 
             if (sys == "Create") {
@@ -7268,10 +7369,13 @@ function menu(ui,model,config,initialConfig, cConfig) {
                 "QuotaApproval",
                 "QuotaScore",
                 "PhragmenMax",
+                "PAV",
                 "equalFacilityLocation",
                 "Create",
                 "Monroe Seq S",
                 "Phragmen Seq S",
+                "Allocated Score",
+                "STAR PR",
             ]
         }
         includeOnlyIf = {
@@ -7284,8 +7388,11 @@ function menu(ui,model,config,initialConfig, cConfig) {
                 "stvMinimax",
                 "QuotaScore",
                 "Monroe Seq S",
+                "Allocated Score",
+                "STAR PR",
                 "Phragmen Seq S",
                 "PhragmenMax",
+                "PAV",
                 "equalFacilityLocation",
             ],
             dev: [
@@ -7294,8 +7401,11 @@ function menu(ui,model,config,initialConfig, cConfig) {
                 "stvMinimax",
                 "QuotaScore",
                 "Monroe Seq S",
+                "Allocated Score",
+                "STAR PR",
                 "Phragmen Seq S",
                 "PhragmenMax",
+                "PAV",
                 "equalFacilityLocation",
                 "Create",
             ]
@@ -7327,8 +7437,11 @@ function menu(ui,model,config,initialConfig, cConfig) {
             "stvMinimax",
             "QuotaScore",
             "Monroe Seq S",
+            "Allocated Score",
+            "STAR PR",
             "Phragmen Seq S",
             "PhragmenMax",
+            "PAV",
             "equalFacilityLocation",
             "Create",
         ]

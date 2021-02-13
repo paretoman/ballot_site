@@ -477,8 +477,9 @@
 
 <ol>
   <li>Top-choice-counts Ranking Methods: the Single Transferable Vote (STV), also known as multi-winner Ranked Choice Voting RCV</li>
-  <li>Scoring methods (including Approval Voting and STAR voting): the facility location problem, Monroe voting, and a few methods the election method community has developed.</li>
-  <li>Pairwise ballot methods (I’m working on a version of minimax)</li>
+  <li>Scoring methods (including Approval Voting and STAR voting): the facility location problem, Sequential Monroe Score Voting, Allocated Score, and STAR Proportional Representation.</li>
+  <li>Clustering with STV, then electing with pairwise methods: I made one method that uses STV to form equal clusters of voters. Then it uses Minimax within the voter clusters to elect candidates.</li>
+  <li>Pairwise ballot methods. (I’m working on a version of minimax)</li>
 </ol>
 
 <!-- SNTV? SNTV kind of is proportional-->
@@ -537,7 +538,82 @@
 
 <div class="sim-ballot">
     <div class="sim-container">
-        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Pairwise Voting with Quotas</h2>
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">Allocated Score Voting</h2>
+        <p class="ballot_caption">Elect the highest scoring candidate, then assign the closest voters to that winner and elect more candidates with the rest of the voters.
+        
+        </p>
+        
+        
+        <script id="allocated_score_sim">
+            sandbox({idScript:"allocated_score_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA61W2W7jNhT9FUZAGxsmFG3UYscJ2pm0mJfMIEkxD7YRyDIdC5AlQ6TTSafut88lLyVLWSYvhW1wuYfnnruI1nfLscazmR_RKF7Qmes5NPJgEnjU8xOz4wVq5sUOdbXRcz2YuYsFtVx1OlJgBoaI0TBQgIBRN2QK4Ftjh1qBNbb-80KLWkyvQzgGxggGh774gCV-05K8aXEdze26SO56uEQFboAD-ndDHECAG8AI7kIYgNujlgc8sOkBjw-Dh5tI4wGNCwNDG9J4Ea5iXCGL72ihrsqBqw2-p8_6PtpRkA9MM5e2HwUPEYCsPgbsUo_6lFFIrxU4TQ7Uwu0uvO7Cb6jVItBswUt3QahlBRFWCoMIEr3JMKUMA2CYCoYBMEwFYzhgKliEtlh7Y5iK0MHB1cgQ6xJiQkOmFfsgJESKEBWEiR4iVBDh2QhTGPk4YAojrGnUNFWExriTN5W1CEOKkTBGwhjFxCgmDrTQmOGAemLki1FWrGTZDPoQeZJu-hOVfgZVYmrhdxfInGCyEmROon4xOkVJYvXEzK31vsxkXpWDVS5knWeSkm214gUl1U7ti-H3-bzUX2l2yJTc84LrYx_5Ot0XUgwaNCIf05rsqqKQ_JtU8CV_yMsrc-boCj2Zo3Q-n1siq2quJoao4JJkqfbZnLKFTB-4mOnDuFjYgFnlq1Ry0ao9OyN3aVE8EbnhJN3t6uoxLQT5lTwA5995WfL65Kh2CdBKKj_I-1hJXt9yaQP6d7R9NAJa_cPWl2KQ2hkE-w-vK-15oJSbQNZVPTj6IdW68WjyKzuYNhiSlwZm68R0wfDVHmctekFG0z68Y5u0Bw84OzTiG_3b9Js-BSGwngFzpcueVftSftXrgfY-nBxx4BBaQcFwNjAHscydzsiqoqoBhzBbL1uP-Zo0zWSLfMWXaT0kxx7Ewn5INaLdOsoEWuN25nSC1gXCZlTdpX5HozaM0HIudmlJsiIVYnoqthDj6UUfrQSqnd_2slIjmTY9k8LOF-j6IWkYm2fgDV_LC8x4KsgvqiWgBHBEiHxZ8DE5P1tenC_rV9yjuxV22YdNWssmRbLvRbYALBdVHWkeu6be1DSiXfDyQW6Gr_Gg2udSDoQXgvc9Nz2cT50Jyc-VP0MMy9Go38BNP0BVFHCWL-x8NXmGaDRg0HkGF0g2HCklp4LoCMZa3-h-x-uMl_KPqt6msnOhmedkQc7aJkeClyEdn4_eLF8PTkx__dv0lwnrYur1g4L2vP5Mvn66vr66uTwhn2_I3aery5PLk9cSey9zruZYUmqoh5NnhJ3WhaYBPtUbRMknTQxkRPqd9lp1fl7P15ONmjBhZAOtqu7TTf6w4UJi_ikRlW3bPyXUHs_Uw_UO5l2SJRHyqeDTU31vjHXp9RR7Qp8eof4y3fK_dtAWvSB07qA-ty_8PM_0_-bpvVJ1rzdzKxohHWDbjs012V4D1c4bEn3FbbhaqDtYVLXEfyG8qG1R5BkfwMv28C2GxnNLYmaIr7nc16UBKUmHuWWpl2LzVuzgOxzeJndPOw4vGLeqPQCk_03_rKv97gb-kartLecrAe8mfkyTMKQxvNQffgBGqmUCKgwAAA)"})
+        </script>
+        
+		
+		
+<div>
+    <div class="demonstrate" onclick="var x = document.getElementById('img_gif/allocated_score.gif'); x.hidden = ! x.hidden;">Demonstrate</div>
+</div>
+<div>
+    <img class="gif_show" src="gif/allocated_score.gif" id="img_gif/allocated_score.gif" hidden="true" loading="lazy" />
+</div>
+		
+    </div>
+
+</div>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">STAR Proportional Representation</h2>
+        <p class="ballot_caption">Elect the best candidate according to STAR voting, then assign the closest voters to that winner and elect more candidates with the rest of the voters.
+        
+        </p>
+        
+        
+        <script id="star_pr_sim">
+            sandbox({idScript:"star_pr_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA61W2W7jNhT9FUZAGxsmFG3UYscJ2pm0mJfMIEkxD7YRyDIdC5AlQ6TTSafut88lLyVLWSYvhW1wuYfnnruI1nfLscazmR_RKF7Qmes5NPJgEnjU8xOz4wVq5sUOdbXRcz2YuYsFtVx1OlJgBoaI0TBQgIBRN2QK4Ftjh1qBNbb-8yKLWkyvQzgGxggGh774gCV-05K8aXEdze26SO56uEQFboAD-ndDHECAG8AI7kIYgNujlgc8sOkBjw-Dh5tI4wGNCwNDG9JAYHoV4wpZfEcLdVUOXG3wPX3W99GOgnxgmrm0_Sh4iABk9TFgl3rUp4xCeq3AaXKgFm534XUXfkOtFoFmC166C0ItK4iwUhhEkOhNhillGADDVDAMgGEqGMMBU8EitMXaG8NUhA4OrkaGWJcQExoyrdgHISFShKggTPQQoYIIz0aYwsjHAVMYYU2jpqkiNMadvKmsRRhSjIQxEsYoJkYxcaCFxgwH1BMjX4yyYiXLZtCHyJN005-o9DOoElMLv7tA5gSTlSBzEvWL0SlKEqsnZm6t92Um86ocrHIh6zyTlGyrFS8oqXZqXwy_z-el_kqzQ6bknhdcH_vI1-m-kGLQoBH5mNZkVxWF5N-kgi_5Q15emTNHV-jJHKXz-dwSWVVzNTFEBZckS7XP5pQtZPrAxUwfxsXCBswqX6WSi1bt2Rm5S4viicgNJ-luV1ePaSHIr-QBOP_Oy5LXJ0e1S4BWUvlB3sdK8vqWSxvQv6PtoxHQ6h-2vhSD1M4g2H94XWnPA6XcBLKu6sHRD6nWjUeTX9nBtMGQvDQwWyemC4av9jhr0QsymvbhHdukPXjA2aER3-jfpt_0KQiB9QyYK132rNqX8qteD7T34eSIA4fQCgqGs4E5iGXudEZWFVUNOITZetl6zNekaSZb5Cu-TOshOfYgFvZDqhHt1lEm0Bq3M6cTtC4QNqPqLvU7GrVhhJZzsUtLkhWpENNTsYUYTy_6aCVQ7fy2l5UaybTpmRR2vkDXD0nD2DwDb_haXmDGU0F-US0BJYAjQuTLgo_J-dny4nxZv-Ie3a2wyz5s0lo2KZJ9L7IFYLmo6kjz2DX1pqYR7YKXD3IzfI0H1T6XciC8ELzvuenhfOpMSH6u_BliWI5G_QZu-gGqooCzfGHnq8kzRKMBg84zuECy4UgpORVERzDW-kb3O15nvJR_VPU2lZ0LzTwnC3LWNjkSvAzp-Hz0Zvl6cGL669-mv0xYF1OvHxS05_Vn8vXT9fXVzeUJ-XxD7j5dXZ5cnryW2HuZczXHklJDPZw8I-y0LjQN8KneIEo-aWIgI9LvtNeq8_N6vp5s1IQJIxtoVXWfbvKHDRcS80-JqGzb_imh9nimHq53MO-SLImQTwWfnup7Y6xLr6fYE_r0CPWX6Zb_tYO26AWhcwf1uX3h53mm_zdP75Wqe72ZW9EI6QDbdmyuyfYaqHbekOgrbsPVQt3Boqol_gvhRW2LIs_4AF62h28xNJ5bEjNDfM3lvi4NSEk6zC1LvRSbt2IH3-HwNrl72nF4wbhV7QEg_W_6Z13tdzfwj1RtbzlfCXg38WOahCGN4aX-8AOL8n5rKgwAAA)"})
+        </script>
+        
+		
+		
+<div>
+    <div class="demonstrate" onclick="var x = document.getElementById('img_gif/star_pr.gif'); x.hidden = ! x.hidden;">Demonstrate</div>
+</div>
+<div>
+    <img class="gif_show" src="gif/star_pr.gif" id="img_gif/star_pr.gif" hidden="true" loading="lazy" />
+</div>
+		
+    </div>
+
+</div>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">STV  Minimax</h2>
+        <p class="ballot_caption">Use STV to form equal clusters of voters. Then use Minimax within the voter clusters to elect candidates.
+        
+        </p>
+        
+        
+        <script id="stv_minimax_sim">
+            sandbox({idScript:"stv_minimax_sim",link:"[link](http://127.0.0.1:5500/sandbox/?v=2.5&m=H4sIAAAAAAAAA61W2W7jNhT9FVpAGxsmFO2LHSdoZ9JiXjJFkmIebCOQZToWKkuGSGcmnabf3kteUpayTF4K2-ByD889dxGt75ZjTeZzP6ZxsqRz13No7MEk8Kjnp3rHC-TMSxzqKqPnejBzl0tqufJ07ANYHo8jGsUSEETUjRIJ8K2JQ63Amlj_eqFFrVCtIzgGxhgGh774gCV505K-aXEdxe26SO56uEQFboAD-ncjHECAG8AI7iIYgNujlgc8sOkBjw-Dh5tI4wGNC0OINqTxYlwluEIW31FCXZkDVxl8FOQjk4-CfGCau7T9SHiEBMjqY8Au9ahPQxoAIHBMDuTC7S687sI31HIRKLbgpbsgUiEFMVYKgwhStRliSkMMIMRUhD4OmIowxAFTEcZoS5S3MMVqO2ozchUywjREmIYoVIp9EBIhRYQKIjwbo4IYz8YeDj4OmMIYaxqbporRmHTyJrMWY0gJEiYYUoJiEhSTIGGChAnqSZAvQVmJlGWH0IfIk3bTn8r0h1ClUC787iJQKUgxWSkyp3G_GJ2ipIl8YhbW5lDloqir4brgoilyQcmuXrOSknov9_no-2JRqa_QO2RG7ljJ1LGPbJMdSsGHBo3Ih6wh-7osBfsmJHzF7ovqUp85ukJP-ihdLBYWz-uGyYkmKpkgeaZ8mlM2F9k943N1GBdLGzDrYp0Jxlu1p6fkNivLRyK2jGT7fVM_ZCUnP5N74PxaVBVrBke1K4DWQvpB3odasOaGCRvQv6LtoxbQ6h-1viSDUM4g2L9ZUyvPQ6lcB7Kpm-HRD6k3xqPOr-hg2mBIUWmYrRLTBcNXeZy36CUZz_rwjm3aHnzC2ZMRb_Tvsm_qFIQQ9gyYK1X2vD5U4otaD5X30fSIA4fQChKGs6E-iGXudEZel3UDOITZatl6LDbENJPNizVbZc2IHHsQC_shU4h26ygTaLXbudMJWhUIm1F2l_wdjcowRssZ32cVycuM89kJ30GMJ-d9tBQod345iFqOZGZ6JoOdP6DrR8QwmmfgDV-rc8x4xslPsiWgBHCE82JVsgk5O12dn62aV9yjuzV22Ydt1giTItH3IloAlovKjtSPnak31Y1ol6y6F9vRazyo9rmUJ8JKzvqeTQ8XM2dKijPpTxPDcjzuN7DpB6iKBM6LpV2sp88QRgMGXeRwgeSjsVRywomKYKL0je_2rMlZJX6rm10mOheafk6W5LRtciR4GdLx-ejNis1woPvrH9NfOqzzmdcPCtrz6jP58unq6vL6YkA-X5PbT5cXg4vBa4m9EwWTcywp1dSj6TPCTutC0wCf7A0i5RMTAxmTfqe9Vp0f1_P1ZKMmTBjZQqvK-3Rb3G8ZF5h_Snht2_YPCZXHU_lwvYN5l2RFuHgs2exE3RsTVXo1xZ5Qp8eov8p27M89tEUvCJU7qM_NCz_PM_2_eXqvVN3rTd-KWkgH2LajuSbba6DeeyOirrgtkwt5B_O6EfgvhBe1zcsiZ0N42R69xWA8tyR6hviGiUNTaZCU9LSwLPlSrN-KHXzhwdvk9nHP4AXjOqv-YmtAqb_T35v6sIetdb27YWzN4eXET2gaRTSJguXTfzeyCIMrDAAA)"})
+        </script>
+        
+		
+		
+<div>
+    <div class="demonstrate" onclick="var x = document.getElementById('img_gif/stv_minimax.gif'); x.hidden = ! x.hidden;">Demonstrate</div>
+</div>
+<div>
+    <img class="gif_show" src="gif/stv_minimax.gif" id="img_gif/stv_minimax.gif" hidden="true" loading="lazy" />
+</div>
+		
+    </div>
+
+</div>
+
+<div class="sim-ballot">
+    <div class="sim-container">
+        <h2 class="ballot_title" style="margin-bottom: 0.15em;">An Attempt at Pairwise Voting with Quotas</h2>
         <p class="ballot_caption">Under active development. Mouse over the pairs.
         
         </p>
@@ -618,7 +694,7 @@
 
 <h3 id="apportionment-based-multi-winner-methods">Apportionment-Based Multi-Winner Methods</h3>
 
-<p>There are more methods that only provide proportionality to distinct groups, and don’t provide the kind of distribution matching that STV does to cover an area of voters with evenly spaced candidates. They are mechanically different. They apply a method of counting votes that is used for apportionment. Apportionment means you have separate groups, like different states, and you want to find out how many representatives to give to each state. Two examples are given below: reweighted range voting and reweighted approval voting.</p>
+<p>There are more methods that only provide proportionality to distinct groups, and don’t provide the kind of distribution matching that STV does to cover an area of voters with evenly spaced candidates. They are mechanically different. They apply a method of counting votes that is used for apportionment. Apportionment means you have separate groups, like different states, and you want to find out how many representatives to give to each state. Three examples are given below: reweighted range voting, reweighted approval voting, and proportional approval voting.</p>
 
 <div class="sim-ballot">
     <div class="sim-container">
@@ -629,7 +705,7 @@
         
         
         <script id="semi_proportional_sim">
-            sandbox({idScript:"semi_proportional_sim",link:"[link](http://127.0.0.1:4000/ballot/sandbox/?v=2.5&m=H4sIAAAAAAAAA31TPY8TQQz9L1NbaOyxx5N0NFRUdyeaVYoQpYgUEUChOCH47dh-SIcEh1ba5_Xn85vZ7623_bZpJ7Z-oI05LJ1hqZL0Xbr6JOER1uokFfMdsXAYIk48M0tcw5K0ZkZ7-SwqLa3BYa3fFss8HKhxTvaYNyvFjNg9A6PtOzVt-_aTtVGz-p6RHkEP6PTXE5H1amT3aoR79ebkMshJM5BEGwsiIBM8CkCFJyC4sAbGZJbAmMPUJHqGV6JnOEUA6COKlOgzAtBHHF8LX7sqGL1Ic-rBFRhStWMgDkYjOm0h6b-eLJ1IxoQBIeIsaJCS0YyVF8V5hTPTFUNTGeUXU17MGL5JtVatNfX_BHQWaXWcKVZUCGUQ37CeQSjDegahzAAQyhyxVdsYhJodwJU5cWwTck8r5nF520SLCQZzV-Bg4Kh1COwDAIEdDDyvX3t8-hD38eGh3m_zff7y7Xh9dzxdrpf78_vb6Xi_3D61vKeOuvWn5OnH7qsDMHmB9QLrpbXRMgCIL_Rb4L-S_xuLq40NPh6v19v96fnzOf6ax9Pt67n9-AW7Hm2n3AMAAA)"})
+            sandbox({idScript:"semi_proportional_sim",link:"[link](http://localhost:5500/sandbox/?v=2.5&m=H4sIAAAAAAAAA61WbU_jRhD-K4ullkRZGb_bCYTT9Y6rTqq4E9DehyRCjrMhlhw79W7o0Sv97Z3ZWdsJBPhSEbKzO2_PzDze-IflWKPJJHC4GzozPnFdkIIIpCDgnjPEIyfinuuDlDjc07p4yF3PBcHzYu5GaOXFAUgeShFqHX0WgmeIku-ClBjJ9aLZjFsuZo4hX6RNwpC7cYwK3xo53AqskfWvG1jcCvU-AnNQxrA4_NkfaJIXNcMXNa6jY7uIxecxD1CBQC3XIw2BARx6IShuRAtgcQNYIbPrwQp5XG55EBNOPYgJh55HC8XxAjKBOD4sFMeLaZfQbqgdfEeDdrEfrlb4nvb1fdITIh8iTaClh_7QNSJjyuBTI2AW3OcBD3kEJScc5gWHaB5QUuxM4Hai14mQfOLp0EGgywxeBxBEGnQQ00ypxIAaFVLzQyovpEaFVF5IjQpDWqhRYUy6RFcTUqMihxZXW0Y0tojaHYUaOZDXiihERAiioV5iQhCTb0wNjn1aqMExIYiRftb1zR_Ax6sr_f0ev8Wf27T4lGZ5kauH36osVXlVwvlX0CJbY_JOdhuP59SBxKGF8ieEPSHsSaDrSkJaCH5C8RKqIsEq7BAITnUMu5kNcWYhD1H0O5FiDqmmIcUcxocniPYJPoRTa7ktMyyst8ilqvNMcbauFqLgrNrguez_mE5L_VHmhI3ZrSiEdvsolum2ULLXWJPlfVqzTVUUSnxXaD4Xd3l5YXy6VJTJuPLpdGrJrKoFCiZQIRTLUp2z8bKlSu-EnGhn2sxssFnki1QJ2aI9OWE3aVE8MLUSLN1s6uo-LST7md1BzL_yshT1UYd2DqaVwjwU975Sor4WygbrX0j30QBo8ffbXBhB6WRQ7N-irnTmHiI3hSyrutflYdWyyWj6q3Zs2mJYXhozWzdm1xg-OuOktZ6xwXjffEd32jo-kvTYgG_wr9Pv2gtKCPcU1Cs99qzaluqb3vd09v5pZwcJgQpoRlLPONKYd5iRVUVVgx2Z2XrbZsyXrCGTLfOFmKd1n3UcpMF-SLVFe9TBhLAm7cTZKVoPiMiI7ML_TqkVA9KcyU1asqxIpRwfyzXUeHy-b40A8eT9VlW4snHDmRROvgLr-6yJ2DwDL-San1PHU8l-QkrACMBFynxeiBE7O5mfn83rA-kp3YJY9mGV1qppkdrPoloDGhdHRprHrpk3N0S0C1HeqVX_UBxC-xTKIxOFFPuZGw7nY-eU5WeYzwSG7WCwT-CGDzAVNJzkMztfnD6xaDBQ0XkGF0jWHyCSY8l0BSONb3C7EXUmSvWpqtep2rnQzHMyYyctySnA85K652NPype9I8Ovfxp-mbLOx95-UUDPyy_s2-fLy4urd0fsyxW7-Xzx7ujd0aHG3qpcoEwj5SZ0__RJwB3qAmkgHnKDIXzW1MAGbJ9ph6bz-jwPN5swUcPYCqiK9-kqv1sJqaj_nMnKtu1XA-qMJ_hwvWHzZpA5k-qhEONjfW-M9Oi1SJzQ3gPCX6Zr8fsGaLFXhO4dzOf6WZ6nnf7fMr01qt3rzdyKBsiOYUvH5ppsr4Fq4_WZvuJWAjd4B8uqVvQrRBe1LYs8Ez140e-_FKHJ3AYxEtnXQm3r0hghpMepZeF7tnnRduhlj26Tm4eNgBeMa6QHGOlf01_raru5gl-kan0txELiizm8okbR7PE_6mW-5q0MAAA)"})
         </script>
         
 		

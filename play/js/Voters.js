@@ -3821,7 +3821,7 @@ function VoterCrowd(model) {
 	self.img.src = "play/img/voter_face.png";
 	
 	var n = 1000
-	self.randomSeed = (model.random() * n) % n
+	self.randomSeed = Math.round(model.random() * n) % n
 
 	self.drawBackAnnotation = function(x,y,ctx) {}
 	self.drawAnnotation = function(x,y,ctx) {}; // TO IMPLEMENT

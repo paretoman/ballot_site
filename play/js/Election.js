@@ -998,18 +998,6 @@ Election.minimax = function(district, model, options){ // Pairs of candidates ar
 	
 	var text = "";
 
-	if (options.sidebar) {
-			
-		text += "<span class='small'>";
-		text += "<b>who wins each one-on-one?</b><br>";
-		text += pairChart(ballots,district,model)
-		
-		if (reverseExplanation) {
-			text += "<b>who lost the least, one-on-one?</b><br>";
-		} else {
-			text += "<b>who had the strongest wins, one-on-one?</b><br>";
-		}
-	}
 
 
 	// Create the WIN tally
@@ -1023,6 +1011,13 @@ Election.minimax = function(district, model, options){ // Pairs of candidates ar
 
 	// For each combination... who's the better ranking?
 	pairs = []
+	head2head = {}
+
+	for(var i=0; i<cans.length; i++){
+		var a = cans[i];
+		head2head[a.id] = {}
+	}
+
 	for(var i=0; i<cans.length-1; i++){
 		var a = cans[i];
 		for(var j=i+1; j<cans.length; j++){
@@ -1046,6 +1041,8 @@ Election.minimax = function(district, model, options){ // Pairs of candidates ar
 					bWins+=inc; // b wins!
 				}
 			}
+			head2head[a.id][b.id] = aWins
+			head2head[b.id][a.id] = bWins
 
 			// WINNER?
 			var winner = (aWins>bWins) ? a : b;
@@ -1075,6 +1072,18 @@ Election.minimax = function(district, model, options){ // Pairs of candidates ar
 		}
 	}
 
+	if (options.sidebar) {
+			
+		text += "<span class='small'>";
+		text += "<b>who wins each one-on-one?</b><br>";
+		text += pairChart(ballots,district,model,head2head)
+		
+		if (reverseExplanation) {
+			text += "<b>who lost the least, one-on-one?</b><br>";
+		} else {
+			text += "<b>who had the strongest wins, one-on-one?</b><br>";
+		}
+	}
 	// Was there one who won all????
 	var topWinners = [];
 	
@@ -1111,6 +1120,16 @@ Election.minimax = function(district, model, options){ // Pairs of candidates ar
 		}
 		topWinners = tieBreakerWinners
 		var strongestElimination = i
+	}
+
+	if (topWinners.length == 2) { // handle tie
+		if (head2head[topWinners[0]][topWinners[1]] > head2head[topWinners[1]][topWinners[0]]) {
+			var tieBrokenText = `In tiebreaker, ${model.icon(topWinners[0])} beats ${model.icon(topWinners[1])} head to head<br>`
+			topWinners = [topWinners[0]]
+		} else {
+			var tieBrokenText = `In tiebreaker, ${model.icon(topWinners[1])} beats ${model.icon(topWinners[0])} head to head<br>`
+			topWinners = [topWinners[1]]
+		}
 	}
 
 
@@ -1190,12 +1209,13 @@ Election.minimax = function(district, model, options){ // Pairs of candidates ar
 		if (unanimousWin) {
 			
 		} else {
-			text += "<b>Eliminate the weakest wins until someone has 0 losses.<br>"
+			text += "<b>Eliminate the weakest wins until someone has 0 losses.</b><br>"
 			for(var i=0; i<sortedlosses.length; i++){
 				var c = sortedlosses[i].name;
 				text += model.icon(c)+" got "+losses[c]+" strong losses<br>";
 			}
 		}
+		if (tieBrokenText) text += tieBrokenText
 		text += "</span>";
 		text += "<br>";
 		text += "<b style='color:"+color+"'>"+model.nameUpper(topWinner)+"</b> WINS";
@@ -2315,6 +2335,7 @@ Election.irv = function(district, model, options){
 		result.nBallots = cBallots.length
 		result.tallies = tallies
 		result.continuing = continuing
+		result.coalitionInRound = coalitionInRound
 	}
 
 	// district.pollResults = undefined // clear polls for next time
@@ -2840,6 +2861,7 @@ Election.stv = function(district, model, options){
 		result.tallies = tallies
 		result.continuing = continuing
 		result.won = won
+		result.coalitionInRound = coalitionInRound
 	}
 
 	if (options.sidebar) {
@@ -3096,7 +3118,7 @@ Election.stvMinimax = function(district, model, options){
 			
 			if (options.sidebar) {
 				var roundText = model.icon(winner)+" has more than " + quotapercent + "%<br>";
-				roundText += "select winner, "+model.icon(winner)+".<br>";
+				roundText += "select winning coalition of "+model.icon(winner)+".<br>";
 				text += roundText
 				text += "<br>"
 				roundHistory.roundText = roundText
@@ -3409,6 +3431,7 @@ Election.stvMinimax = function(district, model, options){
 		result.tallies = tallies
 		result.continuing = continuing
 		result.won = won
+		result.coalitionInRound = coalitionInRound
 	}
 
 	if (options.sidebar) {
@@ -4206,8 +4229,14 @@ Election.monroeSequentialRange = function(district, model, options){
 				}
 			}
 			
+			if (options.allocatedScore) {
+				var iStop = bByCan[k].length - 1 // add up all the scores
+			} else {
+				var iStop = lasti[k]
+			}
+
 			var talsum = 0
-			for (var i = 0; i <= lasti[k]; i++) {
+			for (var i = 0; i <= iStop; i++) {
 				var voter = bByCan[k][i]
 				talsum += voter[0] * q[voter[1]]// sum, score * q
 			}
@@ -4239,7 +4268,55 @@ Election.monroeSequentialRange = function(district, model, options){
 		}
 
 		// who won this round?
-		var roundWinners = _countWinner(tally) // need to exclude twice-winners
+
+		if (options.star) {
+			var frontrunners = [];
+
+			for (var i in tally) {
+				frontrunners.push(i);
+			}
+			frontrunners.sort(function(a,b){return tally[b]-tally[a]})
+			
+			if (frontrunners.length >= 2) {
+				var aWins = 0;
+				var bWins = 0;
+				for (var i = 0; i <= iStop; i++) {
+					var aScore = bByCan[frontrunners[0]][i]
+					var bScore = bByCan[frontrunners[1]][i]
+					if(aScore > bScore){
+						aWins++; // a wins!
+					} else if(bScore > aScore){
+						bWins++; // b wins!
+					}
+				}
+			
+				if (bWins > aWins) {
+					var roundWinners = [frontrunners[1]]
+				} else if (aWins > bWins) {
+					var roundWinners = [frontrunners[0]]
+				} else {
+					var roundWinners = frontrunners // tie
+				}
+				
+				if (options.sidebar) {
+					text += "Final Round between top two:<br>";
+					if (model.doTallyChart) {
+						var runoffTally = {}
+						runoffTally[cans[frontrunners[0]].id] = aWins
+						runoffTally[cans[frontrunners[1]].id] = bWins
+						text += tallyChart(runoffTally,cans,model,1,iStop+1)
+					} else {
+						text += model.icon(frontrunners[0])+_percentFormat(district, aWins)+". "+model.icon(frontrunners[1]) +_percentFormat(district, bWins) + "<br>";
+					}
+					text += "<br>";
+				}
+			} else {
+				var roundWinners = frontrunners
+			}
+		} else {
+			var roundWinners = _countWinner(tally) // TODO: need to exclude twice-winners
+		}
+
 		if (model.opt.breakWinTiesMultiSeat) {
 			roundWinners = roundWinners[Math.floor(Math.random() * roundWinners.length)]
 			roundWinners = [roundWinners]
@@ -4344,6 +4421,20 @@ Election.monroeSequentialRange = function(district, model, options){
 		}
 	}
 	return result
+}
+
+Election.allocatedScore = function(district, model, options){
+	var newOptions = _jcopy(options) // don't modify options object
+	newOptions.allocatedScore = true
+	return Election.monroeSequentialRange(district,model, newOptions) // there's only one line that's different between these methods
+}
+
+
+Election.starPR = function(district, model, options){
+	var newOptions = _jcopy(options) // don't modify options object
+	newOptions.allocatedScore = true
+	newOptions.star = true
+	return Election.monroeSequentialRange(district,model, newOptions) // there's only one line that's different between these methods
 }
 
 
@@ -4685,7 +4776,11 @@ function lpGeneral(_solver,district,model,options) {
 
 	var b = _getBallotsAsB(ballots, cans)
 
-	var maxscore = 5
+	if (model.system == "PAV") {
+		var maxscore = 1
+	} else {
+		var maxscore = 5
+	}
 
 	var phragmenResult = _solver(b,model.seats,maxscore)
 	district.stages[model.stage].lpResult = phragmenResult.results
@@ -5281,6 +5376,124 @@ function _solveEqualFacilityLocation(b,seats,maxscore) {
 
 	return phragmenResult
 }
+
+
+Election.pav = function(district, model, options){
+
+	return lpGeneral(_solvePAV,district,model,options)
+
+}
+
+function _solvePAV(b,seats,maxscore) {
+
+	var nk = b[0].length
+	var ni = b.length
+	var nw = seats
+
+	// b[i][k] // the vote, whether i voted for k
+	
+	var array = Array.from(Array(nk).keys()) // array from 0 to k-1
+	// var combos = combine( array, nw, 0)
+	var combos = makeCombos(array,nw)
+	
+	// loop through all combos
+	var merits = []
+	var maxMerit = 0
+	var cMax = null
+	for ( var c = 0; c < combos.length; c++) {
+		var combo = combos[c]
+		// add up all the votes for this combo
+		var merit = 0
+		for (var i = 0; i < ni; i++) {
+			// how many winners did the voter choose?
+			var denom = 1
+			for (var m = 0; m < combo.length; m++) {
+				var k = combo[m]
+				if (b[i][k] == 1) {
+					merit += 1/denom
+					denom ++
+				}
+			}
+
+		}
+		merits.push(merit)
+		if (maxMerit < merit) {
+			maxMerit = merit
+			cMax = c
+		}
+	}
+	// we have the winning combo
+
+	var combo = combos[cMax]
+	var canResult = array.map( (k) => combo.includes(k))
+
+	var normalize = ni / maxMerit
+
+	var assignments = []
+	for (var i = 0; i < ni; i++) {
+		// how many winners did the voter choose?
+		var merit = 0
+		var denom = 1
+		for (var m = 0; m < combo.length; m++) {
+			var k = combo[m]
+			if (b[i][k] == 1) {
+				merit += 1/denom
+				denom ++
+			}
+		}
+		// split the merit equally over the choices
+		if (merit > 0) {
+			var weight = merit / (denom-1)
+		}
+		var iAssignments = Array(nk).map( () => 0)
+		for (var m = 0; m < combo.length; m++) { // assign weight equally to each winner that the voter voted for.
+			var k = combo[m]
+			iAssignments[k] = b[i][k] * weight * normalize
+		}
+		assignments.push(iAssignments)
+	}
+
+
+	var results = "dummy"
+
+	return { results:results, canResult:canResult, assignments:assignments}
+
+}
+
+function combine(input, len, start) {
+  if(len === 0) {
+    return result;
+  }
+  for (let i = start; i <= input.length - len; i++) {
+    result[result.length - len] = input[i];
+    combine(input, len-1, i+1 );
+  }
+}
+
+function makeCombos(array, nk) {
+	if (nk > array.length) return [];
+
+	var combos = []; 
+
+	makeNextCombos([], 0, nk);
+	return combos;
+	
+	function makeNextCombos(combo, iStart, todo) {
+
+		for (let i = iStart; i < array.length; i++) {
+			var next = [ ...combo, array[i] ];
+
+			if (todo == 1) {
+				combos.push(next);
+			}
+			else {
+				makeNextCombos(next, i + 1, todo - 1);
+			}
+		}
+	}
+
+}
+  
 
 Election.toptwo = function(district, model, options){ // not to be confused with finding the top2 in a poll, which I already made as a variable
 
@@ -6347,7 +6560,7 @@ function _rLimitFrom(model,round) {
 }
 
 function _type1Get(model) {
-	var type1 = model.system == "Phragmen Seq S" || model.system == "Monroe Seq S" || model.system == "QuotaApproval" || model.system == "QuotaScore" // not sure why .. also not sure if STV is type 1 or not
+	var type1 = model.system == "Phragmen Seq S" || model.system == "Monroe Seq S" || model.system == "Allocated Score" || model.system == "STAR PR" || model.system == "QuotaApproval" || model.system == "QuotaScore" // not sure why .. also not sure if STV is type 1 or not
 	return type1
 }
 
