@@ -1045,6 +1045,9 @@ function bindModel(ui,model,config) {
         data.addColumn('number', 'Votes');
         data.addColumn({ type:'string', role: 'annotation' })
         data.addColumn({ type:'string', role: 'style' })
+        data.addColumn('number', 'Votes');
+        data.addColumn({ type:'string', role: 'annotation' })
+        data.addColumn({ type:'string', role: 'style' })
 
         var color = (cid) => model.candidatesById[cid].fill
         var getName = (cid) => model.candidatesById[cid].name
@@ -1102,11 +1105,11 @@ function bindModel(ui,model,config) {
             var frac = num / numBallots
             var barColor = hslToHex(color(cid))
             if (won.includes(cid)) {
-                var annotation = "Win: " + name
+                var annotation = "✔️"
             } else if (continuing.includes(cid)) {
-                var annotation = name
+                var annotation = "----"
             } else {
-                var annotation = "Lose: " + name
+                var annotation = "✖️"
             }
             var idx = lookup[cid]
             if (opt.showCoalitions) {
@@ -1129,9 +1132,9 @@ function bindModel(ui,model,config) {
                         var fracs100 = eliminationOrder.map( () => 0)
                     }
                 }
-                rows[idx] = [name, ...fracs100 ,0,annotation,barColor]
+                rows[idx] = [name, ...fracs100 ,0,annotation,barColor, 0, "  " + name,barColor]
             } else {
-                rows[idx] = [name,frac*100,annotation,barColor]
+                rows[idx] = [name,frac*100,annotation,barColor, 0, "  " + name,barColor]
             }
         }
         data.addRows(rows);
@@ -1170,12 +1173,12 @@ function bindModel(ui,model,config) {
                     bold: true,
                 },
             },
+            isStacked: true,
         }
 
         if (opt.showCoalitions) {
             var allBarColors = eliminationOrder.map( (cid) => hslToHex(color(cid)))
             allBarColors.push('#000')
-            options.isStacked = true
             options.colors = allBarColors
         }
 
