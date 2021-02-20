@@ -1776,10 +1776,15 @@ function bindModel(ui,model,config) {
         
         barOptions.heightRectangle2 = Math.min(200 / model.candidates.length, 200/5)
 
+        if (model.system == "PAV" || model.system == "equalFacilityLocation") {
+            var roundOrCan = "Candidate"
+        } else {
+            var roundOrCan = "Round"
+        }
         if (round == district.result.history.rounds.length) {
             var rt = ` Final `
         } else {
-            var rt = ` Round ${round + 1} `
+            var rt = ` ${roundOrCan} ${round + 1} `
         }
         ui.dom.weightChartsRoundNumText[iDistrict].innerText = rt
     

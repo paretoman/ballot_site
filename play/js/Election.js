@@ -4842,18 +4842,40 @@ function lpGeneral(_solver,district,model,options) {
 			var k = iWinners[r]
 			if (r == 0) {
 				var beforeWeightUsed = b.map( () => 0)
+				var beforePowerUsed = b.map( () => 0)
 			} else {
 				for (var i = 0; i < weightUsed.length; i++) {
 					beforeWeightUsed[i] += weightUsed[i]
+					beforePowerUsed[i] += powerUsed[i]
 				}
 			}
-			var weightUsed = phragmenResult.assignments.map( x => x[k])
+			if (model.system == "PAV") {
+				if (r == 0) {
+					var beforeSumElected = b.map( () => 0)
+				} else {
+					beforeSumElected = afterSumElected
+				}
+				var afterSumElected = []
+				var afterWeightUsed = []
+				var weightUsed = []
+				for (var i = 0; i < b.length; i++) {
+					// var weightUsed = phragmenResult.assignments.map( x => x[k])
+					var additionalElected = (phragmenResult.assignments[i][k] > 0) ? 1 : 0 
+					afterSumElected[i] = additionalElected + beforeSumElected[i]
+					var weightRemaining = (afterSumElected[i] == 0) ? 1 : (1 / (1+afterSumElected[i]))
+					afterWeightUsed[i] = 1 - weightRemaining
+					weightUsed[i] = afterWeightUsed[i] - beforeWeightUsed[i]
+				}
+			} else {
+				var weightUsed = phragmenResult.assignments.map( x => x[k])
+			}
+			var powerUsed = phragmenResult.assignments.map( x => x[k])
 			var winners = [district.candidates[k].i]
 			var round = {
 				weightUsed:_jcopy(weightUsed),
 				beforeWeightUsed:_jcopy(beforeWeightUsed),
-				powerUsed:_jcopy(weightUsed),
-				beforePowerUsed:_jcopy(beforeWeightUsed),
+				powerUsed:_jcopy(powerUsed),
+				beforePowerUsed:_jcopy(beforePowerUsed),
 				winners:_jcopy(winners),
 			}
 			result.history.rounds.push(round)
