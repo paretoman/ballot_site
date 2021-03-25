@@ -925,7 +925,8 @@ function bindModel(ui,model,config) {
         }
         ui.dom.right.prepend(ui.dom.roundChart)
 
-        if (!haveCharts) {
+        var gFlag = model.googleLoaded !== undefined
+        if (!haveCharts || !gFlag) {
             // set up chart
 
             // Load the Visualization API and the corechart package.
@@ -936,7 +937,7 @@ function bindModel(ui,model,config) {
             ui.roundChart = []
             for (var i = 0; i < model.district.length; i++) {
 
-                google.charts.setOnLoadCallback( (function(a) { return function() { instantiateThenDrawRoundChart(a) }})(i) )
+                google.charts.setOnLoadCallback( (function(a) { return function() { model.googleLoaded = true; instantiateThenDrawRoundChart(a) }})(i) )
             }
             
         } else {
@@ -1302,7 +1303,8 @@ function bindModel(ui,model,config) {
         }
         ui.dom.right.prepend(ui.dom.utilityChart)
 
-        if (!haveCharts) {
+        var gFlag = model.googleLoaded !== undefined
+        if (!haveCharts || !gFlag) {
             // set up chart
 
             // Load the Visualization API and the corechart package.
@@ -1312,9 +1314,10 @@ function bindModel(ui,model,config) {
             // Set a callback to run when the Google Visualization API is loaded.
             ui.utilityChart = []
             ui.utilityChartAverage = []
+            
             for (var i = 0; i < model.district.length; i++) {
 
-                google.charts.setOnLoadCallback( (function(a) { return function() { instantiateThenDrawUtilityChart(a) }})(i) )
+                google.charts.setOnLoadCallback( (function(a) { return function() { model.googleLoaded = true; instantiateThenDrawUtilityChart(a) }})(i) )
             }
             
         } else {
@@ -5773,8 +5776,20 @@ function menu(ui,model,config,initialConfig, cConfig) {
             self.configure()
             
             // some configurations might have updated, so update the ui selections
-            ui.menu.colorChooser.select()
-            ui.menu.behavior.select()
+            if (config.theme == "Nicky" || config.theme == "Bees") {
+                config.colorChooser = "pick and repeat"
+            } else {
+                config.colorChooser = "pick and generate"
+            }
+
+            ui.menu.colorChooser.configure()
+
+            if (config.theme == "Bees") {
+                config.behavior = "bounce"
+            } else {
+                config.behavior = "stand"
+            }
+            ui.menu.behavior.configure()
 
             // INIT MODEL
 		    model.arena.initARENA()
@@ -5809,21 +5824,6 @@ function menu(ui,model,config,initialConfig, cConfig) {
                 model.showToolbar = "on"
             }
             
-            if (config.theme == "Nicky" || config.theme == "Bees") {
-                config.colorChooser = "pick and repeat"
-            } else {
-                config.colorChooser = "pick and generate"
-            }
-
-            ui.menu.colorChooser.configure()
-
-            if (config.theme == "Bees") {
-                config.behavior = "bounce"
-                ui.menu.behavior.configure()
-            } else {
-                config.behavior = "stand"
-                ui.menu.behavior.configure()
-            }
         }
         self.init_sandbox = function() {
             for (var i = 0; i < self.list.length; i++) {
