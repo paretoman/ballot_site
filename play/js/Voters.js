@@ -20,7 +20,7 @@ function VoterModel(model,type) {
 	self.drawBallot = (voterPerson) => DrawBallot[type](model, self, voterPerson)
 	self.drawTally = (voterPerson) => DrawTally[type](model, self, voterPerson)
 	self.drawMap = (ctx, voterPerson) => DrawMap[type](ctx, model, self, voterPerson)
-	self.drawMe = (ctx, voterPerson, scale) => DrawMe[type](ctx, model, self, voterPerson, scale)
+	self.drawMe = (ctx, voterPerson, scale, opt) => DrawMe[type](ctx, model, self, voterPerson, scale, opt)
 
 	// self.crowd = new VoterCrowd[self.crowdType](model, self)
 
@@ -1635,7 +1635,7 @@ DrawMap.Plurality = function (ctx, model,voterModel,voterPerson) {
 
 var DrawMe = {}
 
-DrawMe.Score = function (ctx, model,voterModel,voterPerson, scale) {
+DrawMe.Score = function (ctx, model,voterModel,voterPerson, scale, opt) {
 	
 	if (model.voterIcons == "top") {
 		_drawTopDefault(model, ctx, voterPerson)
@@ -1658,10 +1658,10 @@ DrawMe.Score = function (ctx, model,voterModel,voterPerson, scale) {
 	var leftover = totalSlices;
 	var slices = [];
 	totalScore = 0;
-	for(var i=0; i<model.candidates.length; i++){
-		var c = model.candidates[i];
+	
+	if (opt !== undefined && opt.onlyCandidate !== undefined) {
+		var c = model.candidates[opt.onlyCandidate];
 		var cID = c.id;
-		if (ballot.scores[cID] == undefined) continue
 		var score = ballot.scores[cID] - voterModel.minscore;
 		leftover -= score;
 		if (model.allCan || score > 0) {
@@ -1671,8 +1671,24 @@ DrawMe.Score = function (ctx, model,voterModel,voterPerson, scale) {
 			});
 		}
 		totalScore += score
+		totalSlices = totalScore
+	} else {
+		for(var i=0; i<model.candidates.length; i++){
+			var c = model.candidates[i];
+			var cID = c.id;
+			if (ballot.scores[cID] == undefined) continue
+			var score = ballot.scores[cID] - voterModel.minscore;
+			leftover -= score;
+			if (model.allCan || score > 0) {
+				slices.push({
+					num: score,
+					fill: c.fill
+				});
+			}
+			totalScore += score
+		}
+		totalSlices = totalScore
 	}
-	totalSlices = totalScore
 	// Leftover is gray
 	// slices.push({
 	// 	num: leftover,
@@ -1697,12 +1713,12 @@ DrawMe.Score = function (ctx, model,voterModel,voterPerson, scale) {
 
 }
 
-DrawMe.Three = function (ctx, model,voterModel,voterPerson, scale) {
-	DrawMe.Score(ctx, model,voterModel,voterPerson, scale)
+DrawMe.Three = function (ctx, model,voterModel,voterPerson, scale, opt) {
+	DrawMe.Score(ctx, model,voterModel,voterPerson, scale, opt)
 
 }
 
-DrawMe.Approval = function (ctx, model,voterModel,voterPerson, scale) {
+DrawMe.Approval = function (ctx, model,voterModel,voterPerson, scale, opt) {
 	
 	if (model.voterIcons == "top") {
 		_drawTopDefault(model, ctx, voterPerson)
@@ -1723,7 +1739,16 @@ DrawMe.Approval = function (ctx, model,voterModel,voterPerson, scale) {
 	var numApproved = 0
 
 	// Draw 'em slices
-	if (model.allCan) {
+	if (opt !== undefined && opt.onlyCandidate !== undefined) {
+		var candidate = model.candidates[opt.onlyCandidate]
+		var approved = ballot.scores[candidate.id]
+		if (approved) {
+			slices.push({ num:1, fill:candidate.fill });
+			numApproved ++
+		} else {
+			slices.push({ num:0, fill:candidate.fill });
+		}
+	} else if (model.allCan) {
 		for(var candidate of model.candidates) {
 			var approved = ballot.scores[candidate.id]
 			if (approved) {

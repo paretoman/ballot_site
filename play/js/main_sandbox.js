@@ -415,6 +415,8 @@ function bindModel(ui,model,config) {
     
         }
 
+        filterMapDraw()
+
         ballotDraw()
 
         utilityDraw()
@@ -1595,7 +1597,7 @@ function bindModel(ui,model,config) {
     
             // if we're updating the number, remove the old charts
             if (ui.dom.weightCharts) ui.dom.weightCharts.remove()
-            ui.dom.weightCharts == undefined
+            ui.dom.weightCharts = undefined
     
             // set up container dom for chart
             ui.weightChartsDistricts = model.district.length
@@ -1877,6 +1879,181 @@ function bindModel(ui,model,config) {
         }
     }
     
+    function filterMapDraw() {
+        // manage the creation of the canvases
+
+        // redo charts when number of candidates or rounds changes
+        var useCandidates = model.ballotType === "Approval" || model.ballotType === "Score" || model.ballotType === "Three"
+        var useRounds = ["IRV","STV"].includes(model.system) // TODO: add more
+        
+        var noFilterMaps = ! (useCandidates || useRounds)
+        if (noFilterMaps) {
+            if (ui.dom.filterMapDiv) ui.dom.filterMapDiv.remove()
+            ui.dom.filterMapDiv = undefined
+            return
+        }
+
+        // redo charts when changing number of districts.
+        var matchDist = (ui.weightChartsDistricts == model.district.length)
+
+        if (matchDist) {
+            var match = true
+            
+            if (useCandidates) {
+                for (var i = 0; i < model.district.length; i++) {
+                    match = match && (ui.chartNotesCandidates[i] == model.district[i].candidates.length)
+                }
+            }
+            if (useRounds) {
+                for (var i = 0; i < model.district.length; i++) {
+                    match = match && (ui.chartNotesRounds[i] == model.district[i].result.history.rounds.length)
+                }
+            }
+        } else {
+            var match = false
+        }
+
+        let makeNewMapDivs = (ui.dom.filterMapDraw === undefined) || ! matchDist || ! match
+        
+        if(makeNewMapDivs) {
+            // if we're updating the number, remove the old charts
+            if (ui.dom.filterMapDiv) ui.dom.filterMapDiv.remove()
+            ui.dom.filterMapDiv = undefined
+
+            // keep note of the number of districts
+            ui.weightChartsDistricts = model.district.length
+
+            // keep note of the number of candidates and the number of rounds
+            if (useCandidates) {
+                ui.chartNotesCandidates = model.district.map( x => x.candidates.length)
+                ui.chartNotesRounds = []
+            }
+            if (useRounds) { // useRounds
+                ui.chartNotesCandidates = model.district.map( x => x.candidates.length)
+                ui.chartNotesRounds = model.district.map( x => x.result.history.rounds.length)
+            }
+
+            ui.dom.filterMapDiv = document.createElement("div")
+            ui.dom.filterMapDiv.id = "chart"
+
+            if (useCandidates) {
+                var titleText = "Vote Maps By Candidate"
+            } else if (useRounds) {
+                var titleText = "Vote Maps By Round"
+            }
+            ui.dom.filterMapDiv.innerHTML += `<div style="text-align:center;"><span class="small" > ${titleText} </span></div>`
+
+            if (ui.minusControl == undefined) ui.minusControl = {}
+            if (ui.minusControl.filterMapDiv == undefined) ui.minusControl.filterMapDiv = {}
+            addMinusButtonC(ui.dom.filterMapDiv,ui.minusControl.filterMapDiv)
+
+
+            ui.dom.filterMaps = []
+            for (var i = 0; i < model.district.length; i++) {
+                if (model.district.length > 1) {
+                    var title = document.createElement("div")
+                    // title.innerText = `District ${i+1}`
+                    title.innerHTML = `<div style="text-align:center;"><span class="small" > District ${i+1} </span></div>`
+                    ui.dom.filterMapDiv.append(title)
+                }
+                if (useCandidates) {
+                    var numMaps = model.district[i].candidates.length
+                }
+                if (useRounds) {
+                    var numMaps = model.district[i].result.history.rounds.length
+                }
+                ui.dom.filterMaps[i] = []
+                for (var k = 0; k < numMaps; k++) {
+                    var canvas = document.createElement('CANVAS');
+                    canvas.className = "filterMap"
+                    var ctx = canvas.getContext('2d');
+                    canvas.height = 90;
+                    canvas.width = 90;
+                    // canvas.style.height = 500;
+                    // canvas.style.width = 500;
+                    ui.dom.filterMaps[i][k] = {canvas:canvas,ctx:ctx}
+                    ui.dom.filterMapDiv.append(canvas)
+                }
+                
+            }
+        }
+        ui.dom.right.prepend(ui.dom.filterMapDiv) // yes, prepend every time so that we get the order right... maybe not the best solution but it works
+
+        // actually draw the filterMaps
+
+        // temporarily change style (so it will be consistent)
+        var tempCandidateIconsSet = model.candidateIconsSet
+        model.candidateIconsSet = ["body"]
+        var tempVoterIcons = model.voterIcons
+        if (useRounds) {
+            model.voterIcons = "top"
+        } else {
+            model.voterIcons = "circle"
+        }
+
+        for (var i = 0; i < model.district.length; i++) {
+            var numMaps = ui.dom.filterMaps[i].length
+            var district = model.district[i]
+            if (useRounds) {
+                var oldRoundCurrent = model.roundCurrent[i]
+                var oldFlagFinalRound = model.flagFinalRound[i]
+                model.flagFinalRound[i] = false
+            }
+            for (var k = 0; k < numMaps; k++) {
+                // draw ballots
+                arena = ui.dom.filterMaps[i][k]
+                arena.ctx.clearRect(0,0,arena.canvas.width,arena.canvas.height)
+                arena.ctx.fillStyle = '#333';
+                arena.ctx.fillRect(0,0,arena.canvas.width,arena.canvas.height)
+                arena.ctx.scale(arena.canvas.width/model.size/2,arena.canvas.height/model.size/2) // 50/600
+                if (useCandidates) {
+                    for(var m=0; m<model.voterGroups.length; m++){
+                        var voterGroup = model.voterGroups[m];
+                        for(var voterPerson of voterGroup.voterPeople){
+                            voterGroup.voterModel.drawMe(arena.ctx, voterPerson, 1, {onlyCandidate:k})
+                        }
+                    }
+                    var c = district.candidates[k]
+                    c.draw(arena.ctx,model.arena) 
+                    var text = c.name
+                } else if (useRounds) {
+                    model.roundCurrent[i] = k
+                    for(var m=0; m<model.voterGroups.length; m++){
+                        var voterGroup = model.voterGroups[m];
+                        for(var voterPerson of voterGroup.voterPeople){
+                            voterGroup.voterModel.drawMe(arena.ctx, voterPerson, 1)
+                        }
+                    }
+                    for(var m=0; m<district.candidates.length; m++){
+                        var c = district.candidates[m]
+                        c.draw(arena.ctx,model.arena) // model.arena just provides a function that translates coordinates.
+                    }
+                    var text = `${k+1}`
+
+                } else {
+                    for(var m=0; m<model.voterGroups.length; m++){
+                        var voterGroup = model.voterGroups[m];
+                        for(var voterPerson of voterGroup.voterPeople){
+                            voterGroup.voterModel.drawMe(arena.ctx, voterPerson, 1)
+                        }
+                    }
+                    for(var m=0; m<district.candidates.length; m++){
+                        var c = district.candidates[m]
+                        c.draw(arena.ctx,model.arena) // model.arena just provides a function that translates coordinates.
+                    }
+                    var text = ""
+                }
+                _drawStrokedColor(text, 300, 80, 80,5, "white", arena.ctx)
+            }
+            if (useRounds) {
+                model.roundCurrent[i] = oldRoundCurrent
+                model.flagFinalRound[i] = oldFlagFinalRound
+            }
+        }
+        model.candidateIconsSet = tempCandidateIconsSet
+        model.voterIcons = tempVoterIcons
+    }
+
     ui.roundUpdateSet = function() {
         if (ui.dom.weightCharts != undefined) {
             // update chart
@@ -8187,6 +8364,7 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
             ui.minusControl.ballotPart[3] = readConfigControl(7)
             ui.minusControl.ballotPart[4] = readConfigControl(8)
             ui.minusControl.utilityChart = readConfigControl(9)
+            ui.minusControl.filterMapDiv = readConfigControl(10)
 
             function readConfigControl(x) { return {show: defaultTrue(config.minusControl[x])} }
             function defaultTrue(x) { return (x == undefined) ? true : x}
@@ -8237,6 +8415,7 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
             7: defaultTrue(ui.minusControl.ballotPart[3].show),
             8: defaultTrue(ui.minusControl.ballotPart[4].show),
             9: defaultTrue(ui.minusControl.utilityChart.show),
+            10: defaultTrue(ui.minusControl.filterMapDiv.show),
         }
         function defaultTrue(x) { return (x == undefined) ? true : x}
         // convert to array
