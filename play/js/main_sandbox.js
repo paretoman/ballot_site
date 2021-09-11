@@ -2221,19 +2221,24 @@ function Config(ui, config, initialConfig) {
                     // get request
                     // var listShortLinkUrl = "https://spreadsheets.google.com/tq?&tq=&key=12TYpTVx6WgyNzUTBvXUPLBdplk9Hi1MJVMkGskyh5cs"
                     // var listShortLinkUrl = "https://spreadsheets.google.com/feeds/list/12TYpTVx6WgyNzUTBvXUPLBdplk9Hi1MJVMkGskyh5cs/1/public/values?alt=json"
-                    var listShortLinkUrl = "https://spreadsheets.google.com/feeds/list/12TYpTVx6WgyNzUTBvXUPLBdplk9Hi1MJVMkGskyh5cs/1/public/values?alt=json&sq=shortcode=" + shortCode
-                    // _ajax.get(listShortLinkUrl, {}, function(res) {
-                    _getRequest(listShortLinkUrl, function(res) {
+                    // var listShortLinkUrl = "https://spreadsheets.google.com/feeds/list/12TYpTVx6WgyNzUTBvXUPLBdplk9Hi1MJVMkGskyh5cs/1/public/values?alt=json&sq=shortcode=" + shortCode
+                    // var listShortLinkUrl = "https://sheets.googleapis.com/v4/spreadsheets/12TYpTVx6WgyNzUTBvXUPLBdplk9Hi1MJVMkGskyh5cs/values/Sheet1"
+                    // var listShortLinkUrl = "https://spreadsheets.google.com/feeds/cells/12TYpTVx6WgyNzUTBvXUPLBdplk9Hi1MJVMkGskyh5cs/1/public/values?alt=json"
+                    var listShortLinkUrl = 'https://script.google.com/macros/s/AKfycbzMf0eb8jFTPnM7X83RIZwYN783E-xKt0M6RmgI-0AO2yf8BKb3/exec'                    
+                    _ajax.get(listShortLinkUrl, {shortcode: shortCode, link: "getTable"}, function(res) {
                         // do the load config again, basically
                         var resObj = JSON.parse(res)
 
+                        var codedUrl = resObj.link
+
                         // example, the third shortcode: resObj.feed.entry[2].gsx$shortcode.$t
 
-                        var rows = resObj.feed.entry
+                        // second try, worked for a while until google changed to version 4 of the sheets API
+                        // var rows = resObj.feed.entry
                         // search rows for shortcode
-                        var row = rows.filter( r => r.gsx$shortcode.$t === shortCode)
+                        // var row = rows.filter( r => r.gsx$shortcode.$t === shortCode)
                         // get the url
-                        var codedUrl = row[0].gsx$link.$t
+                        // var codedUrl = row[0].gsx$link.$t
 
 
                         // first try
