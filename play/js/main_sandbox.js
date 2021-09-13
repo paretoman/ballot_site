@@ -413,9 +413,9 @@ function bindModel(ui,model,config) {
     
             roundChartDraw()
     
+            filterMapDraw()
+            
         }
-
-        filterMapDraw()
 
         ballotDraw()
 
