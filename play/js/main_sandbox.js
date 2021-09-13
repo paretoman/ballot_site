@@ -1901,12 +1901,12 @@ function bindModel(ui,model,config) {
             
             if (useCandidates) {
                 for (var i = 0; i < model.district.length; i++) {
-                    match = match && (ui.chartNotesCandidates[i] == model.district[i].candidates.length)
+                    match = match && (ui.chartNotesCandidates !== undefined && ui.chartNotesCandidates[i] == model.district[i].candidates.length)
                 }
             }
             if (useRounds) {
                 for (var i = 0; i < model.district.length; i++) {
-                    match = match && (ui.chartNotesRounds[i] == model.district[i].result.history.rounds.length)
+                    match = match && (ui.chartNotesRounds !== undefined && ui.chartNotesRounds[i] == model.district[i].result.history.rounds.length)
                 }
             }
         } else {
