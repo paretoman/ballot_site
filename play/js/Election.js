@@ -1998,7 +1998,7 @@ Election.irv = function(district, model, options){
 	var polltext = _beginElection(district,model,options,"irv")	
 	let cans = district.stages[model.stage].candidates
 
-	var drawFlows = (model.ballotConcept != "off") && ( ! options.yeefast )
+	var drawFlows = (model.ballotConcept != "off" || model.arena.viewMan.active) && ( ! options.yeefast )
 	drawFlows = options.sidebar // quick temporary fix
 	if (drawFlows) {
 		var transfers = []
@@ -2377,7 +2377,7 @@ Election.stv = function(district, model, options){
 
 	var numreps = model.seats
 	
-	var drawFlows = (model.ballotConcept != "off") && ( ! options.yeefast )
+	var drawFlows = (model.ballotConcept != "off" || model.arena.viewMan.active) && ( ! options.yeefast )
 	if (drawFlows) {
 		var transfers = []
 		var coalitions = []
@@ -2925,7 +2925,7 @@ Election.stvMinimax = function(district, model, options){
 
 	var numreps = model.seats
 	
-	var drawFlows = (model.ballotConcept != "off") && ( ! options.yeefast )
+	var drawFlows = (model.ballotConcept != "off" || model.arena.viewMan.active) && ( ! options.yeefast )
 	if (drawFlows) {
 		var transfers = []
 		var coalitions = []

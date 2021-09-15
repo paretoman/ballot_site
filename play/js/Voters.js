@@ -1001,10 +1001,16 @@ DrawMap.Score = function (ctx, model,voterModel,voterPerson) {
 
 	if (model.ballotConcept == "off") return
 
+	var drawMapViewMan = (model.arena.viewMan.active &&  model.arena.viewMan.focus === voterPerson)
+	// we only want to show the map for the viewMan if he is active.
+	if (model.onlyVoterMapViewMan) if (model.arena.viewMan.active &&  model.arena.viewMan.focus !== voterPerson) return
+
 	var scorange = voterModel.maxscore - voterModel.minscore
 	var step = (voterModel.radiusLast - voterModel.radiusFirst)/scorange;
 
 	var nVoters = model.district[iDistrict].voterPeople.length
+	if (drawMapViewMan) nVoters = 3 // bolder map, not too bold
+	if (drawMapViewMan && model.onlyVoterMapViewMan) nVoters = 1
 
 	// Draw big ol' circles.
 	var lastDist = Infinity
@@ -1148,6 +1154,15 @@ DrawMap.Ranked = function (ctx, model,voterModel,voterPerson) {
 
 	if (model.ballotConcept == "off") return
 
+	var drawMapViewMan = (model.arena.viewMan.active &&  model.arena.viewMan.focus === voterPerson)
+	
+	// we only want to show the map for the viewMan if he is active.
+	if (model.onlyVoterMapViewMan) if (model.arena.viewMan.active &&  model.arena.viewMan.focus !== voterPerson) return
+
+	var nVoters = model.district[iDistrict].voterPeople.length
+	if (drawMapViewMan) nVoters = 3 // bolder map, not too bold
+	if (drawMapViewMan && model.onlyVoterMapViewMan) nVoters = 1
+
 	if (model.doOriginal) {
 		// RETINA
 		x = x*2;
@@ -1176,7 +1191,7 @@ DrawMap.Ranked = function (ctx, model,voterModel,voterPerson) {
 		}
 
 	} else if (model.system == "IRV" || model.system == "STV") {
-		var bon = model.ballotConcept == "on"
+		var bon = model.ballotConcept == "on"  || (model.arena.viewMan.active &&  model.arena.viewMan.focus === voterPerson)
 		if (bon) {
 			if (ballot.rank.length == 0) return
 			var candidate = model.candidatesById[ballot.rank[0]];
@@ -1194,6 +1209,8 @@ DrawMap.Ranked = function (ctx, model,voterModel,voterPerson) {
 			ctx.lineTo(tx,ty);
 			ctx.lineWidth = 8;
 			ctx.strokeStyle = "#888";
+			let n =  Math.log(nVoters+3) / Math.LN10 + .6 // 1 with 1 voter, 2 with more voters   
+			ctx.globalAlpha = 1/n
 			ctx.stroke();
 	
 
@@ -1227,7 +1244,7 @@ DrawMap.Ranked = function (ctx, model,voterModel,voterPerson) {
 			}
 			ctx.setLineDash([]);				
 		}	
-	} else if (model.useBeatMapForRankedBallotViz && model.system != "Borda") {
+	} else if (model.useBeatMapForRankedBallotViz && model.system != "Borda" && !drawMapViewMan) {
 		// do nothing .. kind of a temporary bandage while I work out the visualization
 	} else if (1) {
 		
@@ -1239,7 +1256,6 @@ DrawMap.Ranked = function (ctx, model,voterModel,voterPerson) {
 
 		me = {x:x, y:y}
 		// var meArena = model.arena.modelToArena(me)
-		var nVoters = model.district[iDistrict].voterPeople.length
 		
 		var tempComposite = ctx.globalCompositeOperation
 
@@ -1609,7 +1625,12 @@ DrawMap.Plurality = function (ctx, model,voterModel,voterPerson) {
 	var ballot = voterPerson.stages[model.stage].ballot
 
 	
-	if (model.ballotConcept != "on") return
+	if (model.ballotConcept != "on" && ! model.arena.viewMan.active ) return
+	
+	var drawMapViewMan = (model.arena.viewMan.active &&  model.arena.viewMan.focus === voterPerson)
+	
+	// we only want to show the map for the viewMan if he is active.
+	if (model.onlyVoterMapViewMan) if (model.arena.viewMan.active &&  model.arena.viewMan.focus !== voterPerson) return
 
 	var candidate = model.candidatesById[ballot.vote];
 	
@@ -1628,6 +1649,14 @@ DrawMap.Plurality = function (ctx, model,voterModel,voterPerson) {
 	ctx.lineTo(tx,ty);
 	ctx.lineWidth = 8;
 	ctx.strokeStyle = "#888";
+	
+	var nVoters = model.district[iDistrict].voterPeople.length
+	if (drawMapViewMan) nVoters = 1
+
+	// 1 with 1-10 voters
+	// .5 with 10 - 100 voters
+	let n =  Math.log(nVoters+3) / Math.LN10 + .6 // 1 with 1 voter, 2 with more voters   
+	ctx.globalAlpha = 1/n
 	ctx.stroke();
 
 

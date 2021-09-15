@@ -122,6 +122,7 @@ function Model(idModel){
 		voterGroupCustomNames: "No",
 		voterGroupNameList: [],
 		drawNameSingleVoter: false,
+		onlyVoterMapViewMan: true, // only show the viewMan's voter map when dragging him.
 	})
 	
 	self.viz = new Viz(self);
@@ -843,12 +844,13 @@ function Model(idModel){
 		var autoBeatMap = (self.beatMap == "auto") && (self.ballotType == "Ranked") && ! (self.doOriginal  || self.system == "IRV" || self.system == "STV" || self.system == "Borda")
 		var on = (self.beatMap == "on") || autoBeatMap
 		var doBeatMap = on && ( ! self.doTextBallots)
+		doBeatMap = doBeatMap && ! (self.arena.viewMan.active && self.onlyVoterMapViewMan)
 		return doBeatMap
 	}
 	self.checkDrawCircle = function() {
 		return self.yeeon || self.checkDoBeatMap()
 	}
-	self.checkDoBallotConcept = function() {
+	self.checkDoMultiBallotConcept = function() {
 		// ranked voter and not (original or IRV or Borda)
 		var p1 = ! self.doOriginal
 		var p2 =   self.ballotConcept != "off"
@@ -858,7 +860,7 @@ function Model(idModel){
 	}
 	self.checkDoIRVConcept = function() {
 		var go = (self.system == "IRV" || self.system == "STV")  && self.dimensions == "2D" && self.result
-		go = go && self.checkDoBallotConcept()
+		go = go && self.checkDoMultiBallotConcept()
 		return go
 	}
 
@@ -2363,7 +2365,7 @@ function Arena(arenaName, model) {
 		}
 		function drawVotes() {
 			
-			if ( ! model.checkDoBallotConcept() ) return
+			if ( ! model.checkDoMultiBallotConcept() ) return
 
 			var go = model.system == "IRV" || model.system == "STV"
 			if (go && model.dimensions == "2D" && model.result && model.opt.showIRVTransfers) {
