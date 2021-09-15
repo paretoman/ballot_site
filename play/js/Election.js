@@ -5738,9 +5738,14 @@ Election.pluralityWithPrimary = function(district, model, options){
 
 function _beginElection(district,model,options,polltype) {
 	
-	district.stages = {}
 	model.stage = "general"
+
+	district.stages = {}
 	district.stages["general"] = {candidates: district.candidates }
+
+	for ( let voterPerson of district.voterPeople) {
+		voterPerson.stages = {}
+	}
 
 	var polltext = ""
 
@@ -5760,9 +5765,14 @@ function _beginElection(district,model,options,polltype) {
 
 function _beginElection_pluralityWithPrimary(district,model,options) {
 
-	district.stages = {}
 	model.stage = "primary"
+
+	district.stages = {}
 	district.stages["primary"] = {candidates: district.candidates}
+
+	for ( let voterPerson of district.voterPeople) {
+		voterPerson.stages = {}
+	}
 	
 	polltext = ""
 	// Take polls and vote
@@ -5779,9 +5789,15 @@ function _beginElection_pluralityWithPrimary(district,model,options) {
 
 function _beginElection_rbvote(district,model) {
 
-	district.stages = {}
 	model.stage = "general"
+
+	district.stages = {}
 	district.stages["general"] = {candidates: district.candidates }
+	
+	for ( let voterPerson of district.voterPeople) {
+		voterPerson.stages = {}
+	}
+
 	model.updateDistrictBallots(district)
 }
 

@@ -999,7 +999,7 @@ DrawMap.Score = function (ctx, model,voterModel,voterPerson) {
 	var ballot = voterPerson.stages[model.stage].ballot
 
 
-	if (model.ballotConcept == "off") return
+	if (model.ballotConcept == "off" && ! model.arena.viewMan.active) return
 
 	var drawMapViewMan = (model.arena.viewMan.active &&  model.arena.viewMan.focus === voterPerson)
 	// we only want to show the map for the viewMan if he is active.
@@ -1152,7 +1152,7 @@ DrawMap.Ranked = function (ctx, model,voterModel,voterPerson) {
 	var ballot = voterPerson.stages[model.stage].ballot
 	
 
-	if (model.ballotConcept == "off") return
+	if (model.ballotConcept == "off" && ! model.arena.viewMan.active) return
 
 	var drawMapViewMan = (model.arena.viewMan.active &&  model.arena.viewMan.focus === voterPerson)
 	
