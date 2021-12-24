@@ -5738,19 +5738,19 @@ Election.pluralityWithPrimary = function(district, model, options){
 
 function _beginElection(district,model,options,polltype) {
 	
-	model.stage = "general"
-
-	district.stages = {}
-	district.stages["general"] = {candidates: district.candidates }
-
-	for ( let voterPerson of district.voterPeople) {
-		voterPerson.stages = {}
-	}
-
 	var polltext = ""
 
 	if ( ! options.justCount ) {
 
+		model.stage = "general"
+
+		district.stages = {}
+		district.stages["general"] = {candidates: district.candidates }
+	
+		for ( let voterPerson of district.voterPeople) {
+			voterPerson.stages = {}
+		}
+	
 		if ("Auto" == model.autoPoll && ! options.dontpoll && polltype !== "nopoll") {
 			district.pollResults = undefined 
 			polltext += runPoll(district,model,options,polltype)
