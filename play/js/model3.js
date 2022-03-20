@@ -6,12 +6,12 @@ l.onload = function(assets){
 	var presetName = "model3"
 	var model = new Model(presetName);
 	model.assets = assets
-	model.simpleUI.createDOM()
+	model.createDOM()
 
 	// INIT
-	model.simpleUI.initDOM()
+	model.initDOM()
   var basediv = document.querySelector("#" + presetName)
-  basediv.appendChild(model.simpleUI.dom.main);
+  basediv.appendChild(model.dom);
 
 	model.initPlugin = function(){
 		// CREATE
@@ -31,7 +31,7 @@ l.onload = function(assets){
 		model.candidates[2].init()
 		model.initMODEL()
 		model.voterManager.initVoters()
-		model.opt.election.fun = "plurality"
+		model.election = Election.plurality;
 		model.optionsForElection =  {sidebar:true, original:true, originalCaption:true}
 		model.dm.redistrict()
 		// UPDATE

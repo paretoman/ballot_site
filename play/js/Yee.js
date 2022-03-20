@@ -70,8 +70,8 @@ function Viz(model) {
 			self.medianDistViz.drawMedianDistViz()
 		}
 
-		let doLpAssignmentsViz = model.opt.election.system == "PhragmenMax" || model.opt.election.system == "equalFacilityLocation" ||  model.opt.election.system == "PAV"
-		if (doLpAssignmentsViz) {
+		model.doLpAssignmentsViz = model.system == "PhragmenMax" || model.system == "equalFacilityLocation" ||  model.system == "PAV"
+		if (model.doLpAssignmentsViz) {
 			self.lpAssignmentsViz.drawLpAssignmentsViz()
 		}
 	}
@@ -347,7 +347,6 @@ function Yee(model) {
 
 
 		// get winners
-		let electionFun = Election[model.opt.election.fun]
 		for (var i=0; i < model.gridx.length; i++) {
 			var x = model.gridx[i]
 			var y = model.gridy[i]
@@ -411,8 +410,7 @@ function Yee(model) {
 					colors: []
 				}
 				for (var k = 0; k < model.nDistricts; k++) {
-
-					result_k = electionFun( model.district[k], model, model.optionsForElection );
+					result_k = model.election( model.district[k], model, model.optionsForElection );
 					if (result) {
 						result.colors = [].concat(result.colors , result_k.colors)
 					}
@@ -424,13 +422,13 @@ function Yee(model) {
 					result.color = result.colors[0]
 				}
 			} else {
-				var result = electionFun(model.district[0], model, {sidebar:false, yeefast:true});
+				var result = model.election(model.district[0], model, {sidebar:false, yeefast:true});
 			}
 
 
 			model.gridl.push(result.color);
 			model.gridb.push(result.colors)
-			// model.simpleUI.dom.caption.innerHTML = "Calculating " + Math.round(x/WIDTH*100) + "%"; // doesn't work yet 
+			// model.caption.innerHTML = "Calculating " + Math.round(x/WIDTH*100) + "%"; // doesn't work yet 
 		}
 		model.yeeobject.x = saveo.x;
 		if (doB) {
@@ -557,7 +555,7 @@ function Yee(model) {
 					can_filter_yee.push(id)
 				}
 			}
-			var method_1 = ("stv" === model.opt.election.fun) || ("rrv" === model.opt.election.fun)  // two methods for filtering colors in the yee diagram
+			var method_1 = (Election.stv == model.election) || (Election.rrv == model.election)  // two methods for filtering colors in the yee diagram
 			if (method_1) {
 				color_filter_yee = can_filter_yee.map(x => model.candidatesById[x].fill)
 				if (model.kindayee=='newcan') color_filter_yee.push(colorNewCan)
@@ -883,7 +881,7 @@ VoterMapGPU = function(model) {
 	// 	if (self.flag = false) return
 	// 	self.flag = false
 
-		if (model.opt.ballot.ballotType == "Plurality" || model.opt.election.system == "IRV" || model.opt.election.system == "STV") return
+		if (model.ballotType == "Plurality" || model.system == "IRV" || model.system == "STV") return
 		if (model.voterSet.totalVoters == 0) return
 		if (model.voterSet.allVoters[0].stages[model.stage].ballot == undefined) return
 
@@ -929,7 +927,7 @@ VoterMapGPU = function(model) {
 		for (var i = 0; i < model.candidates.length; i++) {
 			colors.push(model.candidates[i].fill)
 		}
-		if (model.opt.ballot.ballotType == "Score" || model.opt.ballot.ballotType == "Approval" || model.opt.ballot.ballotType == "Three" || model.opt.election.system == "Borda") {
+		if (model.ballotType == "Score" || model.ballotType == "Approval" || model.ballotType == "Three" || model.system == "Borda") {
 			colors[0] = "#000"
 		}
 		colorData = getColorScale(colors) // just a list of colors in an array

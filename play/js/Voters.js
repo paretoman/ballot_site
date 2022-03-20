@@ -63,7 +63,7 @@ InitVoterModel.Score = function (model, voterModel) {
 	voterModel.minscore = 0;
 	voterModel.radiusLast = []
 	voterModel.radiusFirst = []
-	voterModel.defaultMax = model.opt.ballot.useBigDefaultMax ? 61 * 4 : 25 * 4; // step: x<25, 25<x<50, 50<x<75, 75<x<100, 100<x
+	voterModel.defaultMax = model.HACK_BIG_RANGE ? 61 * 4 : 25 * 4; // step: x<25, 25<x<50, 50<x<75, 75<x<100, 100<x
 	if (model.doOriginal) {
 		voterModel.filledCircles = false
 	} else {
@@ -106,7 +106,7 @@ CastBallot.Score = function (model,voterModel,voterPerson) {
 
 // return function(x, y, strategy, iDistrict, i){
 	var doStar =  model.checkDoStarStrategy(strategy)
-	if (model.opt.ballot.autoPoll == "Auto" && district.pollResults) {
+	if (model.autoPoll == "Auto" && district.pollResults) {
 		tally = district.pollResults
 
 		var factor = voterPerson.poll_threshold_factor
@@ -127,7 +127,7 @@ CastBallot.Score = function (model,voterModel,voterPerson) {
 		viable = model.district[iDistrict].preFrontrunnerIds
 	}
 	var cans = model.district[iDistrict].stages[model.stage].candidates
-	var scoresfirstlast = dostrategy(model,x,y,voterModel.minscore,voterModel.maxscore,strategy,viable,cans,voterModel.defaultMax,doStar,model.opt.ballot.utility_shape)
+	var scoresfirstlast = dostrategy(model,x,y,voterModel.minscore,voterModel.maxscore,strategy,viable,cans,voterModel.defaultMax,doStar,model.utility_shape)
 	
 	voterPerson.dottedCircle = scoresfirstlast.dottedCircle
 	var scores = scoresfirstlast.scores
@@ -185,7 +185,7 @@ CastBallot.Ranked = function (model,voterModel,voterPerson) {
 	});
 
 	var considerFrontrunners =  (strategy != "normalize"  &&  strategy != "zero strategy. judge on an absolute scale.")
-	if (considerFrontrunners && model.opt.election.fun == "irv" && model.opt.ballot.autoPoll == "Auto" && district.pollResults) {
+	if (considerFrontrunners && model.election == Election.irv && model.autoPoll == "Auto" && district.pollResults) {
 		// we can do an irv strategy here
 
 		voterPerson.truePreferences = _jcopy(rank)
@@ -293,7 +293,7 @@ CastBallot.Plurality = function (model,voterModel,voterPerson) {
 
 		// if we're in a primary 
 		// then consider electability (if there are polls)
-		if (model.opt.ballot.doElectabilityPolls) {
+		if (model.doElectabilityPolls) {
 			goodCans = _bestElectable(model, voterPerson)
 		} else {
 			// otherwise, only consider our party's candidates
@@ -306,10 +306,10 @@ CastBallot.Plurality = function (model,voterModel,voterPerson) {
 	if (checkOnlyFrontrunners) {
 
 		//   consider only viable candidates (if there are polls, 
-		if (district.pollResults && model.opt.ballot.autoPoll == "Auto") { // Auto is here for safety
+		if (district.pollResults && model.autoPoll == "Auto") { // Auto is here for safety
 			var viable = _findViableFromSet(model, goodCans, district, voterPerson)
 
-		} else if (model.opt.ballot.autoPoll == "Manual") {  // manually set viable candidates, if we want to
+		} else if (model.autoPoll == "Manual") {  // manually set viable candidates, if we want to
 			var viable = district.preFrontrunnerIds
 
 		} else { // we're the first to take the polls, so any candidate is viable
@@ -374,7 +374,7 @@ function _electable(model,iMyParty,parties,hh) {
 					// check how badly we are defeated
 					let howbad = hh[b.id][a.id] / hh[a.id][b.id]
 
-					if (howbad > model.opt.ballot.howBadlyDefeatedThreshold) { // 1.1 is default
+					if (howbad > model.howBadlyDefeatedThreshold) { // 1.1 is default
 						// this parameter can be changed.
 						electable = false
 					}
@@ -1014,8 +1014,8 @@ DrawMap.Score = function (ctx, model,voterModel,voterPerson) {
 
 	// Draw big ol' circles.
 	var lastDist = Infinity
-	var f = utility_function(model.opt.ballot.utility_shape)
-	var finv = inverse_utility_function(model.opt.ballot.utility_shape)
+	var f = utility_function(model.utility_shape)
+	var finv = inverse_utility_function(model.utility_shape)
 
 	
 
@@ -1064,11 +1064,11 @@ DrawMap.Score = function (ctx, model,voterModel,voterPerson) {
 			var slo = sc[ilo]
 			// interpolate to find boundary (and handle dividing by zero)
 			var frac = (slo == shi) ? 0 : ( (i+.5) - slo) / (shi - slo)
-			if (model.opt.ballot.utility_shape == "linear") {
+			if (model.utility_shape == "linear") {
 				dist = dlo + (dhi - dlo) * frac 
 			} else {
-				var f = utility_function(model.opt.ballot.utility_shape)
-				var finv = inverse_utility_function(model.opt.ballot.utility_shape)
+				var f = utility_function(model.utility_shape)
+				var finv = inverse_utility_function(model.utility_shape)
 				var fdist = f(dlo) + (f(dhi) - f(dlo)) * frac
 				dist = finv(fdist)
 			}
@@ -1190,7 +1190,7 @@ DrawMap.Ranked = function (ctx, model,voterModel,voterPerson) {
 
 		}
 
-	} else if (model.opt.election.system == "IRV" || model.opt.election.system == "STV") {
+	} else if (model.system == "IRV" || model.system == "STV") {
 		var bon = model.ballotConcept == "on"  || (model.arena.viewMan.active &&  model.arena.viewMan.focus === voterPerson)
 		if (bon) {
 			if (ballot.rank.length == 0) return
@@ -1244,11 +1244,11 @@ DrawMap.Ranked = function (ctx, model,voterModel,voterPerson) {
 			}
 			ctx.setLineDash([]);				
 		}	
-	} else if (model.useBeatMapForRankedBallotViz && model.opt.election.system != "Borda" && !drawMapViewMan) {
+	} else if (model.useBeatMapForRankedBallotViz && model.system != "Borda" && !drawMapViewMan) {
 		// do nothing .. kind of a temporary bandage while I work out the visualization
 	} else if (1) {
 		
-		if (model.opt.election.system == "Borda") {
+		if (model.system == "Borda") {
 			var doColors = false
 		} else {
 			var doColors = true
@@ -1817,7 +1817,7 @@ DrawMe.Approval = function (ctx, model,voterModel,voterPerson, scale, opt) {
 DrawMe.Ranked = function (ctx, model,voterModel,voterPerson, scale) {
 
 
-	var elimSystem = (model.opt.election.system == "IRV" || model.opt.election.system == "STV")
+	var elimSystem = (model.system == "IRV" || model.system == "STV")
 	if (model.voterIcons == "top" && ! elimSystem) {
 		_drawTopDefault(model, ctx, voterPerson)
 		return
@@ -1845,7 +1845,7 @@ DrawMe.Ranked = function (ctx, model,voterModel,voterPerson, scale) {
 				round = maxRound
 
 				var showFinalWeightUsed = false // switch
-				if (showFinalWeightUsed && model.opt.election.system == "STV") {
+				if (showFinalWeightUsed && model.system == "STV") {
 					round = round + 1
 					// weight in this round
 					var type1 = _type1Get(model)
@@ -1864,7 +1864,7 @@ DrawMe.Ranked = function (ctx, model,voterModel,voterPerson, scale) {
 			} else {
 				rank = _jcopy(rank.filter((x) => model.result.continuing[round-1].includes(x)))
 	
-				if (model.opt.election.system == "STV") {
+				if (model.system == "STV") {
 					round = round + 1
 					// weight in this round
 					var doAfterFinalRound = (round == -1) || (round == model.result.history.rounds.length + 1) // show the weight after the final round
@@ -1908,7 +1908,7 @@ DrawMe.Ranked = function (ctx, model,voterModel,voterPerson, scale) {
 
 		var totalSlices = (n*(n+1))/2; // num of slices!
 
-		var orderByCandidate = (model.drawSliceMethod == "barChart" && model.opt.election.system == "Borda")
+		var orderByCandidate = (model.drawSliceMethod == "barChart" && model.system == "Borda")
 		if (orderByCandidate) var slicesById = {}
 		
 		for(var i=0; i<rank.length; i++){
@@ -1926,9 +1926,9 @@ DrawMe.Ranked = function (ctx, model,voterModel,voterPerson, scale) {
 		}
 	}
 	if (model.drawSliceMethod == "barChart") {
-		if (model.opt.election.system == "Borda") {
+		if (model.system == "Borda") {
 			_drawVoterBarChart(model, ctx, x, y, size, slices, totalSlices, slices.length);
-		} else if (model.opt.election.system == "IRV" || model.opt.election.system == "STV") {
+		} else if (model.system == "IRV" || model.system == "STV") {
 			if (model.voterIcons == "body") {
 				var colorfill = model.candidatesById[rank[0]].fill
 				var headColor = voterPerson.skinColor
@@ -2126,7 +2126,7 @@ function _drawRankList(model, ctx, x, y, size, slices, totalSlices) {
 	size = size * 2
 	var maxscore = model.candidates.length
 
-	if (model.opt.election.system == "IRV") { // not used anymore
+	if (model.system == "IRV") { // not used anymore
 		var extra = slices.length / 3
 		for (var i = 0; i < extra; i++) slices.unshift(slices[0])
 	}
@@ -2155,7 +2155,7 @@ function _drawRankList(model, ctx, x, y, size, slices, totalSlices) {
 			var yp = y + point[1]
 			// _drawRing(ctx,xp/2,yp/2,subsize)
 			// _centeredRectStroke(ctx,xp,yp,sizeSquare * slice.num,sizeSquare)
-			if (model.opt.election.system == "IRV") { // not used anymore
+			if (model.system == "IRV") { // not used anymore
 				_centeredRect(ctx,xp,yp,size,sizeSquare,slice.fill)
 			} else {
 					
@@ -2592,7 +2592,7 @@ DrawTally.Score = function (model,voterModel,voterPerson) {
 	var district = model.district[voterPerson.iDistrict]
 	var cans = district.stages[model.stage].candidates
 	
-	var system = model.opt.election.system
+	var system = model.system
 	
 	// todo: star preferences
 	var text = ""
@@ -2766,8 +2766,8 @@ DrawTally.Ranked = function (model,voterModel,voterPerson) {
 	var ballot = voterAtStage.ballot
 	var district = model.district[voterPerson.iDistrict]
 
-	var system = model.opt.election.system
-	var rbsystem = model.opt.election.rbsystem
+	var system = model.system
+	var rbsystem = model.rbsystem
 	// todo: star preferences
 	var text = ""
 	var eventsToAssign = []
@@ -2955,10 +2955,10 @@ function _pickRankedDescription(model) {
 		"Small":	{doChain:false, doPairs:true , doPoints:false, message:"These preferences are tallied by pairs."},
 		"Tideman":	{doChain:false, doPairs:true , doPoints:false, message:"These preferences are tallied by pairs."}
 	}
-	if (model.opt.election.system=="RBVote") {
-		var pick = rb[model.opt.election.rbsystem]
+	if (model.system=="RBVote") {
+		var pick = rb[model.rbsystem]
 	} else {
-		var pick = regular[model.opt.election.system]
+		var pick = regular[model.system]
 	}
 	if (pick == undefined) {
 		pick = {
@@ -3059,7 +3059,7 @@ function GeneralVoterModel(model,voterModel) {
 		<br>
 		`
 
-		var didStarStrategy = model.opt.election.system == "STAR" && voterPerson.strategy != "zero strategy. judge on an absolute scale."
+		var didStarStrategy = model.system == "STAR" && voterPerson.strategy != "zero strategy. judge on an absolute scale."
 		var doNormalize = voterPerson.strategy == "normalize"
 		if (didStarStrategy) {
 			text3 += `
@@ -3068,7 +3068,7 @@ function GeneralVoterModel(model,voterModel) {
 			`
 		}
 		
-		var consideredElectability = model.stage == "primary" && model.opt.ballot.doElectabilityPolls
+		var consideredElectability = model.stage == "primary" && model.doElectabilityPolls
 		if (consideredElectability) {
 			text3 += `
 			You also considered <b>electability</b>. <br>
@@ -3078,7 +3078,7 @@ function GeneralVoterModel(model,voterModel) {
 
 
 
-		// if (model.opt.ballot.ballotType == "Score" || model.opt.ballot.ballotType == "Approval") {
+		// if (model.ballotType == "Score" || model.ballotType == "Approval") {
 		// 	text3 += `
 		// 	You gave the following scores: <br>
 		// 	`
@@ -3086,9 +3086,9 @@ function GeneralVoterModel(model,voterModel) {
 		// 	text3 += `<br>`
 		// }
 
-		if (model.opt.ballot.utility_shape !== "linear") {
+		if (model.utility_shape !== "linear") {
 			text3 += `
-			This is your perceived distance from each candidate using a <b>${model.opt.ballot.utility_shape}</b> utility function: <span class="percent">(as % of your perceived distance of the arena width)</span><br>
+			This is your perceived distance from each candidate using a <b>${model.utility_shape}</b> utility function: <span class="percent">(as % of your perceived distance of the arena width)</span><br>
 			`
 			text3 += tBarChart("nUNorm",distList,model,{distLine:true})
 			// for (var d of distList) {
@@ -3152,7 +3152,7 @@ function GeneralVoterModel(model,voterModel) {
 			}
 			text3 += `
 			(Candidates were considered electable in head-to-head polls if they won or if the other candidate didn't get 
-			<b>${_textPercent(model.opt.ballot.howBadlyDefeatedThreshold - 1)}</b>
+			<b>${_textPercent(model.howBadlyDefeatedThreshold - 1)}</b>
 			more votes.) <br>
 			<br>
 			`
@@ -3163,7 +3163,7 @@ function GeneralVoterModel(model,voterModel) {
 		var maxscore = model.voterGroups[0].voterModel.maxscore
 
 		if ( showPollExplanation ) {
-			if (model.opt.ballot.autoPoll == "Manual") {
+			if (model.autoPoll == "Manual") {
 				text3 += `
 				and these candidates were manually selected as frontrunners: <br>
 				${makeIcons(model.preFrontrunnerIds)} <br>
@@ -3175,7 +3175,7 @@ function GeneralVoterModel(model,voterModel) {
 				${makeIcons(voterAtStage.viable)} <br>
 				<br>
 				`
-				if (model.opt.election.system == "IRV") {
+				if (model.system == "IRV") {
 					var tp = voterPerson.truePreferences 
 					var rank = voterAtStage.ballot.rank
 					var didCompromise = rank[0] != tp[0]
@@ -3222,7 +3222,7 @@ function GeneralVoterModel(model,voterModel) {
 		
 	// alternative form of ballot
 
-		if (model.opt.ballot.ballotType == "Ranked" || model.opt.ballot.ballotType == "Score" || model.opt.ballot.ballotType == "Approval" || model.opt.ballot.ballotType == "Three") {
+		if (model.ballotType == "Ranked" || model.ballotType == "Score" || model.ballotType == "Approval" || model.ballotType == "Three") {
 			part4 += tableHead
 			part4 += `
 			<span class="small">
@@ -3236,7 +3236,7 @@ function GeneralVoterModel(model,voterModel) {
 		}
 
 		var part5 = ''
-		if (model.opt.ballot.ballotType == "Ranked") {
+		if (model.ballotType == "Ranked") {
 			part5 += tableHead
 			part5 += `
 			<span class="small">
@@ -3306,7 +3306,7 @@ function makeDistList(model,voterPerson,voterAtStage,cans,opt) {
 	opt.noBallot = opt.noBallot || false
 
 	var distList = []
-	var uf = utility_function(model.opt.ballot.utility_shape)
+	var uf = utility_function(model.utility_shape)
 	for (var i = 0; i < cans.length; i++) {
 		var c = cans[i]
 		var dist = distF(model,{x:voterPerson.x, y:voterPerson.y}, c)
@@ -3321,17 +3321,17 @@ function makeDistList(model,voterPerson,voterAtStage,cans,opt) {
 		}
 		if (opt.noBallot) {
 
-		} else if (model.opt.ballot.ballotType == "Score" || model.opt.ballot.ballotType == "Three") {
+		} else if (model.ballotType == "Score" || model.ballotType == "Three") {
 			var maxscore = model.voterGroups[0].voterModel.maxscore
 			distSet.maxscore = maxscore
 			distSet.score = voterAtStage.ballot.scores[c.id] / maxscore
 			distSet.scoreDisplay = voterAtStage.ballot.scores[c.id]
-		} else if (model.opt.ballot.ballotType == "Approval") {
+		} else if (model.ballotType == "Approval") {
 			distSet.maxscore = 1
 			distSet.score = voterAtStage.ballot.scores[c.id]
 			distSet.scoreDisplay = distSet.score
-		} else if (model.opt.ballot.ballotType == "Ranked") {
-			if (model.opt.election.system == "Borda") {
+		} else if (model.ballotType == "Ranked") {
+			if (model.system == "Borda") {
 				var rank = voterAtStage.ballot.rank.indexOf(c.id) + 1
 				var maxpoints = voterAtStage.ballot.rank.length
 				var points = maxpoints - rank
@@ -3441,10 +3441,10 @@ function tBarChart(measure,distList,model,opt) {
 			${makeIconsCan([d.c])} <br>
 			</div>
 			`
-			var nbubbles = (model.opt.ballot.ballotType == "Ranked") ? ncans : d.maxscore+1
+			var nbubbles = (model.ballotType == "Ranked") ? ncans : d.maxscore+1
 			for (var k=0; k < nbubbles; k++) {
 				var km = k
-				if (model.opt.ballot.ballotType == "Ranked") {
+				if (model.ballotType == "Ranked") {
 					km ++
 				}
 				var kx = (k+1) * Math.min( (w2-4-13)/ncans, 20 ) - 5
@@ -3738,7 +3738,7 @@ function VoterSet(model) {
 				var optByDist = false
 				if (optByDist) {
 
-					var uf = utility_function(model.opt.ballot.utility_shape)
+					var uf = utility_function(model.utility_shape)
 					for (var n = 0; n < model.candidates.length; n++) {
 						var c = model.candidates[n]
 						var dist = distF(model,{x:v.x, y:v.y}, c)
@@ -3750,21 +3750,21 @@ function VoterSet(model) {
 					}
 					vs.push(v)
 
-				} else if (model.opt.ballot.ballotType == "Approval") { // not yet fully functional TODO
+				} else if (model.ballotType == "Approval") { // not yet fully functional TODO
 					var ballot = ballots[k]
 					for (var n = 0; n < model.candidates.length; n++) {
 						var id = model.candidates[n].id
 						v.b[n] = ballot.scores[id] || 0
 					}
 					vs.push(v)
-				} else if (model.opt.ballot.ballotType == "Score") {
+				} else if (model.ballotType == "Score") {
 					var ballot = ballots[k]
 					for (var n = 0; n < model.candidates.length; n++) {
 						var id = model.candidates[n].id
 						v.b[n] = ballot.scores[id] || 0
 					}
 					vs.push(v)
-				} else if (model.opt.ballot.ballotType == "Ranked") {
+				} else if (model.ballotType == "Ranked") {
 					var ballot = ballots[k]
 					for (var n=0; n<ballot.rank.length; n++) {
 						var cid = ballot.rank[n]
@@ -3865,6 +3865,7 @@ function VoterCrowd(model) {
 	self.voterGroupType = undefined
 	self.size = undefined
 	
+	self.typeVoterModel = 'Plurality'
 	self.voterModel = undefined
 
 	self.voterPeople = model.voterSet.newCrowd() // voterPeople will reference the data in voterSet
@@ -3881,7 +3882,7 @@ function VoterCrowd(model) {
 
 	self.initVoterModel = function() {
 
-		self.voterModel = new VoterModel( model, model.opt.ballot.ballotType )
+		self.voterModel = new VoterModel(model,self.typeVoterModel)
 
 	}
 	self.initVoterSet = function() {
@@ -3935,6 +3936,10 @@ function _fillVoterDefaults(self) {
 		x_voters: false,
 		crowdShape: "Nicky circles",
 		// SECOND group in "exp_addVoters"
+		// same for all voter groups in model
+		preFrontrunnerIds:["square","triangle"],
+		doTwoStrategies: false,
+		spread_factor_voters: 1,
 		// could vary between voters
 		secondStrategy: "zero strategy. judge on an absolute scale.",
 		percentSecondStrategy: 0,
@@ -3961,10 +3966,8 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 
 	self.updatePeople = function() {
 
-		// -- peopleGen
 		self.updateVoterSet()
 
-		// -- ballotGen
 		self.strategyPick()
 
 	}
@@ -4015,8 +4018,8 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 
 				var err = 0.01; // yeah whatever
 				for(var angle=0; angle<Math.TAU-err; angle+=Math.TAU/num){
-					var x = Math.cos(angle)*_radius  * model.spread_factor_voters;
-					var y = Math.sin(angle)*_radius  * model.spread_factor_voters;
+					var x = Math.cos(angle)*_radius  * self.spread_factor_voters;
+					var y = Math.sin(angle)*_radius  * self.spread_factor_voters;
 					points.push([x,y]);
 				}
 
@@ -4024,7 +4027,7 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 		} else if (self.crowdShape == "circles") {
 
 			var _spread_factor = 2 * Math.exp(.01*self.group_spread) / 20
-			var space = 12 * model.spread_factor_voters * _spread_factor
+			var space = 12 * self.spread_factor_voters * _spread_factor
 
 			self.group_count_h = self.group_count_h || 5
 			var numRings = self.group_count_h / 2
@@ -4070,7 +4073,7 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 		} else if (self.crowdShape == "rectangles") {
 
 			var _spread_factor = 2 * Math.exp(.01*self.group_spread) / 20
-			var space = 12 * model.spread_factor_voters * _spread_factor
+			var space = 12 * self.spread_factor_voters * _spread_factor
 
 			self.group_count_vert = self.group_count_vert || 5
 			self.group_count_h = self.group_count_h || 5
@@ -4112,8 +4115,8 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 					_radius = Math.sqrt(-2*Math.log(1-_radius_norm)) * self.stdev * .482
 					// _radius = Math.sqrt(_radius_norm) * self.stdev * .482
 				}
-				var x = Math.cos(angle)*_radius  * model.spread_factor_voters;
-				var y = Math.sin(angle)*_radius  * model.spread_factor_voters;
+				var x = Math.cos(angle)*_radius  * self.spread_factor_voters;
+				var y = Math.sin(angle)*_radius  * self.spread_factor_voters;
 				points.push([x,y]);
 			}
 			self.points = points
@@ -4222,7 +4225,7 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 					var r1 = (34*i) % 100 + .5;
 				}
 			}	
-			if (r1 < self.percentSecondStrategy && model.opt.ballot.doTwoStrategies) { 
+			if (r1 < self.percentSecondStrategy && self.doTwoStrategies) { 
 				var strategy = model.secondStrategy // yes
 				var realNameStrategy = model.realNameSecondStrategy
 			} else {
@@ -4234,7 +4237,7 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 			var r_11 = Math.random() * 2 - 1 
 			
 			var voterPerson = self.voterPeople[i]
-			var gauss = _erfinv(r_11) * .2 + model.opt.ballot.centerPollThreshold // was .5
+			var gauss = _erfinv(r_11) * .2 + model.centerPollThreshold // was .5
 			voterPerson.poll_threshold_factor = Math.min(1, gauss)
 
 			voterPerson.strategy = strategy
@@ -4248,7 +4251,7 @@ function GaussianVoters(model){ // this config comes from addVoters in main_sand
 		if (model.showVoters) {
 			setPositionAndSizeGaussian()
 
-			if (model.opt.arena.draw.map.ballotVis && ! model.opt.arena.draw.map.visSingleBallotsOnly) {
+			if (model.ballotVis && ! model.visSingleBallotsOnly) {
 
 				_drawMap(ctx)
 			}
@@ -4745,11 +4748,6 @@ function SingleVoter(model){
 
 		self.updateVoterSet()
 
-		self.strategyPick() 
-	}
-	
-	self.strategyPick = function () {
-		
 		var voterPerson = self.voterPeople[0]
 
 		voterPerson.poll_threshold_factor = .6
@@ -4795,7 +4793,7 @@ function SingleVoter(model){
         })
     }
 	function _drawMap (ctx) {
-		if (model.opt.arena.draw.map.ballotVis) self.voterModel.drawMap(ctx, self.voterPerson);
+		if (model.ballotVis) self.voterModel.drawMap(ctx, self.voterPerson);
 	}
 	function _drawBack(ctx) {
         var x = self.voterPerson.xArena
@@ -4824,7 +4822,7 @@ function SingleVoter(model){
 
 
 			// Face!
-			var scoreTypeMethod =  (model.opt.ballot.ballotType == "Score" || model.opt.ballot.ballotType == "Approval" || model.opt.ballot.ballotType == "Three")
+			var scoreTypeMethod =  (model.ballotType == "Score" || model.ballotType == "Approval" || model.ballotType == "Three")
 			if (scoreTypeMethod && model.drawSliceMethod == "circleBunch") {
 
 				_drawRing(ctx,x,y,size)
@@ -4833,9 +4831,9 @@ function SingleVoter(model){
 	
 			} else if (scoreTypeMethod && model.drawSliceMethod == "barChart") {
 				self.voterModel.drawMe(ctx, self.voterPerson, 2)
-			} else if (model.opt.ballot.ballotType == "Ranked" && model.drawSliceMethod == "barChart") {
+			} else if (model.ballotType == "Ranked" && model.drawSliceMethod == "barChart") {
 				self.voterModel.drawMe(ctx, self.voterPerson, 2)
-				if (model.opt.election.system != "Borda") {
+				if (model.system != "Borda") {
 					size = size*2;
 					ctx.drawImage(self.img, x*2 -size/2, y * 2 -size/2, size, size);
 				}

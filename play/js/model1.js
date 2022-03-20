@@ -5,14 +5,14 @@ l.onload = function(assets){
   var presetName = "model1"
   var model = new Model(presetName);
   model.assets = assets
-  model.simpleUI.createDOM()
+  model.createDOM()
   // CONFIGURE
-  model.simpleUI.border = 2
+  model.border = 2
   // INIT
-  model.simpleUI.initDOM()
+  model.initDOM()
 
   var basediv = document.querySelector("#" + presetName)
-  basediv.appendChild(model.simpleUI.dom.main);
+  basediv.appendChild(model.dom);
 
   model.initPlugin = function(){
     // CREATE
@@ -38,7 +38,7 @@ l.onload = function(assets){
     var id = model.voterGroups[0].voterPeople[0].stages[model.stage].ballot.vote;
     var color = model.candidatesById[id].fill;
     var text = "VOTES FOR <b style='color:"+color+"'>"+model.nameUpper(id)+"</b>";
-    model.simpleUI.dom.caption.innerHTML = text;
+    model.caption.innerHTML = text;
   };
 
   // INIT

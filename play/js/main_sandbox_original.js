@@ -74,22 +74,22 @@ function sandbox(ui){
 		
 		var model = new Model(presetName);
 		ui.model = model
-        model.simpleUI.createDOM()
+        model.createDOM()
 
 		// CONFIGURE DEFAULTS
 		model.optionsForElection = {sidebar:true, originalCaption:true}
-		model.opt.ballot.useBigDefaultMax = true;
+		model.HACK_BIG_RANGE = true;
 		model.theme = "Nicky"
 		model.doOriginal = true
 		model.ballotConcept = "off"
 
 		// INIT
 		ui.model = model
-		model.simpleUI.initDOM()
-		basediv.querySelector("#center").appendChild(model.simpleUI.dom.main);
-		model.simpleUI.dom.main.removeChild(model.simpleUI.dom.caption);
-		basediv.querySelector("#right").appendChild(model.simpleUI.dom.caption);
-		model.simpleUI.dom.caption.style.width = "";
+		model.initDOM()
+		basediv.querySelector("#center").appendChild(model.dom);
+		model.dom.removeChild(model.caption);
+		basediv.querySelector("#right").appendChild(model.caption);
+		model.caption.style.width = "";
 		model.initPlugin = function(){
 			// CREATE
 			for(var i=0; i<config.candidates; i++) model.candidates.push(new Candidate(model))
@@ -133,12 +133,12 @@ function sandbox(ui){
 			self.name = "systems"
 
 			self.list = [
-				{name:"FPTP", ballotType:"Plurality", election:"plurality", margin:4},
-				{name:"IRV", ballotType:"Ranked", election:"irv"},
-				{name:"Borda", ballotType:"Ranked", election:"borda", margin:4},
-				{name:"Condorcet", ballotType:"Ranked", election:"condorcet"},
-				{name:"Approval", ballotType:"Approval", election:"approval", margin:4},
-				{name:"Score", ballotType:"Score", election:"score"}
+				{name:"FPTP", ballotType:"Plurality", election:Election.plurality, margin:4},
+				{name:"IRV", ballotType:"Ranked", election:Election.irv},
+				{name:"Borda", ballotType:"Ranked", election:Election.borda, margin:4},
+				{name:"Condorcet", ballotType:"Ranked", election:Election.condorcet},
+				{name:"Approval", ballotType:"Approval", election:Election.approval, margin:4},
+				{name:"Score", ballotType:"Score", election:Election.score}
 			];
 			self.listByName = function() {
 				var votingSystem = self.list.filter(function(system){
@@ -158,9 +158,12 @@ function sandbox(ui){
 			};
 			self.configure = function() {
 				var s = self.listByName()
-				model.opt.election.fun = s.election
-				model.opt.election.system = config.system;
-				model.opt.ballot.ballotType = s.ballotType
+				model.election = s.election
+				model.system = config.system;
+				model.ballotType = s.ballotType
+				for(var i=0;i<model.voterGroups.length;i++){
+					model.voterGroups[i].typeVoterModel = s.ballotType
+				}
 			}
 			self.select = function() {
 				self.choose.highlight("name", config.system)
@@ -210,6 +213,7 @@ function sandbox(ui){
 							num:(4-num),
 							x:pos[0], y:pos[1]
 						})
+						model.voterGroups[i].typeVoterModel = ui.menu.systems.listByName(config).ballotType // needs init
 					}
 				} else {
 					var voterPositions;
@@ -230,6 +234,7 @@ function sandbox(ui){
 							disk:(4-num),
 							x:pos[0], y:pos[1]
 						})
+						model.voterGroups[i].typeVoterModel = ui.menu.systems.listByName(config).ballotType // needs init
 					}
 				}
 			}
