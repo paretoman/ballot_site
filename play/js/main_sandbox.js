@@ -279,7 +279,6 @@ function Attach(ui) {
 
             // the contain-model 
             var cm = document.createElement('div'); 
-            cm.setAttribute("scrolling","no")
 
             // the script
             if (ui.danglingScript) {
@@ -306,7 +305,7 @@ function Attach(ui) {
             
             // to this
             // <div class="contain-model">
-            // 	    <div id="idModel" class="div-sandbox div-election div-ballot-in-sandbox div-model" scrolling="no">
+            // 	    <div id="idModel" class="div-sandbox div-election div-ballot-in-sandbox div-model" >
             // 	    </div>
             //      <script id="idScript">
             // 		    sandbox({idScript:"idScript",idModel:"idModel",presetName:"election3",uiType:"election"})
@@ -331,7 +330,7 @@ function bindModel(ui,model,config) {
     model.initPlugin = function(){
 
         // LOAD
-        model.inSandbox = true
+        model.ballotUI.inSandbox = true
 
         // This "model.initPlugin()" launches the model
         // So it is also useful as a template for everything that you might need to do after a button press.
@@ -367,10 +366,10 @@ function bindModel(ui,model,config) {
         _objF(ui.menu,"configure")
         ui.strategyOrganizer.configure()
         // CONFIGURE DEFAULTS (model)
-        model.border = config.arena_border
-        model.HACK_BIG_RANGE = true;
+        model.simpleUI.border = config.arena_border
+        model.useBigDefaultMax = true;
         // INIT
-        model.initDOM()
+        model.simpleUI.initDOM()
         for (var i=0; i<model.candidates.length; i++) {
             model.candidates[i].init()
         }
@@ -475,9 +474,9 @@ function bindModel(ui,model,config) {
         } 
 
         if (hideSidebar) {
-            _addClass(model.caption,"displayNoneClass")
+            _addClass(model.simpleUI.dom.caption,"displayNoneClass")
         } else {
-            _removeClass(model.caption,"displayNoneClass")
+            _removeClass(model.simpleUI.dom.caption,"displayNoneClass")
         }
 
         if (hideSidebar && ! doDrawBallot) {
@@ -492,8 +491,8 @@ function bindModel(ui,model,config) {
             var doOldBallot = false
             
             if (doOldBallot) {
-
-                var BallotType = model.BallotType
+                
+	            let BallotType = window[model.opt.ballot.ballotType+"Ballot"]
                 var ballot = new BallotType(model);
                 ui.dom.rightBallot = ballot.dom
                 ui.dom.right.prepend(ui.dom.rightBallot)
@@ -549,7 +548,7 @@ function bindModel(ui,model,config) {
     }
 
     function sankeyDraw() {
-        var sankeyOn = ["IRV","STV"].includes(model.system)        
+        var sankeyOn = ["IRV","STV"].includes(model.opt.election.system)        
         
         // do sankey if any districts have more than 1 person
         sankeyOn = sankeyOn && model.district.map(x => x.voterPeople.length).some( x => x > 1) 
@@ -739,9 +738,9 @@ function bindModel(ui,model,config) {
         var numRounds = transfers.length
         var numBallots = district.voterPeople.length
         
-        var winnersContinue = model.system == "STV" && 1
+        var winnersContinue = model.opt.election.system == "STV" && 1
         if (winnersContinue)var won = district.result.won
-        if (winnersContinue) var quotaAmount = numBallots / (model.seats + 1)
+        if (winnersContinue) var quotaAmount = numBallots / (model.opt.election.seats + 1)
         
 
         // function to find the sorted position of the candidate
@@ -838,7 +837,7 @@ function bindModel(ui,model,config) {
     function roundChartDraw() {
  
 
-        var roundChartOn = ["IRV","STV"].includes(model.system)  
+        var roundChartOn = ["IRV","STV"].includes(model.opt.election.system)  
 
         // turning off
         if (! roundChartOn) {
@@ -977,7 +976,7 @@ function bindModel(ui,model,config) {
         ui.dom.roundChartForwardButton[i].onclick = (function(i) { return function() {
             var district = model.district[i]
             model.roundCurrent[i] ++
-            if (model.system == "IRV") {
+            if (model.opt.election.system == "IRV") {
                 var maxRound = district.result.tallies.length
             } else {
                 var maxRound = district.result.history.rounds.length
@@ -1017,7 +1016,7 @@ function bindModel(ui,model,config) {
         // future
         // ui.dom.roundChartCaption[i].innerHTML = district.result.roundText[round+1]
 
-        if (model.system == "IRV") { // TODO: add result.history.rounds to IRV
+        if (model.opt.election.system == "IRV") { // TODO: add result.history.rounds to IRV
             var maxRound = district.result.tallies.length
         } else {
             var maxRound = district.result.history.rounds.length
@@ -1065,7 +1064,7 @@ function bindModel(ui,model,config) {
         }
             
         var numBallots = dataSankey.nodes[0].numBallots 
-        var quotaAmount = numBallots / (model.seats + 1)
+        var quotaAmount = numBallots / (model.opt.election.seats + 1)
 
         // won : list of all candidates that have won at the end of the round
         // continuing : list of candidates still continuing to be tallied at the end of the round
@@ -1582,7 +1581,7 @@ function bindModel(ui,model,config) {
         }
     
         var old = ui.justFinal
-        ui.justFinal = (model.system == "equalFacilityLocation" || model.system == "PAV") // only show the final assignments
+        ui.justFinal = (model.opt.election.system == "equalFacilityLocation" || model.opt.election.system == "PAV") // only show the final assignments
         var matchOpt = old == ui.justFinal 
 
         // redo charts when changing number of districts.
@@ -1781,7 +1780,7 @@ function bindModel(ui,model,config) {
         
         barOptions.heightRectangle2 = Math.min(200 / model.candidates.length, 200/5)
 
-        if (model.system == "PAV" || model.system == "equalFacilityLocation") {
+        if (model.opt.election.system == "PAV" || model.opt.election.system == "equalFacilityLocation") {
             var roundOrCan = "Candidate"
         } else {
             var roundOrCan = "Round"
@@ -1826,7 +1825,7 @@ function bindModel(ui,model,config) {
             drawWeightUsed(model,arenaP,barOptionsP,v,round+1)
 
             // show satisfaction
-            if (model.system != "STV") {
+            if (model.opt.election.system != "STV") {
                 var arenaS = ui.weightCharts[iDistrict].arenaS
                 arenaS.canvas.hidden = false
                 var barOptionsS = _jcopy(barOptions)   
@@ -1839,7 +1838,7 @@ function bindModel(ui,model,config) {
                 arenaS.canvas.hidden = true
             }
 
-            if (model.system == "Phragmen Seq S") {
+            if (model.opt.election.system == "Phragmen Seq S") {
 
                 var arenaWK = ui.weightCharts[iDistrict].arenaWK
                 arenaWK.canvas.hidden = false
@@ -1883,8 +1882,8 @@ function bindModel(ui,model,config) {
         // manage the creation of the canvases
 
         // redo charts when number of candidates or rounds changes
-        var useCandidates = model.ballotType === "Approval" || model.ballotType === "Score" || model.ballotType === "Three"
-        var useRounds = ["IRV","STV"].includes(model.system) // TODO: add more
+        var useCandidates = model.opt.ballot.ballotType === "Approval" || model.opt.ballot.ballotType === "Score" || model.opt.ballot.ballotType === "Three"
+        var useRounds = ["IRV","STV"].includes(model.opt.election.system) // TODO: add more
         
         var noFilterMaps = ! (useCandidates || useRounds)
         if (noFilterMaps) {
@@ -3175,18 +3174,18 @@ function createDOM(ui,model) {
         return a
     }
     // Details
-    model.createDOM()
+    model.simpleUI.createDOM()
 
     var centerDiv = ui.dom.center
     if (centerDiv.hasChildNodes()){
         var firstNode = centerDiv.childNodes[0]
-        centerDiv.insertBefore(model.dom,firstNode);
+        centerDiv.insertBefore(model.simpleUI.dom.main,firstNode);
     } else {
-        centerDiv.appendChild(model.dom)
+        centerDiv.appendChild(model.simpleUI.dom.main)
     }
-    model.dom.removeChild(model.caption);
-    ui.dom.right.appendChild(model.caption);
-    model.caption.style.width = "";
+    model.simpleUI.dom.main.removeChild(model.simpleUI.dom.caption);
+    ui.dom.right.appendChild(model.simpleUI.dom.caption);
+    model.simpleUI.dom.caption.style.width = "";
 }
 
 function menu(ui,model,config,initialConfig, cConfig) {
@@ -3316,35 +3315,35 @@ function menu(ui,model,config,initialConfig, cConfig) {
         var autoSwitchDim = false
         
         self.list = [
-            {name:"FPTP", value:"FPTP", ballotType:"Plurality", election:Election.plurality, margin:4},
-            {name:"+Primary", value:"+Primary", ballotType:"Plurality", election:Election.pluralityWithPrimary},
-            {name:"Top Two", value:"Top Two", ballotType:"Plurality", election:Election.toptwo, margin:4},
-            {name:"RBVote", value:"RBVote", realname:"Rob Legrand's RBVote (Ranked Ballot Vote)", ballotType:"Ranked", election:Election.rbvote},
-            {name:"IRV", value:"IRV", realname:"Instant Runoff Voting.  Sometimes called RCV Ranked Choice Voting but I call it IRV because there are many ways to have ranked ballots.", ballotType:"Ranked", election:Election.irv, margin:4},
-            {name:"Borda", value:"Borda", ballotType:"Ranked", election:Election.borda},
-            {name:"Minimax", value:"Minimax", realname:"Minimax Condorcet method.", ballotType:"Ranked", election:Election.minimax, margin:4},
-            {name:"Schulze", value:"Schulze", realname:"Schulze Condorcet method.", ballotType:"Ranked", election:Election.schulze},
-            {name:"RankedPair", value:"RankedPair", realname:"Ranked Pairs Condorcet method.", ballotType:"Ranked", election:Election.rankedPairs, margin:4},
-            {name:"Condorcet", value:"Condorcet", realname:"Choose the Condorcet Winner, and if there isn't one, Tie", ballotType:"Ranked", election:Election.condorcet},
-            {name:"Approval", value:"Approval", ballotType:"Approval", election:Election.approval, margin:4},
-            {name:"Score", value:"Score", ballotType:"Score", election:Election.score},
-            {name:"STAR", value:"STAR", ballotType:"Score", election:Election.star, margin:4},
-            {name:"3-2-1", value:"3-2-1", ballotType:"Three", election:Election.three21},
-            {name:"RRV", value:"RRV", ballotType:"Score", election:Election.rrv, margin:4},
-            {name:"RAV", value:"RAV", ballotType:"Approval", election:Election.rav},
-            {name:"QuotaScore", value:"QuotaScore", realname:"Using a quota with score voting to make proportional representation.",ballotType:"Score", election:Election.quotaScore, margin:4},
-            {name:"QuotaApproval", value:"QuotaApproval", realname:"Using a quota with approval voting to make proportional representation.",ballotType:"Approval", election:Election.quotaApproval},
-            {name:"STV", value:"STV", ballotType:"Ranked", election:Election.stv, margin:4},
-            {name:"STV-Minimax", value:"stvMinimax", realname:"Use STV to form equal clusters of voters. Then use Minimax within the voter clusters to elect candidates.",ballotType:"Ranked", election:Election.stvMinimax},
-            {name:_smaller("TestQuotaMinimax"), nameIsHTML:true, value:"QuotaMinimax", realname:"An idea of using a quota with Minimax Condorcet voting to make proportional representation.",ballotType:"Ranked", election:Election.quotaMinimax},
-            {name:"Test LP", value:"PhragmenMax", realname:"Phragmen's method of minimizing the maximum representation with assignments.",ballotType:"Score", election:Election.phragmenMax},
-            {name:"PAV", value:"PAV", realname:"Proportional Approval Voting",ballotType:"Approval", election:Election.pav},
-            {name:_smaller("Equal Facility"), nameIsHTML:true, value:"equalFacilityLocation", realname:"Facility location problem with equal assignments.",ballotType:"Score", election:Election.equalFacilityLocation},
-            {name:"Monroe Seq S", value:"Monroe Seq S", realname:"A monroe-like sequential method.", ballotType:"Score",election:Election.monroeSequentialRange},
-            {name:"AllocatedScore", value:"Allocated Score", realname:"A proportional sequential method. Monroe Sequential Score is similar.", ballotType:"Score",election:Election.allocatedScore},
-            {name:"STAR PR", value:"STAR PR", realname:"A proportional sequential method using STAR to elect. Monroe Sequential Score is similar.", ballotType:"Score",election:Election.starPR},
-            {name:"Phragmen Seq S", value:"Phragmen Seq S", realname:"A phragmen-like sequential method for score voting with KP transform.", ballotType:"Score",election:Election.phragmenSequentialRange},
-            {name:"Create One", value:"Create",realname:"Write your own javascript code for a voting method.",ballotType:undefined, election:Election.create},
+            {name:"FPTP", value:"FPTP", ballotType:"Plurality", election:"plurality", margin:4},
+            {name:"+Primary", value:"+Primary", ballotType:"Plurality", election:"pluralityWithPrimary"},
+            {name:"Top Two", value:"Top Two", ballotType:"Plurality", election:"toptwo", margin:4},
+            {name:"RBVote", value:"RBVote", realname:"Rob Legrand's RBVote (Ranked Ballot Vote)", ballotType:"Ranked", election:"rbvote"},
+            {name:"IRV", value:"IRV", realname:"Instant Runoff Voting.  Sometimes called RCV Ranked Choice Voting but I call it IRV because there are many ways to have ranked ballots.", ballotType:"Ranked", election:"irv", margin:4},
+            {name:"Borda", value:"Borda", ballotType:"Ranked", election:"borda"},
+            {name:"Minimax", value:"Minimax", realname:"Minimax Condorcet method.", ballotType:"Ranked", election:"minimax", margin:4},
+            {name:"Schulze", value:"Schulze", realname:"Schulze Condorcet method.", ballotType:"Ranked", election:"schulze"},
+            {name:"RankedPair", value:"RankedPair", realname:"Ranked Pairs Condorcet method.", ballotType:"Ranked", election:"rankedPairs", margin:4},
+            {name:"Condorcet", value:"Condorcet", realname:"Choose the Condorcet Winner, and if there isn't one, Tie", ballotType:"Ranked", election:"condorcet"},
+            {name:"Approval", value:"Approval", ballotType:"Approval", election:"approval", margin:4},
+            {name:"Score", value:"Score", ballotType:"Score", election:"score"},
+            {name:"STAR", value:"STAR", ballotType:"Score", election:"star", margin:4},
+            {name:"3-2-1", value:"3-2-1", ballotType:"Three", election:"three21"},
+            {name:"RRV", value:"RRV", ballotType:"Score", election:"rrv", margin:4},
+            {name:"RAV", value:"RAV", ballotType:"Approval", election:"rav"},
+            {name:"QuotaScore", value:"QuotaScore", realname:"Using a quota with score voting to make proportional representation.",ballotType:"Score", election:"quotaScore", margin:4},
+            {name:"QuotaApproval", value:"QuotaApproval", realname:"Using a quota with approval voting to make proportional representation.",ballotType:"Approval", election:"quotaApproval"},
+            {name:"STV", value:"STV", ballotType:"Ranked", election:"stv", margin:4},
+            {name:"STV-Minimax", value:"stvMinimax", realname:"Use STV to form equal clusters of voters. Then use Minimax within the voter clusters to elect candidates.",ballotType:"Ranked", election:"stvMinimax"},
+            {name:_smaller("TestQuotaMinimax"), nameIsHTML:true, value:"QuotaMinimax", realname:"An idea of using a quota with Minimax Condorcet voting to make proportional representation.",ballotType:"Ranked", election:"quotaMinimax"},
+            {name:"Test LP", value:"PhragmenMax", realname:"Phragmen's method of minimizing the maximum representation with assignments.",ballotType:"Score", election:"phragmenMax"},
+            {name:"PAV", value:"PAV", realname:"Proportional Approval Voting",ballotType:"Approval", election:"pav"},
+            {name:_smaller("Equal Facility"), nameIsHTML:true, value:"equalFacilityLocation", realname:"Facility location problem with equal assignments.",ballotType:"Score", election:"equalFacilityLocation"},
+            {name:"Monroe Seq S", value:"Monroe Seq S", realname:"A monroe-like sequential method.", ballotType:"Score",election:"monroeSequentialRange"},
+            {name:"AllocatedScore", value:"Allocated Score", realname:"A proportional sequential method. Monroe Sequential Score is similar.", ballotType:"Score",election:"allocatedScore"},
+            {name:"STAR PR", value:"STAR PR", realname:"A proportional sequential method using STAR to elect. Monroe Sequential Score is similar.", ballotType:"Score",election:"starPR"},
+            {name:"Phragmen Seq S", value:"Phragmen Seq S", realname:"A phragmen-like sequential method for score voting with KP transform.", ballotType:"Score",election:"phragmenSequentialRange"},
+            {name:"Create One", value:"Create",realname:"Write your own javascript code for a voting method.",ballotType:undefined, election:"create"},
             
         ];
         self.systemsCodebook = [
@@ -3436,15 +3435,13 @@ function menu(ui,model,config,initialConfig, cConfig) {
             ui.arena.codeEditor.dom.hidden = hideCodeEditor
             // ui.arena.codeSave.dom.hidden = hideCodeEditor
             
-            model.system = config.system;
+            model.opt.election.system = config.system;
 
             var s = self.listByName()
-            model.election = s.election
+            model.opt.election.fun = s.election
 
             
-            model.ballotType = config.ballotType || s.ballotType
-
-            model.BallotType = window[model.ballotType+"Ballot"];
+            model.opt.ballot.ballotType = config.ballotType || s.ballotType
 
             if (autoSwitchDim) {
                 if (model.checkSystemWithBarChart()) {
@@ -3459,15 +3456,12 @@ function menu(ui,model,config,initialConfig, cConfig) {
             } else {
                 model.tarena.canvas.hidden = true
             }
-            for (var voter of model.voterGroups) {
-                voter.typeVoterModel = model.ballotType // needs init
-            }
             for (let district of model.district) {
                 district.pollResults = undefined
             }
 
             
-            if (model.ballotType == "Ranked") {
+            if (model.opt.ballot.ballotType == "Ranked") {
                 var goPairwise = _pickRankedDescription(model).doPairs
             } else {
                 var goPairwise = false
@@ -3484,21 +3478,21 @@ function menu(ui,model,config,initialConfig, cConfig) {
     ui.menu.rbSystems = new function() { // Which RB voting system?
         var self = this
         self.list = [
-            {name:"Baldwin", value:"Baldwin",rbelection:rbvote.calcbald, margin:4},
-            {name:"Black", value:"Black",rbelection:rbvote.calcblac},
-            {name:"Borda", value:"Borda",rbelection:rbvote.calcbord, margin:4},
-            {name:"Bucklin", value:"Bucklin",rbelection:rbvote.calcbuck},
-            {name:"Carey", value:"Carey",rbelection:rbvote.calccare, margin:4},
-            {name:"Coombs", value:"Coombs",rbelection:rbvote.calccoom},
-            {name:"Copeland", value:"Copeland",rbelection:rbvote.calccope, margin:4},
-            {name:"Dodgson", value:"Dodgson",rbelection:rbvote.calcdodg},
-            {name:"Hare", value:"Hare",rbelection:rbvote.calchare, margin:4},
-            {name:"Nanson", value:"Nanson",rbelection:rbvote.calcnans},
-            {name:"Raynaud", value:"Raynaud",rbelection:rbvote.calcrayn, margin:4},
-            {name:"Schulze", value:"Schulze",rbelection:rbvote.calcschu},
-            {name:"Simpson", value:"Simpson",rbelection:rbvote.calcsimp, margin:4},
-            {name:"Small", value:"Small",rbelection:rbvote.calcsmal},
-            {name:"Tideman", value:"Tideman",rbelection:rbvote.calctide}
+            {name:"Baldwin", value:"Baldwin",rbfun:"calcbald", margin:4},
+            {name:"Black", value:"Black",rbfun:"calcblac"},
+            {name:"Borda", value:"Borda",rbfun:"calcbord", margin:4},
+            {name:"Bucklin", value:"Bucklin",rbfun:"calcbuck"},
+            {name:"Carey", value:"Carey",rbfun:"calccare", margin:4},
+            {name:"Coombs", value:"Coombs",rbfun:"calccoom"},
+            {name:"Copeland", value:"Copeland",rbfun:"calccope", margin:4},
+            {name:"Dodgson", value:"Dodgson",rbfun:"calcdodg"},
+            {name:"Hare", value:"Hare",rbfun:"calchare", margin:4},
+            {name:"Nanson", value:"Nanson",rbfun:"calcnans"},
+            {name:"Raynaud", value:"Raynaud",rbfun:"calcrayn", margin:4},
+            {name:"Schulze", value:"Schulze",rbfun:"calcschu"},
+            {name:"Simpson", value:"Simpson",rbfun:"calcsimp", margin:4},
+            {name:"Small", value:"Small",rbfun:"calcsmal"},
+            {name:"Tideman", value:"Tideman",rbfun:"calctide"}
             ]	
             
         self.codebook = [
@@ -3544,8 +3538,8 @@ function menu(ui,model,config,initialConfig, cConfig) {
             onChoose: self.onChoose
         });
         self.configure= function() {
-            model.rbsystem = config.rbsystem
-            model.rbelection = self.listByName().rbelection
+            model.opt.election.rbsystem = config.rbsystem
+            model.opt.election.rbfun = self.listByName().rbfun
             for (let district of model.district) {
                 district.pollResults = undefined
             }
@@ -3576,7 +3570,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             // CONFIGURE
             self.configure()
             // INIT (LOADER)	
-            model.initDOM()
+            model.simpleUI.initDOM()
             // INIT
 		    model.voterManager.initVoters()
             _pileVoters(model)
@@ -3700,7 +3694,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             model.update()
         };
         self.configure = function() {
-            model.seats = config.seats
+            model.opt.election.seats = config.seats
         }
         self.select = function() {
             self.choose.highlight("value", config.seats);
@@ -3878,7 +3872,6 @@ function menu(ui,model,config,initialConfig, cConfig) {
                             randomSeed: config.voterGroupRandomSeeds[i]
                         })
                     }
-                    model.voterGroups[i].typeVoterModel = model.ballotType // needs init	
                 }
             } else if (config.voterPositions) {
                 var num = model.voterGroups.length
@@ -3892,7 +3885,6 @@ function menu(ui,model,config,initialConfig, cConfig) {
                         snowman: config.snowman,
                         x_voters: config.x_voters
                     })
-                    model.voterGroups[i].typeVoterModel = model.ballotType // needs init
                 }
             } else {
                 var num = model.voterGroups.length
@@ -3941,8 +3933,6 @@ function menu(ui,model,config,initialConfig, cConfig) {
                         snowman: config.snowman,
                         x_voters: config.x_voters
                     })
-                    model.voterGroups[i].typeVoterModel = model.ballotType // needs init
-
                 }
             }
         }
@@ -4474,7 +4464,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
 
         self.showOnlyStrategyForTypeOfSystem = function() {
 
-            var theType = self.stratBySys(model.system)
+            var theType = self.stratBySys(model.opt.election.system)
             var types = self.types
     
             // show only the one that applies
@@ -4511,7 +4501,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
                     setTimeout( () => ui.dom.codeMirror.refresh() , 30);
 
                     config.codeEditorText = stringFunction
-                    model.codeEditorText = stringFunction
+                    model.opt.election.codeEditorText = stringFunction
 
                     // make sure the strategy and ballot types are updated
                     var bType = methodList.ballotType
@@ -4628,20 +4618,16 @@ function menu(ui,model,config,initialConfig, cConfig) {
         };
         self.configure = function() {
             model.createBallotType = config.createBallotType
-            if (model.system == "Create") {
+            if (model.opt.election.system == "Create") {
                 config.ballotType = config.createBallotType
-                model.ballotType = config.createBallotType
-                model.BallotType = window[config.ballotType+"Ballot"];
+                model.opt.ballot.ballotType = config.createBallotType  // needs init
     
-                for (var voter of model.voterGroups) {
-                    voter.typeVoterModel = config.ballotType // needs init
-                }
                 for (let district of model.district) {
                     district.pollResults = undefined
                 }
     
                 
-                if (model.ballotType == "Ranked") {
+                if (model.opt.ballot.ballotType == "Ranked") {
                     var goPairwise = _pickRankedDescription(model).doPairs
                 } else {
                     var goPairwise = false
@@ -4807,9 +4793,6 @@ function menu(ui,model,config,initialConfig, cConfig) {
             showMenuItemsIf("divSecondStrategy", config.doTwoStrategies)
             _showOrHideMenuForStrategy(config)
             model.doTwoStrategies = config.doTwoStrategies
-            for (var i=0; i<model.voterGroups.length; i++) {
-                model.voterGroups[i].doTwoStrategies = config.doTwoStrategies
-            }
         }
         self.select = function() {
             if (config.doTwoStrategies) {
@@ -5000,7 +4983,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
         };
         self.configure = function() {
             showMenuItemsIf("divManualPoll", config.autoPoll == "Manual")
-            model.autoPoll = config.autoPoll
+            model.opt.ballot.autoPoll = config.autoPoll
         }
         self.select = function() {
             self.choose.highlight("value", config.autoPoll)
@@ -5067,9 +5050,6 @@ function menu(ui,model,config,initialConfig, cConfig) {
         };
         self.configure = function() {
             model.preFrontrunnerIds = config.preFrontrunnerIds
-            for (var i=0; i<model.voterGroups.length; i++) {
-                model.voterGroups[i].preFrontrunnerIds = config.preFrontrunnerIds
-            }
         }
         self.select = function() {
             self.choose.highlight("realname", config.preFrontrunnerIds);
@@ -5145,7 +5125,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             model.update()
         };
         self.configure = function() {
-            model.centerPollThreshold = config.centerPollThreshold
+            model.opt.ballot.centerPollThreshold = config.centerPollThreshold
         }
         self.select = function() {
             self.choose.highlight("value", config.centerPollThreshold)
@@ -5601,7 +5581,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
                 // CONFIGURE (LOADER)
                 model.size = config.arena_size
                 // INIT (LOADER)
-                model.initDOM()
+                model.simpleUI.initDOM()
                 // RESET = CREATE, CONFIGURE, INIT (FOR MODEL)
                 model.reset()
                 model.update()
@@ -5815,9 +5795,6 @@ function menu(ui,model,config,initialConfig, cConfig) {
         };
         self.configure = function() {
             model.spread_factor_voters = config.spread_factor_voters
-            for (var i=0; i<model.voterGroups.length; i++) {
-                model.voterGroups[i].spread_factor_voters = config.spread_factor_voters
-            }
         }
         self.select = function() {
             self.choose.highlight("val", config.spread_factor_voters);
@@ -5862,7 +5839,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
                 model.candidates[i].y *= ratio
             }
             // INIT (LOADER)	
-            model.initDOM()
+            model.simpleUI.initDOM()
             // INIT
 		    model.voterManager.initVoters()
             _pileVoters(model)
@@ -5880,9 +5857,6 @@ function menu(ui,model,config,initialConfig, cConfig) {
             model.size = config.arena_size
             // CONFIGURE
             model.spread_factor_voters = config.spread_factor_voters
-            for (var i=0; i<model.voterGroups.length; i++) {
-                model.voterGroups[i].spread_factor_voters = config.spread_factor_voters
-            }
         }
         self.select = function() {
             self.choose.highlight("val", config.arena_size);
@@ -6050,7 +6024,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             model.update()
         };
         self.configure = function() {
-            model.utility_shape = config.utility_shape
+            model.opt.ballot.utility_shape = config.utility_shape
         }
         self.select = function() {
             self.choose.highlight("value", config.utility_shape);
@@ -6149,7 +6123,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             model.update()
         };
         self.configure = function() {
-            model.ballotVis = config.ballotVis
+            model.opt.arena.draw.map.ballotVis = config.ballotVis
         }
         self.select = function() {
             self.choose.highlight("value", config.ballotVis);
@@ -6186,7 +6160,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             model.update()
         };
         self.configure = function() {
-            model.visSingleBallotsOnly = config.visSingleBallotsOnly
+            model.opt.arena.draw.map.visSingleBallotsOnly = config.visSingleBallotsOnly
         }
         self.select = function() {
             self.choose.highlight("value", config.visSingleBallotsOnly);
@@ -6536,7 +6510,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             }
         };
         self.configure = function() {
-            model.beatMap = config.beatMap
+            model.opt.arena.draw.map.beatMap = config.beatMap
         }
         self.choose = new ButtonGroup({
             label: "Beat Map", // Sub Menu
@@ -6775,7 +6749,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             model.update() // must re-run election
         };
         self.configure = function() {
-            model.opt.irv100 = (config.lastTransfer == "on")
+            model.opt.arena.draw.irv100 = (config.lastTransfer == "on")
         }
         self.choose = new ButtonGroup({
             label: "Show Last Transfer for Transferable Methods?", // Sub Menu
@@ -7412,7 +7386,7 @@ function menu(ui,model,config,initialConfig, cConfig) {
             model.update()
         };
         self.configure = function() {
-            model.doElectabilityPolls = config.doElectabilityPolls
+            model.opt.ballot.doElectabilityPolls = config.doElectabilityPolls
         }
         self.choose = new ButtonGroup({
             label: "Do electability Polls?", // Sub Menu
@@ -8304,7 +8278,7 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
         self.configure = function () {
             
             if (config.sandboxsave) {
-                ui.dom.center.style.width = config.arena_size + model.border*2 + "px"
+                ui.dom.center.style.width = config.arena_size + model.simpleUI.border*2 + "px"
                 descDOM.hidden = false
                 descText.hidden = false
             } else {
@@ -8341,7 +8315,7 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
             ui.dom.codeMirror.setValue(initialConfig.codeEditorText)
             setTimeout( () => ui.dom.codeMirror.refresh() , 30);
 
-            model.codeEditorText = initialConfig.codeEditorText
+            model.opt.election.codeEditorText = initialConfig.codeEditorText
 		}
         self.configure = function () {
             
@@ -8355,10 +8329,10 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
     ui.arena.minusControl = new function() {
         var self = this
         self.init_sandbox = function() {
-            if (model.minusControl == undefined) model.minusControl = {}
+            if (model.simpleUI.minusControl == undefined) model.simpleUI.minusControl = {}
             if (ui.minusControl == undefined) ui.minusControl = {}
 
-            model.minusControl.caption = readConfigControl(0)
+            model.simpleUI.minusControl.caption = readConfigControl(0)
             ui.minusControl.sankey = readConfigControl(1)
             ui.minusControl.weightCharts = readConfigControl(2)
             ui.minusControl.roundChart = readConfigControl(3)
@@ -8390,7 +8364,7 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
             // window.focus();
 
             // rerun the election
-            model.codeEditorText = config.codeEditorText
+            model.opt.election.codeEditorText = config.codeEditorText
             model.update()
             
         };
@@ -8410,7 +8384,7 @@ function uiArena(ui,model,config,initialConfig, cConfig) {
         var bp = ui.minusControl.ballotPart
         if (bp == undefined) ui.minusControl.ballotPart = []
         var mc = {
-            0: defaultTrue(model.minusControl.caption.show),
+            0: defaultTrue(model.simpleUI.minusControl.caption.show),
             1: defaultTrue(ui.minusControl.sankey.show),
             2: defaultTrue(ui.minusControl.weightCharts.show),
             3: defaultTrue(ui.minusControl.roundChart.show),

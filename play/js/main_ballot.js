@@ -139,7 +139,7 @@ function planUI (ui,thePlan) {
 	// binds UI to plan
 	ui.newWay = thePlan.newWay
 	ui.way1 = thePlan.way1
-	ui.BallotType = window[thePlan.ballotType+"Ballot"]
+	ui.ballotType = thePlan.ballotType
 	ui.showChoiceOfStrategy = thePlan.showChoiceOfStrategy
 	ui.showChoiceOfFrontrunners = thePlan.showChoiceOfFrontrunners
 }
@@ -149,7 +149,7 @@ function createDOMB(ui,model) {
 	// This is what the ui is all about.  It makes the DOM.
 
 	// CREATE div stuff
-	model.createDOM()
+	model.simpleUI.createDOM()
 
 	ui.dom.left = newDivOnBase("b-left")
 	ui.dom.right = newDivOnBase("b-right")
@@ -160,7 +160,7 @@ function createDOMB(ui,model) {
 		return a
 	}
 
-	ui.dom.left.appendChild(model.dom);
+	ui.dom.left.appendChild(model.simpleUI.dom.main);
 	
 	// CREATE A BALLOT
 	if (ui.newWay) { // build ui
@@ -170,7 +170,9 @@ function createDOMB(ui,model) {
 			ui.dom.right.appendChild(ui.dom.caption)
 		}
 	} else {
-		ui.dom.paperBallot = new ui.BallotType(model);
+
+		let BallotType = window[thePlan.ballotType+"Ballot"]
+		ui.dom.paperBallot = new BallotType(model);
 		ui.dom.right.appendChild(ui.dom.paperBallot.dom)
 	}
 
@@ -247,9 +249,6 @@ function bindBallotMenu(ui,model,config) {
 			}
 		}
 		model.preFrontrunnerIds = config.preFrontrunnerIds
-		for (var i=0; i<model.voterGroups.length; i++) {
-			model.voterGroups[i].preFrontrunnerIds = config.preFrontrunnerIds
-		}
 		model.dm.districtsListCandidates()
 		model.update();
 
@@ -323,15 +322,15 @@ function bindBallotModel(ui,model,config) {
 	model.planModel = function() {
 		// LOAD
 		model.size = 250
-		model.border = 2
-		model.ballotType = config.ballotType
-		model.system = config.system
+		model.simpleUI.border = 2
+		model.opt.ballot.ballotType = config.ballotType
+		model.opt.election.system = config.system
 		model.newWay = ui.newWay
 	}
 
 	model.initPlugin = function(){
 
-		model.initDOM()
+		model.simpleUI.initDOM()
 		
 		// CREATE
 		model.voterGroups.push(new SingleVoter(model))
@@ -343,8 +342,7 @@ function bindBallotModel(ui,model,config) {
 		Object.assign( model.candidates[0],{x: 41, y: 50, icon:"square"} )
 		Object.assign( model.candidates[1],{x:153, y: 95, icon:"triangle"} )
 		Object.assign( model.candidates[2],{x:216, y:216, icon:"hexagon"} )
-		Object.assign( model.voterGroups[0],    {x: 81, y: 92, typeVoterModel: model.ballotType,
-			preFrontrunnerIds: config.preFrontrunnerIds} )
+		Object.assign( model.voterGroups[0],    {x: 81, y: 92} )
 		model.preFrontrunnerIds = config.preFrontrunnerIds;
 		model.firstStrategy = config.firstStrategy
 		model.doStarStrategy = config.doStarStrategy;

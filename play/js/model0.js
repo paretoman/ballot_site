@@ -2,11 +2,11 @@
 
 // CREATE
 var model = new Model("nothing")
-model.createDOM()
+model.simpleUI.createDOM()
 // CONFIGURE
 model.preFrontrunnerIds = []
 // INIT
-model.initDOM()
+model.simpleUI.initDOM()
 // INIT
 model.initPlugin()
 model.voterSet.init()

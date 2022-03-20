@@ -125,7 +125,7 @@ function Candidate(model){
 		// fade out the non-continuing candidates
 		if (model.roundCurrent !== undefined) {
 			var round = model.roundCurrent[self.iDistrict]
-			var elimSystem = (model.system == "IRV" || model.system == "STV")
+			var elimSystem = (model.opt.election.system == "IRV" || model.opt.election.system == "STV")
 			if (round !== undefined && elimSystem && round > 0) {
 				var maxRound = model.result.continuing.length
 				if (round > maxRound) {
@@ -152,7 +152,7 @@ function Candidate(model){
 			if (model.roundCurrent !== undefined) {
 				var round = model.roundCurrent[self.iDistrict]
 				// if (round > model.result.history.rounds.length) round = model.result.history.rounds.length - 1
-				if (round !== undefined && (model.system == "STV")) {
+				if (round !== undefined && (model.opt.election.system == "STV")) {
 					if (round >= model.result.won.length) round = model.result.won.length - 1
 					winners = model.result.won[round]
 					iwon = winners.includes(self.id)

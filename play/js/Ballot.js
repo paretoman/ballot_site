@@ -15,7 +15,7 @@ function ScoreBallot(model){
 	} else {
 		model.bg = "play/img/ballot_range.png";
 	}
-	if (model.inSandbox) {
+	if (model.ballotUI.inSandbox) {
 		model.bg = "play/img/ballot5_range.png";
 	}
 	Ballot.call(self, model);
@@ -26,7 +26,7 @@ function ScoreBallot(model){
 		triangle: self.createRate(133, 143, 3),
 		hexagon: self.createRate(133, 184, 1)
 	}
-	if (model.inSandbox) {
+	if (model.ballotUI.inSandbox) {
 		self.boxes["pentagon"] = self.createRate(133, 226, 1)
 		self.boxes["bob"] = self.createRate(133, 268, 1)
 	};
@@ -57,7 +57,7 @@ function ThreeBallot(model){
 	var self = this;
 	model = model || {};
 	model.bg = "play/img/ballot_range3.png";
-	if (model.inSandbox) {
+	if (model.ballotUI.inSandbox) {
 		model.bg = "play/img/ballot5_range3.png";
 	}
 	Ballot.call(self, model);
@@ -68,7 +68,7 @@ function ThreeBallot(model){
 		triangle: self.createThree(133, 143, 3),
 		hexagon: self.createThree(133, 184, 1)
 	};
-	if (model.inSandbox) {
+	if (model.ballotUI.inSandbox) {
 		self.boxes["pentagon"] = self.createThree(133, 226, 1)
 		self.boxes["bob"] = self.createThree(133, 268, 1)
 	};
@@ -95,7 +95,7 @@ function ApprovalBallot(model){
 	var self = this;
 	model = model || {};
 	model.bg = "play/img/ballot_approval.png";
-	if (model.inSandbox) {
+	if (model.ballotUI.inSandbox) {
 		model.bg = "play/img/ballot5_approval.png";
 	}
 	Ballot.call(self, model);
@@ -106,7 +106,7 @@ function ApprovalBallot(model){
 		triangle: self.createBox(26, 140, 1),
 		hexagon: self.createBox(26, 184, 0)
 	};
-	if (model.inSandbox) {
+	if (model.ballotUI.inSandbox) {
 		self.boxes["pentagon"] = self.createBox(26, 228, 0)
 		self.boxes["bob"] = self.createBox(26, 272, 0)
 	};
@@ -138,7 +138,7 @@ function RankedBallot(model){
 	var self = this;
 	model = model || {};
 	model.bg = "play/img/ballot_ranked.png";
-	if (model.inSandbox) {
+	if (model.ballotUI.inSandbox) {
 		model.bg = "play/img/ballot5_ranked.png";
 	}
 	Ballot.call(self, model);
@@ -149,7 +149,7 @@ function RankedBallot(model){
 		triangle: self.createBox(26, 140, 1),
 		hexagon: self.createBox(26, 184, 0)
 	};
-	if (model.inSandbox) {
+	if (model.ballotUI.inSandbox) {
 		self.boxes["pentagon"] = self.createBox(26, 228, 0)
 		self.boxes["bob"] = self.createBox(26, 272, 0)
 	};
@@ -176,7 +176,7 @@ function PluralityBallot(model){
 	var self = this;
 	model = model || {};
 	model.bg = "play/img/ballot_fptp.png";
-	if (model.inSandbox) {
+	if (model.ballotUI.inSandbox) {
 		model.bg = "play/img/ballot5_fptp.png";
 	}
 	Ballot.call(self, model);
@@ -187,7 +187,7 @@ function PluralityBallot(model){
 		triangle: self.createBox(26, 140, 1),
 		hexagon: self.createBox(26, 184, 0)
 	};
-	if (model.inSandbox) {
+	if (model.ballotUI.inSandbox) {
 		self.boxes["pentagon"] = self.createBox(26, 228, 0)
 		self.boxes["bob"] = self.createBox(26, 272, 0)
 	};
@@ -217,7 +217,7 @@ function Ballot(model){
 	self.createSprite = function(config){
 
 		var sc = 1
-		if(model.inSandbox) {sc = 210/375}
+		if(model.ballotUI.inSandbox) {sc = 210/375}
 
 		var sprite = {};
 
@@ -243,7 +243,7 @@ function Ballot(model){
 
 	};
 	self.createBox = function(x,y,frame){
-		if (model.inSandbox) {
+		if (model.ballotUI.inSandbox) {
 			return self.createSprite({
 				img: "play/img/ballot5_box.png",
 				x:x, y:y,
@@ -287,7 +287,7 @@ function Ballot(model){
 
 	
 	self._okCandidate = function(candidate) {
-		if (model.inSandbox) {
+		if (model.ballotUI.inSandbox) {
 			return ["square","triangle","hexagon","pentagon","bob"].includes(candidate)
 		} else {
 			return ["square","triangle","hexagon"].includes(candidate)

@@ -11,20 +11,20 @@ function main_ballot(ui){
 
 		// CREATE
 		var model = new Model(presetName);
-        model.createDOM()
+        model.simpleUI.createDOM()
 
 		// CONFIGURE
 		model.size = 250
-		model.border = 2
+		model.simpleUI.border = 2
 		model.startAt1 = true
 		model.theme = "Nicky"
 		model.doOriginal = true
 
 		// INIT
-		model.initDOM()
+		model.simpleUI.initDOM()
 
 		var basediv = document.querySelector("#" + presetName)
-		basediv.appendChild(model.dom);
+		basediv.appendChild(model.simpleUI.dom.main);
 		model.initPlugin = function(){
 			// CREATE
 			model.voterGroups.push(new SingleVoter(model))
@@ -32,7 +32,7 @@ function main_ballot(ui){
 			model.candidates.push(new Candidate(model))
 			model.candidates.push(new Candidate(model))
 			// CONFIGURE
-			Object.assign( model.voterGroups[0],{x: 81, y: 92, typeVoterModel: ballotType} )
+			Object.assign( model.voterGroups[0],{x: 81, y: 92} )
 			Object.assign( model.candidates[0],{x: 41, y: 50, icon:"square"} )
 			Object.assign( model.candidates[1],{x:153, y: 95, icon:"triangle"} )
 			Object.assign( model.candidates[2],{x:216, y:216, icon:"hexagon"} )

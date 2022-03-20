@@ -37,7 +37,7 @@ Election.score = function(district, model, options){
 		var winner = winners[0];
 		var text = "";
 		text += "<span class='small'>";
-		if ("Auto" == model.autoPoll) text += polltext;
+		if ("Auto" == model.opt.ballot.autoPoll) text += polltext;
 		text += "<b>score as % of max possible: </b><br>";
 		if (model.doTallyChart) {
 			text += tallyChart(tally,cans,model,maxscore,ballots.length)
@@ -72,7 +72,7 @@ Election.score = function(district, model, options){
 Election.defaultCodeScore = Election.score.toString()
 
 Election.create = function(district, model, options){
-	var code = model.codeEditorText
+	var code = model.opt.election.codeEditorText
 	var wrappedCode = "(function(district, model, options) { return (" + code + ")(district, model, options) })(district, model, options)"; // code that will return a reference to the function typed by the user
 	var wrappedCode = "(" + code + ")(district, model, options)"; // code that will return a reference to the function typed by the user
   
@@ -172,7 +172,7 @@ Election.star = function(district, model, options){
 		// Caption
 		var text = "";
 		text += "<span class='small'>";
-		if ("Auto" == model.autoPoll) text += polltext;
+		if ("Auto" == model.opt.ballot.autoPoll) text += polltext;
 		text += "<b>pairwise winner of two highest average scores wins</b><br>";
 		if (model.doTallyChart) {
 			text += tallyChart(tally,cans,model,maxscore,ballots.length)
@@ -277,7 +277,7 @@ Election.three21 = function(district, model, options){
 		// Caption
 		var text = "";
 		text += "<span class='small'>";
-		if ("Auto" == model.autoPoll) text += polltext;
+		if ("Auto" == model.opt.ballot.autoPoll) text += polltext;
 		// text += "Semifinalists: 3 most good. <br>Finalists: 2 least bad. <br>Winner: more preferred.<br><br>";
 		text += "<b>Pick semifinalists:</b> 3 most good<br>";
 		
@@ -358,7 +358,7 @@ Election.approval = function(district, model, options){
 	var winner = winners[0];
 	var text = "";
 	text += "<span class='small'>";
-	if ("Auto" == model.autoPoll) text += polltext;
+	if ("Auto" == model.opt.ballot.autoPoll) text += polltext;
 	text += "<b>most approvals wins (%)</b><br>";
 	if (model.doTallyChart) {
 		text += tallyChart(tally,cans,model,1,ballots.length)
@@ -567,7 +567,7 @@ function pairChart(ballots,district,model,hh) {
 	text += "<span class='small'>"
 	let opt = {entity:"winner",doSort:true,triangle:true,light:true}
 	if (hh == undefined) {
-		if (model.ballotType == "Ranked") {
+		if (model.opt.ballot.ballotType == "Ranked") {
 			var hh = head2HeadTally(model, district,ballots)
 		} else {
 			var hh = head2HeadScoreTally(model, district,ballots)
@@ -583,7 +583,7 @@ function squarePairChart(ballots,district,model,hh) {
 	text += "<span class='small'>"
 	let opt = {entity:"winner",light:true,diagonal:true}
 	if (hh == undefined) {
-		if (model.ballotType == "Ranked") {
+		if (model.opt.ballot.ballotType == "Ranked") {
 			var hh = head2HeadTally(model, district,ballots)
 		} else {
 			var hh = head2HeadScoreTally(model, district,ballots)
@@ -1472,7 +1472,7 @@ Election.rbvote = function(district, model, options){ // Use the RBVote from Rob
 	_beginElection_rbvote(district,model)
 	let cans = district.stages[model.stage].candidates
 
-	if (model.checkRunTextBallots()) {
+	if (model.electionGen.checkRunTextBallots()) {
 		// var filler = {candidates:[]}
 		// result = _check01(filler,model)
 		// if (! result.good) return result
@@ -1493,7 +1493,8 @@ Election.rbvote = function(district, model, options){ // Use the RBVote from Rob
 			}
 		}
 		if (! rbvote.readvotes()) return
-		resultRB = model.rbelection(options.sidebar) // e.g. result = rbvote.calctide() // having a sidebar display means we want to construct explanation strings
+		let rbElectionFun = rbvote[model.opt.election.rbfun]
+		resultRB = rbElectionFun(options.sidebar) // e.g. result = rbvote.calctide() // having a sidebar display means we want to construct explanation strings
 
 		if (resultRB.str) { // e.g. when the sidebar is on
 			// replace some of the html in the output of rbvote to make it match the style of betterballot
@@ -1527,7 +1528,8 @@ Election.rbvote = function(district, model, options){ // Use the RBVote from Rob
 
 	rbvote.setreturnstring() // tell rbvote that we might want return strings (unless we're not doing the sidebar)
 	rbvote.readballots(ballots,district,model)
-	resultRB = model.rbelection(options.sidebar) // e.g. result = rbvote.calctide() // having a sidebar display means we want to construct explanation strings
+	let rbElectionFun = rbvote[model.opt.election.rbfun]
+	resultRB = rbElectionFun(options.sidebar) // e.g. result = rbvote.calctide() // having a sidebar display means we want to construct explanation strings
 	
 
 
@@ -1578,7 +1580,7 @@ Election.rrv = function(district, model, options){
 	var polltext = _beginElection(district,model,options,"nopoll")	
 	let cans = district.stages[model.stage].candidates
 
-	var numreps = model.seats
+	var numreps = model.opt.election.seats
 	var maxscore = 5
 
 	if (options.sidebar) {
@@ -1763,7 +1765,7 @@ Election.rav = function(district, model, options){
 	var polltext = _beginElection(district,model,options,"nopoll")	
 	let cans = district.stages[model.stage].candidates
 	
-	var numreps = model.seats
+	var numreps = model.opt.election.seats
 	var maxscore = 1
 
 	if (options.sidebar) {
@@ -2126,7 +2128,7 @@ Election.irv = function(district, model, options){
 		var winners = _countWinner(tally);
 		var winner = winners[0];
 		var ratio = tally[winner] / district.voterPeople.length;
-		var option100 = model.opt.irv100
+		var option100 = model.opt.arena.draw.irv100
 		if (option100) {
 			if (candidates.length == 1) {
 				resolved = "done";
@@ -2157,7 +2159,7 @@ Election.irv = function(district, model, options){
 		var losers = _countLoser(tally);
 		var loser = losers[0];
 		if (options.sidebar) var roundText = ""
-		if (model.opt.breakEliminationTiesIRV && losers.length > 1) {
+		if (model.opt.election.breakEliminationTiesIRV && losers.length > 1) {
 
 			loser = losers[Math.floor(losers.length * Math.random())]
 
@@ -2375,7 +2377,7 @@ Election.stv = function(district, model, options){
 	var polltext = _beginElection(district,model,options,"nopoll")	
 	let cans = district.stages[model.stage].candidates
 
-	var numreps = model.seats
+	var numreps = model.opt.election.seats
 	
 	var drawFlows = (model.ballotConcept != "off" || model.arena.viewMan.active) && ( ! options.yeefast )
 	if (drawFlows) {
@@ -2554,7 +2556,7 @@ Election.stv = function(district, model, options){
 		var ratio = tally[winner]/district.voterPeople.length;
 		
 		// show all the transfers if the 100% option is chosen
-		var option100 = model.opt.irv100
+		var option100 = model.opt.arena.draw.irv100
 		var lastwin = numreps - winnerslist.length == 1 // this could be the last winner
 		var oneleft = candidates.length == 1 // there is only one candidate left
 		var wait = option100 && lastwin & !oneleft // don't name the last winner unless he's the only one left
@@ -2624,7 +2626,7 @@ Election.stv = function(district, model, options){
 			// Otherwise... runoff...
 			var losers = _countLoser(tally);
 			var loser = losers[0];
-			if (model.opt.breakEliminationTiesIRV && losers.length > 1) {
+			if (model.opt.election.breakEliminationTiesIRV && losers.length > 1) {
 				loser = losers[Math.floor(losers.length * Math.random())]
 				losers = [loser]
 			}
@@ -2923,7 +2925,7 @@ Election.stvMinimax = function(district, model, options){
 	var polltext = _beginElection(district,model,options,"nopoll")	
 	let cans = district.stages[model.stage].candidates
 
-	var numreps = model.seats
+	var numreps = model.opt.election.seats
 	
 	var drawFlows = (model.ballotConcept != "off" || model.arena.viewMan.active) && ( ! options.yeefast )
 	if (drawFlows) {
@@ -3103,7 +3105,7 @@ Election.stvMinimax = function(district, model, options){
 		var ratio = tally[winner]/district.voterPeople.length;
 		
 		// show all the transfers if the 100% option is chosen
-		var option100 = model.opt.irv100
+		var option100 = model.opt.arena.draw.irv100
 		var lastwin = numreps - winnerslist.length == 1 // this could be the last winner
 		var oneleft = candidates.length == 1 // there is only one candidate left
 		var wait = option100 && lastwin & !oneleft // don't name the last winner unless he's the only one left
@@ -3194,7 +3196,7 @@ Election.stvMinimax = function(district, model, options){
 			// Otherwise... runoff...
 			var losers = _countLoser(tally);
 			var loser = losers[0];
-			if (model.opt.breakEliminationTiesIRV && losers.length > 1) {
+			if (model.opt.election.breakEliminationTiesIRV && losers.length > 1) {
 				loser = losers[Math.floor(losers.length * Math.random())]
 				losers = [loser]
 			}
@@ -3493,7 +3495,7 @@ Election.quotaMinimax = function(district, model, options){
 	var polltext = _beginElection(district,model,options,"nopoll")	
 	let cans = district.stages[model.stage].candidates
 
-	var numreps = model.seats
+	var numreps = model.opt.election.seats
 
 	var pairEventsToAssign = []
 
@@ -3851,7 +3853,7 @@ Election.quotaApproval = function(district, model, options){
 	
 	var v = model.voterSet.getDistrictVoterArray(district)
 
-	var seats = model.seats
+	var seats = model.opt.election.seats
 	var winners = []
 	var winnersIndexes = []
 	
@@ -3918,7 +3920,7 @@ Election.quotaApproval = function(district, model, options){
 		}
 		// who won this round?
 		var roundWinners = _countWinner(tally) // need to exclude twice-winners
-		if (model.opt.breakWinTiesMultiSeat) {
+		if (model.opt.election.breakWinTiesMultiSeat) {
 			roundWinners = roundWinners[Math.floor(Math.random() * roundWinners.length)]
 			roundWinners = [roundWinners]
 		}
@@ -4010,7 +4012,7 @@ Election.quotaScore = function(district, model, options){
 	
 	var v = model.voterSet.getDistrictVoterArray(district)
 
-	var seats = model.seats
+	var seats = model.opt.election.seats
 	var winners = []
 	var winnersIndexes = []
 	var maxscore = model.voterGroups[0].voterModel.maxscore
@@ -4076,7 +4078,7 @@ Election.quotaScore = function(district, model, options){
 		}
 		// who won this round?
 		var roundWinners = _countWinner(tally) // need to exclude twice-winners
-		if (model.opt.breakWinTiesMultiSeat) {
+		if (model.opt.election.breakWinTiesMultiSeat) {
 			roundWinners = roundWinners[Math.floor(Math.random() * roundWinners.length)]
 			roundWinners = [roundWinners]
 		}
@@ -4174,7 +4176,7 @@ Election.monroeSequentialRange = function(district, model, options){
 	
 	var v = model.voterSet.getDistrictVoterArray(district)
 
-	var seats = model.seats
+	var seats = model.opt.election.seats
 	var winners = []
 	var winnersIndexes = []
 	var maxscore = model.voterGroups[0].voterModel.maxscore
@@ -4317,7 +4319,7 @@ Election.monroeSequentialRange = function(district, model, options){
 			var roundWinners = _countWinner(tally) // TODO: need to exclude twice-winners
 		}
 
-		if (model.opt.breakWinTiesMultiSeat) {
+		if (model.opt.election.breakWinTiesMultiSeat) {
 			roundWinners = roundWinners[Math.floor(Math.random() * roundWinners.length)]
 			roundWinners = [roundWinners]
 		}
@@ -4487,7 +4489,7 @@ Election.phragmenSequentialRange = function(district, model, options){
 	
 	var v = model.voterSet.getDistrictVoterArray(district)
 
-	var seats = model.seats
+	var seats = model.opt.election.seats
 	var winners = []
 	var winnersIndexes = []
 	var maxscore = model.voterGroups[0].voterModel.maxscore
@@ -4636,7 +4638,7 @@ Election.phragmenSequentialRange = function(district, model, options){
 		// find the candidate with the lowest total ballot weight used
 
 		var roundWinners = _countWinner(tally) // need to exclude twice-winners
-		if (model.opt.breakWinTiesMultiSeat) {
+		if (model.opt.election.breakWinTiesMultiSeat) {
 			roundWinners = roundWinners[Math.floor(Math.random() * roundWinners.length)]
 			roundWinners = [roundWinners]
 		}
@@ -4785,13 +4787,13 @@ function lpGeneral(_solver,district,model,options) {
 
 	var b = _getBallotsAsB(ballots, cans)
 
-	if (model.system == "PAV") {
+	if (model.opt.election.system == "PAV") {
 		var maxscore = 1
 	} else {
 		var maxscore = 5
 	}
 
-	var phragmenResult = _solver(b,model.seats,maxscore)
+	var phragmenResult = _solver(b,model.opt.election.seats,maxscore)
 	district.stages[model.stage].lpResult = phragmenResult.results
 	district.stages[model.stage].assignments = phragmenResult.assignments
 
@@ -4811,7 +4813,7 @@ function lpGeneral(_solver,district,model,options) {
 
 		// Caption
 		var winner = winners[0];
-		if ("Auto" == model.autoPoll) text += polltext;
+		if ("Auto" == model.opt.ballot.autoPoll) text += polltext;
 		text += "<b>score as % of max possible: </b><br>";
 		for(var i=0; i<cans.length; i++){
 			var c = cans[i].id;
@@ -4849,7 +4851,7 @@ function lpGeneral(_solver,district,model,options) {
 					beforePowerUsed[i] += powerUsed[i]
 				}
 			}
-			if (model.system == "PAV") {
+			if (model.opt.election.system == "PAV") {
 				if (r == 0) {
 					var beforeSumElected = b.map( () => 0)
 				} else {
@@ -5577,7 +5579,7 @@ Election.toptwo = function(district, model, options){ // not to be confused with
 	var winner = winners[0];
 	var text = "";
 	text += "<span class='small'>";
-	if ("Auto" == model.autoPoll) text += polltext;
+	if ("Auto" == model.opt.ballot.autoPoll) text += polltext;
 	text += "<b>top two move to 2nd round</b><br>";
 	if (model.doTallyChart) {
 		text += tallyChart(tally1,cans,model,1,ballots.length)
@@ -5738,6 +5740,8 @@ Election.pluralityWithPrimary = function(district, model, options){
 
 function _beginElection(district,model,options,polltype) {
 	
+
+
 	var polltext = ""
 
 	if ( ! options.justCount ) {
@@ -5746,12 +5750,12 @@ function _beginElection(district,model,options,polltype) {
 
 		district.stages = {}
 		district.stages["general"] = {candidates: district.candidates }
-	
+
 		for ( let voterPerson of district.voterPeople) {
 			voterPerson.stages = {}
 		}
-	
-		if ("Auto" == model.autoPoll && ! options.dontpoll && polltype !== "nopoll") {
+		
+		if ("Auto" == model.opt.ballot.autoPoll && ! options.dontpoll && polltype !== "nopoll") {
 			district.pollResults = undefined 
 			polltext += runPoll(district,model,options,polltype)
 		}
@@ -5865,7 +5869,7 @@ Election.plurality = function(district, model, options){
 	}
 	var text = "";
 	text += "<span class='small'>";
-	if ("Auto" == model.autoPoll) text += polltext;
+	if ("Auto" == model.opt.ballot.autoPoll) text += polltext;
 	text += "<b>most votes wins</b><br>";
 	if (model.doTallyChart) {
 		text += tallyChart(tally,cans,model,1,ballots.length)
@@ -5965,7 +5969,7 @@ function runPoll(district,model,options,electiontype){
 
 	// check to see if there is a need for polling
 
-	if ( ! model.checkRunPoll() ) return ""
+	if ( ! model.electionGen.checkRunPoll() ) return ""
 
 	var cans = district.stages[model.stage].candidates
 
@@ -6340,7 +6344,7 @@ var runPrimaryPoll = function(district,model,options,electiontype){
 	district.primaryPollResults = {}
 
 	let numParties = district.parties.length
-	if (! model.doElectabilityPolls || numParties < 2) {
+	if (! model.opt.ballot.doElectabilityPolls || numParties < 2) {
 		return ""
 	}
 
@@ -6607,7 +6611,7 @@ function _rLimitFrom(model,round) {
 }
 
 function _type1Get(model) {
-	var type1 = model.system == "Phragmen Seq S" || model.system == "Monroe Seq S" || model.system == "Allocated Score" || model.system == "STAR PR" || model.system == "QuotaApproval" || model.system == "QuotaScore" // not sure why .. also not sure if STV is type 1 or not
+	var type1 = model.opt.election.system == "Phragmen Seq S" || model.opt.election.system == "Monroe Seq S" || model.opt.election.system == "Allocated Score" || model.opt.election.system == "STAR PR" || model.opt.election.system == "QuotaApproval" || model.opt.election.system == "QuotaScore" // not sure why .. also not sure if STV is type 1 or not
 	return type1
 }
 
@@ -6802,7 +6806,7 @@ function drawWeight(model,arena,barOptions,v,round) {
 
 	// draw votes for each candidate in this round
 
-	if (model.system == "STV") {
+	if (model.opt.election.system == "STV") {
 		var rowFunction = "rounds"
 		// var rowFunction = "candidates"
 		
@@ -7134,7 +7138,7 @@ function drawWeightGrey(model,arena,selectedRoundBeforeWeight,r,barOptions) {
     var widthRectangle = barOptions.widthRectangle
     var heightRectangle = barOptions.heightRectangle
 
-    if (model.system == "RRV" || model.system == "RAV") {
+    if (model.opt.election.system == "RRV" || model.opt.election.system == "RAV") {
         var startpos = 450
         // draw the beforeWeight
         for (var i=0; i < selectedRoundBeforeWeight.length; i++) {

@@ -1,4 +1,4 @@
-function Mouse(id, target){
+function Mouse(id, target, dragm){
 	// mouse events are only triggered when the mouse is used over a target.  The only target I've used is a canvas.
 
 	var self = this;
@@ -17,19 +17,19 @@ function Mouse(id, target){
 		self.pressed = true;
 		if (event.ctrlKey) self.ctrlclick = true
 		self.isTouch = false
-		publish(self.id+"-mousedown");
+		dragm.mousedown(event)
 	};
 	var _onmousemove = function(event){
 		self.x = event.offsetX;
 		self.y = event.offsetY;
 		self.isTouch = false
-		publish(self.id+"-mousemove");
+		dragm.mousemove(event)
 	};
-	var _onmouseup = function(){
+	var _onmouseup = function(event){
 		self.pressed = false;
 		self.ctrlclick = false
 		self.isTouch = false
-		publish(self.id+"-mouseup");
+		dragm.mouseup(event)
 	};
 
 	// Add events!
@@ -48,7 +48,7 @@ function Mouse(id, target){
 		self.pressed = true;
 		if (event.ctrlKey) self.ctrlclick = true
 		self.isTouch = true
-		publish(self.id+"-mousedown");
+		dragm.mousedown(event)
 	},false);
 	target.addEventListener("touchmove", _onTouchMove=function(event){
 
@@ -63,15 +63,14 @@ function Mouse(id, target){
 		if(self.y>target.clientHeight) self.y=target.clientHeight;
 		//console.log(target);
 		self.isTouch = true
-		publish(self.id+"-mousemove");
-		event.preventDefault();
+		dragm.mousemove(event)
 		
 	},false);
 	document.body.addEventListener("touchend",function(event){
 		self.pressed = false;
 		self.ctrlclick = false
 		self.isTouch = true
-		publish(self.id+"-mouseup");
+		dragm.mouseup(event)
 	},false);
 
 };

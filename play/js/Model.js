@@ -17,12 +17,14 @@ function Model(idModel){
 	self.dm = new DistrictManager(self)
 	self.voterManager = new VoterManager(self)
 	self.candidates = [];
-	self.dom = document.createElement("div");
 	self.arena = new Arena("arena",self)
 	self.tarena = new Arena("tarena",self)
 	self.nLoading = 0 // counter for drawing after everything is loaded
 	// the only thing to be done after loading the images is drawing the images
 	self.randomSeed = 0
+	self.simpleUI = new SimpleUI(self)
+	self.ballotUI = {}
+	self.electionGen = {}
 	
 	// CONFIGURE DEFAULTS
 	// helper
@@ -36,29 +38,22 @@ function Model(idModel){
 		// values used in init
 		id:idModel,
 		size:300,
-		scale:1,
-		border:10,
 		optionsForElection:{sidebar:true},
 	// values used later
 	// defaults that are also in main_sandbox.js in the cleanConfig function
-		system: "FPTP",
-		rbsystem: "Tideman",
 		numOfCandidates: 3,
 		spread_factor_voters: 1,
 		arena_size: 300,
 		median_mean: 1,
-		utility_shape: "linear",
 		dimensions: "2D",
 		nDistricts: 1,
         colorChooser: "pick and generate",
         colorSpace: "hsluv with dark",
-		arena_border: 2,
 		preFrontrunnerIds: ["square","triangle"],
-		autoPoll: "Manual",
 		// primaries: "No",
 		firstStrategy: "zero strategy. judge on an absolute scale.", // maybe should be for voter, not model
 		secondStrategy: "zero strategy. judge on an absolute scale.", // maybe should be for voter, not model
-		doTwoStrategies: true,// maybe should be for voter, not model
+		doTwoStrategies: true,
         yeefilter: yes_all_candidates,
 		computeMethod: "ez",
 		pixelsize: 60,
@@ -67,25 +62,43 @@ function Model(idModel){
 		yeeobject: undefined,
 		yeeon: false,		
 		//
-		// VoterType: PluralityVoter,
-		election: Election.plurality,
-		BallotType: PluralityBallot,
-		ballotType: "Plurality",
-		rbelection: rbvote.calctide,
 		opt: {
-			irv100: true, // show the final transfer to the winner (to reach 100%)
-			IRVShowdown: false,  // show a reverse-direction transfer to represent the winner
-			showIRVTransfers: false,  // show lines representing transfers between rounds
-			breakWinTiesMultiSeat: true, // break ties for winning candidates in multi-winner methods
-			breakEliminationTiesIRV: true, // break ties for eliminations of candidates in IRV
-			doDrawIRVCandidates: false, // TODO: make a button for this
+			ballot: {
+				utility_shape: "linear",
+				autoPoll: "Manual",
+				ballotType: "Plurality",
+				doElectabilityPolls: true,
+				centerPollThreshold: .5,
+				howBadlyDefeatedThreshold: 1.1,
+				useBigDefaultMax: false,
+			},
+			election: {
+				system: "FPTP",
+				fun: "plurality",
+				rbsystem: "Tideman",
+				rbfun: "calctide",
+				seats: 3,
+				breakWinTiesMultiSeat: true, // break ties for winning candidates in multi-winner methods
+				breakEliminationTiesIRV: true, // break ties for eliminations of candidates in IRV
+				codeEditorText: Election.defaultCodeScore,
+			},
+			arena: {
+				draw: {
+					irv100: true, // show the final transfer to the winner (to reach 100%)
+					IRVShowdown: false,  // show a reverse-direction transfer to represent the winner
+					showIRVTransfers: false,  // show lines representing transfers between rounds
+					doDrawIRVCandidates: false, // TODO: make a button for this
+					map: {
+						ballotVis: true, // turn on or off the visuals that show where the ballots go
+						visSingleBallotsOnly: false, // only show the single ballots as part of the ballotVis
+						beatMap: "auto",
+						ballotConcept: "auto",
+					},
+				},
+			},
 		},
-		ballotVis: true, // turn on or off the visuals that show where the ballots go
-		visSingleBallotsOnly: false, // only show the single ballots as part of the ballotVis
-		beatMap: "auto",
         keyyee: "newcan",
         kindayee: "newcan",
-        ballotConcept: "auto",
         roundChart: "auto",
 		voterIcons: "circle",
 		voterCenterIcons: "off",
@@ -107,14 +120,10 @@ function Model(idModel){
 		squareFirstChoice: true, 
 		doVoterMapGPU: false,
 		devOverrideShowAllFeatures: false,
-		doElectabilityPolls: true,
 		partyRule: 'crowd',
 		stage: "general",
 		showPowerChart: true,
-		centerPollThreshold: .5,
-		howBadlyDefeatedThreshold: 1.1,
 		doTallyChart: true,
-        codeEditorText: Election.defaultCodeScore,
 		createStrategyType: "score",
 		createBallotType: "Score",
 		showUtilityChart: false,
@@ -127,37 +136,8 @@ function Model(idModel){
 	
 	self.viz = new Viz(self);
 	
-	self.createDOM = function() {
-		self.arena.createDOM()
-		self.tarena.createDOM()
-		self.tarena.canvas.hidden = true
-
-		// My DOM: title + canvas + caption
-		self.dom = document.createElement("div");
-		self.dom.setAttribute("class", "model");
-		self.title = document.createElement("div");
-		self.title.id = "title";
-		self.caption = document.createElement("div");
-		self.caption.id = "caption";
-
-		self.dom.appendChild(self.title);
-		self.dom.appendChild(self.arena.canvas);
-		self.dom.appendChild(self.tarena.canvas);
-		self.dom.appendChild(self.caption);
-	}
-
-	self.initDOM = function() {
-		self.arena.initDOM()
-		self.tarena.initDOM()
-		
-		self.dom.style.width = (self.size+2*self.border)+"px"; // size+2*borders!
-		// self.caption.style.width = self.dom.style.width;
-	}
-
 	self.initMODEL = function() {
-
-		self.arena.initARENA()
-		self.tarena.initARENA()
+		self.simpleUI.initARENAS()
 		
 		self.candidatesById = {};
 		self.candidatesBySerial = {};
@@ -195,15 +175,6 @@ function Model(idModel){
 	}
 	self.onInitModel = function() {} // a hook for a caller
 
-	self.election = function(){
-		self.stage = "general"
-		for (let district of self.district) {
-			district.stages = {}
-			district.stages["general"] = {candidates: district.candidates }
-			self.updateDistrictBallots(district)
-		}
-	};
-
 	self.initPlugin = function(){  // TO IMPLEMENT FURTHER IN CALLER
 		self.initMODEL() // replace this with more
 	};
@@ -236,12 +207,16 @@ function Model(idModel){
 	self.update = function(){
 
 		
-        if (self.checkRunTextBallots() && self.textBallotInput !== "" ){ // TODO: make text ballots work for every method, so we don't have to do this step and we can 
+        if (self.electionGen.checkRunTextBallots() && self.textBallotInput !== "" ){ // TODO: make text ballots work for every method, so we don't have to do this step and we can 
 			self.textBallotUpdate()
 			return
 		}
 
 		// if (self.nLoading > 0) return // the loading function will call update()
+
+
+
+		// -- arena.draggables.update -- groupGen
 
 		// update positions of draggables
 		self.arena.update();
@@ -252,45 +227,60 @@ function Model(idModel){
 			self.voterCenter.update()
 		}
 
+
+
+		// -- groupGen
+
 		// do an analysis kind of election
 		if (self.votersAsCandidates) {
 			self.updateVC()
 			self.votersAsCandidates = false
 		}		
 
-		// get the ballots for this election
+
+		// -- peopleGen		
+
 		for(var i=0; i<self.voterGroups.length; i++){
 			var voter = self.voterGroups[i];
 			voter.updatePeople();
 		}
-		
+
+		// -- drawCandidate
+		for(var i=0; i<self.candidates.length; i++){
+			var c = self.candidates[i];
+			c.update(); 
+		}
+
+		// -- calculate some visuals
 		self.viz.calculateBeforeElection()
 
 
-		for(var i=0; i<self.candidates.length; i++){
-			var c = self.candidates[i];
-			c.update(); // doesn't do anything... yet
-		}
+
+
+		// -- ballotGen and electionGen
 		 
 		// did we manually select the winners? (with ctrl-click)
-		var selected = self.selection()
+		var selected = self.electionGen.selection()
 		
 		if (selected.winners.length > 0) {
 			self.result = selected
 			if (self.doTop2) self.result.theTop2 = selected
 			self.updateBallots()
 		} else {
-			self.doTheElection()
+			self.electionGen.doTheElection()
 		}
 		
+		// -- calculations for drawing
+
 		self.sortVoters()
 		
 		self.viz.calculateAfterElection()
-		 
-
-		// Update!
+		
+		// -- plugin hook
 		self.onUpdate();
-		publish(self.id+"-update");
+
+
+		
 
 		self.draw()
 	};
@@ -298,13 +288,13 @@ function Model(idModel){
 
 	self.updateFromModel = function() {} // hook
 
-	self.onDraw = function(){}; // TO IMPLEMENT
+	self.onDraw = function(){}; // hook
 	self.draw = function() {
 		
 		if (self.nLoading > 0) return // still loading, will call later and save some computing cycles
 		// The drawing system and the loading assets system are connected here.
 
-		if (self.checkRunTextBallots()) {
+		if (self.electionGen.checkRunTextBallots()) {
 			self.arena.canvas.hidden = true
 			self.drawSidebar() 
 			return
@@ -320,8 +310,10 @@ function Model(idModel){
 
 	self.textBallotUpdate = function() {
 		// run an election with RBVote
-		if (self.system === "RBVote") {
-			self.result = self.election(self.district[0] ,self,self.optionsForElection)
+		if (self.opt.election.system === "RBVote") {
+
+			let electionFun = Election[self.opt.election.fun]
+			self.result = electionFun(self.district[0] ,self,self.optionsForElection)
 			self.district[0].result = self.result
 			self.drawSidebar()
 		}
@@ -339,7 +331,7 @@ function Model(idModel){
 			for (var i = 0; i < v.length; i++) {
 				v[i].i = i
 			}
-			// if (self.system == "STV") {
+			// if (self.opt.election.system == "STV") {
 			// 	for (var voter of v) {
 			// 		var newb = []
 			// 		for (var [r,c] of Object.entries(voter.b)) {
@@ -479,7 +471,7 @@ function Model(idModel){
 		return (a.x - b.x) ** 2 + (a.y - b.y) ** 2
 	}
 
-	self.selection = function() {
+	self.electionGen.selection = function() {
 		var selected = {}
 		selected.winners = []
 		selected.colors = []
@@ -500,7 +492,7 @@ function Model(idModel){
 		return selected
 	}
 
-	self.doTheElection = function() {
+	self.electionGen.doTheElection = function() {
 		
 
 		// for the moment, this works, but ideally there would be separate components of the STV, RRV etc elections for the roundCharts
@@ -510,7 +502,8 @@ function Model(idModel){
 		if (self.nDistricts > 1) {
 			for (var i = 0; i < self.nDistricts; i++) {
 				self.placeHoldDuringElection = self.doPlaceHoldDuringElection
-				self.district[i].result = self.election(self.district[i], self, self.optionsForElection);
+				let electionFun = Election[self.opt.election.fun]
+				self.district[i].result = electionFun(self.district[i], self, self.optionsForElection);
 				self.placeHoldDuringElection = false
 			}
 
@@ -556,7 +549,8 @@ function Model(idModel){
 
 		} else {
 			self.placeHoldDuringElection = self.doPlaceHoldDuringElection
-			self.result = self.election(self.district[0], self,self.optionsForElection);
+			let electionFun = Election[self.opt.election.fun]
+			self.result = electionFun(self.district[0], self,self.optionsForElection);
 			self.placeHoldDuringElection = false
 			self.district[0].result = self.result
 		}
@@ -634,19 +628,19 @@ function Model(idModel){
 				} else {
 					var title = ''
 				}
-				self.caption.innerHTML = title + self.result.textSubs;
+				self.simpleUI.dom.caption.innerHTML = title + self.result.textSubs;
 				if (self.result.eventsToAssign) {
 					for (var i=0; i < self.result.eventsToAssign.length; i++) {
 						var e = self.result.eventsToAssign[i]
-						self.caption.querySelector("#" + e.eventID).addEventListener("mouseover", e.f)
-						self.caption.querySelector("#" + e.eventID).addEventListener("mouseleave", ()=>self.drawArenas())
+						self.simpleUI.dom.caption.querySelector("#" + e.eventID).addEventListener("mouseover", e.f)
+						self.simpleUI.dom.caption.querySelector("#" + e.eventID).addEventListener("mouseleave", ()=>self.drawArenas())
 					}
 				}
 				if (! (self.optionsForElection.originalCaption == true) ) {
 					// self should really be ui and this should be moved out of model as a plugin to model like sandbox
-					if (self.minusControl == undefined) self.minusControl = {}
-					if (self.minusControl.caption == undefined) self.minusControl.caption = {}
-					addMinusButtonC(self.caption,self.minusControl.caption, {caption:true})
+					if (self.simpleUI.minusControl == undefined) self.simpleUI.minusControl = {}
+					if (self.simpleUI.minusControl.caption == undefined) self.simpleUI.minusControl.caption = {}
+					addMinusButtonC(self.simpleUI.dom.caption,self.simpleUI.minusControl.caption, {caption:true})
 				}
 			}
 		}
@@ -826,14 +820,14 @@ function Model(idModel){
 		return self.checkSystemWithBarChart() && ! (self.roundChart == "off")
 	}
 	self.checkSystemWithBarChart = function () {
-		return self.system == "QuotaApproval"  || self.system == "QuotaScore" || self.system == "Monroe Seq S" || self.system == "Allocated Score" || self.system == "STAR PR" || self.system == "Phragmen Seq S" || self.system == "RRV" ||  self.system == "RAV" ||  self.system == "STV" || self.system == "equalFacilityLocation" || self.system == "PAV"
+		return self.opt.election.system == "QuotaApproval"  || self.opt.election.system == "QuotaScore" || self.opt.election.system == "Monroe Seq S" || self.opt.election.system == "Allocated Score" || self.opt.election.system == "STAR PR" || self.opt.election.system == "Phragmen Seq S" || self.opt.election.system == "RRV" ||  self.opt.election.system == "RAV" ||  self.opt.election.system == "STV" || self.opt.election.system == "equalFacilityLocation" || self.opt.election.system == "PAV"
 	}
 	self.checkSystemWithRoundButtons = function() { 
-		return self.checkSystemWithBarChart() || self.system == "IRV"
+		return self.checkSystemWithBarChart() || self.opt.election.system == "IRV"
 	}
 	self.checkDoSort = function() {
 		if (self.orderOfVoters == undefined || self.behavior == "stand") { 
-			return self.checkDoMultiWinnerBarCharts() ||  ["IRV","STV"].includes(self.system) || self.showUtilityChart
+			return self.checkDoMultiWinnerBarCharts() ||  ["IRV","STV"].includes(self.opt.election.system) || self.showUtilityChart
 		} else {
 			return false
 		}
@@ -841,8 +835,8 @@ function Model(idModel){
 
 	self.checkDoBeatMap = function() {
 		// ranked voter and not (original or IRV or Borda)
-		var autoBeatMap = (self.beatMap == "auto") && (self.ballotType == "Ranked") && ! (self.doOriginal  || self.system == "IRV" || self.system == "STV" || self.system == "Borda")
-		var on = (self.beatMap == "on") || autoBeatMap
+		var autoBeatMap = (self.opt.arena.draw.map.beatMap == "auto") && (self.ballotType == "Ranked") && ! (self.doOriginal  || self.opt.election.system == "IRV" || self.opt.election.system == "STV" || self.opt.election.system == "Borda")
+		var on = (self.opt.arena.draw.map.beatMap == "on") || autoBeatMap
 		var doBeatMap = on && ( ! self.doTextBallots)
 		doBeatMap = doBeatMap && ! (self.arena.viewMan.active && self.onlyVoterMapViewMan)
 		return doBeatMap
@@ -859,22 +853,22 @@ function Model(idModel){
 
 	}
 	self.checkDoIRVConcept = function() {
-		var go = (self.system == "IRV" || self.system == "STV")  && self.dimensions == "2D" && self.result
+		var go = (self.opt.election.system == "IRV" || self.opt.election.system == "STV")  && self.dimensions == "2D" && self.result
 		go = go && self.checkDoMultiBallotConcept()
 		return go
 	}
 
 	self.checkDoStarStrategy = function(strategy) {
-		var starOr321 = ["STAR","3-2-1"].includes(self.system)
+		var starOr321 = ["STAR","3-2-1"].includes(self.opt.election.system)
 		var doStar =  ( starOr321  &&  strategy != "zero strategy. judge on an absolute scale.") || self.doStarStrategy
 		return doStar
 	}
 
-	self.checkRunTextBallots = function() {
-		return self.system == "RBVote" && self.doTextBallots
+	self.electionGen.checkRunTextBallots = function() {
+		return self.opt.election.system == "RBVote" && self.doTextBallots
 	}
 
-	self.checkRunPoll = function() {
+	self.electionGen.checkRunPoll = function() {
 		var not_f = ["zero strategy. judge on an absolute scale.","normalize"]
 		var skipthis =  true
 		for(var i=0;i<self.voterGroups.length;i++){ // someone is looking at frontrunners, then don't skipthis
@@ -936,6 +930,45 @@ function Model(idModel){
 
 };
 
+function SimpleUI(model) {
+	
+	var self = this
+	self.dom = {}
+	self.border = 10
+
+	self.createDOM = function() {
+		model.arena.createDOM()
+		model.tarena.createDOM()
+		model.tarena.canvas.hidden = true
+
+		// My DOM: title + canvas + caption
+		self.dom.main = document.createElement("div");
+		self.dom.main.setAttribute("class", "model");
+		self.dom.title = document.createElement("div");
+		self.dom.title.id = "title";
+		self.dom.caption = document.createElement("div");
+		self.dom.caption.id = "caption";
+
+		self.dom.main.appendChild(self.dom.title);
+		self.dom.main.appendChild(model.arena.canvas);
+		self.dom.main.appendChild(model.tarena.canvas);
+		self.dom.main.appendChild(self.dom.caption);
+	}
+
+	self.initDOM = function() {
+		model.arena.initDOM()
+		model.tarena.initDOM()
+		
+		self.dom.main.style.width = (model.size+2*self.border)+"px"; // size+2*borders!
+		// self.dom.caption.style.width = self.dom.main.style.width;
+	}
+
+	self.initARENAS = function() {
+		model.arena.initARENA()
+		model.tarena.initARENA()
+	}
+}
+
 function Arena(arenaName, model) {
 	var self = this
 	self.id = arenaName
@@ -944,9 +977,9 @@ function Arena(arenaName, model) {
 		self.canvas = document.createElement("canvas");
 		self.canvas.setAttribute("class", "interactive");
 		self.ctx = self.canvas.getContext("2d");
-		self.mouse = new Mouse(model.id + "-" + self.id, self.canvas);	// MAH MOUSE
 		// if (self.id == "arena") self.draggableManager = new DraggableManager(self,model); // only allow dragging for the main arena... for now.. TODO
 		self.draggableManager = new DraggableManager(self,model); 
+		self.mouse = new Mouse(model.id + "-" + self.id, self.canvas, self.draggableManager);	// MAH MOUSE
 		self.plusCandidate = new Plus(model)
 		self.plusOneVoter = new Plus(model)
 		self.plusVoterGroup = new Plus(model)
@@ -965,8 +998,8 @@ function Arena(arenaName, model) {
 		// RETINA canvas, whatever.
 		self.canvas.width = self.canvas.height = model.size*2; // retina!
 		self.canvas.style.width = self.canvas.style.height = model.size+"px";
-		self.canvas.style.borderWidth = model.border+"px";
-		//self.canvas.style.margin = (2-self.border)+"px"; // use margin instead of border
+		self.canvas.style.borderWidth = model.simpleUI.border+"px";
+		//self.canvas.style.margin = (2-model.simpleUI.border)+"px"; // use margin instead of border
 		
 		self.plusCandidate.init()
 		self.plusOneVoter.init()
@@ -1106,10 +1139,8 @@ function Arena(arenaName, model) {
 					if (a > max) max = a
 				}
 				n.vid = max + 1
-				n.typeVoterModel = model.ballotType // needs init
 				n.firstStrategy = model.firstStrategy
 				n.secondStrategy = model.secondStrategy
-                n.spread_factor_voters = model.spread_factor_voters
 				model.voterGroups.push(n)
 				// INIT
 				model.initMODEL()
@@ -2012,8 +2043,8 @@ function Arena(arenaName, model) {
 		// not sure why this doesn't work
 		var darkMode = false
 		if (darkMode) {
-			if (model.ballotType == "Ranked" || model.ballotType == "Plurality") {
-				if (model.system != "Borda") {
+			if (model.opt.ballot.ballotType == "Ranked" || model.opt.ballot.ballotType == "Plurality") {
+				if (model.opt.election.system != "Borda") {
 					if (! (model.yeeon || model.checkDoBeatMap()) ) {
 						self.ctx.fillStyle = "#222"
 						self.ctx.beginPath()
@@ -2209,7 +2240,7 @@ function Arena(arenaName, model) {
 		function drawCandidates() {
 			// There's two ways to draw the candidate.  One shows the candidate icon.
 			// Two shows the vote totals and optionally, the candidate icon.
-			var go = model.checkDoIRVConcept() && self.id == "arena" && model.opt.doDrawIRVCandidates
+			var go = model.checkDoIRVConcept() && self.id == "arena" && model.opt.arena.draw.doDrawIRVCandidates
 			if (go) {
 				for (var k = 0; k < model.district.length; k++) {
 					result = model.district[k].result
@@ -2257,7 +2288,7 @@ function Arena(arenaName, model) {
 			var canIdByDecision = result.canIdByDecision
 			var nBallots = result.nBallots
 			var ctx = self.ctx
-			var norm = 2.5 * nBallots / (135 * model.seats)
+			var norm = 2.5 * nBallots / (135 * model.opt.election.seats)
 			var total = 0
 			
 			for (var firstID in list) {
@@ -2367,8 +2398,8 @@ function Arena(arenaName, model) {
 			
 			if ( ! model.checkDoMultiBallotConcept() ) return
 
-			var go = model.system == "IRV" || model.system == "STV"
-			if (go && model.dimensions == "2D" && model.result && model.opt.showIRVTransfers) {
+			var go = model.opt.election.system == "IRV" || model.opt.election.system == "STV"
+			if (go && model.dimensions == "2D" && model.result && model.opt.arena.draw.showIRVTransfers) {
 				ctx = self.ctx
 				for (var k = 0; k < model.district.length; k++) {
 					result = model.district[k].result
@@ -2396,7 +2427,7 @@ function Arena(arenaName, model) {
 				}
 			}
 
-			if (model.opt.IRVShowdown) {
+			if (model.opt.arena.draw.IRVShowdown) {
 				if (0) {
 					// make a list of voters first choices for the voters in the winning coalition
 					for (var k = 0; k < result.winners.length; k++) {
@@ -2456,7 +2487,7 @@ function Arena(arenaName, model) {
 		
 		function drawTransfer(flow,from,to,nBallots) {
 			var ctx = self.ctx
-			var norm = 2.5 * nBallots / (135 * model.seats)
+			var norm = 2.5 * nBallots / (135 * model.opt.election.seats)
 			norm = norm * 1.5
 			var total = 0
 			for (var firstID in flow) {
@@ -2602,8 +2633,8 @@ function Arena(arenaName, model) {
 
 				// check how many winners there should be
 				let winnersAllowed = 1
-				if (model.checkMultiWinner(model.system)) {
-					winnersAllowed = model.seats
+				if (model.checkMultiWinner(model.opt.election.system)) {
+					winnersAllowed = model.opt.election.seats
 				}
 
 				for (var k = 0; k < model.district.length; k++) {
@@ -2619,7 +2650,7 @@ function Arena(arenaName, model) {
 						if (model.roundCurrent !== undefined) {
 							var round = model.roundCurrent[district.i]
 							// if (round > model.result.history.rounds.length) round = model.result.history.rounds.length - 1
-							if (round !== undefined && (model.system == "STV")) {
+							if (round !== undefined && (model.opt.election.system == "STV")) {
 								if (round >= model.result.won.length) round = model.result.won.length - 1
 								winners = model.result.won[round]
 								// winnerIdxs = model.result.history.rounds[round].winners
@@ -2639,7 +2670,7 @@ function Arena(arenaName, model) {
 	
 				// if(model.result && model.result.winners) {
 				// 	var objWinners = model.result.winners.map(x => model.candidatesById[x])
-				// 	if (objWinners.length > model.seats) {
+				// 	if (objWinners.length > model.opt.election.seats) {
 				// 		for (i in objWinners) {
 				// 			objWinners[i].drawTie(self.ctx,self)
 				// 		}
@@ -2662,8 +2693,8 @@ function Arena(arenaName, model) {
 
 				// check how many winners there should be
 				let winnersAllowed = 1
-				if (model.checkMultiWinner(model.system)) {
-					winnersAllowed = model.seats
+				if (model.checkMultiWinner(model.opt.election.system)) {
+					winnersAllowed = model.opt.election.seats
 				}
 
 				for (var k = 0; k < model.district.length; k++) {

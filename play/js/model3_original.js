@@ -7,12 +7,12 @@ l.onload = function(assets){
 	var model = new Model(presetName);
 	model.assets = assets
 	model.theme = "Nicky"
-	model.createDOM()
+	model.simpleUI.createDOM()
 
 	// INIT
-	model.initDOM()
+	model.simpleUI.initDOM()
   var basediv = document.querySelector("#" + presetName)
-  basediv.appendChild(model.dom);
+  basediv.appendChild(model.simpleUI.dom.main);
 
 	model.initPlugin = function(){
 		// CREATE
@@ -32,7 +32,7 @@ l.onload = function(assets){
 		model.candidates[2].init()
 		model.initMODEL()
 		model.voterManager.initVoters()
-		model.election = Election.plurality;
+		model.opt.election.fun = "plurality"
 		model.optionsForElection =  {sidebar:true, original:true, originalCaption:true}
 		model.dm.redistrict()
 		// UPDATE

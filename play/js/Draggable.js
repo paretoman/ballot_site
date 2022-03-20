@@ -141,8 +141,12 @@ function DraggableManager(arena,model){
 	}
 
 	// INTERFACING WITH THE *MOUSE*
-	subscribe(model.id + "-" + arena.id+"-mousemove", function(){
+	self.mousemove =  function(event){
 		var dragging = arena.mouse.dragging
+		if (dragging) {
+			event.preventDefault()
+			event.stopPropagation()
+		}
 		if(dragging && dragging.isViewMan) {
 			dragging.drag(arena)
 		} else if(arena.mouse.pressed && ! (dragging && dragging.isModify)){
@@ -182,8 +186,8 @@ function DraggableManager(arena,model){
 			}
 			self.lastwas = "nothovering"
 		}
-	});
-	subscribe(model.id + "-" + arena.id+"-mousedown", function(){
+	}
+	self.mousedown =  function(){
 
 		// Didja grab anything? null if nothing.
 		var d = self.isOver();
@@ -213,8 +217,8 @@ function DraggableManager(arena,model){
 
 		}
 
-	});
-	subscribe(model.id + "-" + arena.id+"-mouseup", function(){
+	}
+	self.mouseup =  function(){
 		var dragging = arena.mouse.dragging
 		if (dragging) { // we are dragging something, not just air
 			model.onDrop() // drop in trash if there is one
@@ -233,6 +237,6 @@ function DraggableManager(arena,model){
 			model.update()
 			
 		}
-	});
+	}
 
 }
